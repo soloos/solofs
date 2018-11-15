@@ -1,0 +1,11 @@
+
+bench-sdfs-memstg:
+	cd src/soloos/sdfs/memstg/ && go test -bench=. -benchmem 
+
+bench-sdfs-netstg:
+	cd src/soloos/sdfs/netstg/ && go test -bench=. -benchmem 
+
+bench-sdfs-types:
+	cd src/soloos/sdfs/types/ && go test -bench=. -benchmem 
+
+bench: bench-sdfs-memstg bench-sdfs-netstg bench-sdfs-types

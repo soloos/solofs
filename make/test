@@ -1,0 +1,11 @@
+
+test-sdfs-memstg:
+	go test soloos/sdfs/memstg
+
+test-sdfs-netstg:
+	go test soloos/sdfs/netstg
+
+test-sdfs-types:
+	go test soloos/sdfs/types
+
+test: test-sdfs-memstg test-sdfs-netstg test-sdfs-types
