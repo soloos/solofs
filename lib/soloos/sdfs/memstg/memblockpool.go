@@ -10,14 +10,13 @@ type MemBlockPool struct {
 	chunk   memBlockPoolChunk
 }
 
-func (p *MemBlockPool) Init(options MemBlockPoolOptions,
-	driver *MemBlockDriver) error {
+func (p *MemBlockPool) Init(options MemBlockPoolOptions, driver *MemBlockDriver) error {
 	var err error
 
 	p.options = options
 	p.driver = driver
 
-	err = p.chunk.Init(p)
+	err = p.chunk.Init(p, p.options.ChunkSize, p.options.ChunksLimit)
 	if err != nil {
 		return err
 	}

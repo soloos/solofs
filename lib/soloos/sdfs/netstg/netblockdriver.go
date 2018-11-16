@@ -3,23 +3,32 @@ package netstg
 import (
 	"soloos/sdfs/types"
 	"soloos/snet"
-	snettypes "soloos/snet/types"
 	"soloos/util/offheap"
 )
 
 type NetBlockDriver struct {
-	offheapDriver    *offheap.OffheapDriver
-	netBlockPool     NetBlockPool
-	snetClientDriver *snet.ClientDriver
-	nameNodePeer     snettypes.PeerUintptr
+	offheapDriver *offheap.OffheapDriver
+	netBlockPool  NetBlockPool
+
+	netBlockDriverUploader netBlockDriverUploader
 }
 
 func (p *NetBlockDriver) Init(options NetBlockDriverOptions,
 	offheapDriver *offheap.OffheapDriver,
+	snetDriver *snet.SNetDriver,
 	snetClientDriver *snet.ClientDriver) error {
+	var err error
 	p.offheapDriver = offheapDriver
-	p.netBlockPool.Init(options.NetBlockPoolOptions, p)
-	p.snetClientDriver = snetClientDriver
+	err = p.netBlockPool.Init(options.NetBlockPoolOptions, p)
+	if err != nil {
+		return err
+	}
+
+	err = p.netBlockDriverUploader.Init(p, snetDriver, snetClientDriver)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

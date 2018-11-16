@@ -1,6 +1,7 @@
 package types
 
 import (
+	"sync"
 	"unsafe"
 )
 
@@ -17,5 +18,6 @@ type INode struct {
 	Size         uint64
 	NetBlockSize int
 	MemBlockSize int
-	INodeSize     int
+	INodeSize    int
+	WriteRWMutex sync.RWMutex
 }

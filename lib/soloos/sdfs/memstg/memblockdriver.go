@@ -1,8 +1,8 @@
 package memstg
 
 import (
-	"soloos/util/offheap"
 	"soloos/sdfs/types"
+	"soloos/util/offheap"
 )
 
 type MemBlockDriver struct {
@@ -16,22 +16,22 @@ func (p *MemBlockDriver) Init(options MemBlockDriverOptions,
 
 	p.offheapDriver = offheapDriver
 
-	var inodeBlockPool *MemBlockPool
+	var memblockPool *MemBlockPool
 	p.pools = make(map[int]*MemBlockPool)
-	for _, inodeBlockPoolOptions := range options.MemBlockPoolOptionsList {
-		inodeBlockPool = new(MemBlockPool)
-		err = inodeBlockPool.Init(inodeBlockPoolOptions, p)
+	for _, memblockPoolOptions := range options.MemBlockPoolOptionsList {
+		memblockPool = new(MemBlockPool)
+		err = memblockPool.Init(memblockPoolOptions, p)
 		if err != nil {
 			return err
 		}
 
-		p.pools[inodeBlockPool.options.ChunkPoolOptions.ChunkSize] = inodeBlockPool
+		p.pools[memblockPool.options.ChunkSize] = memblockPool
 	}
 
 	return nil
 }
 
-// MustGetBlockWithReadAcquire get or init a inodeblock's offheap
+// MustGetBlockWithReadAcquire get or init a memblock's offheap
 func (p *MemBlockDriver) MustGetBlockWithReadAcquire(uINode types.INodeUintptr,
 	memBlockIndex int) (types.MemBlockUintptr, bool) {
 	var memBlockID types.PtrBindIndex

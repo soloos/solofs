@@ -3,6 +3,7 @@ package types
 import (
 	"reflect"
 	"soloos/util/offheap"
+	"sync"
 	"sync/atomic"
 	"unsafe"
 )
@@ -25,10 +26,15 @@ func (u MemBlockUintptr) Ptr() *MemBlock {
 }
 
 type MemBlock struct {
-	MemID  PtrBindIndex
-	Status int64 // equals 0 if could be release
-	Chunk  offheap.ChunkUintptr
-	Bytes  reflect.SliceHeader
+	MemID         PtrBindIndex
+	Status        int64 // equals 0 if could be release
+	UploadRWMutex sync.RWMutex
+	Chunk         offheap.ChunkUintptr
+	Bytes         reflect.SliceHeader
+}
+
+func (p *MemBlock) PWrite(data []byte, offset int) {
+	copy((*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset:], data)
 }
 
 func (p *MemBlock) BytesSlice() *[]byte {

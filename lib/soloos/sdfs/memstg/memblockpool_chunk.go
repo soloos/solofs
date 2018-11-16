@@ -31,33 +31,33 @@ type memBlockPoolChunk struct {
 	memBlocks        map[types.PtrBindIndex]types.MemBlockUintptr
 }
 
-func (p *memBlockPoolChunk) Init(memBlockPool *MemBlockPool) error {
+func (p *memBlockPoolChunk) Init(memBlockPool *MemBlockPool, chunkSize int, chunksLimit int32) error {
 	var err error
 
 	p.memBlockPool = memBlockPool
 
-	chunksLimit := p.memBlockPool.options.ChunkPoolOptions.ChunksLimit
-
-	chunkPoolOptions := p.memBlockPool.options.ChunkPoolOptions
-	p.chunkSize = uintptr(chunkPoolOptions.ChunkSize)
-	p.ichunkSize = int(p.chunkSize)
-	chunkPoolOptions.ChunksLimit = int32(math.Ceil(float64(chunksLimit) * 0.9))
-	chunkPoolOptions.SetChunkPoolAssistant(p.ChunkPoolInvokePrepareNewChunk, p.ChunkPoolInvokeReleaseChunk)
-	chunkPoolOptions.ChunkSize = int(uintptr(chunkPoolOptions.ChunkSize) +
-		types.MemBlockStructSize)
-	err = p.memBlockPool.driver.offheapDriver.InitChunkPool(chunkPoolOptions, &p.chunkPool)
+	chunkPoolChunksLimit := int32(math.Ceil(float64(chunksLimit) * 0.9))
+	p.chunkSize = uintptr(chunkSize)
+	p.ichunkSize = chunkSize
+	err = p.memBlockPool.driver.offheapDriver.InitChunkPool(&p.chunkPool,
+		int(p.chunkSize+types.MemBlockStructSize),
+		chunkPoolChunksLimit,
+		p.ChunkPoolInvokePrepareNewChunk,
+		p.ChunkPoolInvokeReleaseChunk)
 	if err != nil {
 		return err
 	}
 	p.workingChunkPool.Init()
 
-	tmpChunkPoolOptions := chunkPoolOptions
-	tmpChunkPoolOptions.ChunksLimit = chunksLimit - chunkPoolOptions.ChunksLimit
-	if tmpChunkPoolOptions.ChunksLimit == 0 {
-		tmpChunkPoolOptions.ChunksLimit = 1
+	tmpChunkPoolChunksLimit := chunksLimit - chunkPoolChunksLimit
+	if tmpChunkPoolChunksLimit == 0 {
+		tmpChunkPoolChunksLimit = 1
 	}
-	tmpChunkPoolOptions.SetChunkPoolAssistant(p.ChunkPoolInvokePrepareNewChunk, p.ChunkPoolInvokeReleaseTmpChunk)
-	err = p.memBlockPool.driver.offheapDriver.InitChunkPool(tmpChunkPoolOptions, &p.tmpChunkPool)
+	err = p.memBlockPool.driver.offheapDriver.InitChunkPool(&p.tmpChunkPool,
+		int(p.chunkSize+types.MemBlockStructSize),
+		tmpChunkPoolChunksLimit,
+		p.ChunkPoolInvokePrepareNewChunk,
+		p.ChunkPoolInvokeReleaseTmpChunk)
 	if err != nil {
 		return err
 	}
