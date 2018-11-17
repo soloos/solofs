@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
-	"strings"
 
 	"github.com/gocraft/dbr"
 )
@@ -84,14 +83,12 @@ func (p *MetaStg) StoreNetBlock(pINode *types.INode, pNetBlock *types.NetBlock, 
 		Values(netBlockIDStr, inodeIDStr, pNetBlock.IndexInInode, pNetBlock.Size).
 		Exec()
 	if err != nil {
-		if strings.Index(err.Error(), "Duplicate entry") >= 0 {
-			_, err = sess.Update("b_netblock").
-				Set("inodeid", inodeIDStr).
-				Set("index_in_inode", pNetBlock.IndexInInode).
-				Set("netblocksize", pNetBlock.Size).
-				Where("netblockid=?", netBlockIDStr).
-				Exec()
-		}
+		_, err = sess.Update("b_netblock").
+			Set("inodeid", inodeIDStr).
+			Set("index_in_inode", pNetBlock.IndexInInode).
+			Set("netblocksize", pNetBlock.Size).
+			Where("netblockid=?", netBlockIDStr).
+			Exec()
 	}
 
 	if err == nil && isRefreshDataNodes {

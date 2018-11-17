@@ -16,6 +16,13 @@ func (p *MetaStg) Init(dbDriver, dsn string) error {
 		return err
 	}
 
+	switch dbDriver {
+	case "mysql":
+		err = p.InstallMysqlSchema()
+	case "sqlite3":
+		err = p.InstallSqlite3Schema()
+	}
+
 	return nil
 }
 

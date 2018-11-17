@@ -3,7 +3,6 @@ package metastg
 import (
 	"database/sql"
 	"soloos/sdfs/types"
-	"strings"
 
 	"github.com/gocraft/dbr"
 )
@@ -18,6 +17,9 @@ func (p *MetaStg) FetchINode(pINode *types.INode) (exsists bool, err error) {
 	sqlRows, err = sess.Select("inodesize", "netblocksize", "memblocksize").
 		From("b_inode").
 		Where("inodeid=?", pINode.IDStr()).Rows()
+	if sqlRows == nil {
+		return
+	}
 	for sqlRows.Next() {
 		sqlRows.Scan(&pINode.Size, &pINode.NetBlockSize, &pINode.MemBlockSize)
 		exsists = true
@@ -32,9 +34,10 @@ func (p *MetaStg) FetchINode(pINode *types.INode) (exsists bool, err error) {
 
 func (p *MetaStg) StoreINode(pINode *types.INode) error {
 	var (
-		sess *dbr.Session
-		tx   *dbr.Tx
-		err  error
+		sess       *dbr.Session
+		tx         *dbr.Tx
+		inodeIDStr = pINode.IDStr()
+		err        error
 	)
 
 	sess = p.DBConn.NewSession(nil)
@@ -45,17 +48,15 @@ func (p *MetaStg) StoreINode(pINode *types.INode) error {
 
 	_, err = sess.InsertInto("b_inode").
 		Columns("inodeid", "inodesize", "netblocksize", "memblocksize").
-		Values(pINode.IDStr(), pINode.Size, pINode.NetBlockSize, pINode.MemBlockSize).
+		Values(inodeIDStr, pINode.Size, pINode.NetBlockSize, pINode.MemBlockSize).
 		Exec()
 	if err != nil {
-		if strings.Index(err.Error(), "Duplicate entry") >= 0 {
-			_, err = sess.Update("b_inode").
-				Set("inodesize", pINode.Size).
-				Set("netblocksize", pINode.NetBlockSize).
-				Set("memblocksize", pINode.MemBlockSize).
-				Where("inodeid=?", pINode.IDStr()).
-				Exec()
-		}
+		_, err = sess.Update("b_inode").
+			Set("inodesize", pINode.Size).
+			Set("netblocksize", pINode.NetBlockSize).
+			Set("memblocksize", pINode.MemBlockSize).
+			Where("inodeid=?", inodeIDStr).
+			Exec()
 	}
 
 	if err != nil {
