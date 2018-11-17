@@ -23,7 +23,6 @@ func (u UploadJobUintptr) Ptr() *UploadJob {
 type UploadJob struct {
 	UNetBlock            types.NetBlockUintptr
 	UMemBlock            types.MemBlockUintptr
-	MemBlockIndex        int
 	UploadMaskWaiting    offheap.ChunkMaskUintptr
 	UploadMaskProcessing offheap.ChunkMaskUintptr
 }
@@ -115,9 +114,9 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		pMemBlock = pUploadJob.UMemBlock.Ptr()
 		pChunkMask = pUploadJob.UploadMaskProcessing.Ptr()
 
-		for chunkMaskIndex = 0; chunkMaskIndex < pChunkMask.MaskArrayLen; chunkMaskIndex++ {
-			for dataNodeIndex = 0; dataNodeIndex < pNetBlock.DataNodes.Len; dataNodeIndex++ {
-				request[dataNodeIndex].OffheapBody.OffheapBytes = pMemBlock.Bytes.Data
+		for dataNodeIndex = 0; dataNodeIndex < pNetBlock.DataNodes.Len; dataNodeIndex++ {
+			request[dataNodeIndex].OffheapBody.OffheapBytes = pMemBlock.Bytes.Data
+			for chunkMaskIndex = 0; chunkMaskIndex < pChunkMask.MaskArrayLen; chunkMaskIndex++ {
 				request[dataNodeIndex].OffheapBody.CopyOffset = pChunkMask.MaskArray[chunkMaskIndex].Offset
 				request[dataNodeIndex].OffheapBody.CopyEnd = pChunkMask.MaskArray[chunkMaskIndex].End
 				err = p.snetClientDriver.Call(pNetBlock.DataNodes.Arr[dataNodeIndex],
@@ -164,7 +163,6 @@ func (p *netBlockDriverUploader) PWrite(uNetBlock types.NetBlockUintptr,
 			uUploadJob = UploadJobUintptr(p.uploadJobPool.AllocRawObject())
 			uUploadJob.Ptr().UNetBlock = uNetBlock
 			uUploadJob.Ptr().UMemBlock = uMemBlock
-			uUploadJob.Ptr().MemBlockIndex = memBlockIndex
 			p.uploadJobs[uMemBlock] = uUploadJob
 		}
 

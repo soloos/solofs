@@ -3,6 +3,7 @@ package netstg
 import (
 	"soloos/sdfs/types"
 	"soloos/snet"
+	snettypes "soloos/snet/types"
 	"soloos/util"
 	"soloos/util/offheap"
 	"testing"
@@ -39,8 +40,7 @@ func TestNetBlockDriver(t *testing.T) {
 
 	var uPeer = snetDriver.NewPeer()
 	uPeer.Ptr().SetAddress(MockServerAddr)
-	uPeer.Ptr().SetServiceProtocol("srpc")
-	assert.NoError(t, snetClientDriver.RegisterPeer(uPeer))
+	uPeer.Ptr().ServiceProtocol = snettypes.ProtocolSRPC
 
 	assert.NoError(t, netBlockDriver.Init(netBlockDriverOptions, offheapDriver, &snetDriver, &snetClientDriver))
 
