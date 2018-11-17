@@ -3,6 +3,7 @@ package minicluster
 import (
 	"fmt"
 	"soloos/sdfs/datanode"
+	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
 	"soloos/util"
 )
@@ -21,6 +22,8 @@ func (p *MiniCluster) Init(nameNodePorts []int, dataNodePorts []int) {
 				"tcp",
 				fmt.Sprintf("127.0.0.1:%d", nameNodePort),
 			},
+			metastg.TestMetaStgDBDriver,
+			metastg.TestMetaStgDBConnect,
 		}
 		util.AssertErrIsNil(p.NameNodes[i].Init(options))
 		go func() {

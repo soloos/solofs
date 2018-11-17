@@ -6,18 +6,21 @@ import (
 )
 
 const (
+	INodeIDSize     = int(unsafe.Sizeof([64]byte{}))
 	INodeStructSize = unsafe.Sizeof(INode{})
 )
 
+type INodeID = [INodeIDSize]byte
 type INodeUintptr uintptr
 
-func (p INodeUintptr) Ptr() *INode { return (*INode)(unsafe.Pointer(p)) }
+func (u INodeUintptr) Ptr() *INode { return (*INode)(unsafe.Pointer(u)) }
 
 type INode struct {
-	ID           INodeID
-	Size         uint64
-	NetBlockSize int
-	MemBlockSize int
-	INodeSize    int
-	WriteRWMutex sync.RWMutex
+	ID           INodeID      `db:"inodeid"`
+	Size         uint64       `db:"inodesize"`
+	NetBlockSize int          `db:"netblocksize"`
+	MemBlockSize int          `db:"memblocksize"`
+	WriteRWMutex sync.RWMutex `db:"-"`
 }
+
+func (p *INode) IDStr() string { return string(p.ID[:]) }

@@ -20,8 +20,8 @@ func (u BytesUintptr) MaxIntBytes() *[MaxInt]byte {
 
 func (u BytesUintptr) Ptr() *[]byte { return (*[]byte)(unsafe.Pointer(u)) }
 
-func (p *BytesUintptr) Change(addr uintptr, len, cap int) {
-	sliceHeader := (*reflect.SliceHeader)(unsafe.Pointer(p))
+func (u *BytesUintptr) Change(addr uintptr, len, cap int) {
+	sliceHeader := (*reflect.SliceHeader)(unsafe.Pointer(u))
 	sliceHeader.Data = addr
 	sliceHeader.Len = len
 	sliceHeader.Cap = cap

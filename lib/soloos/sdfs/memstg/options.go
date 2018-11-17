@@ -1,9 +1,5 @@
 package memstg
 
-type INodePoolOptions struct {
-	RawChunksLimit int32
-}
-
 type MemBlockDriverOptions struct {
 	MemBlockPoolOptionsList []MemBlockPoolOptions
 }

@@ -6,20 +6,18 @@ import (
 )
 
 type INodePool struct {
-	options    INodePoolOptions
 	inodeDriver *INodeDriver
-	pool       offheap.RawObjectPool
+	pool        offheap.RawObjectPool
 }
 
-func (p *INodePool) Init(options INodePoolOptions,
+func (p *INodePool) Init(rawChunksLimit int32,
 	inodeDriver *INodeDriver) error {
 	var err error
 
-	p.options = options
 	p.inodeDriver = inodeDriver
 
 	err = p.inodeDriver.offheapDriver.InitRawObjectPool(&p.pool,
-		int(types.INodeStructSize), p.options.RawChunksLimit,
+		int(types.INodeStructSize), rawChunksLimit,
 		p.RawChunkPoolInvokePrepareNewRawChunk, p.RawChunkPoolInvokeReleaseRawChunk)
 	if err != nil {
 		return err

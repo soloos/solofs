@@ -2,25 +2,25 @@ package memstg
 
 import (
 	"soloos/sdfs/netstg"
-	"soloos/util/offheap"
 	"soloos/sdfs/types"
+	"soloos/util/offheap"
 )
 
 type INodeDriver struct {
 	offheapDriver  *offheap.OffheapDriver
 	netBlockDriver *netstg.NetBlockDriver
 	memBlockDriver *MemBlockDriver
-	inodePool       INodePool
+	inodePool      INodePool
 }
 
-func (p *INodeDriver) Init(options INodePoolOptions,
+func (p *INodeDriver) Init(rawChunksLimit int32,
 	offheapDriver *offheap.OffheapDriver,
 	netBlockDriver *netstg.NetBlockDriver,
 	memBlockDriver *MemBlockDriver) error {
 	p.offheapDriver = offheapDriver
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
-	p.inodePool.Init(options, p)
+	p.inodePool.Init(rawChunksLimit, p)
 	return nil
 }
 

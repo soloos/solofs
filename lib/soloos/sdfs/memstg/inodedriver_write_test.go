@@ -67,8 +67,7 @@ func TestINodeDriverINodeWrite(t *testing.T) {
 	InitNetBlockDriversForTest(t, &netBlockDriver, offheapDriver, &snetDriver, &snetClientDriver)
 
 	assert.NoError(t, netBlockDriver.Init(netBlockDriverOptions, offheapDriver, &snetDriver, &snetClientDriver))
-	inodePoolOptions := INodePoolOptions{-1}
-	assert.NoError(t, inodeDriver.Init(inodePoolOptions, offheapDriver, &netBlockDriver, &memBlockDriver))
+	assert.NoError(t, inodeDriver.Init(-1, offheapDriver, &netBlockDriver, &memBlockDriver))
 
 	var (
 		inodeID types.INodeID

@@ -1,7 +1,6 @@
-package netstg
+package types
 
 import (
-	"soloos/sdfs/types"
 	"soloos/util/offheap"
 )
 
@@ -16,7 +15,7 @@ func (p *MockMemBlockPool) Init(offheapDriver *offheap.OffheapDriver, ichunkSize
 	p.offheapDriver = offheapDriver
 	p.ichunkSize = ichunkSize
 	chunkSize := int(uintptr(p.ichunkSize) +
-		types.MemBlockStructSize)
+		MemBlockStructSize)
 	err = p.offheapDriver.InitChunkPool(&p.chunkPool, chunkSize, -1, p.ChunkPoolInvokePrepareNewChunk, nil)
 	if err != nil {
 		return err
@@ -26,16 +25,16 @@ func (p *MockMemBlockPool) Init(offheapDriver *offheap.OffheapDriver, ichunkSize
 }
 
 func (p *MockMemBlockPool) ChunkPoolInvokePrepareNewChunk(uChunk offheap.ChunkUintptr) {
-	uMemBlock := types.MemBlockUintptr(uChunk.Ptr().Data)
+	uMemBlock := MemBlockUintptr(uChunk.Ptr().Data)
 	uMemBlock.Ptr().Reset()
 	uMemBlock.Ptr().Chunk = uChunk
-	uMemBlock.Ptr().Bytes.Data = uChunk.Ptr().Data + types.MemBlockStructSize
+	uMemBlock.Ptr().Bytes.Data = uChunk.Ptr().Data + MemBlockStructSize
 	uMemBlock.Ptr().Bytes.Len = p.ichunkSize
 	uMemBlock.Ptr().Bytes.Cap = uMemBlock.Ptr().Bytes.Len
 }
 
-func (p *MockMemBlockPool) AllocMemBlock() types.MemBlockUintptr {
+func (p *MockMemBlockPool) AllocMemBlock() MemBlockUintptr {
 	uChunk := p.chunkPool.AllocChunk()
-	uMemBlock := (types.MemBlockUintptr)(uChunk.Ptr().Data)
+	uMemBlock := (MemBlockUintptr)(uChunk.Ptr().Data)
 	return uMemBlock
 }

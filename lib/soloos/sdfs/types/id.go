@@ -6,14 +6,10 @@ import (
 )
 
 const (
-	INodeIDSize           = int(unsafe.Sizeof([32]byte{}))
-	INodeBlockIDSize  int = INodeIDSize + IntSize
+	INodeBlockIDSize int = INodeIDSize + IntSize
 	PtrBindIndexSize int = UintptrSize + IntSize
 )
 
-type DataNodeID = [32]byte
-
-type INodeID = [INodeIDSize]byte
 type INodeBlockID = [INodeBlockIDSize]byte
 type PtrBindIndex = [PtrBindIndexSize]byte
 
