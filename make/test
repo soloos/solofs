@@ -1,6 +1,15 @@
 
+test-sdfs-datanode:
+	go test soloos/sdfs/datanode
+
 test-sdfs-memstg:
 	go test soloos/sdfs/memstg
+
+test-sdfs-minicluster:
+	go test soloos/sdfs/minicluster
+
+test-sdfs-namenode:
+	go test soloos/sdfs/namenode
 
 test-sdfs-netstg:
 	go test soloos/sdfs/netstg
@@ -8,4 +17,4 @@ test-sdfs-netstg:
 test-sdfs-types:
 	go test soloos/sdfs/types
 
-test: test-sdfs-memstg test-sdfs-netstg test-sdfs-types
+test: test-sdfs-datanode test-sdfs-memstg test-sdfs-minicluster test-sdfs-namenode test-sdfs-netstg test-sdfs-types

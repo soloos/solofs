@@ -1,6 +1,15 @@
 
+bench-sdfs-datanode:
+	cd src/soloos/sdfs/datanode/ && go test -bench=. -benchmem 
+
 bench-sdfs-memstg:
 	cd src/soloos/sdfs/memstg/ && go test -bench=. -benchmem 
+
+bench-sdfs-minicluster:
+	cd src/soloos/sdfs/minicluster/ && go test -bench=. -benchmem 
+
+bench-sdfs-namenode:
+	cd src/soloos/sdfs/namenode/ && go test -bench=. -benchmem 
 
 bench-sdfs-netstg:
 	cd src/soloos/sdfs/netstg/ && go test -bench=. -benchmem 
@@ -8,4 +17,4 @@ bench-sdfs-netstg:
 bench-sdfs-types:
 	cd src/soloos/sdfs/types/ && go test -bench=. -benchmem 
 
-bench: bench-sdfs-memstg bench-sdfs-netstg bench-sdfs-types
+bench: bench-sdfs-datanode bench-sdfs-memstg bench-sdfs-minicluster bench-sdfs-namenode bench-sdfs-netstg bench-sdfs-types
