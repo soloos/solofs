@@ -51,21 +51,58 @@ func (p *netBlockDriverUploader) Init(driver *NetBlockDriver,
 	return nil
 }
 
+func (p *netBlockDriverUploader) doUpload(uploadJobErr *error, uploadJobSig *sync.WaitGroup,
+	uUploadJob UploadJobUintptr,
+	uPeer snettypes.PeerUintptr,
+	transferBackends []snettypes.PeerUintptr,
+	pChunkMask *offheap.ChunkMask,
+	request *snettypes.Request, response *snettypes.Response) {
+	if uPeer == 0 {
+		return
+	}
+
+	var err error
+	request.OffheapBody.OffheapBytes = uUploadJob.Ptr().UMemBlock.Ptr().Bytes.Data
+	for chunkMaskIndex := 0; chunkMaskIndex < pChunkMask.MaskArrayLen; chunkMaskIndex++ {
+		request.OffheapBody.CopyOffset = pChunkMask.MaskArray[chunkMaskIndex].Offset
+		request.OffheapBody.CopyEnd = pChunkMask.MaskArray[chunkMaskIndex].End
+		err = p.snetClientDriver.Call(uPeer,
+			"/NetBlock/PWrite", request, response)
+		if err != nil {
+			*uploadJobErr = err
+			return
+		}
+	}
+
+	// var protocolBuilder flatbuffers.Builder
+	// protocolBuilder.Reset()
+
+	// off = protocolBuilder.CreateByteVector([]byte("fuck"))
+	// protocol.UploadJobBackendStart(&protocolBuilder)
+	// protocol.UploadJobBackendAddPeerID(&protocolBuilder, off)
+	// off = protocol.UploadJobBackendEnd(&protocolBuilder)
+
+	// protocol.UploadJobStart(&protocolBuilder)
+	// protocol.UploadJobStartTransferBackendsVector(&protocolBuilder, 1)
+	// protocolBuilder.EndVector()
+	// protocol.UploadJobAddOffset(&protocolBuilder)
+	// protocol.UploadJobAddTransferBackends(&protocolBuilder)
+}
+
 func (p *netBlockDriverUploader) cronUpload() error {
 	var (
-		uUploadJob     UploadJobUintptr
-		pUploadJob     *UploadJob
-		uTmpChunkMask  offheap.ChunkMaskUintptr
-		request        [types.MaxDataNodesSizeStoreNetBlock]snettypes.Request
-		response       [types.MaxDataNodesSizeStoreNetBlock]snettypes.Response
-		pChunkMask     *offheap.ChunkMask
-		pNetBlock      *types.NetBlock
-		pMemBlock      *types.MemBlock
-		chunkMaskIndex int
-		dataNodeIndex  int
-		i              int
-		ok             bool
-		err            error
+		uUploadJob    UploadJobUintptr
+		pUploadJob    *UploadJob
+		uTmpChunkMask offheap.ChunkMaskUintptr
+		request       [types.MaxDataNodesSizeStoreNetBlock]snettypes.Request
+		response      [types.MaxDataNodesSizeStoreNetBlock]snettypes.Response
+		pChunkMask    *offheap.ChunkMask
+		pNetBlock     *types.NetBlock
+		uploadJobSig  sync.WaitGroup
+		dataNodeIndex int
+		i             int
+		ok            bool
+		err           error
 	)
 
 	for {
@@ -88,30 +125,41 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		pUploadJob.UploadMaskWaiting = uTmpChunkMask
 		p.uploadJobMutex.Unlock()
 
-		pMemBlock = pUploadJob.UMemBlock.Ptr()
 		pChunkMask = pUploadJob.UploadMaskProcessing.Ptr()
 
-		for i = 0; i < pNetBlock.DataNodes.Len; i++ {
-			dataNodeIndex = i
-			request[dataNodeIndex].OffheapBody.OffheapBytes = pMemBlock.Bytes.Data
-			for chunkMaskIndex = 0; chunkMaskIndex < pChunkMask.MaskArrayLen; chunkMaskIndex++ {
-				request[dataNodeIndex].OffheapBody.CopyOffset = pChunkMask.MaskArray[chunkMaskIndex].Offset
-				request[dataNodeIndex].OffheapBody.CopyEnd = pChunkMask.MaskArray[chunkMaskIndex].End
-				err = p.snetClientDriver.Call(pNetBlock.DataNodes.Arr[dataNodeIndex],
-					"/NetBlock/PWrite", &request[dataNodeIndex], &response[dataNodeIndex])
-				if err != nil {
-					break
-				}
-			}
+		// upload primary backend
+		if pUploadJob.PrimaryBackendTransferCount > 0 {
+			p.doUpload(&err, &uploadJobSig, uUploadJob,
+				pUploadJob.Backends.Arr[0],
+				pUploadJob.Backends.Arr[1:1+pUploadJob.PrimaryBackendTransferCount],
+				pChunkMask,
+				&request[dataNodeIndex], &response[dataNodeIndex])
+		} else {
+			p.doUpload(&err, &uploadJobSig, uUploadJob,
+				pUploadJob.Backends.Arr[0],
+				nil,
+				pChunkMask,
+				&request[dataNodeIndex], &response[dataNodeIndex])
+		}
 
-			if err != nil {
-				break
-			}
+		// upload other backends
+		for i = pUploadJob.PrimaryBackendTransferCount + 1; i < pUploadJob.Backends.Len; i++ {
+			p.doUpload(&err, &uploadJobSig, uUploadJob,
+				pUploadJob.Backends.Arr[i],
+				nil,
+				pChunkMask,
+				&request[dataNodeIndex], &response[dataNodeIndex])
+		}
+
+		uploadJobSig.Wait()
+
+		if err != nil {
+			break
 		}
 
 		uUploadJob.Ptr().UNetBlock.Ptr().UploadSig.Done()
 
-		// todo catch error
+		// TODO catch error
 		if err != nil {
 			return err
 		}
@@ -166,7 +214,7 @@ func (p *netBlockDriverUploader) PWrite(uNetBlock types.NetBlockUintptr,
 
 func (p *netBlockDriverUploader) Flush(uMemBlock types.MemBlockUintptr) error {
 	uMemBlock.Ptr().UploadRWMutex.Lock()
-	// todo add lock
+	// TODO add lock
 	uUploadJob := p.uploadJobs[uMemBlock]
 	if uUploadJob != 0 {
 		uUploadJob.Ptr().UNetBlock.Ptr().UploadSig.Wait()

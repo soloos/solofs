@@ -1,5 +1,11 @@
-namespace protocol
+namespace protocol;
 
-table NetBlock {
-	ID       
+table UploadJobBackend {
+    PeerID:[byte];
+}
+
+table UploadJob {
+	NetBlockID:[byte];
+    Offset:int64;
+    TransferBackends:[UploadJobBackend];
 }

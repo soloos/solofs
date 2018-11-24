@@ -31,7 +31,7 @@ func (p *MetaStg) FetchNetBlock(pNetBlock *types.NetBlock) (exsists bool, err er
 		From("r_netblock_store_peer").
 		Where("netblock_id=?", pNetBlock.IDStr()).Rows()
 	for sqlRows.Next() {
-		// todo load datanodes
+		// TODO load datanodes
 		// sqlRows.Scan(&pNetBlock.IndexInInode, &pNetBlock.Size)
 		exsists = true
 	}

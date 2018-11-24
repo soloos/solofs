@@ -2,6 +2,7 @@ package netstg
 
 import (
 	"soloos/sdfs/types"
+	snettypes "soloos/snet/types"
 	"soloos/util/offheap"
 	"unsafe"
 )
