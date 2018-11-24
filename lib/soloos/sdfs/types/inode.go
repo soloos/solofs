@@ -16,10 +16,10 @@ type INodeUintptr uintptr
 func (u INodeUintptr) Ptr() *INode { return (*INode)(unsafe.Pointer(u)) }
 
 type INode struct {
-	ID           INodeID      `db:"inodeid"`
-	Size         uint64       `db:"inodesize"`
-	NetBlockSize int          `db:"netblocksize"`
-	MemBlockSize int          `db:"memblocksize"`
+	ID           INodeID      `db:"inode_id"`
+	Size         uint64       `db:"inode_size"`
+	NetBlockSize int          `db:"netblock_size"`
+	MemBlockSize int          `db:"memblock_size"`
 	WriteRWMutex sync.RWMutex `db:"-"`
 }
 

@@ -14,9 +14,9 @@ func (p *MetaStg) FetchINode(pINode *types.INode) (exsists bool, err error) {
 	)
 
 	sess = p.DBConn.NewSession(nil)
-	sqlRows, err = sess.Select("inodesize", "netblocksize", "memblocksize").
+	sqlRows, err = sess.Select("inode_size", "netblock_size", "memblock_size").
 		From("b_inode").
-		Where("inodeid=?", pINode.IDStr()).Rows()
+		Where("inode_id=?", pINode.IDStr()).Rows()
 	if sqlRows == nil {
 		return
 	}
@@ -47,15 +47,15 @@ func (p *MetaStg) StoreINode(pINode *types.INode) error {
 	}
 
 	_, err = sess.InsertInto("b_inode").
-		Columns("inodeid", "inodesize", "netblocksize", "memblocksize").
+		Columns("inode_id", "inode_size", "netblock_size", "memblock_size").
 		Values(inodeIDStr, pINode.Size, pINode.NetBlockSize, pINode.MemBlockSize).
 		Exec()
 	if err != nil {
 		_, err = sess.Update("b_inode").
-			Set("inodesize", pINode.Size).
-			Set("netblocksize", pINode.NetBlockSize).
-			Set("memblocksize", pINode.MemBlockSize).
-			Where("inodeid=?", inodeIDStr).
+			Set("inode_size", pINode.Size).
+			Set("netblock_size", pINode.NetBlockSize).
+			Set("memblock_size", pINode.MemBlockSize).
+			Where("inode_id=?", inodeIDStr).
 			Exec()
 	}
 

@@ -18,9 +18,9 @@ type NetBlockUintptr uintptr
 func (u NetBlockUintptr) Ptr() *NetBlock { return (*NetBlock)(unsafe.Pointer(u)) }
 
 type NetBlock struct {
-	ID           NetBlockID                  `db:"netblockid"`
+	ID           NetBlockID                  `db:"netblock_id"`
 	IndexInInode int                         `db:"index_in_inode"`
-	Size         int                         `db:"netblocksize"`
+	Size         int                         `db:"netblock_size"`
 	UploadSig    sync.WaitGroup              `db:"-"`
 	DataNodes    snettypes.PeerUintptrArray8 `db:"-"`
 }

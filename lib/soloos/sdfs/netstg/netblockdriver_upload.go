@@ -7,25 +7,7 @@ import (
 	"soloos/util"
 	"soloos/util/offheap"
 	"sync"
-	"unsafe"
 )
-
-const (
-	UploadJobStructSize = unsafe.Sizeof(UploadJob{})
-)
-
-type UploadJobUintptr uintptr
-
-func (u UploadJobUintptr) Ptr() *UploadJob {
-	return (*UploadJob)(unsafe.Pointer(u))
-}
-
-type UploadJob struct {
-	UNetBlock            types.NetBlockUintptr
-	UMemBlock            types.MemBlockUintptr
-	UploadMaskWaiting    offheap.ChunkMaskUintptr
-	UploadMaskProcessing offheap.ChunkMaskUintptr
-}
 
 type netBlockDriverUploader struct {
 	driver *NetBlockDriver
@@ -38,12 +20,6 @@ type netBlockDriverUploader struct {
 	uploadJobs          map[types.MemBlockUintptr]UploadJobUintptr
 	uploadChunkMaskPool offheap.RawObjectPool
 	uploadJobPool       offheap.RawObjectPool
-}
-
-func (p *netBlockDriverUploader) RawChunkPoolInvokePrepareNewUploadJob(uRawChunk uintptr) {
-	uUploadJob := UploadJobUintptr(uRawChunk)
-	uUploadJob.Ptr().UploadMaskWaiting = offheap.ChunkMaskUintptr(p.uploadChunkMaskPool.AllocRawObject())
-	uUploadJob.Ptr().UploadMaskProcessing = offheap.ChunkMaskUintptr(p.uploadChunkMaskPool.AllocRawObject())
 }
 
 func (p *netBlockDriverUploader) Init(driver *NetBlockDriver,
@@ -87,6 +63,7 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		pMemBlock      *types.MemBlock
 		chunkMaskIndex int
 		dataNodeIndex  int
+		i              int
 		ok             bool
 		err            error
 	)
@@ -114,7 +91,8 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		pMemBlock = pUploadJob.UMemBlock.Ptr()
 		pChunkMask = pUploadJob.UploadMaskProcessing.Ptr()
 
-		for dataNodeIndex = 0; dataNodeIndex < pNetBlock.DataNodes.Len; dataNodeIndex++ {
+		for i = 0; i < pNetBlock.DataNodes.Len; i++ {
+			dataNodeIndex = i
 			request[dataNodeIndex].OffheapBody.OffheapBytes = pMemBlock.Bytes.Data
 			for chunkMaskIndex = 0; chunkMaskIndex < pChunkMask.MaskArrayLen; chunkMaskIndex++ {
 				request[dataNodeIndex].OffheapBody.CopyOffset = pChunkMask.MaskArray[chunkMaskIndex].Offset

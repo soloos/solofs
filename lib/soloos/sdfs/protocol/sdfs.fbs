@@ -1,0 +1,5 @@
+namespace protocol
+
+table NetBlock {
+	ID       
+}

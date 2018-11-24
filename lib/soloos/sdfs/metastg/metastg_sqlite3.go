@@ -6,13 +6,15 @@ import (
 
 func (p *MetaStg) InstallSqlite3Schema() error {
 	var (
-		sql string
-		err error
+		sqls []string
+		err  error
 	)
-	sql = commonSchemaSql()
-	_, err = p.DBConn.Exec(sql)
-	if err != nil {
-		return err
+	sqls = commonSchemaSqls()
+	for _, sql := range sqls {
+		_, err = p.DBConn.Exec(sql)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

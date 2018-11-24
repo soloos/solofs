@@ -5,5 +5,17 @@ import (
 )
 
 func (p *MetaStg) InstallMysqlSchema() error {
+	var (
+		sqls []string
+		err  error
+	)
+	sqls = commonSchemaSqls()
+	for _, sql := range sqls {
+		_, err = p.DBConn.Exec(sql)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
