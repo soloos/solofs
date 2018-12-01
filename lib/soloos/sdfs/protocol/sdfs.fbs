@@ -1,11 +1,12 @@
 namespace protocol;
 
 table UploadJobBackend {
-    PeerID:[byte];
+    PeerID:string;
 }
 
 table UploadJob {
-	NetBlockID:[byte];
-    Offset:int64;
+	NetBlockID:string;
+    Offset:int;
+    Length:int;
     TransferBackends:[UploadJobBackend];
 }

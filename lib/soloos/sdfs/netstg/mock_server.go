@@ -1,10 +1,12 @@
 package netstg
 
 import (
-	"soloos/log"
+	"soloos/sdfs/protocol"
 	"soloos/snet/srpc"
 	snettypes "soloos/snet/types"
 	"soloos/util"
+
+	flatbuffers "github.com/google/flatbuffers/go"
 )
 
 const (
@@ -24,11 +26,16 @@ func (p *MockServer) Init(network string, addr string) error {
 
 	p.srpcServer.RegisterService(
 		"/NetBlock/PWrite",
-		func(requestID uint64, requestContentLen uint32, conn *snettypes.Connection) error {
-			log.Info("access")
+		func(requestID uint64, requestContentLen, parameterLen uint32, conn *snettypes.Connection) error {
 			var blockData = make([]byte, requestContentLen)
 			util.AssertErrIsNil(conn.ReadAll(blockData))
-			util.AssertErrIsNil(conn.Response(requestID, nil))
+			var o protocol.UploadJob
+			o.Init(blockData[:parameterLen], flatbuffers.GetUOffsetT(blockData[:parameterLen]))
+			var backends = make([]protocol.UploadJobBackend, o.TransferBackendsLength())
+			for i := 0; i < len(backends); i++ {
+				o.TransferBackends(&backends[i], i)
+			}
+			util.AssertErrIsNil(conn.SimpleResponse(requestID, nil))
 			return nil
 		})
 	return nil

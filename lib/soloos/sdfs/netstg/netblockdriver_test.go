@@ -38,9 +38,15 @@ func TestNetBlockDriver(t *testing.T) {
 	assert.NoError(t, snetDriver.Init(offheapDriver))
 	assert.NoError(t, snetClientDriver.Init(offheapDriver))
 
-	var uPeer = snetDriver.NewPeer()
-	uPeer.Ptr().SetAddress(MockServerAddr)
-	uPeer.Ptr().ServiceProtocol = snettypes.ProtocolSRPC
+	var uPeer0 = snetDriver.NewPeer()
+	util.InitUUID64(&uPeer0.Ptr().ID)
+	uPeer0.Ptr().SetAddress(MockServerAddr)
+	uPeer0.Ptr().ServiceProtocol = snettypes.ProtocolSRPC
+
+	var uPeer1 = snetDriver.NewPeer()
+	util.InitUUID64(&uPeer1.Ptr().ID)
+	uPeer1.Ptr().SetAddress(MockServerAddr)
+	uPeer1.Ptr().ServiceProtocol = snettypes.ProtocolSRPC
 
 	assert.NoError(t, netBlockDriver.Init(netBlockDriverOptions, offheapDriver, &snetDriver, &snetClientDriver))
 
@@ -54,14 +60,15 @@ func TestNetBlockDriver(t *testing.T) {
 		uINode types.INodeUintptr = types.INodeUintptr((unsafe.Pointer(&inode)))
 	)
 	uINode.Ptr().NetBlockSize = 1024
-	uINode.Ptr().MemBlockSize = 1024
+	uINode.Ptr().MemBlockSize = 128
 
 	uNetBlock, _ := netBlockDriver.MustGetBlock(uINode, 10)
-	uNetBlock.Ptr().DataNodes.Append(uPeer)
+	uNetBlock.Ptr().DataNodes.Append(uPeer0)
+	uNetBlock.Ptr().DataNodes.Append(uPeer1)
 	uMemBlock := mockMemBlockPool.AllocMemBlock()
-	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, 0, 0, 12))
-	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, 0, 11, 24))
-	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, 0, 30, 64))
+	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, 3, 0, 12))
+	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, 3, 11, 24))
+	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, 3, 30, 64))
 	assert.NoError(t, netBlockDriver.Flush(uMemBlock))
 
 	assert.NoError(t, mockServer.Close())

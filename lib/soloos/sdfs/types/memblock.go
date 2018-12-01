@@ -31,10 +31,19 @@ type MemBlock struct {
 	UploadRWMutex sync.RWMutex
 	Chunk         offheap.ChunkUintptr
 	Bytes         reflect.SliceHeader
+	AvailMask     offheap.ChunkMask
 }
 
-func (p *MemBlock) PWrite(data []byte, offset int) {
-	copy((*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset:], data)
+func (p *MemBlock) Contains(offset, end int) bool {
+	return p.AvailMask.Contains(offset, end)
+}
+
+func (p *MemBlock) PWrite(data []byte, offset int) (isSuccess bool) {
+	_, isSuccess = p.AvailMask.MergeIncludeNeighbour(offset, offset+len(data))
+	if isSuccess {
+		copy((*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset:], data)
+	}
+	return
 }
 
 func (p *MemBlock) BytesSlice() *[]byte {
@@ -43,6 +52,7 @@ func (p *MemBlock) BytesSlice() *[]byte {
 
 func (p *MemBlock) Reset() {
 	p.Status = MemBlockUninited
+	p.AvailMask.Reset()
 }
 
 func (p *MemBlock) CompleteInit() {

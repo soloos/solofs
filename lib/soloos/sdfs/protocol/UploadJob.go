@@ -26,37 +26,40 @@ func (rcv *UploadJob) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *UploadJob) NetBlockID(j int) int8 {
+func (rcv *UploadJob) NetBlockID() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
-		a := rcv._tab.Vector(o)
-		return rcv._tab.GetInt8(a + flatbuffers.UOffsetT(j*1))
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
 	}
-	return 0
+	return nil
 }
 
-func (rcv *UploadJob) NetBlockIDLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
-	if o != 0 {
-		return rcv._tab.VectorLen(o)
-	}
-	return 0
-}
-
-func (rcv *UploadJob) Offset() int64 {
+func (rcv *UploadJob) Offset() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
-		return rcv._tab.GetInt64(o + rcv._tab.Pos)
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *UploadJob) MutateOffset(n int64) bool {
-	return rcv._tab.MutateInt64Slot(6, n)
+func (rcv *UploadJob) MutateOffset(n int32) bool {
+	return rcv._tab.MutateInt32Slot(6, n)
+}
+
+func (rcv *UploadJob) Length() int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	if o != 0 {
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+	}
+	return 0
+}
+
+func (rcv *UploadJob) MutateLength(n int32) bool {
+	return rcv._tab.MutateInt32Slot(8, n)
 }
 
 func (rcv *UploadJob) TransferBackends(obj *UploadJobBackend, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 4
@@ -68,7 +71,7 @@ func (rcv *UploadJob) TransferBackends(obj *UploadJobBackend, j int) bool {
 }
 
 func (rcv *UploadJob) TransferBackendsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -76,19 +79,19 @@ func (rcv *UploadJob) TransferBackendsLength() int {
 }
 
 func UploadJobStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+	builder.StartObject(4)
 }
 func UploadJobAddNetBlockID(builder *flatbuffers.Builder, NetBlockID flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(NetBlockID), 0)
 }
-func UploadJobStartNetBlockIDVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
-	return builder.StartVector(1, numElems, 1)
+func UploadJobAddOffset(builder *flatbuffers.Builder, Offset int32) {
+	builder.PrependInt32Slot(1, Offset, 0)
 }
-func UploadJobAddOffset(builder *flatbuffers.Builder, Offset int64) {
-	builder.PrependInt64Slot(1, Offset, 0)
+func UploadJobAddLength(builder *flatbuffers.Builder, Length int32) {
+	builder.PrependInt32Slot(2, Length, 0)
 }
 func UploadJobAddTransferBackends(builder *flatbuffers.Builder, TransferBackends flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(TransferBackends), 0)
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(TransferBackends), 0)
 }
 func UploadJobStartTransferBackendsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)

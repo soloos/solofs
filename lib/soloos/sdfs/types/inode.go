@@ -20,7 +20,7 @@ type INode struct {
 	Size         uint64       `db:"inode_size"`
 	NetBlockSize int          `db:"netblock_size"`
 	MemBlockSize int          `db:"memblock_size"`
-	WriteRWMutex sync.RWMutex `db:"-"`
+	AccessRWMutex sync.RWMutex `db:"-"`
 }
 
 func (p *INode) IDStr() string { return string(p.ID[:]) }
