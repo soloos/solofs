@@ -27,8 +27,9 @@ func TestNetBlockDriver(t *testing.T) {
 		snetDriver       snet.SNetDriver
 		snetClientDriver snet.ClientDriver
 	)
+	mockServerAddr := "127.0.0.1:10021"
 
-	assert.NoError(t, mockServer.Init("tcp", MockServerAddr))
+	assert.NoError(t, mockServer.Init("tcp", mockServerAddr))
 	go func() {
 		util.AssertErrIsNil(mockServer.Serve())
 	}()
@@ -40,12 +41,12 @@ func TestNetBlockDriver(t *testing.T) {
 
 	var uPeer0 = snetDriver.NewPeer()
 	util.InitUUID64(&uPeer0.Ptr().ID)
-	uPeer0.Ptr().SetAddress(MockServerAddr)
+	uPeer0.Ptr().SetAddress(mockServerAddr)
 	uPeer0.Ptr().ServiceProtocol = snettypes.ProtocolSRPC
 
 	var uPeer1 = snetDriver.NewPeer()
 	util.InitUUID64(&uPeer1.Ptr().ID)
-	uPeer1.Ptr().SetAddress(MockServerAddr)
+	uPeer1.Ptr().SetAddress(mockServerAddr)
 	uPeer1.Ptr().ServiceProtocol = snettypes.ProtocolSRPC
 
 	assert.NoError(t, netBlockDriver.Init(netBlockDriverOptions, offheapDriver, &snetDriver, &snetClientDriver))
@@ -66,9 +67,10 @@ func TestNetBlockDriver(t *testing.T) {
 	uNetBlock.Ptr().DataNodes.Append(uPeer0)
 	uNetBlock.Ptr().DataNodes.Append(uPeer1)
 	uMemBlock := mockMemBlockPool.AllocMemBlock()
-	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, 3, 0, 12))
-	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, 3, 11, 24))
-	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, 3, 30, 64))
+	memBlockIndex := 0
+	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, 0, 12))
+	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, 11, 24))
+	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, 30, 64))
 	assert.NoError(t, netBlockDriver.Flush(uMemBlock))
 
 	assert.NoError(t, mockServer.Close())

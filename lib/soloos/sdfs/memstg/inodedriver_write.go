@@ -15,7 +15,7 @@ func (p *INodeDriver) PWrite(uINode types.INodeUintptr, data []byte, offset int6
 	// write in memblock
 	memBlockIndex := int(offset / int64(pINode.MemBlockSize))
 	memBlockBytesOffset := int(offset - int64(memBlockIndex)*int64(pINode.MemBlockSize))
-	memBlockBytesEnd := memBlockBytesOffset + len(data) + 1
+	memBlockBytesEnd := memBlockBytesOffset + len(data)
 	uMemBlock, _ := p.memBlockDriver.MustGetBlockWithReadAcquire(uINode, memBlockIndex)
 	isSuccess = uMemBlock.Ptr().PWrite(data, memBlockBytesOffset)
 	if !isSuccess {

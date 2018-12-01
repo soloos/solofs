@@ -5,12 +5,13 @@ import (
 	"soloos/snet/srpc"
 	snettypes "soloos/snet/types"
 	"soloos/util"
+	"time"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
 const (
-	MockServerAddr = "127.0.0.1:10020"
+	DefaultMockServerAddr = "127.0.0.1:10020"
 )
 
 type MockServer struct {
@@ -46,5 +47,8 @@ func (p *MockServer) Serve() error {
 }
 
 func (p *MockServer) Close() error {
-	return p.srpcServer.Close()
+	var err error
+	err = p.srpcServer.Close()
+	time.Sleep(time.Second)
+	return err
 }

@@ -46,6 +46,10 @@ func (p *MemBlock) PWrite(data []byte, offset int) (isSuccess bool) {
 	return
 }
 
+func (p *MemBlock) PRead(data []byte, offset int) {
+	copy(data, (*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset:])
+}
+
 func (p *MemBlock) BytesSlice() *[]byte {
 	return (*[]byte)(unsafe.Pointer(&p.Bytes))
 }
