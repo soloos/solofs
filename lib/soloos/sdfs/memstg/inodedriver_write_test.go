@@ -10,16 +10,17 @@ import (
 
 func TestINodeDriverINodeWrite(t *testing.T) {
 	var (
-		mockServer     netstg.MockServer
-		memBlockDriver MemBlockDriver
-		inodeDriver    INodeDriver
-		maxBlocks      int32 = 4
-		i              int32
-		netBlockSize   int = 4
-		memBlockSize   int = 4
-		uINode         types.INodeUintptr
+		mockServer       netstg.MockServer
+		memBlockDriver   MemBlockDriver
+		inodeDriver      INodeDriver
+		maxBlocks        int32 = 4
+		i                int32
+		netBlockSize     int   = 4
+		memBlockSize     int   = 4
+		blockChunksLimit int32 = 4
+		uINode           types.INodeUintptr
 	)
-	InitDriversForTest(t, "127.0.0.1:10023", &mockServer, &memBlockDriver, &inodeDriver, memBlockSize)
+	InitDriversForTest(t, "127.0.0.1:10023", &mockServer, &memBlockDriver, &inodeDriver, memBlockSize, blockChunksLimit)
 	uINode = InitInodeForTest(t, &inodeDriver, netBlockSize, memBlockSize)
 
 	for i = 0; i <= maxBlocks; i++ {

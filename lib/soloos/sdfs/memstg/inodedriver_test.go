@@ -13,11 +13,12 @@ import (
 )
 
 func InitMemBlockDriversForTest(t *testing.T,
-	memBlockDriver *MemBlockDriver, offheapDriver *offheap.OffheapDriver, blockChunkSize int) {
+	memBlockDriver *MemBlockDriver, offheapDriver *offheap.OffheapDriver,
+	blockChunkSize int, blockChunksLimit int32) {
 	memBlockDriverOptions := MemBlockDriverOptions{
 		[]MemBlockPoolOptions{
 			MemBlockPoolOptions{
-				blockChunkSize, 1024,
+				blockChunkSize, blockChunksLimit,
 			},
 		},
 	}
@@ -42,7 +43,7 @@ func InitDriversForTest(t *testing.T,
 	mockServer *netstg.MockServer,
 	memBlockDriver *MemBlockDriver,
 	inodeDriver *INodeDriver,
-	blockChunkSize int) {
+	blockChunkSize int, blockChunksLimit int32) {
 	var (
 		offheapDriver         = &offheap.DefaultOffheapDriver
 		snetDriver            snet.SNetDriver
@@ -63,7 +64,7 @@ func InitDriversForTest(t *testing.T,
 
 	assert.NoError(t, snetDriver.Init(offheapDriver))
 	assert.NoError(t, snetClientDriver.Init(offheapDriver))
-	InitMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize)
+	InitMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
 	InitNetBlockDriversForTest(t, &netBlockDriver, offheapDriver, &snetDriver, &snetClientDriver)
 
 	assert.NoError(t, netBlockDriver.Init(netBlockDriverOptions, offheapDriver, &snetDriver, &snetClientDriver))

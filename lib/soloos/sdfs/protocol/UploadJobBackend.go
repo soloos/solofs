@@ -34,11 +34,22 @@ func (rcv *UploadJobBackend) PeerID() []byte {
 	return nil
 }
 
+func (rcv *UploadJobBackend) Address() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
 func UploadJobBackendStart(builder *flatbuffers.Builder) {
-	builder.StartObject(1)
+	builder.StartObject(2)
 }
 func UploadJobBackendAddPeerID(builder *flatbuffers.Builder, PeerID flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(PeerID), 0)
+}
+func UploadJobBackendAddAddress(builder *flatbuffers.Builder, Address flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(Address), 0)
 }
 func UploadJobBackendEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

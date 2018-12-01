@@ -42,11 +42,13 @@ func (p *netBlockDriverUploader) doUpload(uploadJobErr *error, uploadJobSig *syn
 
 		if len(transferBackends) > 0 {
 			var backendOffs = make([]flatbuffers.UOffsetT, len(transferBackends))
-			var peerOff flatbuffers.UOffsetT
+			var peerOff, addrOff flatbuffers.UOffsetT
 			for i = 0; i < len(transferBackends); i++ {
 				peerOff = protocolBuilder.CreateByteVector(transferBackends[i].Ptr().ID[:])
+				addrOff = protocolBuilder.CreateString(transferBackends[i].Ptr().AddressStr())
 				protocol.UploadJobBackendStart(&protocolBuilder)
 				protocol.UploadJobBackendAddPeerID(&protocolBuilder, peerOff)
+				protocol.UploadJobBackendAddAddress(&protocolBuilder, addrOff)
 				backendOffs[i] = protocol.UploadJobBackendEnd(&protocolBuilder)
 			}
 

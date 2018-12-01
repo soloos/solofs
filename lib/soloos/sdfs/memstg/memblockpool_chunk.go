@@ -95,10 +95,7 @@ func (p *memBlockPoolChunk) allocChunkFromChunkPool() types.MemBlockUintptr {
 
 func (p *memBlockPoolChunk) releaseChunkToChunkPool(uMemBlock types.MemBlockUintptr) {
 	uMemBlock.Ptr().Reset()
-	p.chunkPool.ReleaseChunk(offheap.ChunkUintptr(
-		uMemBlock.Ptr().Bytes.Data -
-			types.MemBlockStructSize -
-			offheap.ChunkStructDataOffset))
+	p.chunkPool.ReleaseChunk(uMemBlock.Ptr().Chunk)
 }
 
 func (p *memBlockPoolChunk) takeBlockForRelease() types.MemBlockUintptr {
@@ -115,29 +112,28 @@ func (p *memBlockPoolChunk) takeBlockForRelease() types.MemBlockUintptr {
 		return iRet.(types.MemBlockUintptr)
 	}
 
-	return (types.MemBlockUintptr)(p.tmpChunkPool.AllocChunk().Ptr().Data)
-
 	// Get Block From workingChunkPool
-	// iRet = p.workingChunkPool.IteratorAndPop(func(x interface{}) (bool, interface{}) {
-	// uMemBlock := x.(types.MemBlockUintptr)
-	// pMemBlock := uMemBlock.Ptr()
-	// if !pMemBlock.IsInited() {
-	// return false, 0
-	// }
-	// return true, uMemBlock
-	// })
+	iRet = p.workingChunkPool.IteratorAndPop(func(x interface{}) (bool, interface{}) {
+		uMemBlock := x.(types.MemBlockUintptr)
+		pMemBlock := uMemBlock.Ptr()
+		if !pMemBlock.IsInited() {
+			return false, 0
+		}
+		return true, uMemBlock
+	})
 
-	// if iRet == nil {
-	// return 0
-	// }
+	if iRet == nil {
+		return 0
+	}
 
-	// return iRet.(types.MemBlockUintptr)
+	return iRet.(types.MemBlockUintptr)
 }
 
 func (p *memBlockPoolChunk) beforeReleaseBlock(pMemBlock *types.MemBlock) {
 	if pMemBlock.IsInited() == false {
 		return
 	}
+	// TODO make sure memblock releasable
 	pMemBlock.SetReleasable()
 }
 

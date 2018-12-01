@@ -2,6 +2,7 @@ namespace protocol;
 
 table UploadJobBackend {
     PeerID:string;
+    Address:string;
 }
 
 table UploadJob {
