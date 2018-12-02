@@ -6,27 +6,27 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type UploadJob struct {
+type NetBlockPWrite struct {
 	_tab flatbuffers.Table
 }
 
-func GetRootAsUploadJob(buf []byte, offset flatbuffers.UOffsetT) *UploadJob {
+func GetRootAsNetBlockPWrite(buf []byte, offset flatbuffers.UOffsetT) *NetBlockPWrite {
 	n := flatbuffers.GetUOffsetT(buf[offset:])
-	x := &UploadJob{}
+	x := &NetBlockPWrite{}
 	x.Init(buf, n+offset)
 	return x
 }
 
-func (rcv *UploadJob) Init(buf []byte, i flatbuffers.UOffsetT) {
+func (rcv *NetBlockPWrite) Init(buf []byte, i flatbuffers.UOffsetT) {
 	rcv._tab.Bytes = buf
 	rcv._tab.Pos = i
 }
 
-func (rcv *UploadJob) Table() flatbuffers.Table {
+func (rcv *NetBlockPWrite) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *UploadJob) NetBlockID() []byte {
+func (rcv *NetBlockPWrite) NetBlockID() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -34,7 +34,7 @@ func (rcv *UploadJob) NetBlockID() []byte {
 	return nil
 }
 
-func (rcv *UploadJob) Offset() int32 {
+func (rcv *NetBlockPWrite) Offset() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -42,11 +42,11 @@ func (rcv *UploadJob) Offset() int32 {
 	return 0
 }
 
-func (rcv *UploadJob) MutateOffset(n int32) bool {
+func (rcv *NetBlockPWrite) MutateOffset(n int32) bool {
 	return rcv._tab.MutateInt32Slot(6, n)
 }
 
-func (rcv *UploadJob) Length() int32 {
+func (rcv *NetBlockPWrite) Length() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -54,11 +54,11 @@ func (rcv *UploadJob) Length() int32 {
 	return 0
 }
 
-func (rcv *UploadJob) MutateLength(n int32) bool {
+func (rcv *NetBlockPWrite) MutateLength(n int32) bool {
 	return rcv._tab.MutateInt32Slot(8, n)
 }
 
-func (rcv *UploadJob) TransferBackends(obj *UploadJobBackend, j int) bool {
+func (rcv *NetBlockPWrite) TransferBackends(obj *NetBlockPWriteBackend, j int) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
@@ -70,7 +70,7 @@ func (rcv *UploadJob) TransferBackends(obj *UploadJobBackend, j int) bool {
 	return false
 }
 
-func (rcv *UploadJob) TransferBackendsLength() int {
+func (rcv *NetBlockPWrite) TransferBackendsLength() int {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
@@ -78,24 +78,24 @@ func (rcv *UploadJob) TransferBackendsLength() int {
 	return 0
 }
 
-func UploadJobStart(builder *flatbuffers.Builder) {
+func NetBlockPWriteStart(builder *flatbuffers.Builder) {
 	builder.StartObject(4)
 }
-func UploadJobAddNetBlockID(builder *flatbuffers.Builder, NetBlockID flatbuffers.UOffsetT) {
+func NetBlockPWriteAddNetBlockID(builder *flatbuffers.Builder, NetBlockID flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(NetBlockID), 0)
 }
-func UploadJobAddOffset(builder *flatbuffers.Builder, Offset int32) {
+func NetBlockPWriteAddOffset(builder *flatbuffers.Builder, Offset int32) {
 	builder.PrependInt32Slot(1, Offset, 0)
 }
-func UploadJobAddLength(builder *flatbuffers.Builder, Length int32) {
+func NetBlockPWriteAddLength(builder *flatbuffers.Builder, Length int32) {
 	builder.PrependInt32Slot(2, Length, 0)
 }
-func UploadJobAddTransferBackends(builder *flatbuffers.Builder, TransferBackends flatbuffers.UOffsetT) {
+func NetBlockPWriteAddTransferBackends(builder *flatbuffers.Builder, TransferBackends flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(TransferBackends), 0)
 }
-func UploadJobStartTransferBackendsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+func NetBlockPWriteStartTransferBackendsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
-func UploadJobEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+func NetBlockPWriteEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
 }
