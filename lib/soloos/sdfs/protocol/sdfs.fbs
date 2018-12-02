@@ -1,13 +1,13 @@
 namespace protocol;
 
-table NetBlockPWriteBackend {
+table NetBlockBackend {
     PeerID:string;
     Address:string;
 }
 
-table NetBlockPWrite {
+table NetBlockPWriteRequest {
 	NetBlockID:string;
     Offset:int;
     Length:int;
-    TransferBackends:[NetBlockPWriteBackend];
+    TransferBackends:[NetBlockBackend];
 }

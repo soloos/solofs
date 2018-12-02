@@ -6,27 +6,27 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type NetBlockPWrite struct {
+type NetBlockPWriteRequest struct {
 	_tab flatbuffers.Table
 }
 
-func GetRootAsNetBlockPWrite(buf []byte, offset flatbuffers.UOffsetT) *NetBlockPWrite {
+func GetRootAsNetBlockPWriteRequest(buf []byte, offset flatbuffers.UOffsetT) *NetBlockPWriteRequest {
 	n := flatbuffers.GetUOffsetT(buf[offset:])
-	x := &NetBlockPWrite{}
+	x := &NetBlockPWriteRequest{}
 	x.Init(buf, n+offset)
 	return x
 }
 
-func (rcv *NetBlockPWrite) Init(buf []byte, i flatbuffers.UOffsetT) {
+func (rcv *NetBlockPWriteRequest) Init(buf []byte, i flatbuffers.UOffsetT) {
 	rcv._tab.Bytes = buf
 	rcv._tab.Pos = i
 }
 
-func (rcv *NetBlockPWrite) Table() flatbuffers.Table {
+func (rcv *NetBlockPWriteRequest) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *NetBlockPWrite) NetBlockID() []byte {
+func (rcv *NetBlockPWriteRequest) NetBlockID() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -34,7 +34,7 @@ func (rcv *NetBlockPWrite) NetBlockID() []byte {
 	return nil
 }
 
-func (rcv *NetBlockPWrite) Offset() int32 {
+func (rcv *NetBlockPWriteRequest) Offset() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -42,11 +42,11 @@ func (rcv *NetBlockPWrite) Offset() int32 {
 	return 0
 }
 
-func (rcv *NetBlockPWrite) MutateOffset(n int32) bool {
+func (rcv *NetBlockPWriteRequest) MutateOffset(n int32) bool {
 	return rcv._tab.MutateInt32Slot(6, n)
 }
 
-func (rcv *NetBlockPWrite) Length() int32 {
+func (rcv *NetBlockPWriteRequest) Length() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -54,11 +54,11 @@ func (rcv *NetBlockPWrite) Length() int32 {
 	return 0
 }
 
-func (rcv *NetBlockPWrite) MutateLength(n int32) bool {
+func (rcv *NetBlockPWriteRequest) MutateLength(n int32) bool {
 	return rcv._tab.MutateInt32Slot(8, n)
 }
 
-func (rcv *NetBlockPWrite) TransferBackends(obj *NetBlockPWriteBackend, j int) bool {
+func (rcv *NetBlockPWriteRequest) TransferBackends(obj *NetBlockBackend, j int) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
@@ -70,7 +70,7 @@ func (rcv *NetBlockPWrite) TransferBackends(obj *NetBlockPWriteBackend, j int) b
 	return false
 }
 
-func (rcv *NetBlockPWrite) TransferBackendsLength() int {
+func (rcv *NetBlockPWriteRequest) TransferBackendsLength() int {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
@@ -78,24 +78,24 @@ func (rcv *NetBlockPWrite) TransferBackendsLength() int {
 	return 0
 }
 
-func NetBlockPWriteStart(builder *flatbuffers.Builder) {
+func NetBlockPWriteRequestStart(builder *flatbuffers.Builder) {
 	builder.StartObject(4)
 }
-func NetBlockPWriteAddNetBlockID(builder *flatbuffers.Builder, NetBlockID flatbuffers.UOffsetT) {
+func NetBlockPWriteRequestAddNetBlockID(builder *flatbuffers.Builder, NetBlockID flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(NetBlockID), 0)
 }
-func NetBlockPWriteAddOffset(builder *flatbuffers.Builder, Offset int32) {
+func NetBlockPWriteRequestAddOffset(builder *flatbuffers.Builder, Offset int32) {
 	builder.PrependInt32Slot(1, Offset, 0)
 }
-func NetBlockPWriteAddLength(builder *flatbuffers.Builder, Length int32) {
+func NetBlockPWriteRequestAddLength(builder *flatbuffers.Builder, Length int32) {
 	builder.PrependInt32Slot(2, Length, 0)
 }
-func NetBlockPWriteAddTransferBackends(builder *flatbuffers.Builder, TransferBackends flatbuffers.UOffsetT) {
+func NetBlockPWriteRequestAddTransferBackends(builder *flatbuffers.Builder, TransferBackends flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(TransferBackends), 0)
 }
-func NetBlockPWriteStartTransferBackendsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+func NetBlockPWriteRequestStartTransferBackendsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
-func NetBlockPWriteEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+func NetBlockPWriteRequestEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
 }

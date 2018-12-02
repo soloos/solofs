@@ -25,18 +25,18 @@ func (p *MockServer) Init(network string, addr string) error {
 		return err
 	}
 
-	p.srpcServer.RegisterService("/NetBlock/PWrite", p.NetBlockPWrite)
+	p.srpcServer.RegisterService("/NetBlock/PWrite", p.NetBlockPWriteRequest)
 	return nil
 }
 
-func (p *MockServer) NetBlockPWrite(requestID uint64,
+func (p *MockServer) NetBlockPWriteRequest(requestID uint64,
 	requestContentLen, parameterLen uint32,
 	conn *snettypes.Connection) error {
 	var blockData = make([]byte, requestContentLen)
 	util.AssertErrIsNil(conn.ReadAll(blockData))
-	var o protocol.NetBlockPWrite
+	var o protocol.NetBlockPWriteRequest
 	o.Init(blockData[:parameterLen], flatbuffers.GetUOffsetT(blockData[:parameterLen]))
-	var backends = make([]protocol.NetBlockPWriteBackend, o.TransferBackendsLength())
+	var backends = make([]protocol.NetBlockBackend, o.TransferBackendsLength())
 	for i := 0; i < len(backends); i++ {
 		o.TransferBackends(&backends[i], i)
 	}
@@ -49,9 +49,9 @@ func (p *MockServer) NetBlockPRead(requestID uint64,
 	conn *snettypes.Connection) error {
 	var blockData = make([]byte, requestContentLen)
 	util.AssertErrIsNil(conn.ReadAll(blockData))
-	var o protocol.NetBlockPWrite
+	var o protocol.NetBlockPWriteRequest
 	o.Init(blockData[:parameterLen], flatbuffers.GetUOffsetT(blockData[:parameterLen]))
-	var backends = make([]protocol.NetBlockPWriteBackend, o.TransferBackendsLength())
+	var backends = make([]protocol.NetBlockBackend, o.TransferBackendsLength())
 	for i := 0; i < len(backends); i++ {
 		o.TransferBackends(&backends[i], i)
 	}

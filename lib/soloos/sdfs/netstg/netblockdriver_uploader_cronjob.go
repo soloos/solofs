@@ -46,13 +46,13 @@ func (p *netBlockDriverUploader) doUpload(uploadJobErr *error, uploadJobSig *syn
 			for i = 0; i < len(transferBackends); i++ {
 				peerOff = protocolBuilder.CreateByteVector(transferBackends[i].Ptr().ID[:])
 				addrOff = protocolBuilder.CreateString(transferBackends[i].Ptr().AddressStr())
-				protocol.NetBlockPWriteBackendStart(&protocolBuilder)
-				protocol.NetBlockPWriteBackendAddPeerID(&protocolBuilder, peerOff)
-				protocol.NetBlockPWriteBackendAddAddress(&protocolBuilder, addrOff)
-				backendOffs[i] = protocol.NetBlockPWriteBackendEnd(&protocolBuilder)
+				protocol.NetBlockBackendStart(&protocolBuilder)
+				protocol.NetBlockBackendAddPeerID(&protocolBuilder, peerOff)
+				protocol.NetBlockBackendAddAddress(&protocolBuilder, addrOff)
+				backendOffs[i] = protocol.NetBlockBackendEnd(&protocolBuilder)
 			}
 
-			protocol.NetBlockPWriteStartTransferBackendsVector(&protocolBuilder, len(transferBackends))
+			protocol.NetBlockPWriteRequestStartTransferBackendsVector(&protocolBuilder, len(transferBackends))
 			for i = len(transferBackends) - 1; i >= 0; i-- {
 				protocolBuilder.PrependUOffsetT(backendOffs[i])
 			}
@@ -60,14 +60,14 @@ func (p *netBlockDriverUploader) doUpload(uploadJobErr *error, uploadJobSig *syn
 		}
 
 		netBlockIDOff = protocolBuilder.CreateByteVector(uUploadJob.Ptr().UNetBlock.Ptr().ID[:])
-		protocol.NetBlockPWriteStart(&protocolBuilder)
+		protocol.NetBlockPWriteRequestStart(&protocolBuilder)
 		if len(transferBackends) > 0 {
-			protocol.NetBlockPWriteAddTransferBackends(&protocolBuilder, backendOff)
+			protocol.NetBlockPWriteRequestAddTransferBackends(&protocolBuilder, backendOff)
 		}
-		protocol.NetBlockPWriteAddNetBlockID(&protocolBuilder, netBlockIDOff)
-		protocol.NetBlockPWriteAddOffset(&protocolBuilder, int32(netBlockBytesOffset))
-		protocol.NetBlockPWriteAddLength(&protocolBuilder, int32(netBlockBytesEnd))
-		protocolBuilder.Finish(protocol.NetBlockPWriteEnd(&protocolBuilder))
+		protocol.NetBlockPWriteRequestAddNetBlockID(&protocolBuilder, netBlockIDOff)
+		protocol.NetBlockPWriteRequestAddOffset(&protocolBuilder, int32(netBlockBytesOffset))
+		protocol.NetBlockPWriteRequestAddLength(&protocolBuilder, int32(netBlockBytesEnd))
+		protocolBuilder.Finish(protocol.NetBlockPWriteRequestEnd(&protocolBuilder))
 		request.Parameter = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 		err = p.snetClientDriver.Call(uPeer,
@@ -76,6 +76,12 @@ func (p *netBlockDriverUploader) doUpload(uploadJobErr *error, uploadJobSig *syn
 			*uploadJobErr = err
 			return
 		}
+
+		// err = p.snetClientDriver.ReadResponse(uPeer, &request, &response, &resp)
+		// if err != nil {
+		// *uploadJobErr = err
+		// return
+		// }
 
 		protocolBuilder.Reset()
 	}
