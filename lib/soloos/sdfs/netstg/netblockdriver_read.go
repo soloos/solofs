@@ -14,9 +14,7 @@ func (p *NetBlockDriver) PRead(uINode types.INodeUintptr,
 	memBlockIndex int,
 	offset, length int) error {
 	if uNetBlock.Ptr().DataNodes.Len == 0 {
-		// TODO should return types.ErrBackendListIsEmpty
-		return nil
-		// return types.ErrBackendListIsEmpty
+		return types.ErrBackendListIsEmpty
 	}
 
 	var (

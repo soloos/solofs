@@ -18,9 +18,7 @@ func TestNetBlockDriver(t *testing.T) {
 		offheapDriver         = &offheap.DefaultOffheapDriver
 		mockMemBlockPool      types.MockMemBlockPool
 		netBlockDriverOptions = NetBlockDriverOptions{
-			NetBlockPoolOptions{
-				int32(-1),
-			},
+			int32(-1),
 		}
 		mockServer       MockServer
 		netBlockDriver   NetBlockDriver

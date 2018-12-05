@@ -31,9 +31,7 @@ func InitNetBlockDriversForTest(t *testing.T,
 	snetDriver *snet.SNetDriver,
 	snetClientDriver *snet.ClientDriver) {
 	netBlockDriverOptions := netstg.NetBlockDriverOptions{
-		netstg.NetBlockPoolOptions{
-			int32(-1),
-		},
+		int32(-1),
 	}
 	assert.NoError(t, netBlockDriver.Init(netBlockDriverOptions, offheapDriver, snetDriver, snetClientDriver))
 }
@@ -49,9 +47,7 @@ func InitDriversForTest(t *testing.T,
 		snetDriver            snet.SNetDriver
 		snetClientDriver      snet.ClientDriver
 		netBlockDriverOptions = netstg.NetBlockDriverOptions{
-			netstg.NetBlockPoolOptions{
-				int32(-1),
-			},
+			int32(-1),
 		}
 		netBlockDriver netstg.NetBlockDriver
 	)
