@@ -25,11 +25,12 @@ func (p *MockServer) Init(network string, addr string) error {
 		return err
 	}
 
-	p.srpcServer.RegisterService("/NetBlock/PWrite", p.NetBlockPWriteRequest)
+	p.srpcServer.RegisterService("/NetBlock/PWrite", p.NetBlockPWrite)
+	p.srpcServer.RegisterService("/NetBlock/PRead", p.NetBlockPRead)
 	return nil
 }
 
-func (p *MockServer) NetBlockPWriteRequest(requestID uint64,
+func (p *MockServer) NetBlockPWrite(requestID uint64,
 	requestContentLen, parameterLen uint32,
 	conn *snettypes.Connection) error {
 	var blockData = make([]byte, requestContentLen)
@@ -40,7 +41,14 @@ func (p *MockServer) NetBlockPWriteRequest(requestID uint64,
 	for i := 0; i < len(backends); i++ {
 		o.TransferBackends(&backends[i], i)
 	}
-	util.AssertErrIsNil(conn.SimpleResponse(requestID, nil))
+
+	var protocolBuilder flatbuffers.Builder
+	protocol.CommonResponseStart(&protocolBuilder)
+	// protocol.CommonResponseAddCode(&protocolBuilder, snettypes.CODE_OK)
+	protocol.CommonResponseAddCode(&protocolBuilder, snettypes.CODE_OK)
+	protocolBuilder.Finish(protocol.CommonResponseEnd(&protocolBuilder))
+	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
+	util.AssertErrIsNil(conn.SimpleResponse(requestID, respBody))
 	return nil
 }
 

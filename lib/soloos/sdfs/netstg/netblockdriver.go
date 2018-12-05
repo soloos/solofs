@@ -10,6 +10,9 @@ type NetBlockDriver struct {
 	offheapDriver *offheap.OffheapDriver
 	netBlockPool  NetBlockPool
 
+	snetDriver       *snet.SNetDriver
+	snetClientDriver *snet.ClientDriver
+
 	netBlockDriverUploader netBlockDriverUploader
 }
 
@@ -24,7 +27,10 @@ func (p *NetBlockDriver) Init(options NetBlockDriverOptions,
 		return err
 	}
 
-	err = p.netBlockDriverUploader.Init(p, snetDriver, snetClientDriver)
+	p.snetDriver = snetDriver
+	p.snetClientDriver = snetClientDriver
+
+	err = p.netBlockDriverUploader.Init(p)
 	if err != nil {
 		return err
 	}
@@ -34,8 +40,6 @@ func (p *NetBlockDriver) Init(options NetBlockDriverOptions,
 
 // MustGetNetBlock get or init a netBlockblock
 func (p *NetBlockDriver) MustGetBlock(uINode types.INodeUintptr,
-	netBlockIndex int) (types.NetBlockUintptr, bool) {
-	var netBlockID types.PtrBindIndex
-	types.EncodePtrBindIndex(&netBlockID, uintptr(uINode), netBlockIndex)
-	return p.netBlockPool.MustGetBlock(netBlockID)
+	netBlockIndex int) types.NetBlockUintptr {
+	return p.netBlockPool.MustGetBlock(uINode, netBlockIndex)
 }

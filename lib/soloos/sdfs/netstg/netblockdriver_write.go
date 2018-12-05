@@ -19,6 +19,6 @@ func (p *NetBlockDriver) PWrite(uINode types.INodeUintptr,
 	return nil
 }
 
-func (p *NetBlockDriver) Flush(uMemBlock types.MemBlockUintptr) error {
-	return p.netBlockDriverUploader.Flush(uMemBlock)
+func (p *NetBlockDriver) FlushMemBlock(uMemBlock types.MemBlockUintptr) error {
+	return p.netBlockDriverUploader.FlushMemBlock(uMemBlock)
 }

@@ -21,12 +21,11 @@ type memBlockPoolChunk struct {
 	ichunkSize int
 	chunkSize  uintptr
 
-	chunkPool        offheap.ChunkPool
-	workingChunkPool types.HotPool
-
 	tmpChunkPool        offheap.ChunkPool
 	workingTmpChunkPool types.HotPool
 
+	chunkPool        offheap.ChunkPool
+	workingChunkPool types.HotPool
 	memBlocksRWMutex sync.RWMutex
 	memBlocks        map[types.PtrBindIndex]types.MemBlockUintptr
 }
@@ -61,6 +60,7 @@ func (p *memBlockPoolChunk) Init(memBlockPool *MemBlockPool, chunkSize int, chun
 	if err != nil {
 		return err
 	}
+
 	p.workingTmpChunkPool.Init()
 
 	p.memBlocks = make(map[types.PtrBindIndex]types.MemBlockUintptr)
@@ -133,18 +133,18 @@ func (p *memBlockPoolChunk) beforeReleaseBlock(pMemBlock *types.MemBlock) {
 	if pMemBlock.IsInited() == false {
 		return
 	}
-	// TODO make sure memblock releasable
+	pMemBlock.UploadJob.UploadSig.Wait()
 	pMemBlock.SetReleasable()
 }
 
 func (p *memBlockPoolChunk) releaseBlock(uMemBlock types.MemBlockUintptr) {
 	pMemBlock := uMemBlock.Ptr()
 
-	p.beforeReleaseBlock(pMemBlock)
 	pMemBlock.Chunk.Ptr().WriteAcquire()
+	p.beforeReleaseBlock(pMemBlock)
 	if pMemBlock.EnsureRelease() {
 		p.memBlocksRWMutex.Lock()
-		delete(p.memBlocks, pMemBlock.MemID)
+		delete(p.memBlocks, pMemBlock.ID)
 		p.memBlocksRWMutex.Unlock()
 		pMemBlock.Chunk.Ptr().WriteRelease()
 		p.releaseChunkToChunkPool(uMemBlock)
@@ -154,7 +154,7 @@ func (p *memBlockPoolChunk) releaseBlock(uMemBlock types.MemBlockUintptr) {
 }
 
 func (p *memBlockPoolChunk) checkBlock(blockID types.PtrBindIndex, uMemBlock types.MemBlockUintptr) bool {
-	if uMemBlock.Ptr().MemID != blockID {
+	if uMemBlock.Ptr().ID != blockID {
 		return false
 	}
 	return true
@@ -192,7 +192,7 @@ func (p *memBlockPoolChunk) MustGetBlockWithReadAcquire(blockID types.PtrBindInd
 			loaded = false
 			uMemBlock = uNewMemBlock
 			pMemBlock = uMemBlock.Ptr()
-			pMemBlock.MemID = blockID
+			pMemBlock.ID = blockID
 			p.memBlocks[blockID] = uMemBlock
 		} else {
 			loaded = true

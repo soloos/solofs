@@ -15,9 +15,11 @@ func (p *INodeDriver) preadMemBlock(uINode types.INodeUintptr, memBlockIndex int
 
 	// check memblock
 	uMemBlock, _ := p.memBlockDriver.MustGetBlockWithReadAcquire(uINode, memBlockIndex)
+	// TODO maybe rebase is not needed
 	if !uMemBlock.Ptr().Contains(offset, end) {
 		netBlockIndex := memBlockIndex * pINode.MemBlockSize / pINode.NetBlockSize
-		err = p.unsafeLoadMemBlock(uINode, uMemBlock, netBlockIndex, memBlockIndex)
+		uNetBlock := p.netBlockDriver.MustGetBlock(uINode, netBlockIndex)
+		err = p.unsafeMemBlockRebaseNetBlock(uINode, uNetBlock, uMemBlock, memBlockIndex)
 		if err != nil {
 			goto READ_DATA_DONE
 		}

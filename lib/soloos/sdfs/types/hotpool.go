@@ -1,6 +1,8 @@
 package types
 
-import "sync"
+import (
+	"sync"
+)
 
 // TODO use lru
 type HotPool struct {
@@ -31,7 +33,7 @@ func (p *HotPool) IteratorAndPop(itFunc func(x interface{}) (bool, interface{}))
 	var (
 		isBreak  bool
 		ret      interface{}
-		popIndex int
+		popIndex int = -1
 	)
 	p.mutex.Lock()
 	for k, _ := range p.tmppool {
@@ -41,7 +43,14 @@ func (p *HotPool) IteratorAndPop(itFunc func(x interface{}) (bool, interface{}))
 			break
 		}
 	}
-	p.tmppool = append(p.tmppool[:popIndex], p.tmppool[popIndex+1:]...)
+
+	if popIndex >= 0 {
+		if len(p.tmppool) > 1 {
+			p.tmppool = append(p.tmppool[:popIndex], p.tmppool[popIndex+1:]...)
+		} else {
+			p.tmppool = p.tmppool[:0]
+		}
+	}
 	p.mutex.Unlock()
 	return ret
 }

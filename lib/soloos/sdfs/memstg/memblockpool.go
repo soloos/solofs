@@ -28,3 +28,11 @@ func (p *MemBlockPool) Init(options MemBlockPoolOptions, driver *MemBlockDriver)
 func (p *MemBlockPool) MustGetBlockWithReadAcquire(memBlockID types.PtrBindIndex) (types.MemBlockUintptr, bool) {
 	return p.chunk.MustGetBlockWithReadAcquire(memBlockID)
 }
+
+func (p *MemBlockPool) AllocTmpBlockWithWriteAcquire() types.MemBlockUintptr {
+	return p.chunk.AllocTmpBlockWithWriteAcquire()
+}
+
+func (p *MemBlockPool) ReleaseTmpBlock(uMemBlock types.MemBlockUintptr) {
+	p.chunk.ReleaseTmpBlock(uMemBlock)
+}

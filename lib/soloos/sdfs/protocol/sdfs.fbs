@@ -1,5 +1,9 @@
 namespace protocol;
 
+table CommonResponse {
+    Code:int;
+}
+
 table NetBlockBackend {
     PeerID:string;
     Address:string;
@@ -10,4 +14,10 @@ table NetBlockPWriteRequest {
     Offset:int;
     Length:int;
     TransferBackends:[NetBlockBackend];
+}
+
+table NetBlockPReadRequest {
+	NetBlockID:string;
+    Offset:int;
+    Length:int;
 }

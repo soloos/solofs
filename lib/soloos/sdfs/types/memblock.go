@@ -12,7 +12,9 @@ const (
 	MemBlockStructSize = unsafe.Sizeof(MemBlock{})
 
 	MemBlockRefuseReleaseForErr = -1
+)
 
+const (
 	MemBlockUninited = iota
 	MemBlockIniteded
 	MemBlockReleasable
@@ -26,12 +28,13 @@ func (u MemBlockUintptr) Ptr() *MemBlock {
 }
 
 type MemBlock struct {
-	MemID         PtrBindIndex
-	Status        int64 // equals 0 if could be release
-	UploadRWMutex sync.RWMutex
-	Chunk         offheap.ChunkUintptr
-	Bytes         reflect.SliceHeader
-	AvailMask     offheap.ChunkMask
+	ID                  PtrBindIndex
+	Status              int64 // equals 0 if could be release
+	RebaseNetBlockMutex sync.Mutex
+	Chunk               offheap.ChunkUintptr
+	Bytes               reflect.SliceHeader
+	AvailMask           offheap.ChunkMask
+	UploadJob           UploadMemBlockJob
 }
 
 func (p *MemBlock) Contains(offset, end int) bool {
@@ -50,6 +53,10 @@ func (p *MemBlock) PRead(data []byte, offset int) {
 	copy(data, (*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset:])
 }
 
+func (p *MemBlock) GetUploadMemBlockJobUintptr() UploadMemBlockJobUintptr {
+	return UploadMemBlockJobUintptr(unsafe.Pointer(p)) + UploadMemBlockJobUintptr(unsafe.Offsetof(p.UploadJob))
+}
+
 func (p *MemBlock) BytesSlice() *[]byte {
 	return (*[]byte)(unsafe.Pointer(&p.Bytes))
 }
@@ -57,6 +64,7 @@ func (p *MemBlock) BytesSlice() *[]byte {
 func (p *MemBlock) Reset() {
 	p.Status = MemBlockUninited
 	p.AvailMask.Reset()
+	p.UploadJob.Reset()
 }
 
 func (p *MemBlock) CompleteInit() {

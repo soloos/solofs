@@ -25,7 +25,7 @@ func (p *INodeDriver) PWrite(uINode types.INodeUintptr, data []byte, offset int6
 
 	// write in netblock
 	netBlockIndex := int(offset / int64(pINode.NetBlockSize))
-	uNetBlock, _ := p.netBlockDriver.MustGetBlock(uINode, netBlockIndex)
+	uNetBlock := p.netBlockDriver.MustGetBlock(uINode, netBlockIndex)
 	err = p.netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, memBlockBytesOffset, memBlockBytesEnd)
 	if err != nil {
 		goto WRITE_DATA_DONE
@@ -37,10 +37,11 @@ WRITE_DATA_DONE:
 	return err
 }
 
-func (p *INodeDriver) FlushMemBlock(uINode types.INodeUintptr, uMemBlock types.MemBlockUintptr) error {
+func (p *INodeDriver) FlushMemBlock(uINode types.INodeUintptr,
+	uMemBlock types.MemBlockUintptr) error {
 	var err error
 	uINode.Ptr().AccessRWMutex.Lock()
-	err = p.netBlockDriver.Flush(uMemBlock)
+	err = p.netBlockDriver.FlushMemBlock(uMemBlock)
 	if err != nil {
 		goto FLUSH_DATA_DONE
 	}

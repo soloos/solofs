@@ -1,6 +1,8 @@
 package netstg
 
-import "soloos/sdfs/types"
+import (
+	"soloos/sdfs/types"
+)
 
 func (p *netBlockDriverUploader) PWrite(uNetBlock types.NetBlockUintptr,
 	uMemBlock types.MemBlockUintptr,
@@ -8,50 +10,39 @@ func (p *netBlockDriverUploader) PWrite(uNetBlock types.NetBlockUintptr,
 	offset, end int) error {
 
 	var (
-		uUploadJob              UploadJobUintptr
 		isMergeEventHappened    bool
 		isMergeWriteMaskSuccess bool = false
 	)
 
-	uMemBlock.Ptr().UploadRWMutex.RLock()
+	pMemBlock := uMemBlock.Ptr()
 	for isMergeWriteMaskSuccess == false {
-		p.uploadJobMutex.Lock()
-		uUploadJob, _ = p.uploadJobs[uMemBlock]
-		if uUploadJob == 0 {
-			uUploadJob = UploadJobUintptr(p.uploadJobPool.AllocRawObject())
-			p.prepareUploadJob(uUploadJob, uNetBlock, uMemBlock, memBlockIndex)
-			p.uploadJobs[uMemBlock] = uUploadJob
+		p.uploadMemBlockJobMutex.Lock()
+		if pMemBlock.UploadJob.IsUploadPolicyPrepared == false {
+			p.prepareUploadMemBlockJob(&pMemBlock.UploadJob, uNetBlock, uMemBlock, memBlockIndex)
 		}
 
 		isMergeEventHappened, isMergeWriteMaskSuccess =
-			uUploadJob.Ptr().UploadMaskWaiting.Ptr().MergeIncludeNeighbour(offset, end)
+			pMemBlock.UploadJob.UploadMaskWaiting.Ptr().MergeIncludeNeighbour(offset, end)
 
 		if isMergeWriteMaskSuccess == true {
 			if isMergeEventHappened == false {
-				uUploadJob.Ptr().UNetBlock.Ptr().UploadSig.Add(1)
-				p.uploadJobChan <- uUploadJob
+				pMemBlock.UploadJob.UploadSig.Add(1)
+				p.uploadMemBlockJobChan <- pMemBlock.GetUploadMemBlockJobUintptr()
 			}
 		}
-		p.uploadJobMutex.Unlock()
+		p.uploadMemBlockJobMutex.Unlock()
 
 		if isMergeWriteMaskSuccess == false {
-			uUploadJob.Ptr().UNetBlock.Ptr().UploadSig.Wait()
+			pMemBlock.UploadJob.UploadSig.Wait()
 		}
 	}
-	uMemBlock.Ptr().UploadRWMutex.RUnlock()
 
 	return nil
 }
 
-func (p *netBlockDriverUploader) Flush(uMemBlock types.MemBlockUintptr) error {
-	uMemBlock.Ptr().UploadRWMutex.Lock()
-	// TODO add lock
-	uUploadJob := p.uploadJobs[uMemBlock]
-	if uUploadJob != 0 {
-		uUploadJob.Ptr().UNetBlock.Ptr().UploadSig.Wait()
-		delete(p.uploadJobs, uMemBlock)
-		p.uploadJobPool.ReleaseRawObject(uintptr(uUploadJob))
-	}
-	uMemBlock.Ptr().UploadRWMutex.Unlock()
+func (p *netBlockDriverUploader) FlushMemBlock(uMemBlock types.MemBlockUintptr) error {
+	pMemBlock := uMemBlock.Ptr()
+	// TODO add lock in metadb
+	pMemBlock.UploadJob.UploadSig.Wait()
 	return nil
 }

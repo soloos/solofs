@@ -63,7 +63,7 @@ func TestNetBlockDriver(t *testing.T) {
 	uINode.Ptr().NetBlockSize = 1024
 	uINode.Ptr().MemBlockSize = 128
 
-	uNetBlock, _ := netBlockDriver.MustGetBlock(uINode, 10)
+	uNetBlock := netBlockDriver.MustGetBlock(uINode, 10)
 	uNetBlock.Ptr().DataNodes.Append(uPeer0)
 	uNetBlock.Ptr().DataNodes.Append(uPeer1)
 	uMemBlock := mockMemBlockPool.AllocMemBlock()
@@ -71,7 +71,7 @@ func TestNetBlockDriver(t *testing.T) {
 	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, 0, 12))
 	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, 11, 24))
 	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, 30, 64))
-	assert.NoError(t, netBlockDriver.Flush(uMemBlock))
+	assert.NoError(t, netBlockDriver.FlushMemBlock(uMemBlock))
 
 	assert.NoError(t, mockServer.Close())
 }
