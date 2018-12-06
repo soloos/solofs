@@ -1,7 +1,11 @@
 package netstg
 
 import (
+	"soloos/log"
+	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
+	"soloos/sdfs/types"
+	"soloos/snet"
 	"soloos/snet/srpc"
 	snettypes "soloos/snet/types"
 	"soloos/util"
@@ -15,28 +19,40 @@ const (
 )
 
 type MockServer struct {
-	srpcServer srpc.Server
+	snetDriver    *snet.SNetDriver
+	network       string
+	addr          string
+	srpcServer    srpc.Server
+	dataNodePeers [3]snettypes.PeerUintptr
 }
 
-func (p *MockServer) Init(network string, addr string) error {
+func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr string) error {
 	var err error
-	err = p.srpcServer.Init(network, addr)
+	p.snetDriver = snetDriver
+	p.network = network
+	p.addr = addr
+	err = p.srpcServer.Init(p.network, p.addr)
 	if err != nil {
 		return err
 	}
 
 	p.srpcServer.RegisterService("/NetBlock/PWrite", p.NetBlockPWrite)
 	p.srpcServer.RegisterService("/NetBlock/PRead", p.NetBlockPRead)
+	p.srpcServer.RegisterService("/NetBlock/MustGet", p.NetBlockMustGet)
+	for i := 0; i < len(p.dataNodePeers); i++ {
+		p.dataNodePeers[i] = p.snetDriver.MustGetPeer(nil, p.addr, types.DefaultSDFSRPCProtocol)
+	}
+
 	return nil
 }
 
-func (p *MockServer) NetBlockPWrite(requestID uint64,
-	requestContentLen, parameterLen uint32,
+func (p *MockServer) NetBlockPWrite(reqID uint64,
+	reqBodySize, reqParamSize uint32,
 	conn *snettypes.Connection) error {
-	var blockData = make([]byte, requestContentLen)
+	var blockData = make([]byte, reqBodySize)
 	util.AssertErrIsNil(conn.ReadAll(blockData))
 	var o protocol.NetBlockPWriteRequest
-	o.Init(blockData[:parameterLen], flatbuffers.GetUOffsetT(blockData[:parameterLen]))
+	o.Init(blockData[:reqParamSize], flatbuffers.GetUOffsetT(blockData[:reqParamSize]))
 	var backends = make([]protocol.NetBlockBackend, o.TransferBackendsLength())
 	for i := 0; i < len(backends); i++ {
 		o.TransferBackends(&backends[i], i)
@@ -44,26 +60,42 @@ func (p *MockServer) NetBlockPWrite(requestID uint64,
 
 	var protocolBuilder flatbuffers.Builder
 	protocol.CommonResponseStart(&protocolBuilder)
-	// protocol.CommonResponseAddCode(&protocolBuilder, snettypes.CODE_OK)
 	protocol.CommonResponseAddCode(&protocolBuilder, snettypes.CODE_OK)
 	protocolBuilder.Finish(protocol.CommonResponseEnd(&protocolBuilder))
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
-	util.AssertErrIsNil(conn.SimpleResponse(requestID, respBody))
+	util.AssertErrIsNil(conn.SimpleResponse(reqID, respBody))
 	return nil
 }
 
-func (p *MockServer) NetBlockPRead(requestID uint64,
-	requestContentLen, parameterLen uint32,
+func (p *MockServer) NetBlockPRead(reqID uint64,
+	reqBodySize, reqParamSize uint32,
 	conn *snettypes.Connection) error {
-	var blockData = make([]byte, requestContentLen)
+	var blockData = make([]byte, reqBodySize)
 	util.AssertErrIsNil(conn.ReadAll(blockData))
-	var o protocol.NetBlockPWriteRequest
-	o.Init(blockData[:parameterLen], flatbuffers.GetUOffsetT(blockData[:parameterLen]))
-	var backends = make([]protocol.NetBlockBackend, o.TransferBackendsLength())
-	for i := 0; i < len(backends); i++ {
-		o.TransferBackends(&backends[i], i)
-	}
-	util.AssertErrIsNil(conn.SimpleResponse(requestID, nil))
+	var req protocol.NetBlockPReadRequest
+	req.Init(blockData[:reqParamSize], flatbuffers.GetUOffsetT(blockData[:reqParamSize]))
+	log.Info(req.Offset())
+	log.Info(req.Length())
+	util.AssertErrIsNil(conn.SimpleResponse(reqID, nil))
+	return nil
+}
+
+func (p *MockServer) NetBlockMustGet(reqID uint64,
+	reqBodySize, reqParamSize uint32,
+	conn *snettypes.Connection) error {
+
+	var blockData = make([]byte, reqBodySize)
+	util.AssertErrIsNil(conn.ReadAll(blockData))
+
+	// request
+	var req protocol.INodeNetBlockInfoRequest
+	req.Init(blockData[:reqParamSize], flatbuffers.GetUOffsetT(blockData[:reqParamSize]))
+
+	// response
+	var protocolBuilder flatbuffers.Builder
+	api.SetINodeNetBlockInfoResp(p.dataNodePeers[:], req.Cap(), req.Cap(), &protocolBuilder)
+	util.AssertErrIsNil(conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
+
 	return nil
 }
 

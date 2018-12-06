@@ -1,6 +1,7 @@
 package netstg
 
 import (
+	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	"soloos/snet"
 	"soloos/util/offheap"
@@ -16,6 +17,8 @@ type NetBlockDriver struct {
 
 	snetDriver       *snet.SNetDriver
 	snetClientDriver *snet.ClientDriver
+	nameNodeClient   *api.NameNodeClient
+	dataNodeClient   *api.DataNodeClient
 
 	netBlockDriverUploader netBlockDriverUploader
 }
@@ -23,7 +26,10 @@ type NetBlockDriver struct {
 func (p *NetBlockDriver) Init(options NetBlockDriverOptions,
 	offheapDriver *offheap.OffheapDriver,
 	snetDriver *snet.SNetDriver,
-	snetClientDriver *snet.ClientDriver) error {
+	snetClientDriver *snet.ClientDriver,
+	nameNodeClient *api.NameNodeClient,
+	dataNodeClient *api.DataNodeClient,
+) error {
 	var err error
 	p.options = options
 	p.offheapDriver = offheapDriver
@@ -43,6 +49,8 @@ func (p *NetBlockDriver) Init(options NetBlockDriverOptions,
 
 	p.snetDriver = snetDriver
 	p.snetClientDriver = snetClientDriver
+	p.nameNodeClient = nameNodeClient
+	p.dataNodeClient = dataNodeClient
 
 	return nil
 }
@@ -52,7 +60,6 @@ func (p *NetBlockDriver) RawChunkPoolInvokeReleaseRawChunk() {
 }
 
 func (p *NetBlockDriver) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
-	panic("not support")
 }
 
 // MustGetNetBlock get or init a netBlock
@@ -68,17 +75,17 @@ func (p *NetBlockDriver) MustGetBlock(uINode types.INodeUintptr,
 	uNetBlock, exists = p.pool[netBlockID]
 	p.netBlockAllocRWMutex.RUnlock()
 
-	if !exists {
+	if exists == false {
 		p.netBlockAllocRWMutex.Lock()
 		uNetBlock, exists = p.pool[netBlockID]
-		if !exists {
+		if exists == false {
 			uNetBlock = types.NetBlockUintptr(p.offheapPool.AllocRawObject())
 			p.pool[netBlockID] = uNetBlock
 		}
 		p.netBlockAllocRWMutex.Unlock()
 
-		if !uNetBlock.Ptr().IsMetaDataInited {
-			p.PrepareNetBlockMetadata(uINode, uNetBlock)
+		if uNetBlock.Ptr().IsMetaDataInited == false {
+			p.PrepareNetBlockMetadata(uINode, netBlockIndex, uNetBlock)
 		}
 	}
 

@@ -36,13 +36,13 @@ func (p *MemBlockDriver) MustGetBlockWithReadAcquire(uINode types.INodeUintptr,
 	memBlockIndex int) (types.MemBlockUintptr, bool) {
 	var memBlockID types.PtrBindIndex
 	types.EncodePtrBindIndex(&memBlockID, uintptr(uINode), memBlockIndex)
-	return p.pools[uINode.Ptr().MemBlockSize].MustGetBlockWithReadAcquire(memBlockID)
+	return p.pools[uINode.Ptr().MemBlockCap].MustGetBlockWithReadAcquire(memBlockID)
 }
 
 func (p *MemBlockDriver) AllocTmpBlockWithWriteAcquire(uINode types.INodeUintptr) types.MemBlockUintptr {
-	return p.pools[uINode.Ptr().MemBlockSize].AllocTmpBlockWithWriteAcquire()
+	return p.pools[uINode.Ptr().MemBlockCap].AllocTmpBlockWithWriteAcquire()
 }
 
 func (p *MemBlockDriver) ReleaseTmpBlock(uINode types.INodeUintptr, uMemBlock types.MemBlockUintptr) {
-	p.pools[uINode.Ptr().MemBlockSize].ReleaseTmpBlock(uMemBlock)
+	p.pools[uINode.Ptr().MemBlockCap].ReleaseTmpBlock(uMemBlock)
 }

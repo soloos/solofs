@@ -9,6 +9,19 @@ table NetBlockBackend {
     Address:string;
 }
 
+table INodeNetBlockInfoRequest {
+	InodeID:string;
+    NetBlockIndex:int;
+    Cap:int;
+}
+
+table INodeNetBlockInfoResponse {
+	NetBlockID:string;
+    Len:int;
+    Cap:int;
+    Backends:[NetBlockBackend];
+}
+
 table NetBlockPWriteRequest {
 	NetBlockID:string;
     Offset:int;

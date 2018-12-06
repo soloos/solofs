@@ -15,11 +15,11 @@ func (p *MetaStg) FetchNetBlock(pNetBlock *types.NetBlock) (exsists bool, err er
 	)
 
 	sess = p.DBConn.NewSession(nil)
-	sqlRows, err = sess.Select("index_in_inode", "netblock_size").
+	sqlRows, err = sess.Select("index_in_inode", "netblock_len", "netblock_cap").
 		From("b_netblock").
 		Where("netblock_id=?", pNetBlock.IDStr()).Rows()
 	for sqlRows.Next() {
-		sqlRows.Scan(&pNetBlock.IndexInInode, &pNetBlock.Size)
+		sqlRows.Scan(&pNetBlock.IndexInInode, &pNetBlock.Len, &pNetBlock.Cap)
 		exsists = true
 	}
 	err = sqlRows.Close()
@@ -53,7 +53,7 @@ func (p *MetaStg) insertNetBlockDataNodes(sess *dbr.Session, pNetBlock *types.Ne
 		uPeer = pNetBlock.DataNodes.Arr[i]
 		_, err = sess.InsertInto("r_netblock_store_peer").
 			Columns("netblock_id", "peer_id").
-			Values(netBlockIDStr, uPeer.Ptr().IDStr()).
+			Values(netBlockIDStr, uPeer.Ptr().PeerIDStr()).
 			Exec()
 		if err != nil {
 			return err
@@ -79,14 +79,15 @@ func (p *MetaStg) StoreNetBlock(pINode *types.INode, pNetBlock *types.NetBlock, 
 	}
 
 	_, err = sess.InsertInto("b_netblock").
-		Columns("netblock_id", "inode_id", "index_in_inode", "netblock_size").
-		Values(netBlockIDStr, inodeIDStr, pNetBlock.IndexInInode, pNetBlock.Size).
+		Columns("netblock_id", "inode_id", "index_in_inode", "netblock_len", "netblock_cap").
+		Values(netBlockIDStr, inodeIDStr, pNetBlock.IndexInInode, pNetBlock.Len, pNetBlock.Cap).
 		Exec()
 	if err != nil {
 		_, err = sess.Update("b_netblock").
 			Set("inode_id", inodeIDStr).
 			Set("index_in_inode", pNetBlock.IndexInInode).
-			Set("netblock_size", pNetBlock.Size).
+			Set("netblock_len", pNetBlock.Len).
+			Set("netblock_cap", pNetBlock.Cap).
 			Where("netblock_id=?", netBlockIDStr).
 			Exec()
 	}

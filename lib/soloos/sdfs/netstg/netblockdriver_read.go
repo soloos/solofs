@@ -1,11 +1,8 @@
 package netstg
 
 import (
-	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
-
-	flatbuffers "github.com/google/flatbuffers/go"
 )
 
 func (p *NetBlockDriver) PRead(uINode types.INodeUintptr,
@@ -18,23 +15,14 @@ func (p *NetBlockDriver) PRead(uINode types.INodeUintptr,
 	}
 
 	var (
-		request         snettypes.Request
-		response        snettypes.Response
-		protocolBuilder flatbuffers.Builder
-		err             error
+		resp snettypes.Response
+		err  error
 	)
 
-	peerOff := protocolBuilder.CreateByteVector(uNetBlock.Ptr().ID[:])
-	protocol.NetBlockPReadRequestStart(&protocolBuilder)
-	protocol.NetBlockPReadRequestAddNetBlockID(&protocolBuilder, peerOff)
-	protocol.NetBlockPReadRequestAddOffset(&protocolBuilder, int32(offset))
-	protocol.NetBlockPReadRequestAddLength(&protocolBuilder, int32(length))
-	protocolBuilder.Finish(protocol.NetBlockPReadRequestEnd(&protocolBuilder))
-	request.Parameter = protocolBuilder.Bytes[protocolBuilder.Head():]
-
-	// TODO choose datanode
-	err = p.snetClientDriver.Call(uNetBlock.Ptr().DataNodes.Arr[0],
-		"/NetBlock/PRead", &request, &response)
+	err = p.dataNodeClient.PRead(uNetBlock.Ptr().DataNodes.Arr[0],
+		uNetBlock,
+		offset, length,
+		&resp)
 	if err != nil {
 		return err
 	}

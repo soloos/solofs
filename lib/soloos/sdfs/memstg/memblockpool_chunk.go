@@ -102,7 +102,7 @@ func (p *memBlockPoolChunk) takeBlockForRelease() types.MemBlockUintptr {
 	iRet := p.workingChunkPool.IteratorAndPop(func(x interface{}) (bool, interface{}) {
 		uMemBlock := x.(types.MemBlockUintptr)
 		pMemBlock := uMemBlock.Ptr()
-		if !pMemBlock.IsInited() && pMemBlock.Chunk.Ptr().Accessor > 0 {
+		if pMemBlock.IsInited() == false && pMemBlock.Chunk.Ptr().Accessor > 0 {
 			return false, 0
 		}
 		return true, uMemBlock
@@ -116,7 +116,7 @@ func (p *memBlockPoolChunk) takeBlockForRelease() types.MemBlockUintptr {
 	iRet = p.workingChunkPool.IteratorAndPop(func(x interface{}) (bool, interface{}) {
 		uMemBlock := x.(types.MemBlockUintptr)
 		pMemBlock := uMemBlock.Ptr()
-		if !pMemBlock.IsInited() {
+		if pMemBlock.IsInited() == false {
 			return false, 0
 		}
 		return true, uMemBlock
@@ -174,7 +174,7 @@ func (p *memBlockPoolChunk) MustGetBlockWithReadAcquire(blockID types.PtrBindInd
 	}
 	p.memBlocksRWMutex.RUnlock()
 
-	if uMemBlock != 0 && !p.checkBlock(blockID, uMemBlock) {
+	if uMemBlock != 0 && p.checkBlock(blockID, uMemBlock) == false {
 		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
 		uMemBlock = 0
 	}

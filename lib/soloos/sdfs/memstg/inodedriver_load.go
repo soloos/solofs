@@ -19,8 +19,8 @@ func (p *INodeDriver) unsafeMemBlockRebaseNetBlock(uINode types.INodeUintptr,
 
 	uTmpMemBlock := p.memBlockDriver.AllocTmpBlockWithWriteAcquire(uINode)
 	err = p.netBlockDriver.PRead(uINode, uNetBlock, uTmpMemBlock, memBlockIndex,
-		memBlockIndex*uINode.Ptr().MemBlockSize,
-		uINode.Ptr().MemBlockSize,
+		memBlockIndex*uINode.Ptr().MemBlockCap,
+		uINode.Ptr().MemBlockCap,
 	)
 	if err == nil {
 		pMemBlock.AvailMask.MergeElementRWMutex.Lock()

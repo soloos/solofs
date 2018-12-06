@@ -1,6 +1,7 @@
 package types
 
 import (
+	"soloos/util"
 	"soloos/util/offheap"
 )
 
@@ -26,4 +27,14 @@ func (p *MockINodePool) MustGetINode(inodeID INodeID) (INodeUintptr, bool) {
 	u, loaded := p.pool.MustGetRawObject(inodeID)
 	uINode := (INodeUintptr)(u)
 	return uINode, loaded
+}
+
+func (p *MockINodePool) InitINode(netBlockCap, memBlockCap int) INodeUintptr {
+	var inodeID INodeID
+	util.InitUUID64(&inodeID)
+	uINode, _ := p.MustGetINode(inodeID)
+	uINode.Ptr().ID = inodeID
+	uINode.Ptr().NetBlockCap = netBlockCap
+	uINode.Ptr().MemBlockCap = memBlockCap
+	return uINode
 }

@@ -16,8 +16,8 @@ func (p *INodeDriver) preadMemBlock(uINode types.INodeUintptr, memBlockIndex int
 	// check memblock
 	uMemBlock, _ := p.memBlockDriver.MustGetBlockWithReadAcquire(uINode, memBlockIndex)
 	// TODO maybe rebase is not needed
-	if !uMemBlock.Ptr().Contains(offset, end) {
-		netBlockIndex := memBlockIndex * pINode.MemBlockSize / pINode.NetBlockSize
+	if uMemBlock.Ptr().Contains(offset, end) == false {
+		netBlockIndex := memBlockIndex * pINode.MemBlockCap / pINode.NetBlockCap
 		uNetBlock := p.netBlockDriver.MustGetBlock(uINode, netBlockIndex)
 		err = p.unsafeMemBlockRebaseNetBlock(uINode, uNetBlock, uMemBlock, memBlockIndex)
 		if err != nil {
@@ -45,11 +45,11 @@ func (p *INodeDriver) PRead(uINode types.INodeUintptr, data []byte, offset int64
 	pINode.AccessRWMutex.RLock()
 
 	// read data from first memblock
-	// memBlockIndex = int(math.Ceil(float64(offset) / float64(pINode.MemBlockSize)))
-	memBlockIndex = int(offset / int64(pINode.MemBlockSize))
-	memBlockBytesOffset = int(offset - (int64(memBlockIndex) * int64(pINode.MemBlockSize)))
+	// memBlockIndex = int(math.Ceil(float64(offset) / float64(pINode.MemBlockCap)))
+	memBlockIndex = int(offset / int64(pINode.MemBlockCap))
+	memBlockBytesOffset = int(offset - (int64(memBlockIndex) * int64(pINode.MemBlockCap)))
 	dataOffset = 0
-	dataEnd = dataOffset + (pINode.MemBlockSize - memBlockBytesOffset)
+	dataEnd = dataOffset + (pINode.MemBlockCap - memBlockBytesOffset)
 	if dataEnd > len(data) {
 		dataEnd = len(data)
 	}
@@ -60,12 +60,12 @@ func (p *INodeDriver) PRead(uINode types.INodeUintptr, data []byte, offset int64
 
 	// read data from other memblock
 	dataOffset += dataEnd
-	for ; dataOffset < len(data); dataOffset += pINode.MemBlockSize {
-		dataEnd = dataOffset + pINode.MemBlockSize
+	for ; dataOffset < len(data); dataOffset += pINode.MemBlockCap {
+		dataEnd = dataOffset + pINode.MemBlockCap
 		if dataEnd > len(data) {
 			dataEnd = len(data)
 		}
-		memBlockIndex = int((offset + int64(dataOffset)) / int64(pINode.MemBlockSize))
+		memBlockIndex = int((offset + int64(dataOffset)) / int64(pINode.MemBlockCap))
 		err = p.preadMemBlock(uINode, memBlockIndex, data[dataOffset:dataEnd], 0)
 		if err != nil {
 			goto READ_DATA_DONE

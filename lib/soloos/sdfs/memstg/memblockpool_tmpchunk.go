@@ -28,7 +28,7 @@ func (p *memBlockPoolChunk) takeTmpBlockForRelease() types.MemBlockUintptr {
 	iRet := p.workingTmpChunkPool.IteratorAndPop(func(x interface{}) (bool, interface{}) {
 		uMemBlock := x.(types.MemBlockUintptr)
 		pMemBlock := uMemBlock.Ptr()
-		if !pMemBlock.IsInited() && pMemBlock.Chunk.Ptr().Accessor > 0 {
+		if pMemBlock.IsInited() == false && pMemBlock.Chunk.Ptr().Accessor > 0 {
 			return false, 0
 		}
 		return true, uMemBlock
@@ -38,7 +38,7 @@ func (p *memBlockPoolChunk) takeTmpBlockForRelease() types.MemBlockUintptr {
 		iRet = p.workingTmpChunkPool.IteratorAndPop(func(x interface{}) (bool, interface{}) {
 			uMemBlock := x.(types.MemBlockUintptr)
 			pMemBlock := uMemBlock.Ptr()
-			if !pMemBlock.IsInited() {
+			if pMemBlock.IsInited() == false {
 				return false, 0
 			}
 			return true, uMemBlock

@@ -14,14 +14,14 @@ func (p *MetaStg) FetchINode(pINode *types.INode) (exsists bool, err error) {
 	)
 
 	sess = p.DBConn.NewSession(nil)
-	sqlRows, err = sess.Select("inode_size", "netblock_size", "memblock_size").
+	sqlRows, err = sess.Select("inode_size", "netblock_cap", "memblock_cap").
 		From("b_inode").
 		Where("inode_id=?", pINode.IDStr()).Rows()
 	if sqlRows == nil {
 		return
 	}
 	for sqlRows.Next() {
-		sqlRows.Scan(&pINode.Size, &pINode.NetBlockSize, &pINode.MemBlockSize)
+		sqlRows.Scan(&pINode.Size, &pINode.NetBlockCap, &pINode.MemBlockCap)
 		exsists = true
 	}
 	err = sqlRows.Close()
@@ -47,14 +47,14 @@ func (p *MetaStg) StoreINode(pINode *types.INode) error {
 	}
 
 	_, err = sess.InsertInto("b_inode").
-		Columns("inode_id", "inode_size", "netblock_size", "memblock_size").
-		Values(inodeIDStr, pINode.Size, pINode.NetBlockSize, pINode.MemBlockSize).
+		Columns("inode_id", "inode_size", "netblock_cap", "memblock_cap").
+		Values(inodeIDStr, pINode.Size, pINode.NetBlockCap, pINode.MemBlockCap).
 		Exec()
 	if err != nil {
 		_, err = sess.Update("b_inode").
 			Set("inode_size", pINode.Size).
-			Set("netblock_size", pINode.NetBlockSize).
-			Set("memblock_size", pINode.MemBlockSize).
+			Set("netblock_cap", pINode.NetBlockCap).
+			Set("memblock_cap", pINode.MemBlockCap).
 			Where("inode_id=?", inodeIDStr).
 			Exec()
 	}

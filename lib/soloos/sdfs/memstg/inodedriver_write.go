@@ -13,18 +13,18 @@ func (p *INodeDriver) PWrite(uINode types.INodeUintptr, data []byte, offset int6
 	pINode.AccessRWMutex.RLock()
 
 	// write in memblock
-	memBlockIndex := int(offset / int64(pINode.MemBlockSize))
-	memBlockBytesOffset := int(offset - int64(memBlockIndex)*int64(pINode.MemBlockSize))
+	memBlockIndex := int(offset / int64(pINode.MemBlockCap))
+	memBlockBytesOffset := int(offset - int64(memBlockIndex)*int64(pINode.MemBlockCap))
 	memBlockBytesEnd := memBlockBytesOffset + len(data)
 	uMemBlock, _ := p.memBlockDriver.MustGetBlockWithReadAcquire(uINode, memBlockIndex)
 	isSuccess = uMemBlock.Ptr().PWrite(data, memBlockBytesOffset)
-	if !isSuccess {
+	if isSuccess == false {
 		// TODO memblock load data
 		panic("write error")
 	}
 
 	// write in netblock
-	netBlockIndex := int(offset / int64(pINode.NetBlockSize))
+	netBlockIndex := int(offset / int64(pINode.NetBlockCap))
 	uNetBlock := p.netBlockDriver.MustGetBlock(uINode, netBlockIndex)
 	err = p.netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, memBlockBytesOffset, memBlockBytesEnd)
 	if err != nil {

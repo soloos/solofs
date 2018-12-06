@@ -32,8 +32,6 @@ type UploadMemBlockJob struct {
 }
 
 func (p *UploadMemBlockJob) Reset() {
-	p.UploadMaskWaitingIndex = 1
-	p.UploadMaskSwap()
 	p.IsUploadPolicyPrepared = false
 }
 

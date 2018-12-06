@@ -9,8 +9,8 @@ func commonSchemaSqls() []string {
 	create table if not exists b_inode (
 	inode_id char(64),
 	inode_size int,
-	netblock_size int,
-	memblock_size int,
+	netblock_cap int,
+	memblock_cap int,
 	primary key(inode_id)
 	);
 `)
@@ -23,7 +23,8 @@ func commonSchemaSqls() []string {
 	netblock_id char(64),
 	inode_id char(64),
 	index_in_inode int,
-	netblock_size int,
+	netblock_len int,
+	netblock_cap int,
 	primary key(netblock_id)
 	);
 `)
