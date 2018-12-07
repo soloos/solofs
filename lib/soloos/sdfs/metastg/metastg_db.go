@@ -25,6 +25,7 @@ func commonSchemaSqls() []string {
 	index_in_inode int,
 	netblock_len int,
 	netblock_cap int,
+	backend_peer_id_arr text,
 	primary key(netblock_id)
 	);
 `)

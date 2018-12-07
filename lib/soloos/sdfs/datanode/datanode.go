@@ -1,11 +1,17 @@
 package datanode
 
+import "soloos/util/offheap"
+
 type DataNode struct {
+	offheapDriver *offheap.OffheapDriver
+
 	SRPCServer DataNodeSRPCServer
 }
 
-func (p *DataNode) Init(options DataNodeOptions) error {
+func (p *DataNode) Init(options DataNodeOptions, offheapDriver *offheap.OffheapDriver) error {
 	var err error
+
+	p.offheapDriver = offheapDriver
 
 	err = p.SRPCServer.Init(p, options.SRPCServer)
 	if err != nil {

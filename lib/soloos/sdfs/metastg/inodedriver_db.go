@@ -7,32 +7,37 @@ import (
 	"github.com/gocraft/dbr"
 )
 
-func (p *MetaStg) FetchINode(pINode *types.INode) (exsists bool, err error) {
+func (p *INodeDriver) FetchINodeFromDB(pINode *types.INode) error {
 	var (
 		sess    *dbr.Session
 		sqlRows *sql.Rows
+		err     error
 	)
 
-	sess = p.DBConn.NewSession(nil)
+	sess = p.metaStg.DBConn.NewSession(nil)
 	sqlRows, err = sess.Select("inode_size", "netblock_cap", "memblock_cap").
 		From("b_inode").
 		Where("inode_id=?", pINode.IDStr()).Rows()
-	if sqlRows == nil {
-		return
-	}
-	for sqlRows.Next() {
-		sqlRows.Scan(&pINode.Size, &pINode.NetBlockCap, &pINode.MemBlockCap)
-		exsists = true
-	}
-	err = sqlRows.Close()
 	if err != nil {
-		return
+		goto QUERY_DONE
 	}
 
-	return
+	if sqlRows.Next() == false {
+		err = types.ErrObjectNotExists
+		goto QUERY_DONE
+	}
+
+	err = sqlRows.Scan(&pINode.Size, &pINode.NetBlockCap, &pINode.MemBlockCap)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
+QUERY_DONE:
+	sqlRows.Close()
+	return err
 }
 
-func (p *MetaStg) StoreINode(pINode *types.INode) error {
+func (p *INodeDriver) StoreINodeInDB(pINode *types.INode) error {
 	var (
 		sess       *dbr.Session
 		tx         *dbr.Tx
@@ -40,10 +45,10 @@ func (p *MetaStg) StoreINode(pINode *types.INode) error {
 		err        error
 	)
 
-	sess = p.DBConn.NewSession(nil)
+	sess = p.metaStg.DBConn.NewSession(nil)
 	tx, err = sess.Begin()
 	if err != nil {
-		return err
+		goto QUERY_DONE
 	}
 
 	_, err = sess.InsertInto("b_inode").
@@ -59,15 +64,11 @@ func (p *MetaStg) StoreINode(pINode *types.INode) error {
 			Exec()
 	}
 
+QUERY_DONE:
 	if err != nil {
 		tx.RollbackUnlessCommitted()
-		return err
+	} else {
+		err = tx.Commit()
 	}
-
-	err = tx.Commit()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

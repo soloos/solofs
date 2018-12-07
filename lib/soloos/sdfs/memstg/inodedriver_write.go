@@ -6,17 +6,23 @@ import (
 
 func (p *INodeDriver) PWrite(uINode types.INodeUintptr, data []byte, offset int64) error {
 	var (
-		isSuccess bool
-		err       error
+		isSuccess           bool
+		memBlockIndex       int
+		memBlockBytesOffset int
+		memBlockBytesEnd    int
+		uMemBlock           types.MemBlockUintptr
+		netBlockIndex       int
+		uNetBlock           types.NetBlockUintptr
+		err                 error
 	)
 	pINode := uINode.Ptr()
-	pINode.AccessRWMutex.RLock()
+	pINode.MetaDataMutex.RLock()
 
 	// write in memblock
-	memBlockIndex := int(offset / int64(pINode.MemBlockCap))
-	memBlockBytesOffset := int(offset - int64(memBlockIndex)*int64(pINode.MemBlockCap))
-	memBlockBytesEnd := memBlockBytesOffset + len(data)
-	uMemBlock, _ := p.memBlockDriver.MustGetBlockWithReadAcquire(uINode, memBlockIndex)
+	memBlockIndex = int(offset / int64(pINode.MemBlockCap))
+	memBlockBytesOffset = int(offset - int64(memBlockIndex)*int64(pINode.MemBlockCap))
+	memBlockBytesEnd = memBlockBytesOffset + len(data)
+	uMemBlock, _ = p.memBlockDriver.MustGetBlockWithReadAcquire(uINode, memBlockIndex)
 	isSuccess = uMemBlock.Ptr().PWrite(data, memBlockBytesOffset)
 	if isSuccess == false {
 		// TODO memblock load data
@@ -24,8 +30,12 @@ func (p *INodeDriver) PWrite(uINode types.INodeUintptr, data []byte, offset int6
 	}
 
 	// write in netblock
-	netBlockIndex := int(offset / int64(pINode.NetBlockCap))
-	uNetBlock := p.netBlockDriver.MustGetBlock(uINode, netBlockIndex)
+	netBlockIndex = int(offset / int64(pINode.NetBlockCap))
+	uNetBlock, err = p.netBlockDriver.MustGetBlock(uINode, netBlockIndex)
+	if err != nil {
+		goto WRITE_DATA_DONE
+	}
+
 	err = p.netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, memBlockBytesOffset, memBlockBytesEnd)
 	if err != nil {
 		goto WRITE_DATA_DONE
@@ -33,20 +43,20 @@ func (p *INodeDriver) PWrite(uINode types.INodeUintptr, data []byte, offset int6
 
 WRITE_DATA_DONE:
 	uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
-	pINode.AccessRWMutex.RUnlock()
+	pINode.MetaDataMutex.RUnlock()
 	return err
 }
 
 func (p *INodeDriver) FlushMemBlock(uINode types.INodeUintptr,
 	uMemBlock types.MemBlockUintptr) error {
 	var err error
-	uINode.Ptr().AccessRWMutex.Lock()
+	uINode.Ptr().MetaDataMutex.Lock()
 	err = p.netBlockDriver.FlushMemBlock(uMemBlock)
 	if err != nil {
 		goto FLUSH_DATA_DONE
 	}
 
 FLUSH_DATA_DONE:
-	uINode.Ptr().AccessRWMutex.Unlock()
+	uINode.Ptr().MetaDataMutex.Unlock()
 	return err
 }

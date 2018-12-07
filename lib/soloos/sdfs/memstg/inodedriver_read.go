@@ -17,8 +17,16 @@ func (p *INodeDriver) preadMemBlock(uINode types.INodeUintptr, memBlockIndex int
 	uMemBlock, _ := p.memBlockDriver.MustGetBlockWithReadAcquire(uINode, memBlockIndex)
 	// TODO maybe rebase is not needed
 	if uMemBlock.Ptr().Contains(offset, end) == false {
-		netBlockIndex := memBlockIndex * pINode.MemBlockCap / pINode.NetBlockCap
-		uNetBlock := p.netBlockDriver.MustGetBlock(uINode, netBlockIndex)
+		var (
+			netBlockIndex int
+			uNetBlock     types.NetBlockUintptr
+		)
+		netBlockIndex = memBlockIndex * pINode.MemBlockCap / pINode.NetBlockCap
+		uNetBlock, err = p.netBlockDriver.MustGetBlock(uINode, netBlockIndex)
+		if err != nil {
+			goto READ_DATA_DONE
+		}
+
 		err = p.unsafeMemBlockRebaseNetBlock(uINode, uNetBlock, uMemBlock, memBlockIndex)
 		if err != nil {
 			goto READ_DATA_DONE
@@ -42,7 +50,7 @@ func (p *INodeDriver) PRead(uINode types.INodeUintptr, data []byte, offset int64
 		err                 error
 	)
 	pINode := uINode.Ptr()
-	pINode.AccessRWMutex.RLock()
+	pINode.MetaDataMutex.RLock()
 
 	// read data from first memblock
 	// memBlockIndex = int(math.Ceil(float64(offset) / float64(pINode.MemBlockCap)))
@@ -73,6 +81,6 @@ func (p *INodeDriver) PRead(uINode types.INodeUintptr, data []byte, offset int64
 	}
 
 READ_DATA_DONE:
-	pINode.AccessRWMutex.RUnlock()
+	pINode.MetaDataMutex.RUnlock()
 	return err
 }

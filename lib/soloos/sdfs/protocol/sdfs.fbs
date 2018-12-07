@@ -2,6 +2,7 @@ namespace protocol;
 
 table CommonResponse {
     Code:int;
+    Error:string;
 }
 
 table NetBlockBackend {
@@ -16,6 +17,7 @@ table INodeNetBlockInfoRequest {
 }
 
 table INodeNetBlockInfoResponse {
+    CommonResponse:CommonResponse;
 	NetBlockID:string;
     Len:int;
     Cap:int;

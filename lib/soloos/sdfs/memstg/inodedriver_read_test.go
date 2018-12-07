@@ -17,9 +17,13 @@ func TestINodeDriverINodeRead(t *testing.T) {
 		memBlockCap      int   = 64
 		blockChunksLimit int32 = 4
 		uINode           types.INodeUintptr
+		err              error
 	)
-	InitDriversForTest(t, "127.0.0.1:10022", &mockServer, &memBlockDriver, &inodeDriver, memBlockCap, blockChunksLimit)
-	uINode = inodeDriver.InitINode(netBlockCap, memBlockCap)
+	InitDriversWithMockServerForTest(t,
+		"127.0.0.1:10022", &mockServer,
+		&memBlockDriver, &inodeDriver, memBlockCap, blockChunksLimit)
+	uINode, err = inodeDriver.InitINode(netBlockCap, memBlockCap)
+	assert.NoError(t, err)
 
 	var (
 		readData       = make([]byte, 93)

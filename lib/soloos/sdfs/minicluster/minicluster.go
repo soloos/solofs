@@ -6,14 +6,17 @@ import (
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
 	"soloos/util"
+	"soloos/util/offheap"
 )
 
 type MiniCluster struct {
-	DataNodes []datanode.DataNode
-	NameNodes []namenode.NameNode
+	offheapDriver *offheap.OffheapDriver
+	DataNodes     []datanode.DataNode
+	NameNodes     []namenode.NameNode
 }
 
 func (p *MiniCluster) Init(nameNodePorts []int, dataNodePorts []int) {
+	p.offheapDriver = &offheap.DefaultOffheapDriver
 	p.NameNodes = make([]namenode.NameNode, len(nameNodePorts))
 	for i := 0; i < len(nameNodePorts); i++ {
 		nameNodePort := nameNodePorts[i]
@@ -25,7 +28,7 @@ func (p *MiniCluster) Init(nameNodePorts []int, dataNodePorts []int) {
 			metastg.TestMetaStgDBDriver,
 			metastg.TestMetaStgDBConnect,
 		}
-		util.AssertErrIsNil(p.NameNodes[i].Init(options))
+		util.AssertErrIsNil(p.NameNodes[i].Init(options, p.offheapDriver))
 		go func() {
 			util.AssertErrIsNil(p.NameNodes[i].Serve())
 		}()
@@ -40,7 +43,7 @@ func (p *MiniCluster) Init(nameNodePorts []int, dataNodePorts []int) {
 				fmt.Sprintf("127.0.0.1:%d", dataNodePort),
 			},
 		}
-		util.AssertErrIsNil(p.DataNodes[i].Init(options))
+		util.AssertErrIsNil(p.DataNodes[i].Init(options, p.offheapDriver))
 		go func() {
 			util.AssertErrIsNil(p.DataNodes[i].Serve())
 		}()

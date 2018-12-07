@@ -37,7 +37,7 @@ func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr stri
 
 	p.srpcServer.RegisterService("/NetBlock/PWrite", p.NetBlockPWrite)
 	p.srpcServer.RegisterService("/NetBlock/PRead", p.NetBlockPRead)
-	p.srpcServer.RegisterService("/NetBlock/MustGet", p.NetBlockMustGet)
+	p.srpcServer.RegisterService("/NetBlock/PrepareMetadata", p.NetBlockPrepareMetadata)
 	for i := 0; i < len(p.dataNodePeers); i++ {
 		p.dataNodePeers[i] = p.snetDriver.MustGetPeer(nil, p.addr, types.DefaultSDFSRPCProtocol)
 	}
@@ -87,7 +87,7 @@ func (p *MockServer) NetBlockPRead(reqID uint64,
 	return nil
 }
 
-func (p *MockServer) NetBlockMustGet(reqID uint64,
+func (p *MockServer) NetBlockPrepareMetadata(reqID uint64,
 	reqBodySize, reqParamSize uint32,
 	conn *snettypes.Connection) error {
 
@@ -100,7 +100,7 @@ func (p *MockServer) NetBlockMustGet(reqID uint64,
 
 	// response
 	var protocolBuilder flatbuffers.Builder
-	api.SetINodeNetBlockInfoResp(p.dataNodePeers[:], req.Cap(), req.Cap(), &protocolBuilder)
+	api.SetINodeNetBlockInfoResponse(p.dataNodePeers[:], req.Cap(), req.Cap(), &protocolBuilder)
 	util.AssertErrIsNil(conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
 	return nil

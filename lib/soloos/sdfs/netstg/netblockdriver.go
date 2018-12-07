@@ -13,7 +13,7 @@ type NetBlockDriver struct {
 	offheapDriver        *offheap.OffheapDriver
 	netBlockAllocRWMutex sync.RWMutex
 	offheapPool          offheap.RawObjectPool
-	pool                 map[types.INodeBlockID]types.NetBlockUintptr
+	pool                 types.NetBlockPool
 
 	snetDriver       *snet.SNetDriver
 	snetClientDriver *snet.ClientDriver
@@ -38,14 +38,10 @@ func (p *NetBlockDriver) Init(options NetBlockDriverOptions,
 		return err
 	}
 
-	err = p.offheapDriver.InitRawObjectPool(&p.offheapPool,
-		int(types.NetBlockStructSize), p.options.RawChunksLimit,
-		p.RawChunkPoolInvokePrepareNewRawChunk, p.RawChunkPoolInvokeReleaseRawChunk)
+	err = p.pool.Init(p.options.RawChunksLimit, p.offheapDriver)
 	if err != nil {
 		return err
 	}
-
-	p.pool = make(map[types.INodeBlockID]types.NetBlockUintptr)
 
 	p.snetDriver = snetDriver
 	p.snetClientDriver = snetClientDriver
@@ -64,30 +60,21 @@ func (p *NetBlockDriver) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr)
 
 // MustGetNetBlock get or init a netBlock
 func (p *NetBlockDriver) MustGetBlock(uINode types.INodeUintptr,
-	netBlockIndex int) types.NetBlockUintptr {
+	netBlockIndex int) (types.NetBlockUintptr, error) {
 	var (
-		netBlockID types.INodeBlockID
-		uNetBlock  types.NetBlockUintptr
-		exists     bool
+		uNetBlock types.NetBlockUintptr
+		exists    bool
+		err       error
 	)
-	types.EncodeINodeBlockID(&netBlockID, uINode.Ptr().ID, netBlockIndex)
-	p.netBlockAllocRWMutex.RLock()
-	uNetBlock, exists = p.pool[netBlockID]
-	p.netBlockAllocRWMutex.RUnlock()
 
-	if exists == false {
-		p.netBlockAllocRWMutex.Lock()
-		uNetBlock, exists = p.pool[netBlockID]
-		if exists == false {
-			uNetBlock = types.NetBlockUintptr(p.offheapPool.AllocRawObject())
-			p.pool[netBlockID] = uNetBlock
+	uNetBlock, exists = p.pool.MustGetNetBlock(uINode, netBlockIndex)
+
+	if exists == false || uNetBlock.Ptr().IsMetaDataInited == false {
+		err = p.PrepareNetBlockMetadata(uINode, netBlockIndex, uNetBlock)
+		if err != nil {
+			return 0, err
 		}
-		p.netBlockAllocRWMutex.Unlock()
 	}
 
-	if uNetBlock.Ptr().IsMetaDataInited == false {
-		p.PrepareNetBlockMetadata(uINode, netBlockIndex, uNetBlock)
-	}
-
-	return uNetBlock
+	return uNetBlock, nil
 }

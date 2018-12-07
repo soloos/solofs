@@ -9,18 +9,23 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func SetINodeNetBlockInfoResp(backends []snettypes.PeerUintptr, netBlockLen, netBlockCap int32,
+func SetINodeNetBlockInfoResponse(backends []snettypes.PeerUintptr, netBlockLen, netBlockCap int32,
 	protocolBuilder *flatbuffers.Builder) {
 	var (
-		netBlockID    types.NetBlockID
-		peerOff       flatbuffers.UOffsetT
-		addrOff       flatbuffers.UOffsetT
-		backendOff    flatbuffers.UOffsetT
-		netBlockIDOff flatbuffers.UOffsetT
-		i             int
+		netBlockID        types.NetBlockID
+		peerOff           flatbuffers.UOffsetT
+		addrOff           flatbuffers.UOffsetT
+		backendOff        flatbuffers.UOffsetT
+		netBlockIDOff     flatbuffers.UOffsetT
+		commonResponseOff flatbuffers.UOffsetT
+		i                 int
 	)
 
 	backendOffs := make([]flatbuffers.UOffsetT, len(backends))
+
+	protocol.CommonResponseStart(protocolBuilder)
+	protocol.CommonResponseAddCode(protocolBuilder, snettypes.CODE_OK)
+	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
 
 	for i = 0; i < len(backends); i++ {
 		peerOff = protocolBuilder.CreateByteVector(backends[i].Ptr().PeerID[:])
@@ -41,6 +46,7 @@ func SetINodeNetBlockInfoResp(backends []snettypes.PeerUintptr, netBlockLen, net
 
 	netBlockIDOff = protocolBuilder.CreateByteVector(netBlockID[:])
 	protocol.INodeNetBlockInfoResponseStart(protocolBuilder)
+	protocol.INodeNetBlockInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
 	protocol.INodeNetBlockInfoResponseAddNetBlockID(protocolBuilder, netBlockIDOff)
 	protocol.INodeNetBlockInfoResponseAddBackends(protocolBuilder, backendOff)
 	protocol.INodeNetBlockInfoResponseAddLen(protocolBuilder, netBlockLen)

@@ -26,8 +26,8 @@ func TestNetBlockDriver(t *testing.T) {
 		netBlockDriver   NetBlockDriver
 	)
 	mockServerAddr := "127.0.0.1:10021"
-	mockMemBlockPool.Init(&offheap.DefaultOffheapDriver, 1024)
-	InitDriversForTest(t, &snetDriver, &snetClientDriver,
+	mockMemBlockPool.Init(offheapDriver, 1024)
+	InitDriversWithMockServerForTest(t, &snetDriver, &snetClientDriver,
 		mockServerAddr, &mockServer,
 		&nameNodeClient, &dataNodeClient,
 		&netBlockDriver)
@@ -52,7 +52,8 @@ func TestNetBlockDriver(t *testing.T) {
 	uINode.Ptr().NetBlockCap = 1024
 	uINode.Ptr().MemBlockCap = 128
 
-	uNetBlock := netBlockDriver.MustGetBlock(uINode, 10)
+	uNetBlock, err := netBlockDriver.MustGetBlock(uINode, 10)
+	assert.NoError(t, err)
 	uNetBlock.Ptr().DataNodes.Append(uPeer0)
 	uNetBlock.Ptr().DataNodes.Append(uPeer1)
 	uMemBlock := mockMemBlockPool.AllocMemBlock()

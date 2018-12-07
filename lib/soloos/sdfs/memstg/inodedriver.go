@@ -11,17 +11,16 @@ type INodeDriver struct {
 	offheapDriver  *offheap.OffheapDriver
 	netBlockDriver *netstg.NetBlockDriver
 	memBlockDriver *MemBlockDriver
-	inodePool      INodePool
+	inodePool      types.INodePool
 }
 
-func (p *INodeDriver) Init(rawChunksLimit int32,
-	offheapDriver *offheap.OffheapDriver,
+func (p *INodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 	netBlockDriver *netstg.NetBlockDriver,
 	memBlockDriver *MemBlockDriver) error {
 	p.offheapDriver = offheapDriver
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
-	p.inodePool.Init(rawChunksLimit, p)
+	p.inodePool.Init(-1, p.offheapDriver)
 	return nil
 }
 
@@ -30,12 +29,12 @@ func (p *INodeDriver) MustGetINode(inodeID types.INodeID) (types.INodeUintptr, b
 	return p.inodePool.MustGetINode(inodeID)
 }
 
-func (p *INodeDriver) InitINode(netBlockCap, memBlockCap int) types.INodeUintptr {
+func (p *INodeDriver) InitINode(netBlockCap, memBlockCap int) (types.INodeUintptr, error) {
 	var inodeID types.INodeID
 	util.InitUUID64(&inodeID)
 	uINode, _ := p.MustGetINode(inodeID)
 	uINode.Ptr().ID = inodeID
 	uINode.Ptr().NetBlockCap = netBlockCap
 	uINode.Ptr().MemBlockCap = memBlockCap
-	return uINode
+	return uINode, nil
 }

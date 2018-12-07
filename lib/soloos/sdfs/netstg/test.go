@@ -33,8 +33,7 @@ func InitNetBlockDriversForTest(t *testing.T,
 func InitDriversForTest(t *testing.T,
 	snetDriver *snet.SNetDriver,
 	snetClientDriver *snet.ClientDriver,
-	mockServerAddr string,
-	mockServer *MockServer,
+	nameNodeSRPCServerAddr string,
 	nameNodeClient *api.NameNodeClient,
 	dataNodeClient *api.DataNodeClient,
 	netBlockDriver *NetBlockDriver,
@@ -47,17 +46,29 @@ func InitDriversForTest(t *testing.T,
 	assert.NoError(t, snetDriver.Init(offheapDriver))
 	assert.NoError(t, snetClientDriver.Init(offheapDriver))
 
-	assert.NoError(t, mockServer.Init(snetDriver, "tcp", mockServerAddr))
-	go func() {
-		util.AssertErrIsNil(mockServer.Serve())
-	}()
-	time.Sleep(time.Millisecond * 300)
-
-	nameNodePeer = snetDriver.MustGetPeer(nil, mockServerAddr, types.DefaultSDFSRPCProtocol)
+	nameNodePeer = snetDriver.MustGetPeer(nil, nameNodeSRPCServerAddr, types.DefaultSDFSRPCProtocol)
 	assert.NoError(t, nameNodeClient.Init(snetDriver, snetClientDriver, nameNodePeer))
 	assert.NoError(t, dataNodeClient.Init(snetDriver, snetClientDriver))
 	InitNetBlockDriversForTest(t, netBlockDriver, offheapDriver,
 		snetDriver, snetClientDriver,
 		nameNodeClient, dataNodeClient,
 	)
+}
+
+func InitDriversWithMockServerForTest(t *testing.T,
+	snetDriver *snet.SNetDriver,
+	snetClientDriver *snet.ClientDriver,
+	mockServerAddr string,
+	mockServer *MockServer,
+	nameNodeClient *api.NameNodeClient,
+	dataNodeClient *api.DataNodeClient,
+	netBlockDriver *NetBlockDriver,
+) {
+	InitDriversForTest(t, snetDriver, snetClientDriver, mockServerAddr, nameNodeClient, dataNodeClient, netBlockDriver)
+
+	assert.NoError(t, mockServer.Init(snetDriver, "tcp", mockServerAddr))
+	go func() {
+		util.AssertErrIsNil(mockServer.Serve())
+	}()
+	time.Sleep(time.Millisecond * 300)
 }

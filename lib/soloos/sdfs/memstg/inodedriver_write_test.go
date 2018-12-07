@@ -17,13 +17,16 @@ func TestINodeDriverINodeWrite(t *testing.T) {
 		inodeDriver      INodeDriver
 		maxBlocks        int32 = 4
 		i                int32
-		netBlockCap     int   = 4
-		memBlockCap     int   = 4
+		netBlockCap      int   = 4
+		memBlockCap      int   = 4
 		blockChunksLimit int32 = 4
 		uINode           types.INodeUintptr
 	)
 	assert.NoError(t, mockINodePool.Init(&offheap.DefaultOffheapDriver))
-	InitDriversForTest(t, "127.0.0.1:10023", &mockServer, &memBlockDriver, &inodeDriver, memBlockCap, blockChunksLimit)
+	InitDriversWithMockServerForTest(t,
+		"127.0.0.1:10023", &mockServer,
+		&memBlockDriver, &inodeDriver,
+		memBlockCap, blockChunksLimit)
 	uINode = mockINodePool.InitINode(netBlockCap, memBlockCap)
 
 	for i = 0; i <= maxBlocks; i++ {
