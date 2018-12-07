@@ -1,7 +1,6 @@
 package netstg
 
 import (
-	"soloos/log"
 	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
@@ -49,13 +48,15 @@ func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr stri
 func (p *MockServer) NetBlockPWrite(reqID uint64,
 	reqBodySize, reqParamSize uint32,
 	conn *snettypes.Connection) error {
-	var blockData = make([]byte, reqBodySize)
-	util.AssertErrIsNil(conn.ReadAll(blockData))
-	var o protocol.NetBlockPWriteRequest
-	o.Init(blockData[:reqParamSize], flatbuffers.GetUOffsetT(blockData[:reqParamSize]))
-	var backends = make([]protocol.NetBlockBackend, o.TransferBackendsLength())
+
+	var reqBody = make([]byte, reqBodySize)
+	util.AssertErrIsNil(conn.ReadAll(reqBody))
+
+	var req protocol.NetBlockPWriteRequest
+	req.Init(reqBody[:reqParamSize], flatbuffers.GetUOffsetT(reqBody[:reqParamSize]))
+	var backends = make([]protocol.NetBlockBackend, req.TransferBackendsLength())
 	for i := 0; i < len(backends); i++ {
-		o.TransferBackends(&backends[i], i)
+		req.TransferBackends(&backends[i], i)
 	}
 
 	var protocolBuilder flatbuffers.Builder
@@ -64,19 +65,25 @@ func (p *MockServer) NetBlockPWrite(reqID uint64,
 	protocolBuilder.Finish(protocol.CommonResponseEnd(&protocolBuilder))
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
 	util.AssertErrIsNil(conn.SimpleResponse(reqID, respBody))
+
 	return nil
 }
 
 func (p *MockServer) NetBlockPRead(reqID uint64,
 	reqBodySize, reqParamSize uint32,
 	conn *snettypes.Connection) error {
-	var blockData = make([]byte, reqBodySize)
-	util.AssertErrIsNil(conn.ReadAll(blockData))
+
+	var reqData = make([]byte, reqBodySize)
+	util.AssertErrIsNil(conn.ReadAll(reqData))
+
 	var req protocol.NetBlockPReadRequest
-	req.Init(blockData[:reqParamSize], flatbuffers.GetUOffsetT(blockData[:reqParamSize]))
-	log.Info(req.Offset())
-	log.Info(req.Length())
-	util.AssertErrIsNil(conn.SimpleResponse(reqID, nil))
+	req.Init(reqData[:reqParamSize], flatbuffers.GetUOffsetT(reqData[:reqParamSize]))
+
+	var protocolBuilder flatbuffers.Builder
+	api.SetNetBlockPReadResponse(snettypes.CODE_OK, req.Length(), &protocolBuilder)
+
+	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
+	util.AssertErrIsNil(conn.Response(reqID, respBody, make([]byte, req.Length())))
 	return nil
 }
 

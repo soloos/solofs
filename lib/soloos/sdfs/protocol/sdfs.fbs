@@ -34,3 +34,8 @@ table NetBlockPReadRequest {
     Offset:int;
     Length:int;
 }
+
+table NetBlockPReadResponse {
+    CommonResponse:CommonResponse;
+    Length:int;
+}

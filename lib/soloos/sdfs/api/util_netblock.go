@@ -47,3 +47,17 @@ func SetINodeNetBlockInfoResp(backends []snettypes.PeerUintptr, netBlockLen, net
 	protocol.INodeNetBlockInfoResponseAddCap(protocolBuilder, netBlockCap)
 	protocolBuilder.Finish(protocol.INodeNetBlockInfoResponseEnd(protocolBuilder))
 }
+
+func SetNetBlockPReadResponse(code int32, length int32,
+	protocolBuilder *flatbuffers.Builder) {
+	var (
+		commonResponseOff flatbuffers.UOffsetT
+	)
+	protocol.CommonResponseStart(protocolBuilder)
+	protocol.CommonResponseAddCode(protocolBuilder, code)
+	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
+
+	protocol.NetBlockPReadResponseStart(protocolBuilder)
+	protocol.NetBlockPReadResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	protocolBuilder.Finish(protocol.NetBlockPReadResponseEnd(protocolBuilder))
+}

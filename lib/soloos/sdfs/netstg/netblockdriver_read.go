@@ -21,6 +21,8 @@ func (p *NetBlockDriver) PRead(uINode types.INodeUintptr,
 
 	err = p.dataNodeClient.PRead(uNetBlock.Ptr().DataNodes.Arr[0],
 		uNetBlock,
+		uMemBlock,
+		memBlockIndex,
 		offset, length,
 		&resp)
 	if err != nil {

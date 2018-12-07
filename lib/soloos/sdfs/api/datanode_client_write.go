@@ -19,14 +19,14 @@ func (p *DataNodeClient) UploadMemBlock(uUploadMemBlockJob types.UploadMemBlockJ
 	}
 
 	var (
-		req             snettypes.Request
-		resp            snettypes.Response
+		req                 snettypes.Request
+		resp                snettypes.Response
 		protocolBuilder     flatbuffers.Builder
 		netBlockIDOff       flatbuffers.UOffsetT
 		backendOff          flatbuffers.UOffsetT
 		netBlockBytesOffset int
 		netBlockBytesEnd    int
-		memBlockCap        int
+		memBlockCap         int
 		peerOff, addrOff    flatbuffers.UOffsetT
 		backendOffs         = make([]flatbuffers.UOffsetT, 8)
 		pChunkMask          *offheap.ChunkMask

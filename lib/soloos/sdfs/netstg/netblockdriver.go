@@ -83,10 +83,10 @@ func (p *NetBlockDriver) MustGetBlock(uINode types.INodeUintptr,
 			p.pool[netBlockID] = uNetBlock
 		}
 		p.netBlockAllocRWMutex.Unlock()
+	}
 
-		if uNetBlock.Ptr().IsMetaDataInited == false {
-			p.PrepareNetBlockMetadata(uINode, netBlockIndex, uNetBlock)
-		}
+	if uNetBlock.Ptr().IsMetaDataInited == false {
+		p.PrepareNetBlockMetadata(uINode, netBlockIndex, uNetBlock)
 	}
 
 	return uNetBlock

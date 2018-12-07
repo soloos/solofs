@@ -10,16 +10,19 @@ import (
 
 func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
 	uNetBlock types.NetBlockUintptr,
+	uMemBlock types.MemBlockUintptr,
+	memBlockIndex int,
 	offset int, length int,
 	resp *snettypes.Response,
 ) error {
 	var (
 		req             snettypes.Request
 		protocolBuilder flatbuffers.Builder
+		peerOff         flatbuffers.UOffsetT
 		err             error
 	)
 
-	peerOff := protocolBuilder.CreateByteVector(uNetBlock.Ptr().ID[:])
+	peerOff = protocolBuilder.CreateByteVector(uNetBlock.Ptr().ID[:])
 	protocol.NetBlockPReadRequestStart(&protocolBuilder)
 	protocol.NetBlockPReadRequestAddNetBlockID(&protocolBuilder, peerOff)
 	protocol.NetBlockPReadRequestAddOffset(&protocolBuilder, int32(offset))
@@ -33,6 +36,28 @@ func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
 	if err != nil {
 		return err
 	}
+
+	var (
+		netBlockPReadResp           protocol.NetBlockPReadResponse
+		commonResp                  protocol.CommonResponse
+		param                       = make([]byte, resp.ParamSize)
+		offsetInMemBlock, readedLen int
+	)
+	err = p.snetClientDriver.ReadResponse(uPeer, &req, resp, param)
+	if err != nil {
+		return err
+	}
+
+	netBlockPReadResp.Init(param, flatbuffers.GetUOffsetT(param))
+	netBlockPReadResp.CommonResponse(&commonResp)
+	if commonResp.Code() != snettypes.CODE_OK {
+		return types.ErrNetBlockPRead
+	}
+
+	offsetInMemBlock = int(offset - (uMemBlock.Ptr().Bytes.Cap * memBlockIndex))
+	readedLen = int(resp.BodySize - resp.ParamSize)
+	err = p.snetClientDriver.ReadResponse(uPeer, &req, resp,
+		(*uMemBlock.Ptr().BytesSlice())[offsetInMemBlock:readedLen])
 
 	return nil
 }
