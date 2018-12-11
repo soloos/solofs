@@ -5,28 +5,28 @@ import (
 	snettypes "soloos/snet/types"
 )
 
-type INodeDriver struct {
+type NetINodeDriver struct {
 	metaStg   *MetaStg
-	inodePool types.INodePool
+	netINodePool types.NetINodePool
 }
 
-func (p *INodeDriver) Init(metaStg *MetaStg) error {
+func (p *NetINodeDriver) Init(metaStg *MetaStg) error {
 	p.metaStg = metaStg
-	p.inodePool.Init(-1, p.metaStg.offheapDriver)
+	p.netINodePool.Init(-1, p.metaStg.offheapDriver)
 	return nil
 }
 
-func (p *INodeDriver) GetINode(inodeID types.INodeID) (types.INodeUintptr, error) {
+func (p *NetINodeDriver) GetNetINode(netINodeID types.NetINodeID) (types.NetINodeUintptr, error) {
 	var (
-		uINode types.INodeUintptr
+		uNetINode types.NetINodeUintptr
 		exists bool
 		err    error
 	)
 
-	uINode, exists = p.inodePool.MustGetINode(inodeID)
+	uNetINode, exists = p.netINodePool.MustGetNetINode(netINodeID)
 
-	if exists == false || uINode.Ptr().IsMetaDataInited == false {
-		err = p.prepareINodeMetadata(uINode)
+	if exists == false || uNetINode.Ptr().IsMetaDataInited == false {
+		err = p.prepareNetINodeMetadata(uNetINode)
 		if err != nil {
 			goto GETINODE_DONE
 		}
@@ -34,35 +34,35 @@ func (p *INodeDriver) GetINode(inodeID types.INodeID) (types.INodeUintptr, error
 
 GETINODE_DONE:
 	if err == types.ErrObjectNotExists {
-		p.inodePool.ReleaseINode(uINode)
+		p.netINodePool.ReleaseNetINode(uNetINode)
 	}
 
-	return uINode, err
+	return uNetINode, err
 }
 
-func (p *INodeDriver) ChooseDataNodesForNewNetBlock(uINode types.INodeUintptr,
+func (p *NetINodeDriver) ChooseDataNodesForNewNetBlock(uNetINode types.NetINodeUintptr,
 	backends *snettypes.PeerUintptrArray8) error {
 	backends.Reset()
 	return nil
 }
 
-func (p *INodeDriver) prepareINodeMetadata(uINode types.INodeUintptr) error {
+func (p *NetINodeDriver) prepareNetINodeMetadata(uNetINode types.NetINodeUintptr) error {
 	var (
-		pINode = uINode.Ptr()
+		pNetINode = uNetINode.Ptr()
 		err    error
 	)
 
-	pINode.MetaDataMutex.Lock()
-	if pINode.IsMetaDataInited {
+	pNetINode.MetaDataMutex.Lock()
+	if pNetINode.IsMetaDataInited {
 		goto PREPARE_DONE
 	}
 
-	err = p.FetchINodeFromDB(pINode)
+	err = p.FetchNetINodeFromDB(pNetINode)
 	goto PREPARE_DONE
 
-	pINode.IsMetaDataInited = true
+	pNetINode.IsMetaDataInited = true
 
 PREPARE_DONE:
-	pINode.MetaDataMutex.Unlock()
+	pNetINode.MetaDataMutex.Unlock()
 	return err
 }

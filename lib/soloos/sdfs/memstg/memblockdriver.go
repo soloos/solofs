@@ -32,17 +32,17 @@ func (p *MemBlockDriver) Init(options MemBlockDriverOptions,
 }
 
 // MustGetBlockWithReadAcquire get or init a memblock's offheap
-func (p *MemBlockDriver) MustGetBlockWithReadAcquire(uINode types.INodeUintptr,
+func (p *MemBlockDriver) MustGetBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
 	memBlockIndex int) (types.MemBlockUintptr, bool) {
 	var memBlockID types.PtrBindIndex
-	types.EncodePtrBindIndex(&memBlockID, uintptr(uINode), memBlockIndex)
-	return p.pools[uINode.Ptr().MemBlockCap].MustGetBlockWithReadAcquire(memBlockID)
+	types.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
+	return p.pools[uNetINode.Ptr().MemBlockCap].MustGetBlockWithReadAcquire(memBlockID)
 }
 
-func (p *MemBlockDriver) AllocTmpBlockWithWriteAcquire(uINode types.INodeUintptr) types.MemBlockUintptr {
-	return p.pools[uINode.Ptr().MemBlockCap].AllocTmpBlockWithWriteAcquire()
+func (p *MemBlockDriver) AllocTmpBlockWithWriteAcquire(uNetINode types.NetINodeUintptr) types.MemBlockUintptr {
+	return p.pools[uNetINode.Ptr().MemBlockCap].AllocTmpBlockWithWriteAcquire()
 }
 
-func (p *MemBlockDriver) ReleaseTmpBlock(uINode types.INodeUintptr, uMemBlock types.MemBlockUintptr) {
-	p.pools[uINode.Ptr().MemBlockCap].ReleaseTmpBlock(uMemBlock)
+func (p *MemBlockDriver) ReleaseTmpBlock(uNetINode types.NetINodeUintptr, uMemBlock types.MemBlockUintptr) {
+	p.pools[uNetINode.Ptr().MemBlockCap].ReleaseTmpBlock(uMemBlock)
 }

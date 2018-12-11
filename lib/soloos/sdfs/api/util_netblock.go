@@ -9,7 +9,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func SetINodeNetBlockInfoResponseError(code int, err string, protocolBuilder *flatbuffers.Builder) {
+func SetNetINodeNetBlockInfoResponseError(code int, err string, protocolBuilder *flatbuffers.Builder) {
 	protocolBuilder.Reset()
 	var (
 		errOff            flatbuffers.UOffsetT
@@ -21,12 +21,12 @@ func SetINodeNetBlockInfoResponseError(code int, err string, protocolBuilder *fl
 	protocol.CommonResponseAddError(protocolBuilder, errOff)
 	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
 
-	protocol.INodeNetBlockInfoResponseStart(protocolBuilder)
-	protocol.INodeNetBlockInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
-	protocolBuilder.Finish(protocol.INodeNetBlockInfoResponseEnd(protocolBuilder))
+	protocol.NetINodeNetBlockInfoResponseStart(protocolBuilder)
+	protocol.NetINodeNetBlockInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	protocolBuilder.Finish(protocol.NetINodeNetBlockInfoResponseEnd(protocolBuilder))
 }
 
-func SetINodeNetBlockInfoResponse(backends []snettypes.PeerUintptr, netBlockLen, netBlockCap int32,
+func SetNetINodeNetBlockInfoResponse(backends []snettypes.PeerUintptr, netBlockLen, netBlockCap int32,
 	protocolBuilder *flatbuffers.Builder) {
 	var (
 		netBlockID        types.NetBlockID
@@ -53,7 +53,7 @@ func SetINodeNetBlockInfoResponse(backends []snettypes.PeerUintptr, netBlockLen,
 		backendOffs[i] = protocol.NetBlockBackendEnd(protocolBuilder)
 	}
 
-	protocol.INodeNetBlockInfoResponseStartBackendsVector(protocolBuilder, len(backends))
+	protocol.NetINodeNetBlockInfoResponseStartBackendsVector(protocolBuilder, len(backends))
 	for i = len(backends) - 1; i >= 0; i-- {
 		protocolBuilder.PrependUOffsetT(backendOffs[i])
 	}
@@ -62,13 +62,13 @@ func SetINodeNetBlockInfoResponse(backends []snettypes.PeerUintptr, netBlockLen,
 	util.InitUUID64(&netBlockID)
 
 	netBlockIDOff = protocolBuilder.CreateByteVector(netBlockID[:])
-	protocol.INodeNetBlockInfoResponseStart(protocolBuilder)
-	protocol.INodeNetBlockInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
-	protocol.INodeNetBlockInfoResponseAddNetBlockID(protocolBuilder, netBlockIDOff)
-	protocol.INodeNetBlockInfoResponseAddBackends(protocolBuilder, backendOff)
-	protocol.INodeNetBlockInfoResponseAddLen(protocolBuilder, netBlockLen)
-	protocol.INodeNetBlockInfoResponseAddCap(protocolBuilder, netBlockCap)
-	protocolBuilder.Finish(protocol.INodeNetBlockInfoResponseEnd(protocolBuilder))
+	protocol.NetINodeNetBlockInfoResponseStart(protocolBuilder)
+	protocol.NetINodeNetBlockInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	protocol.NetINodeNetBlockInfoResponseAddNetBlockID(protocolBuilder, netBlockIDOff)
+	protocol.NetINodeNetBlockInfoResponseAddBackends(protocolBuilder, backendOff)
+	protocol.NetINodeNetBlockInfoResponseAddLen(protocolBuilder, netBlockLen)
+	protocol.NetINodeNetBlockInfoResponseAddCap(protocolBuilder, netBlockCap)
+	protocolBuilder.Finish(protocol.NetINodeNetBlockInfoResponseEnd(protocolBuilder))
 }
 
 func SetNetBlockPReadResponse(code int32, length int32,

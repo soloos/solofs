@@ -26,7 +26,7 @@ func InitMemBlockDriversForTest(t *testing.T,
 func InitDriversForTest(t *testing.T,
 	nameNodeSRPCServerAddr string,
 	memBlockDriver *MemBlockDriver,
-	inodeDriver *INodeDriver,
+	netINodeDriver *NetINodeDriver,
 	blockChunkSize int, blockChunksLimit int32) {
 	var (
 		offheapDriver    = &offheap.DefaultOffheapDriver
@@ -46,14 +46,14 @@ func InitDriversForTest(t *testing.T,
 
 	InitMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
 
-	assert.NoError(t, inodeDriver.Init(offheapDriver, &netBlockDriver, memBlockDriver))
+	assert.NoError(t, netINodeDriver.Init(offheapDriver, &netBlockDriver, memBlockDriver))
 }
 
 func InitDriversWithMockServerForTest(t *testing.T,
 	mockServerAddr string,
 	mockServer *netstg.MockServer,
 	memBlockDriver *MemBlockDriver,
-	inodeDriver *INodeDriver,
+	netINodeDriver *NetINodeDriver,
 	blockChunkSize int, blockChunksLimit int32) {
 	var (
 		offheapDriver    = &offheap.DefaultOffheapDriver
@@ -73,5 +73,5 @@ func InitDriversWithMockServerForTest(t *testing.T,
 
 	InitMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
 
-	assert.NoError(t, inodeDriver.Init(offheapDriver, &netBlockDriver, memBlockDriver))
+	assert.NoError(t, netINodeDriver.Init(offheapDriver, &netBlockDriver, memBlockDriver))
 }

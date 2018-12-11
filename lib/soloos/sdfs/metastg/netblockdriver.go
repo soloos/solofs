@@ -18,17 +18,17 @@ func (p *NetBlockDriver) Init(metaStg *MetaStg) error {
 	return nil
 }
 
-func (p *NetBlockDriver) MustGetNetBlock(uINode types.INodeUintptr, netBlockIndex int) (types.NetBlockUintptr, error) {
+func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr, netBlockIndex int) (types.NetBlockUintptr, error) {
 	var (
 		uNetBlock types.NetBlockUintptr
 		exists    bool
 		err       error
 	)
 
-	uNetBlock, exists = p.netBlockPool.MustGetNetBlock(uINode, netBlockIndex)
+	uNetBlock, exists = p.netBlockPool.MustGetNetBlock(uNetINode, netBlockIndex)
 
 	if exists == false || uNetBlock.Ptr().IsMetaDataInited == false {
-		err = p.prepareNetBlockMetadata(uINode, netBlockIndex, uNetBlock)
+		err = p.prepareNetBlockMetadata(uNetINode, netBlockIndex, uNetBlock)
 		if err != nil {
 			goto GETINODE_DONE
 		}
@@ -39,7 +39,7 @@ GETINODE_DONE:
 	return uNetBlock, err
 }
 
-func (p *NetBlockDriver) prepareNetBlockMetadata(uINode types.INodeUintptr, netBlockIndex int,
+func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr, netBlockIndex int,
 	uNetBlock types.NetBlockUintptr) error {
 	var (
 		pNetBlock           = uNetBlock.Ptr()
@@ -69,13 +69,13 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uINode types.INodeUintptr, netB
 		util.InitUUID64(&pNetBlock.ID)
 		pNetBlock.IndexInInode = netBlockIndex
 		pNetBlock.Len = 0
-		pNetBlock.Cap = uINode.Ptr().NetBlockCap
-		err = p.metaStg.INodeDriver.ChooseDataNodesForNewNetBlock(uINode, &pNetBlock.DataNodes)
+		pNetBlock.Cap = uNetINode.Ptr().NetBlockCap
+		err = p.metaStg.NetINodeDriver.ChooseDataNodesForNewNetBlock(uNetINode, &pNetBlock.DataNodes)
 		if err != nil {
 			goto PREPARE_DONE
 		}
 
-		err = p.StoreNetBlockInDB(uINode.Ptr(), pNetBlock)
+		err = p.StoreNetBlockInDB(uNetINode.Ptr(), pNetBlock)
 		if err != nil {
 			goto PREPARE_DONE
 		}

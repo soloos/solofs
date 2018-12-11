@@ -5,7 +5,7 @@ import (
 	"soloos/util/offheap"
 )
 
-func (p *INodeDriver) unsafeMemBlockRebaseNetBlock(uINode types.INodeUintptr,
+func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUintptr,
 	uNetBlock types.NetBlockUintptr,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int) error {
@@ -23,10 +23,10 @@ func (p *INodeDriver) unsafeMemBlockRebaseNetBlock(uINode types.INodeUintptr,
 		return nil
 	}
 
-	uTmpMemBlock = p.memBlockDriver.AllocTmpBlockWithWriteAcquire(uINode)
-	err = p.netBlockDriver.PRead(uINode, uNetBlock, uTmpMemBlock, memBlockIndex,
-		memBlockIndex*uINode.Ptr().MemBlockCap,
-		uINode.Ptr().MemBlockCap,
+	uTmpMemBlock = p.memBlockDriver.AllocTmpBlockWithWriteAcquire(uNetINode)
+	err = p.netBlockDriver.PRead(uNetINode, uNetBlock, uTmpMemBlock, memBlockIndex,
+		memBlockIndex*uNetINode.Ptr().MemBlockCap,
+		uNetINode.Ptr().MemBlockCap,
 	)
 	if err != nil {
 		goto READ_DONE
@@ -45,7 +45,7 @@ func (p *INodeDriver) unsafeMemBlockRebaseNetBlock(uINode types.INodeUintptr,
 
 READ_DONE:
 	uTmpMemBlock.Ptr().Chunk.Ptr().WriteRelease()
-	p.memBlockDriver.ReleaseTmpBlock(uINode, uTmpMemBlock)
+	p.memBlockDriver.ReleaseTmpBlock(uNetINode, uTmpMemBlock)
 	pMemBlock.RebaseNetBlockMutex.Unlock()
 
 	return err

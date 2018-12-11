@@ -6,27 +6,27 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type INodeInfoResponse struct {
+type NetINodeInfoResponse struct {
 	_tab flatbuffers.Table
 }
 
-func GetRootAsINodeInfoResponse(buf []byte, offset flatbuffers.UOffsetT) *INodeInfoResponse {
+func GetRootAsNetINodeInfoResponse(buf []byte, offset flatbuffers.UOffsetT) *NetINodeInfoResponse {
 	n := flatbuffers.GetUOffsetT(buf[offset:])
-	x := &INodeInfoResponse{}
+	x := &NetINodeInfoResponse{}
 	x.Init(buf, n+offset)
 	return x
 }
 
-func (rcv *INodeInfoResponse) Init(buf []byte, i flatbuffers.UOffsetT) {
+func (rcv *NetINodeInfoResponse) Init(buf []byte, i flatbuffers.UOffsetT) {
 	rcv._tab.Bytes = buf
 	rcv._tab.Pos = i
 }
 
-func (rcv *INodeInfoResponse) Table() flatbuffers.Table {
+func (rcv *NetINodeInfoResponse) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *INodeInfoResponse) CommonResponse(obj *CommonResponse) *CommonResponse {
+func (rcv *NetINodeInfoResponse) CommonResponse(obj *CommonResponse) *CommonResponse {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		x := rcv._tab.Indirect(o + rcv._tab.Pos)
@@ -39,7 +39,7 @@ func (rcv *INodeInfoResponse) CommonResponse(obj *CommonResponse) *CommonRespons
 	return nil
 }
 
-func (rcv *INodeInfoResponse) Size() int32 {
+func (rcv *NetINodeInfoResponse) Size() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -47,11 +47,11 @@ func (rcv *INodeInfoResponse) Size() int32 {
 	return 0
 }
 
-func (rcv *INodeInfoResponse) MutateSize(n int32) bool {
+func (rcv *NetINodeInfoResponse) MutateSize(n int32) bool {
 	return rcv._tab.MutateInt32Slot(6, n)
 }
 
-func (rcv *INodeInfoResponse) NetBlockCap() int32 {
+func (rcv *NetINodeInfoResponse) NetBlockCap() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -59,11 +59,11 @@ func (rcv *INodeInfoResponse) NetBlockCap() int32 {
 	return 0
 }
 
-func (rcv *INodeInfoResponse) MutateNetBlockCap(n int32) bool {
+func (rcv *NetINodeInfoResponse) MutateNetBlockCap(n int32) bool {
 	return rcv._tab.MutateInt32Slot(8, n)
 }
 
-func (rcv *INodeInfoResponse) MemBlockCap() int32 {
+func (rcv *NetINodeInfoResponse) MemBlockCap() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -71,25 +71,25 @@ func (rcv *INodeInfoResponse) MemBlockCap() int32 {
 	return 0
 }
 
-func (rcv *INodeInfoResponse) MutateMemBlockCap(n int32) bool {
+func (rcv *NetINodeInfoResponse) MutateMemBlockCap(n int32) bool {
 	return rcv._tab.MutateInt32Slot(10, n)
 }
 
-func INodeInfoResponseStart(builder *flatbuffers.Builder) {
+func NetINodeInfoResponseStart(builder *flatbuffers.Builder) {
 	builder.StartObject(4)
 }
-func INodeInfoResponseAddCommonResponse(builder *flatbuffers.Builder, CommonResponse flatbuffers.UOffsetT) {
+func NetINodeInfoResponseAddCommonResponse(builder *flatbuffers.Builder, CommonResponse flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(CommonResponse), 0)
 }
-func INodeInfoResponseAddSize(builder *flatbuffers.Builder, Size int32) {
+func NetINodeInfoResponseAddSize(builder *flatbuffers.Builder, Size int32) {
 	builder.PrependInt32Slot(1, Size, 0)
 }
-func INodeInfoResponseAddNetBlockCap(builder *flatbuffers.Builder, NetBlockCap int32) {
+func NetINodeInfoResponseAddNetBlockCap(builder *flatbuffers.Builder, NetBlockCap int32) {
 	builder.PrependInt32Slot(2, NetBlockCap, 0)
 }
-func INodeInfoResponseAddMemBlockCap(builder *flatbuffers.Builder, MemBlockCap int32) {
+func NetINodeInfoResponseAddMemBlockCap(builder *flatbuffers.Builder, MemBlockCap int32) {
 	builder.PrependInt32Slot(3, MemBlockCap, 0)
 }
-func INodeInfoResponseEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+func NetINodeInfoResponseEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
 }

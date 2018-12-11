@@ -1,6 +1,7 @@
 package api
 
 import (
+	"soloos/log"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
@@ -8,7 +9,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeClient) PrepareNetBlockMetadata(uINode types.INodeUintptr,
+func (p *NameNodeClient) PrepareNetBlockMetadata(uNetINode types.NetINodeUintptr,
 	netBlockIndex int,
 	uNetBlock types.NetBlockUintptr,
 ) error {
@@ -19,12 +20,12 @@ func (p *NameNodeClient) PrepareNetBlockMetadata(uINode types.INodeUintptr,
 		err             error
 	)
 
-	inodeIDOff := protocolBuilder.CreateString(uINode.Ptr().IDStr())
-	protocol.INodeNetBlockInfoRequestStart(&protocolBuilder)
-	protocol.INodeNetBlockInfoRequestAddInodeID(&protocolBuilder, inodeIDOff)
-	protocol.INodeNetBlockInfoRequestAddNetBlockIndex(&protocolBuilder, int32(netBlockIndex))
-	protocol.INodeNetBlockInfoRequestAddCap(&protocolBuilder, int32(uINode.Ptr().NetBlockCap))
-	protocolBuilder.Finish(protocol.INodeNetBlockInfoRequestEnd(&protocolBuilder))
+	netINodeIDOff := protocolBuilder.CreateString(uNetINode.Ptr().IDStr())
+	protocol.NetINodeNetBlockInfoRequestStart(&protocolBuilder)
+	protocol.NetINodeNetBlockInfoRequestAddInodeID(&protocolBuilder, netINodeIDOff)
+	protocol.NetINodeNetBlockInfoRequestAddNetBlockIndex(&protocolBuilder, int32(netBlockIndex))
+	protocol.NetINodeNetBlockInfoRequestAddCap(&protocolBuilder, int32(uNetINode.Ptr().NetBlockCap))
+	protocolBuilder.Finish(protocol.NetINodeNetBlockInfoRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	// TODO choose namenode
@@ -38,7 +39,7 @@ func (p *NameNodeClient) PrepareNetBlockMetadata(uINode types.INodeUintptr,
 
 	var (
 		pNetBlock      = uNetBlock.Ptr()
-		netBlockInfo   protocol.INodeNetBlockInfoResponse
+		netBlockInfo   protocol.NetINodeNetBlockInfoResponse
 		commonResponse protocol.CommonResponse
 		backend        protocol.NetBlockBackend
 		peerID         snettypes.PeerID
@@ -48,7 +49,12 @@ func (p *NameNodeClient) PrepareNetBlockMetadata(uINode types.INodeUintptr,
 	netBlockInfo.Init(body, flatbuffers.GetUOffsetT(body))
 	netBlockInfo.CommonResponse(&commonResponse)
 	if commonResponse.Code() != snettypes.CODE_OK {
-		return types.ErrRemoteService
+		if commonResponse.Code() == snettypes.CODE_404 {
+			return types.ErrObjectNotExists
+		} else {
+			log.Warn(string(commonResponse.Error()))
+			return types.ErrRemoteService
+		}
 	}
 
 	copy(pNetBlock.ID[:], netBlockInfo.NetBlockID())

@@ -46,21 +46,21 @@ func TestNetBlockDriver(t *testing.T) {
 	}
 
 	var (
-		inode  types.INode
-		uINode types.INodeUintptr = types.INodeUintptr((unsafe.Pointer(&inode)))
+		netINode  types.NetINode
+		uNetINode types.NetINodeUintptr = types.NetINodeUintptr((unsafe.Pointer(&netINode)))
 	)
-	uINode.Ptr().NetBlockCap = 1024
-	uINode.Ptr().MemBlockCap = 128
+	uNetINode.Ptr().NetBlockCap = 1024
+	uNetINode.Ptr().MemBlockCap = 128
 
-	uNetBlock, err := netBlockDriver.MustGetBlock(uINode, 10)
+	uNetBlock, err := netBlockDriver.MustGetBlock(uNetINode, 10)
 	assert.NoError(t, err)
 	uNetBlock.Ptr().DataNodes.Append(uPeer0)
 	uNetBlock.Ptr().DataNodes.Append(uPeer1)
 	uMemBlock := mockMemBlockPool.AllocMemBlock()
 	memBlockIndex := 0
-	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, 0, 12))
-	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, 11, 24))
-	assert.NoError(t, netBlockDriver.PWrite(uINode, uNetBlock, uMemBlock, memBlockIndex, 30, 64))
+	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 0, 12))
+	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 11, 24))
+	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 30, 64))
 	assert.NoError(t, netBlockDriver.FlushMemBlock(uMemBlock))
 
 	assert.NoError(t, mockServer.Close())

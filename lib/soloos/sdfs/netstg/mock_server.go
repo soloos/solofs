@@ -95,12 +95,12 @@ func (p *MockServer) NetBlockPrepareMetadata(reqID uint64,
 	util.AssertErrIsNil(conn.ReadAll(blockData))
 
 	// request
-	var req protocol.INodeNetBlockInfoRequest
+	var req protocol.NetINodeNetBlockInfoRequest
 	req.Init(blockData[:reqParamSize], flatbuffers.GetUOffsetT(blockData[:reqParamSize]))
 
 	// response
 	var protocolBuilder flatbuffers.Builder
-	api.SetINodeNetBlockInfoResponse(p.dataNodePeers[:], req.Cap(), req.Cap(), &protocolBuilder)
+	api.SetNetINodeNetBlockInfoResponse(p.dataNodePeers[:], req.Cap(), req.Cap(), &protocolBuilder)
 	util.AssertErrIsNil(conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
 	return nil

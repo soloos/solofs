@@ -59,7 +59,7 @@ func (p *NetBlockDriver) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr)
 }
 
 // MustGetNetBlock get or init a netBlock
-func (p *NetBlockDriver) MustGetBlock(uINode types.INodeUintptr,
+func (p *NetBlockDriver) MustGetBlock(uNetINode types.NetINodeUintptr,
 	netBlockIndex int) (types.NetBlockUintptr, error) {
 	var (
 		uNetBlock types.NetBlockUintptr
@@ -67,10 +67,10 @@ func (p *NetBlockDriver) MustGetBlock(uINode types.INodeUintptr,
 		err       error
 	)
 
-	uNetBlock, exists = p.netBlockPool.MustGetNetBlock(uINode, netBlockIndex)
+	uNetBlock, exists = p.netBlockPool.MustGetNetBlock(uNetINode, netBlockIndex)
 
 	if exists == false || uNetBlock.Ptr().IsMetaDataInited == false {
-		err = p.prepareNetBlockMetadata(uINode, netBlockIndex, uNetBlock)
+		err = p.prepareNetBlockMetadata(uNetINode, netBlockIndex, uNetBlock)
 		if err != nil {
 			return 0, err
 		}
@@ -79,7 +79,7 @@ func (p *NetBlockDriver) MustGetBlock(uINode types.INodeUintptr,
 	return uNetBlock, nil
 }
 
-func (p *NetBlockDriver) prepareNetBlockMetadata(uINode types.INodeUintptr,
+func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr,
 	netblockIndex int,
 	uNetBlock types.NetBlockUintptr,
 ) error {
@@ -93,7 +93,7 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uINode types.INodeUintptr,
 		goto PREPARE_DONE
 	}
 
-	err = p.nameNodeClient.PrepareNetBlockMetadata(uINode, netblockIndex, uNetBlock)
+	err = p.nameNodeClient.PrepareNetBlockMetadata(uNetINode, netblockIndex, uNetBlock)
 	if err != nil {
 		goto PREPARE_DONE
 	}

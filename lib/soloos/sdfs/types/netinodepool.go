@@ -6,91 +6,91 @@ import (
 	"sync"
 )
 
-type INodePool struct {
+type NetINodePool struct {
 	offheapDriver   *offheap.OffheapDriver
-	inodeObjectPool offheap.RawObjectPool
+	netINodeObjectPool offheap.RawObjectPool
 	poolRWMutex     sync.RWMutex
-	pool            map[INodeID]INodeUintptr
+	pool            map[NetINodeID]NetINodeUintptr
 }
 
-func (p *INodePool) Init(rawChunksLimit int32,
+func (p *NetINodePool) Init(rawChunksLimit int32,
 	offheapDriver *offheap.OffheapDriver) error {
 	var err error
 
 	p.offheapDriver = offheapDriver
 
-	err = p.offheapDriver.InitRawObjectPool(&p.inodeObjectPool,
-		int(INodeStructSize), rawChunksLimit,
+	err = p.offheapDriver.InitRawObjectPool(&p.netINodeObjectPool,
+		int(NetINodeStructSize), rawChunksLimit,
 		p.RawChunkPoolInvokePrepareNewRawChunk, p.RawChunkPoolInvokeReleaseRawChunk)
 	if err != nil {
 		return err
 	}
 
-	p.pool = make(map[INodeID]INodeUintptr)
+	p.pool = make(map[NetINodeID]NetINodeUintptr)
 
 	return nil
 }
 
-func (p *INodePool) RawChunkPoolInvokeReleaseRawChunk() {
+func (p *NetINodePool) RawChunkPoolInvokeReleaseRawChunk() {
 	panic("not support")
 }
 
-func (p *INodePool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
+func (p *NetINodePool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
 }
 
-// MustGetINode get or init a inodeblock
-func (p *INodePool) MustGetINode(inodeID INodeID) (INodeUintptr, bool) {
+// MustGetNetINode get or init a netINodeblock
+func (p *NetINodePool) MustGetNetINode(netINodeID NetINodeID) (NetINodeUintptr, bool) {
 	var (
-		uINode INodeUintptr
+		uNetINode NetINodeUintptr
 		exists bool
 	)
 
 	p.poolRWMutex.RLock()
-	uINode, exists = p.pool[inodeID]
+	uNetINode, exists = p.pool[netINodeID]
 	p.poolRWMutex.RUnlock()
 	if exists {
-		return uINode, true
+		return uNetINode, true
 	}
 
 	p.poolRWMutex.Lock()
-	uINode, exists = p.pool[inodeID]
+	uNetINode, exists = p.pool[netINodeID]
 	if exists {
 		goto GET_DONE
 	}
 
-	uINode = INodeUintptr(p.inodeObjectPool.AllocRawObject())
-	uINode.Ptr().ID = inodeID
-	p.pool[inodeID] = uINode
+	uNetINode = NetINodeUintptr(p.netINodeObjectPool.AllocRawObject())
+	uNetINode.Ptr().ID = netINodeID
+	p.pool[netINodeID] = uNetINode
 
 GET_DONE:
 	p.poolRWMutex.Unlock()
-	return uINode, exists
+	return uNetINode, exists
 }
 
-func (p *INodePool) ReleaseINode(uINode INodeUintptr) {
+func (p *NetINodePool) ReleaseNetINode(uNetINode NetINodeUintptr) {
 	var exists bool
 	p.poolRWMutex.Lock()
-	_, exists = p.pool[uINode.Ptr().ID]
+	_, exists = p.pool[uNetINode.Ptr().ID]
 	if exists {
-		delete(p.pool, uINode.Ptr().ID)
-		p.inodeObjectPool.ReleaseRawObject(uintptr(uINode))
+		delete(p.pool, uNetINode.Ptr().ID)
+		p.netINodeObjectPool.ReleaseRawObject(uintptr(uNetINode))
 	}
 	p.poolRWMutex.Unlock()
 }
 
-func (p *INodePool) SaveRawINode(uINode INodeUintptr) {
+func (p *NetINodePool) SaveRawNetINode(uNetINode NetINodeUintptr) {
 	p.poolRWMutex.Lock()
-	p.pool[uINode.Ptr().ID] = uINode
+	p.pool[uNetINode.Ptr().ID] = uNetINode
 	p.poolRWMutex.Unlock()
 }
 
-func (p *INodePool) AllocRawINode() INodeUintptr {
-	var uINode INodeUintptr
-	uINode = INodeUintptr(p.inodeObjectPool.AllocRawObject())
-	util.InitUUID64(&uINode.Ptr().ID)
-	return uINode
+func (p *NetINodePool) AllocRawNetINode() NetINodeUintptr {
+	var uNetINode NetINodeUintptr
+	uNetINode = NetINodeUintptr(p.netINodeObjectPool.AllocRawObject())
+	util.InitUUID64(&uNetINode.Ptr().ID)
+	return uNetINode
 }
 
-func (p *INodePool) ReleaseRawINode(uINode INodeUintptr) {
-	p.inodeObjectPool.ReleaseRawObject(uintptr(uINode))
+func (p *NetINodePool) ReleaseRawNetINode(uNetINode NetINodeUintptr) {
+	p.netINodeObjectPool.ReleaseRawObject(uintptr(uNetINode))
 }

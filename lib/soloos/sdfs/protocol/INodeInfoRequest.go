@@ -6,27 +6,27 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type INodeInfoRequest struct {
+type NetINodeInfoRequest struct {
 	_tab flatbuffers.Table
 }
 
-func GetRootAsINodeInfoRequest(buf []byte, offset flatbuffers.UOffsetT) *INodeInfoRequest {
+func GetRootAsNetINodeInfoRequest(buf []byte, offset flatbuffers.UOffsetT) *NetINodeInfoRequest {
 	n := flatbuffers.GetUOffsetT(buf[offset:])
-	x := &INodeInfoRequest{}
+	x := &NetINodeInfoRequest{}
 	x.Init(buf, n+offset)
 	return x
 }
 
-func (rcv *INodeInfoRequest) Init(buf []byte, i flatbuffers.UOffsetT) {
+func (rcv *NetINodeInfoRequest) Init(buf []byte, i flatbuffers.UOffsetT) {
 	rcv._tab.Bytes = buf
 	rcv._tab.Pos = i
 }
 
-func (rcv *INodeInfoRequest) Table() flatbuffers.Table {
+func (rcv *NetINodeInfoRequest) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *INodeInfoRequest) InodeID() []byte {
+func (rcv *NetINodeInfoRequest) InodeID() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -34,7 +34,7 @@ func (rcv *INodeInfoRequest) InodeID() []byte {
 	return nil
 }
 
-func (rcv *INodeInfoRequest) Size() int32 {
+func (rcv *NetINodeInfoRequest) Size() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -42,11 +42,11 @@ func (rcv *INodeInfoRequest) Size() int32 {
 	return 0
 }
 
-func (rcv *INodeInfoRequest) MutateSize(n int32) bool {
+func (rcv *NetINodeInfoRequest) MutateSize(n int32) bool {
 	return rcv._tab.MutateInt32Slot(6, n)
 }
 
-func (rcv *INodeInfoRequest) NetBlockCap() int32 {
+func (rcv *NetINodeInfoRequest) NetBlockCap() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -54,11 +54,11 @@ func (rcv *INodeInfoRequest) NetBlockCap() int32 {
 	return 0
 }
 
-func (rcv *INodeInfoRequest) MutateNetBlockCap(n int32) bool {
+func (rcv *NetINodeInfoRequest) MutateNetBlockCap(n int32) bool {
 	return rcv._tab.MutateInt32Slot(8, n)
 }
 
-func (rcv *INodeInfoRequest) MemBlockCap() int32 {
+func (rcv *NetINodeInfoRequest) MemBlockCap() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -66,25 +66,25 @@ func (rcv *INodeInfoRequest) MemBlockCap() int32 {
 	return 0
 }
 
-func (rcv *INodeInfoRequest) MutateMemBlockCap(n int32) bool {
+func (rcv *NetINodeInfoRequest) MutateMemBlockCap(n int32) bool {
 	return rcv._tab.MutateInt32Slot(10, n)
 }
 
-func INodeInfoRequestStart(builder *flatbuffers.Builder) {
+func NetINodeInfoRequestStart(builder *flatbuffers.Builder) {
 	builder.StartObject(4)
 }
-func INodeInfoRequestAddInodeID(builder *flatbuffers.Builder, InodeID flatbuffers.UOffsetT) {
+func NetINodeInfoRequestAddInodeID(builder *flatbuffers.Builder, InodeID flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(InodeID), 0)
 }
-func INodeInfoRequestAddSize(builder *flatbuffers.Builder, Size int32) {
+func NetINodeInfoRequestAddSize(builder *flatbuffers.Builder, Size int32) {
 	builder.PrependInt32Slot(1, Size, 0)
 }
-func INodeInfoRequestAddNetBlockCap(builder *flatbuffers.Builder, NetBlockCap int32) {
+func NetINodeInfoRequestAddNetBlockCap(builder *flatbuffers.Builder, NetBlockCap int32) {
 	builder.PrependInt32Slot(2, NetBlockCap, 0)
 }
-func INodeInfoRequestAddMemBlockCap(builder *flatbuffers.Builder, MemBlockCap int32) {
+func NetINodeInfoRequestAddMemBlockCap(builder *flatbuffers.Builder, MemBlockCap int32) {
 	builder.PrependInt32Slot(3, MemBlockCap, 0)
 }
-func INodeInfoRequestEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+func NetINodeInfoRequestEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
 }

@@ -8,72 +8,72 @@ import (
 	"soloos/util/offheap"
 )
 
-type INodeDriver struct {
+type NetINodeDriver struct {
 	offheapDriver  *offheap.OffheapDriver
 	netBlockDriver *netstg.NetBlockDriver
 	memBlockDriver *MemBlockDriver
-	inodePool      types.INodePool
+	netINodePool   types.NetINodePool
 
 	nameNodeClient *api.NameNodeClient
 }
 
-func (p *INodeDriver) Init(offheapDriver *offheap.OffheapDriver,
+func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 	netBlockDriver *netstg.NetBlockDriver,
 	memBlockDriver *MemBlockDriver) error {
 	p.offheapDriver = offheapDriver
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
-	p.inodePool.Init(-1, p.offheapDriver)
+	p.netINodePool.Init(-1, p.offheapDriver)
 	return nil
 }
 
-// MustGetINode get or init a inodeblock
-func (p *INodeDriver) MustGetINode(inodeID types.INodeID) (types.INodeUintptr, bool) {
-	return p.inodePool.MustGetINode(inodeID)
+// MustGetNetINode get or init a netINodeblock
+func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID) (types.NetINodeUintptr, bool) {
+	return p.netINodePool.MustGetNetINode(netINodeID)
 }
 
-func (p *INodeDriver) InitINode(size int64, netBlockCap int, memBlockCap int) (types.INodeUintptr, error) {
+func (p *NetINodeDriver) InitNetINode(size int64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
 	var (
-		inodeID types.INodeID
-		uINode  types.INodeUintptr
-		exists  bool
-		err     error
+		netINodeID types.NetINodeID
+		uNetINode  types.NetINodeUintptr
+		exists     bool
+		err        error
 	)
 
-	util.InitUUID64(&inodeID)
-	uINode, exists = p.MustGetINode(inodeID)
+	util.InitUUID64(&netINodeID)
+	uNetINode, exists = p.MustGetNetINode(netINodeID)
 	if exists {
-		panic("inode should not exists")
+		panic("netINode should not exists")
 	}
 
-	err = p.prepareINodeMetadata(uINode, size, netBlockCap, memBlockCap)
+	err = p.prepareNetINodeMetadata(uNetINode, size, netBlockCap, memBlockCap)
 	if err != nil {
 		return 0, err
 	}
 
-	return uINode, nil
+	return uNetINode, nil
 }
 
-func (p *INodeDriver) prepareINodeMetadata(uINode types.INodeUintptr,
+func (p *NetINodeDriver) prepareNetINodeMetadata(uNetINode types.NetINodeUintptr,
 	size int64, netBlockCap int, memBlockCap int) error {
 	var (
-		pINode = uINode.Ptr()
-		err    error
+		pNetINode = uNetINode.Ptr()
+		err       error
 	)
 
-	pINode.MetaDataMutex.Lock()
-	if pINode.IsMetaDataInited {
+	pNetINode.MetaDataMutex.Lock()
+	if pNetINode.IsMetaDataInited {
 		goto PREPARE_DONE
 	}
 
-	err = p.nameNodeClient.PrepareINodeMetadata(uINode, size, netBlockCap, memBlockCap)
+	err = p.nameNodeClient.PrepareNetINodeMetadata(uNetINode, size, netBlockCap, memBlockCap)
 	if err != nil {
 		goto PREPARE_DONE
 	}
 
-	pINode.IsMetaDataInited = true
+	pNetINode.IsMetaDataInited = true
 
 PREPARE_DONE:
-	pINode.MetaDataMutex.Unlock()
+	pNetINode.MetaDataMutex.Unlock()
 	return err
 }

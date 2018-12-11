@@ -4,7 +4,7 @@ import (
 	"soloos/sdfs/types"
 )
 
-func (p *NetBlockDriver) PWrite(uINode types.INodeUintptr,
+func (p *NetBlockDriver) PWrite(uNetINode types.NetINodeUintptr,
 	uNetBlock types.NetBlockUintptr,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int,

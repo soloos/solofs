@@ -12,7 +12,7 @@ type NameNode struct {
 	snetDriver       snet.SNetDriver
 	snetClientDriver snet.ClientDriver
 	netBlockPool     types.NetBlockPool
-	inodePool        types.INodePool
+	netINodePool        types.NetINodePool
 
 	MetaStg    metastg.MetaStg
 	SRPCServer NameNodeSRPCServer
@@ -44,7 +44,7 @@ func (p *NameNode) Init(options NameNodeOptions,
 		return err
 	}
 
-	err = p.inodePool.Init(-1, p.offheapDriver)
+	err = p.netINodePool.Init(-1, p.offheapDriver)
 	if err != nil {
 		return err
 	}

@@ -5,7 +5,7 @@ import (
 	snettypes "soloos/snet/types"
 )
 
-func (p *NetBlockDriver) PRead(uINode types.INodeUintptr,
+func (p *NetBlockDriver) PRead(uNetINode types.NetINodeUintptr,
 	uNetBlock types.NetBlockUintptr,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int,

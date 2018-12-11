@@ -9,7 +9,7 @@ import (
 type MetaStg struct {
 	offheapDriver *offheap.OffheapDriver
 	DBConn        *dbr.Connection
-	INodeDriver
+	NetINodeDriver
 	NetBlockDriver
 	DataNodeDriver
 }
@@ -30,7 +30,7 @@ func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver, dbDriver, dsn strin
 		err = p.InstallSqlite3Schema()
 	}
 
-	err = p.INodeDriver.Init(p)
+	err = p.NetINodeDriver.Init(p)
 	if err != nil {
 		return err
 	}

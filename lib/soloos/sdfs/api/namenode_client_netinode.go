@@ -4,11 +4,11 @@ import (
 	"soloos/sdfs/types"
 )
 
-func (p *NameNodeClient) PrepareINodeMetadata(uINode types.INodeUintptr,
+func (p *NameNodeClient) PrepareNetINodeMetadata(uNetINode types.NetINodeUintptr,
 	size int64, netBlockCap int, memBlockCap int,
 ) error {
-	uINode.Ptr().Size = size
-	uINode.Ptr().NetBlockCap = netBlockCap
-	uINode.Ptr().MemBlockCap = memBlockCap
+	uNetINode.Ptr().Size = size
+	uNetINode.Ptr().NetBlockCap = netBlockCap
+	uNetINode.Ptr().MemBlockCap = memBlockCap
 	return nil
 }

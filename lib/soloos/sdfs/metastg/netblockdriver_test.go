@@ -15,11 +15,11 @@ func TestMetaStgNetBlock(t *testing.T) {
 		offheapDriver = &offheap.DefaultOffheapDriver
 		peerPool      offheap.RawObjectPool
 		metastg       MetaStg
-		inode         types.INode
+		netINode         types.NetINode
 		netBlock      types.NetBlock
-		id0           types.INodeID
-		id1           types.INodeID
-		id2           types.INodeID
+		id0           types.NetINodeID
+		id1           types.NetINodeID
+		id2           types.NetINodeID
 	)
 
 	assert.NoError(t, metastg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect))
@@ -29,7 +29,7 @@ func TestMetaStgNetBlock(t *testing.T) {
 
 	assert.NoError(t, offheap.DefaultOffheapDriver.InitRawObjectPool(&peerPool, int(snettypes.PeerStructSize), -1, nil, nil))
 
-	inode.ID = id0
+	netINode.ID = id0
 	netBlock.ID = id1
 
 	uPeer0 := snettypes.PeerUintptr(peerPool.AllocRawObject())
@@ -39,8 +39,8 @@ func TestMetaStgNetBlock(t *testing.T) {
 	netBlock.DataNodes.Append(uPeer0)
 	netBlock.DataNodes.Append(uPeer1)
 
-	assert.NoError(t, metastg.StoreNetBlockInDB(&inode, &netBlock))
-	assert.NoError(t, metastg.StoreNetBlockInDB(&inode, &netBlock))
+	assert.NoError(t, metastg.StoreNetBlockInDB(&netINode, &netBlock))
+	assert.NoError(t, metastg.StoreNetBlockInDB(&netINode, &netBlock))
 
 	var backendPeerIDArrStr string
 	{

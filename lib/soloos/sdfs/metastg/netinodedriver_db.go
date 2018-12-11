@@ -7,7 +7,7 @@ import (
 	"github.com/gocraft/dbr"
 )
 
-func (p *INodeDriver) FetchINodeFromDB(pINode *types.INode) error {
+func (p *NetINodeDriver) FetchNetINodeFromDB(pNetINode *types.NetINode) error {
 	var (
 		sess    *dbr.Session
 		sqlRows *sql.Rows
@@ -15,9 +15,9 @@ func (p *INodeDriver) FetchINodeFromDB(pINode *types.INode) error {
 	)
 
 	sess = p.metaStg.DBConn.NewSession(nil)
-	sqlRows, err = sess.Select("inode_size", "netblock_cap", "memblock_cap").
-		From("b_inode").
-		Where("inode_id=?", pINode.IDStr()).Rows()
+	sqlRows, err = sess.Select("netnetINode_size", "netblock_cap", "memblock_cap").
+		From("b_netnetINode").
+		Where("netnetINode_id=?", pNetINode.IDStr()).Rows()
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -27,7 +27,7 @@ func (p *INodeDriver) FetchINodeFromDB(pINode *types.INode) error {
 		goto QUERY_DONE
 	}
 
-	err = sqlRows.Scan(&pINode.Size, &pINode.NetBlockCap, &pINode.MemBlockCap)
+	err = sqlRows.Scan(&pNetINode.Size, &pNetINode.NetBlockCap, &pNetINode.MemBlockCap)
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -39,11 +39,11 @@ QUERY_DONE:
 	return err
 }
 
-func (p *INodeDriver) StoreINodeInDB(pINode *types.INode) error {
+func (p *NetINodeDriver) StoreNetINodeInDB(pNetINode *types.NetINode) error {
 	var (
 		sess       *dbr.Session
 		tx         *dbr.Tx
-		inodeIDStr = pINode.IDStr()
+		netINodeIDStr = pNetINode.IDStr()
 		err        error
 	)
 
@@ -53,16 +53,16 @@ func (p *INodeDriver) StoreINodeInDB(pINode *types.INode) error {
 		goto QUERY_DONE
 	}
 
-	_, err = sess.InsertInto("b_inode").
-		Columns("inode_id", "inode_size", "netblock_cap", "memblock_cap").
-		Values(inodeIDStr, pINode.Size, pINode.NetBlockCap, pINode.MemBlockCap).
+	_, err = sess.InsertInto("b_netnetINode").
+		Columns("netnetINode_id", "netnetINode_size", "netblock_cap", "memblock_cap").
+		Values(netINodeIDStr, pNetINode.Size, pNetINode.NetBlockCap, pNetINode.MemBlockCap).
 		Exec()
 	if err != nil {
-		_, err = sess.Update("b_inode").
-			Set("inode_size", pINode.Size).
-			Set("netblock_cap", pINode.NetBlockCap).
-			Set("memblock_cap", pINode.MemBlockCap).
-			Where("inode_id=?", inodeIDStr).
+		_, err = sess.Update("b_netnetINode").
+			Set("netnetINode_size", pNetINode.Size).
+			Set("netblock_cap", pNetINode.NetBlockCap).
+			Set("memblock_cap", pNetINode.MemBlockCap).
+			Where("netnetINode_id=?", netINodeIDStr).
 			Exec()
 	}
 

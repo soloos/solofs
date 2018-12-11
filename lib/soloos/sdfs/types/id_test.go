@@ -7,15 +7,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEncodeINodeBlockID(t *testing.T) {
-	var inodeBlockID INodeBlockID
-	inodeID := INodeID{1, 2, 3}
+func TestEncodeNetINodeBlockID(t *testing.T) {
+	var netINodeBlockID NetINodeBlockID
+	netINodeID := NetINodeID{1, 2, 3}
 	blockIndex := 22
-	EncodeINodeBlockID(&inodeBlockID, inodeID, blockIndex)
-	assert.Equal(t, uint8(1), inodeBlockID[0])
-	assert.Equal(t, uint8(2), inodeBlockID[1])
-	assert.Equal(t, uint8(3), inodeBlockID[2])
-	assert.Equal(t, uint8(22), inodeBlockID[INodeIDSize])
+	EncodeNetINodeBlockID(&netINodeBlockID, netINodeID, blockIndex)
+	assert.Equal(t, uint8(1), netINodeBlockID[0])
+	assert.Equal(t, uint8(2), netINodeBlockID[1])
+	assert.Equal(t, uint8(3), netINodeBlockID[2])
+	assert.Equal(t, uint8(22), netINodeBlockID[NetINodeIDSize])
 }
 
 func TestEncodePtrBindIndex(t *testing.T) {
@@ -29,12 +29,12 @@ func TestEncodePtrBindIndex(t *testing.T) {
 	assert.Equal(t, uint8(3), id[UintptrSize])
 }
 
-func BenchmarkEncodeINodeBlockID(b *testing.B) {
-	var inodeBlockID INodeBlockID
-	inodeID := INodeID{1, 2, 3}
+func BenchmarkEncodeNetINodeBlockID(b *testing.B) {
+	var netINodeBlockID NetINodeBlockID
+	netINodeID := NetINodeID{1, 2, 3}
 	blockIndex := 22
 	for n := 0; n < b.N; n++ {
-		EncodeINodeBlockID(&inodeBlockID, inodeID, blockIndex)
+		EncodeNetINodeBlockID(&netINodeBlockID, netINodeID, blockIndex)
 	}
 }
 

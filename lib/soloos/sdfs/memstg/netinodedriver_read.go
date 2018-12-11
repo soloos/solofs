@@ -4,30 +4,30 @@ import (
 	"soloos/sdfs/types"
 )
 
-func (p *INodeDriver) preadMemBlock(uINode types.INodeUintptr, memBlockIndex int, data []byte, offset int) error {
+func (p *NetINodeDriver) preadMemBlock(uNetINode types.NetINodeUintptr, memBlockIndex int, data []byte, offset int) error {
 	var (
 		// isSuccess bool
 		err error
 	)
-	pINode := uINode.Ptr()
+	pNetINode := uNetINode.Ptr()
 
 	end := offset + len(data)
 
 	// check memblock
-	uMemBlock, _ := p.memBlockDriver.MustGetBlockWithReadAcquire(uINode, memBlockIndex)
+	uMemBlock, _ := p.memBlockDriver.MustGetBlockWithReadAcquire(uNetINode, memBlockIndex)
 	// TODO maybe rebase is not needed
 	if uMemBlock.Ptr().Contains(offset, end) == false {
 		var (
 			netBlockIndex int
 			uNetBlock     types.NetBlockUintptr
 		)
-		netBlockIndex = memBlockIndex * pINode.MemBlockCap / pINode.NetBlockCap
-		uNetBlock, err = p.netBlockDriver.MustGetBlock(uINode, netBlockIndex)
+		netBlockIndex = memBlockIndex * pNetINode.MemBlockCap / pNetINode.NetBlockCap
+		uNetBlock, err = p.netBlockDriver.MustGetBlock(uNetINode, netBlockIndex)
 		if err != nil {
 			goto READ_DATA_DONE
 		}
 
-		err = p.unsafeMemBlockRebaseNetBlock(uINode, uNetBlock, uMemBlock, memBlockIndex)
+		err = p.unsafeMemBlockRebaseNetBlock(uNetINode, uNetBlock, uMemBlock, memBlockIndex)
 		if err != nil {
 			goto READ_DATA_DONE
 		}
@@ -41,7 +41,7 @@ READ_DATA_DONE:
 	return err
 }
 
-func (p *INodeDriver) PRead(uINode types.INodeUintptr, data []byte, offset int64) error {
+func (p *NetINodeDriver) PRead(uNetINode types.NetINodeUintptr, data []byte, offset int64) error {
 	var (
 		memBlockIndex       int
 		memBlockBytesOffset int
@@ -49,38 +49,38 @@ func (p *INodeDriver) PRead(uINode types.INodeUintptr, data []byte, offset int64
 		dataEnd             int
 		err                 error
 	)
-	pINode := uINode.Ptr()
-	pINode.MetaDataMutex.RLock()
+	pNetINode := uNetINode.Ptr()
+	pNetINode.MetaDataMutex.RLock()
 
 	// read data from first memblock
-	// memBlockIndex = int(math.Ceil(float64(offset) / float64(pINode.MemBlockCap)))
-	memBlockIndex = int(offset / int64(pINode.MemBlockCap))
-	memBlockBytesOffset = int(offset - (int64(memBlockIndex) * int64(pINode.MemBlockCap)))
+	// memBlockIndex = int(math.Ceil(float64(offset) / float64(pNetINode.MemBlockCap)))
+	memBlockIndex = int(offset / int64(pNetINode.MemBlockCap))
+	memBlockBytesOffset = int(offset - (int64(memBlockIndex) * int64(pNetINode.MemBlockCap)))
 	dataOffset = 0
-	dataEnd = dataOffset + (pINode.MemBlockCap - memBlockBytesOffset)
+	dataEnd = dataOffset + (pNetINode.MemBlockCap - memBlockBytesOffset)
 	if dataEnd > len(data) {
 		dataEnd = len(data)
 	}
-	err = p.preadMemBlock(uINode, memBlockIndex, data[dataOffset:dataEnd], memBlockBytesOffset)
+	err = p.preadMemBlock(uNetINode, memBlockIndex, data[dataOffset:dataEnd], memBlockBytesOffset)
 	if err != nil {
 		goto READ_DATA_DONE
 	}
 
 	// read data from other memblock
 	dataOffset += dataEnd
-	for ; dataOffset < len(data); dataOffset += pINode.MemBlockCap {
-		dataEnd = dataOffset + pINode.MemBlockCap
+	for ; dataOffset < len(data); dataOffset += pNetINode.MemBlockCap {
+		dataEnd = dataOffset + pNetINode.MemBlockCap
 		if dataEnd > len(data) {
 			dataEnd = len(data)
 		}
-		memBlockIndex = int((offset + int64(dataOffset)) / int64(pINode.MemBlockCap))
-		err = p.preadMemBlock(uINode, memBlockIndex, data[dataOffset:dataEnd], 0)
+		memBlockIndex = int((offset + int64(dataOffset)) / int64(pNetINode.MemBlockCap))
+		err = p.preadMemBlock(uNetINode, memBlockIndex, data[dataOffset:dataEnd], 0)
 		if err != nil {
 			goto READ_DATA_DONE
 		}
 	}
 
 READ_DATA_DONE:
-	pINode.MetaDataMutex.RUnlock()
+	pNetINode.MetaDataMutex.RUnlock()
 	return err
 }
