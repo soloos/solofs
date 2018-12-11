@@ -11,6 +11,7 @@ type MetaStg struct {
 	DBConn        *dbr.Connection
 	INodeDriver
 	NetBlockDriver
+	DataNodeDriver
 }
 
 func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver, dbDriver, dsn string) error {
@@ -35,6 +36,11 @@ func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver, dbDriver, dsn strin
 	}
 
 	err = p.NetBlockDriver.Init(p)
+	if err != nil {
+		return err
+	}
+
+	err = p.DataNodeDriver.Init(p)
 	if err != nil {
 		return err
 	}

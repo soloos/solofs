@@ -8,13 +8,12 @@ import (
 	"github.com/gocraft/dbr"
 )
 
-func (p *NetBlockDriver) FetchNetBlockFromDB(pNetBlock *types.NetBlock) (err error) {
+func (p *NetBlockDriver) FetchNetBlockFromDB(pNetBlock *types.NetBlock, backendPeerIDArrStr *string) (err error) {
 	var (
 		sess    *dbr.Session
 		sqlRows *sql.Rows
 	)
 
-	var backendPeerIDArrStr string
 	sess = p.metaStg.DBConn.NewSession(nil)
 	sqlRows, err = sess.Select("index_in_inode", "netblock_len", "netblock_cap", "backend_peer_id_arr").
 		From("b_netblock").
@@ -28,14 +27,15 @@ func (p *NetBlockDriver) FetchNetBlockFromDB(pNetBlock *types.NetBlock) (err err
 		goto QUERY_DONE
 	}
 
-	err = sqlRows.Scan(&pNetBlock.IndexInInode, &pNetBlock.Len, &pNetBlock.Cap, &backendPeerIDArrStr)
+	err = sqlRows.Scan(&pNetBlock.IndexInInode, &pNetBlock.Len, &pNetBlock.Cap, backendPeerIDArrStr)
 	if err != nil {
 		goto QUERY_DONE
 	}
 
-	// TODO backendPeerIDArrStr split by ','
-
 QUERY_DONE:
+	if sqlRows != nil {
+		sqlRows.Close()
+	}
 	return err
 }
 

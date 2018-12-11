@@ -42,16 +42,17 @@ func TestMetaStgNetBlock(t *testing.T) {
 	assert.NoError(t, metastg.StoreNetBlockInDB(&inode, &netBlock))
 	assert.NoError(t, metastg.StoreNetBlockInDB(&inode, &netBlock))
 
+	var backendPeerIDArrStr string
 	{
-		assert.NoError(t, metastg.FetchNetBlockFromDB(&netBlock))
+		assert.NoError(t, metastg.FetchNetBlockFromDB(&netBlock, &backendPeerIDArrStr))
 	}
 	{
 		netBlock.ID = id2
-		assert.Equal(t, metastg.FetchNetBlockFromDB(&netBlock), types.ErrObjectNotExists)
+		assert.Equal(t, metastg.FetchNetBlockFromDB(&netBlock, &backendPeerIDArrStr), types.ErrObjectNotExists)
 	}
 	{
 		netBlock.ID = id1
-		assert.NoError(t, metastg.FetchNetBlockFromDB(&netBlock))
+		assert.NoError(t, metastg.FetchNetBlockFromDB(&netBlock, &backendPeerIDArrStr))
 	}
 
 	assert.NoError(t, metastg.Close())

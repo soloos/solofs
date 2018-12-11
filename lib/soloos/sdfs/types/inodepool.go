@@ -1,6 +1,7 @@
 package types
 
 import (
+	"soloos/util"
 	"soloos/util/offheap"
 	"sync"
 )
@@ -40,46 +41,54 @@ func (p *INodePool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
 // MustGetINode get or init a inodeblock
 func (p *INodePool) MustGetINode(inodeID INodeID) (INodeUintptr, bool) {
 	var (
-		ret    INodeUintptr
+		uINode INodeUintptr
 		exists bool
 	)
 
 	p.poolRWMutex.RLock()
-	ret, exists = p.pool[inodeID]
+	uINode, exists = p.pool[inodeID]
 	p.poolRWMutex.RUnlock()
 	if exists {
-		return ret, true
+		return uINode, true
 	}
 
 	p.poolRWMutex.Lock()
-	ret, exists = p.pool[inodeID]
+	uINode, exists = p.pool[inodeID]
 	if exists {
 		goto GET_DONE
 	}
 
-	ret = INodeUintptr(p.inodeObjectPool.AllocRawObject())
-	p.pool[inodeID] = ret
+	uINode = INodeUintptr(p.inodeObjectPool.AllocRawObject())
+	uINode.Ptr().ID = inodeID
+	p.pool[inodeID] = uINode
 
 GET_DONE:
 	p.poolRWMutex.Unlock()
-	return ret, exists
+	return uINode, exists
 }
 
 func (p *INodePool) ReleaseINode(uINode INodeUintptr) {
+	var exists bool
 	p.poolRWMutex.Lock()
-	delete(p.pool, uINode.Ptr().ID)
-	p.inodeObjectPool.ReleaseRawObject(uintptr(uINode))
+	_, exists = p.pool[uINode.Ptr().ID]
+	if exists {
+		delete(p.pool, uINode.Ptr().ID)
+		p.inodeObjectPool.ReleaseRawObject(uintptr(uINode))
+	}
 	p.poolRWMutex.Unlock()
 }
 
-func (p *INodePool) SetINode(uINode INodeUintptr) {
+func (p *INodePool) SaveRawINode(uINode INodeUintptr) {
 	p.poolRWMutex.Lock()
 	p.pool[uINode.Ptr().ID] = uINode
 	p.poolRWMutex.Unlock()
 }
 
 func (p *INodePool) AllocRawINode() INodeUintptr {
-	return INodeUintptr(p.inodeObjectPool.AllocRawObject())
+	var uINode INodeUintptr
+	uINode = INodeUintptr(p.inodeObjectPool.AllocRawObject())
+	util.InitUUID64(&uINode.Ptr().ID)
+	return uINode
 }
 
 func (p *INodePool) ReleaseRawINode(uINode INodeUintptr) {

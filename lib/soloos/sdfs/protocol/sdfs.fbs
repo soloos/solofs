@@ -10,6 +10,20 @@ table NetBlockBackend {
     Address:string;
 }
 
+table INodeInfoRequest {
+	InodeID:string;
+    Size:int;
+    NetBlockCap:int;
+    MemBlockCap:int;
+}
+
+table INodeInfoResponse {
+    CommonResponse:CommonResponse;
+    Size:int;
+    NetBlockCap:int;
+    MemBlockCap:int;
+}
+
 table INodeNetBlockInfoRequest {
 	InodeID:string;
     NetBlockIndex:int;

@@ -24,7 +24,7 @@ func (p *netBlockDriverUploader) PWrite(uNetBlock types.NetBlockUintptr,
 		isMergeEventHappened, isMergeWriteMaskSuccess =
 			pMemBlock.UploadJob.UploadMaskWaiting.Ptr().MergeIncludeNeighbour(offset, end)
 
-		if isMergeWriteMaskSuccess == true {
+		if isMergeWriteMaskSuccess {
 			if isMergeEventHappened == false {
 				pMemBlock.UploadJob.UploadSig.Add(1)
 				p.uploadMemBlockJobChan <- pMemBlock.GetUploadMemBlockJobUintptr()

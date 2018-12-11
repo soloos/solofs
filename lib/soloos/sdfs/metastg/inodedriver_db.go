@@ -33,7 +33,9 @@ func (p *INodeDriver) FetchINodeFromDB(pINode *types.INode) error {
 	}
 
 QUERY_DONE:
-	sqlRows.Close()
+	if sqlRows != nil {
+		sqlRows.Close()
+	}
 	return err
 }
 

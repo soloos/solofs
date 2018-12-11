@@ -38,11 +38,22 @@ func (rcv *CommonResponse) MutateCode(n int32) bool {
 	return rcv._tab.MutateInt32Slot(4, n)
 }
 
+func (rcv *CommonResponse) Error() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
 func CommonResponseStart(builder *flatbuffers.Builder) {
-	builder.StartObject(1)
+	builder.StartObject(2)
 }
 func CommonResponseAddCode(builder *flatbuffers.Builder, Code int32) {
 	builder.PrependInt32Slot(0, Code, 0)
+}
+func CommonResponseAddError(builder *flatbuffers.Builder, Error flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(Error), 0)
 }
 func CommonResponseEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

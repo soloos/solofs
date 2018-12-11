@@ -41,31 +41,31 @@ func (p *NetBlockPool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
 func (p *NetBlockPool) MustGetNetBlock(uINode INodeUintptr, netBlockIndex int) (NetBlockUintptr, bool) {
 	var (
 		inodeBlockID INodeBlockID
-		ret          NetBlockUintptr
+		uNetBlock    NetBlockUintptr
 		exists       bool
 	)
 
 	EncodeINodeBlockID(&inodeBlockID, uINode.Ptr().ID, netBlockIndex)
 
 	p.poolRWMutex.RLock()
-	ret, exists = p.pool[inodeBlockID]
+	uNetBlock, exists = p.pool[inodeBlockID]
 	p.poolRWMutex.RUnlock()
 	if exists {
-		return ret, true
+		return uNetBlock, true
 	}
 
 	p.poolRWMutex.Lock()
-	ret, exists = p.pool[inodeBlockID]
+	uNetBlock, exists = p.pool[inodeBlockID]
 	if exists {
 		goto GET_DONE
 	}
 
-	ret = NetBlockUintptr(p.netBlockObjectPool.AllocRawObject())
-	p.pool[inodeBlockID] = ret
+	uNetBlock = NetBlockUintptr(p.netBlockObjectPool.AllocRawObject())
+	p.pool[inodeBlockID] = uNetBlock
 
 GET_DONE:
 	p.poolRWMutex.Unlock()
-	return ret, exists
+	return uNetBlock, exists
 }
 
 func (p *NetBlockPool) ReleaseNetBlock(uINode INodeUintptr, netBlockIndex int, uNetBlock NetBlockUintptr) {

@@ -20,8 +20,8 @@ func (u NetBlockUintptr) Ptr() *NetBlock { return (*NetBlock)(unsafe.Pointer(u))
 type NetBlock struct {
 	ID               NetBlockID                  `db:"netblock_id"`
 	IndexInInode     int                         `db:"index_in_inode"`
-	Len              int32                       `db:"netblock_len"`
-	Cap              int32                       `db:"netblock_cap"`
+	Len              int                         `db:"netblock_len"`
+	Cap              int                         `db:"netblock_cap"`
 	DataNodes        snettypes.PeerUintptrArray8 `db:"-"`
 	MetaDataMutex    sync.Mutex                  `db:"-"`
 	IsMetaDataInited bool                        `db:"-"`

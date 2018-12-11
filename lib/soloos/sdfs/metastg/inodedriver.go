@@ -2,7 +2,7 @@ package metastg
 
 import (
 	"soloos/sdfs/types"
-	"soloos/util"
+	snettypes "soloos/snet/types"
 )
 
 type INodeDriver struct {
@@ -26,11 +26,7 @@ func (p *INodeDriver) GetINode(inodeID types.INodeID) (types.INodeUintptr, error
 	uINode, exists = p.inodePool.MustGetINode(inodeID)
 
 	if exists == false || uINode.Ptr().IsMetaDataInited == false {
-		uINode.Ptr().MetaDataMutex.Lock()
-		if uINode.Ptr().IsMetaDataInited == false {
-			err = p.FetchINodeFromDB(uINode.Ptr())
-		}
-		uINode.Ptr().MetaDataMutex.Unlock()
+		err = p.prepareINodeMetadata(uINode)
 		if err != nil {
 			goto GETINODE_DONE
 		}
@@ -44,32 +40,29 @@ GETINODE_DONE:
 	return uINode, err
 }
 
-func (p *INodeDriver) AllocINode(netBlockCap, memBlockCap int) (types.INodeUintptr, error) {
+func (p *INodeDriver) ChooseDataNodesForNewNetBlock(uINode types.INodeUintptr,
+	backends *snettypes.PeerUintptrArray8) error {
+	backends.Reset()
+	return nil
+}
+
+func (p *INodeDriver) prepareINodeMetadata(uINode types.INodeUintptr) error {
 	var (
-		uINode types.INodeUintptr
-		pINode *types.INode
+		pINode = uINode.Ptr()
 		err    error
 	)
 
-	uINode = p.inodePool.AllocRawINode()
-	pINode = uINode.Ptr()
-	util.InitUUID64(&pINode.ID)
-	pINode.Size = 0
-	pINode.NetBlockCap = netBlockCap
-	pINode.MemBlockCap = memBlockCap
+	pINode.MetaDataMutex.Lock()
+	if pINode.IsMetaDataInited {
+		goto PREPARE_DONE
+	}
+
+	err = p.FetchINodeFromDB(pINode)
+	goto PREPARE_DONE
+
 	pINode.IsMetaDataInited = true
 
-	err = p.StoreINodeInDB(pINode)
-	if err != nil {
-		goto ALLOCINODE_DONE
-	}
-
-	p.inodePool.SetINode(uINode)
-
-ALLOCINODE_DONE:
-	if err != nil {
-		p.inodePool.ReleaseRawINode(uINode)
-		return 0, err
-	}
-	return uINode, nil
+PREPARE_DONE:
+	pINode.MetaDataMutex.Unlock()
+	return err
 }

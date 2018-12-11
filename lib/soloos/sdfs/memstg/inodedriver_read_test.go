@@ -22,7 +22,7 @@ func TestINodeDriverINodeRead(t *testing.T) {
 	InitDriversWithMockServerForTest(t,
 		"127.0.0.1:10022", &mockServer,
 		&memBlockDriver, &inodeDriver, memBlockCap, blockChunksLimit)
-	uINode, err = inodeDriver.InitINode(netBlockCap, memBlockCap)
+	uINode, err = inodeDriver.InitINode(0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 
 	var (

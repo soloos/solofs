@@ -2,7 +2,9 @@ package metastg
 
 import (
 	"soloos/sdfs/types"
+	snettypes "soloos/snet/types"
 	"soloos/util"
+	"strings"
 )
 
 type NetBlockDriver struct {
@@ -16,7 +18,7 @@ func (p *NetBlockDriver) Init(metaStg *MetaStg) error {
 	return nil
 }
 
-func (p *NetBlockDriver) GetNetBlock(uINode types.INodeUintptr, netBlockIndex int) (types.NetBlockUintptr, error) {
+func (p *NetBlockDriver) MustGetNetBlock(uINode types.INodeUintptr, netBlockIndex int) (types.NetBlockUintptr, error) {
 	var (
 		uNetBlock types.NetBlockUintptr
 		exists    bool
@@ -26,50 +28,62 @@ func (p *NetBlockDriver) GetNetBlock(uINode types.INodeUintptr, netBlockIndex in
 	uNetBlock, exists = p.netBlockPool.MustGetNetBlock(uINode, netBlockIndex)
 
 	if exists == false || uNetBlock.Ptr().IsMetaDataInited == false {
-		uNetBlock.Ptr().MetaDataMutex.Lock()
-		if uNetBlock.Ptr().IsMetaDataInited == false {
-			err = p.FetchNetBlockFromDB(uNetBlock.Ptr())
-		}
-		uNetBlock.Ptr().MetaDataMutex.Unlock()
+		err = p.prepareNetBlockMetadata(uINode, netBlockIndex, uNetBlock)
 		if err != nil {
 			goto GETINODE_DONE
 		}
 	}
 
 GETINODE_DONE:
-	if err == types.ErrObjectNotExists {
-		p.netBlockPool.ReleaseNetBlock(uINode, netBlockIndex, uNetBlock)
-	}
 
 	return uNetBlock, err
 }
 
-func (p *NetBlockDriver) AllocNetBlock(uINode types.INodeUintptr, netBlockIndex int) (types.NetBlockUintptr, error) {
+func (p *NetBlockDriver) prepareNetBlockMetadata(uINode types.INodeUintptr, netBlockIndex int,
+	uNetBlock types.NetBlockUintptr) error {
 	var (
-		uNetBlock types.NetBlockUintptr
-		pNetBlock *types.NetBlock
-		err       error
+		pNetBlock           = uNetBlock.Ptr()
+		backendPeerIDArrStr string
+		peerID              snettypes.PeerID
+		err                 error
 	)
 
-	uNetBlock = p.netBlockPool.AllocRawNetBlock()
-	pNetBlock = uNetBlock.Ptr()
-	util.InitUUID64(&pNetBlock.ID)
-	// pNetBlock.Size = 0
-	// pNetBlock.NetBlockCap = netBlockCap
-	// pNetBlock.MemBlockCap = memBlockCap
-	// pNetBlock.IsMetaDataInited = true
-
-	err = p.StoreNetBlockInDB(uINode.Ptr(), pNetBlock)
-	if err != nil {
-		goto ALLOCINODE_DONE
+	pNetBlock.MetaDataMutex.Lock()
+	if pNetBlock.IsMetaDataInited {
+		goto PREPARE_DONE
 	}
 
-	p.netBlockPool.SetNetBlock(uINode, netBlockIndex, uNetBlock)
+	err = p.FetchNetBlockFromDB(pNetBlock, &backendPeerIDArrStr)
+	if err == nil {
+		// TODO backendPeerIDArrStr split by ','
+		backendPeerIDArr := strings.Split(backendPeerIDArrStr, ",")
+		for _, peerIDStr := range backendPeerIDArr {
+			copy(peerID[:], peerIDStr)
+		}
 
-ALLOCINODE_DONE:
-	if err != nil {
-		p.netBlockPool.ReleaseRawNetBlock(uNetBlock)
-		return 0, err
+	} else {
+		if err != types.ErrObjectNotExists {
+			goto PREPARE_DONE
+		}
+
+		util.InitUUID64(&pNetBlock.ID)
+		pNetBlock.IndexInInode = netBlockIndex
+		pNetBlock.Len = 0
+		pNetBlock.Cap = uINode.Ptr().NetBlockCap
+		err = p.metaStg.INodeDriver.ChooseDataNodesForNewNetBlock(uINode, &pNetBlock.DataNodes)
+		if err != nil {
+			goto PREPARE_DONE
+		}
+
+		err = p.StoreNetBlockInDB(uINode.Ptr(), pNetBlock)
+		if err != nil {
+			goto PREPARE_DONE
+		}
 	}
-	return uNetBlock, nil
+
+	pNetBlock.IsMetaDataInited = true
+
+PREPARE_DONE:
+	pNetBlock.MetaDataMutex.Unlock()
+	return err
 }

@@ -54,14 +54,15 @@ func TestNetBlockPrepareMetadata(t *testing.T) {
 		nameNodeSRPCListenAddr,
 		&memBlockDriver, &inodeDriver, memBlockCap, blockChunksLimit)
 
-	uINode, err = inodeDriver.InitINode(netBlockCap, memBlockCap)
+	uINode, err = inodeDriver.InitINode(0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 
-	// var (
-	// readData       = make([]byte, 93)
-	// readOff  int64 = 73
-	// )
+	var (
+		readData       = make([]byte, 93)
+		readOff  int64 = 73
+	)
 	// assert.NoError(t, inodeDriver.PRead(uINode, readData, readOff))
+	inodeDriver.PRead(uINode, readData, readOff)
 	util.Ignore(uINode)
 	assert.NoError(t, nameNode.Close())
 }

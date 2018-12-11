@@ -13,7 +13,7 @@ type NetBlockDriver struct {
 	offheapDriver        *offheap.OffheapDriver
 	netBlockAllocRWMutex sync.RWMutex
 	offheapPool          offheap.RawObjectPool
-	pool                 types.NetBlockPool
+	netBlockPool         types.NetBlockPool
 
 	snetDriver       *snet.SNetDriver
 	snetClientDriver *snet.ClientDriver
@@ -38,7 +38,7 @@ func (p *NetBlockDriver) Init(options NetBlockDriverOptions,
 		return err
 	}
 
-	err = p.pool.Init(p.options.RawChunksLimit, p.offheapDriver)
+	err = p.netBlockPool.Init(p.options.RawChunksLimit, p.offheapDriver)
 	if err != nil {
 		return err
 	}
@@ -67,14 +67,40 @@ func (p *NetBlockDriver) MustGetBlock(uINode types.INodeUintptr,
 		err       error
 	)
 
-	uNetBlock, exists = p.pool.MustGetNetBlock(uINode, netBlockIndex)
+	uNetBlock, exists = p.netBlockPool.MustGetNetBlock(uINode, netBlockIndex)
 
 	if exists == false || uNetBlock.Ptr().IsMetaDataInited == false {
-		err = p.PrepareNetBlockMetadata(uINode, netBlockIndex, uNetBlock)
+		err = p.prepareNetBlockMetadata(uINode, netBlockIndex, uNetBlock)
 		if err != nil {
 			return 0, err
 		}
 	}
 
 	return uNetBlock, nil
+}
+
+func (p *NetBlockDriver) prepareNetBlockMetadata(uINode types.INodeUintptr,
+	netblockIndex int,
+	uNetBlock types.NetBlockUintptr,
+) error {
+	var (
+		pNetBlock = uNetBlock.Ptr()
+		err       error
+	)
+
+	pNetBlock.MetaDataMutex.Lock()
+	if pNetBlock.IsMetaDataInited {
+		goto PREPARE_DONE
+	}
+
+	err = p.nameNodeClient.PrepareNetBlockMetadata(uINode, netblockIndex, uNetBlock)
+	if err != nil {
+		goto PREPARE_DONE
+	}
+
+	pNetBlock.IsMetaDataInited = true
+
+PREPARE_DONE:
+	pNetBlock.MetaDataMutex.Unlock()
+	return err
 }

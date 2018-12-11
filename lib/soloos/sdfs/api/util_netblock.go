@@ -9,6 +9,23 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
+func SetINodeNetBlockInfoResponseError(code int, err string, protocolBuilder *flatbuffers.Builder) {
+	protocolBuilder.Reset()
+	var (
+		errOff            flatbuffers.UOffsetT
+		commonResponseOff flatbuffers.UOffsetT
+	)
+	errOff = protocolBuilder.CreateString(err)
+	protocol.CommonResponseStart(protocolBuilder)
+	protocol.CommonResponseAddCode(protocolBuilder, int32(code))
+	protocol.CommonResponseAddError(protocolBuilder, errOff)
+	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
+
+	protocol.INodeNetBlockInfoResponseStart(protocolBuilder)
+	protocol.INodeNetBlockInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	protocolBuilder.Finish(protocol.INodeNetBlockInfoResponseEnd(protocolBuilder))
+}
+
 func SetINodeNetBlockInfoResponse(backends []snettypes.PeerUintptr, netBlockLen, netBlockCap int32,
 	protocolBuilder *flatbuffers.Builder) {
 	var (
@@ -56,6 +73,7 @@ func SetINodeNetBlockInfoResponse(backends []snettypes.PeerUintptr, netBlockLen,
 
 func SetNetBlockPReadResponse(code int32, length int32,
 	protocolBuilder *flatbuffers.Builder) {
+	protocolBuilder.Reset()
 	var (
 		commonResponseOff flatbuffers.UOffsetT
 	)
