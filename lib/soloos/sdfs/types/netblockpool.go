@@ -8,8 +8,8 @@ import (
 type NetBlockPool struct {
 	offheapDriver      *offheap.OffheapDriver
 	netBlockObjectPool offheap.RawObjectPool
-	poolRWMutex        sync.RWMutex
-	pool               map[NetINodeBlockID]NetBlockUintptr
+	PoolRWMutex        sync.RWMutex
+	Pool               map[NetINodeBlockID]NetBlockUintptr
 }
 
 func (p *NetBlockPool) Init(rawChunksLimit int32,
@@ -25,7 +25,7 @@ func (p *NetBlockPool) Init(rawChunksLimit int32,
 		return err
 	}
 
-	p.pool = make(map[NetINodeBlockID]NetBlockUintptr)
+	p.Pool = make(map[NetINodeBlockID]NetBlockUintptr)
 
 	return nil
 }
@@ -41,48 +41,48 @@ func (p *NetBlockPool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
 func (p *NetBlockPool) MustGetNetBlock(uNetINode NetINodeUintptr, netBlockIndex int) (NetBlockUintptr, bool) {
 	var (
 		netINodeBlockID NetINodeBlockID
-		uNetBlock    NetBlockUintptr
-		exists       bool
+		uNetBlock       NetBlockUintptr
+		exists          bool
 	)
 
 	EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
 
-	p.poolRWMutex.RLock()
-	uNetBlock, exists = p.pool[netINodeBlockID]
-	p.poolRWMutex.RUnlock()
+	p.PoolRWMutex.RLock()
+	uNetBlock, exists = p.Pool[netINodeBlockID]
+	p.PoolRWMutex.RUnlock()
 	if exists {
 		return uNetBlock, true
 	}
 
-	p.poolRWMutex.Lock()
-	uNetBlock, exists = p.pool[netINodeBlockID]
+	p.PoolRWMutex.Lock()
+	uNetBlock, exists = p.Pool[netINodeBlockID]
 	if exists {
 		goto GET_DONE
 	}
 
 	uNetBlock = NetBlockUintptr(p.netBlockObjectPool.AllocRawObject())
-	p.pool[netINodeBlockID] = uNetBlock
+	p.Pool[netINodeBlockID] = uNetBlock
 
 GET_DONE:
-	p.poolRWMutex.Unlock()
+	p.PoolRWMutex.Unlock()
 	return uNetBlock, exists
 }
 
 func (p *NetBlockPool) ReleaseNetBlock(uNetINode NetINodeUintptr, netBlockIndex int, uNetBlock NetBlockUintptr) {
 	var netINodeBlockID NetINodeBlockID
 	EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
-	p.poolRWMutex.Lock()
-	delete(p.pool, netINodeBlockID)
+	p.PoolRWMutex.Lock()
+	delete(p.Pool, netINodeBlockID)
 	p.netBlockObjectPool.ReleaseRawObject(uintptr(uNetBlock))
-	p.poolRWMutex.Unlock()
+	p.PoolRWMutex.Unlock()
 }
 
 func (p *NetBlockPool) SetNetBlock(uNetINode NetINodeUintptr, netBlockIndex int, uNetBlock NetBlockUintptr) {
 	var netINodeBlockID NetINodeBlockID
 	EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
-	p.poolRWMutex.Lock()
-	p.pool[netINodeBlockID] = uNetBlock
-	p.poolRWMutex.Unlock()
+	p.PoolRWMutex.Lock()
+	p.Pool[netINodeBlockID] = uNetBlock
+	p.PoolRWMutex.Unlock()
 }
 
 func (p *NetBlockPool) AllocRawNetBlock() NetBlockUintptr {

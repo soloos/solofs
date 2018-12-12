@@ -17,8 +17,8 @@ type NetINodeUintptr uintptr
 func (u NetINodeUintptr) Ptr() *NetINode { return (*NetINode)(unsafe.Pointer(u)) }
 
 type NetINode struct {
-	ID               NetINodeID      `db:"netnetINode_id"`
-	Size             int64        `db:"netnetINode_size"`
+	ID               NetINodeID   `db:"netinode_id"`
+	Size             int64        `db:"netinode_size"`
 	NetBlockCap      int          `db:"netblock_cap"`
 	MemBlockCap      int          `db:"memblock_cap"`
 	MetaDataMutex    sync.RWMutex `db:"-"`

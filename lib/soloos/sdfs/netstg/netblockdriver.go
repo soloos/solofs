@@ -2,8 +2,10 @@ package netstg
 
 import (
 	"soloos/sdfs/api"
+	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 	"soloos/snet"
+	snettypes "soloos/snet/types"
 	"soloos/util/offheap"
 	"sync"
 )
@@ -84,8 +86,13 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 	uNetBlock types.NetBlockUintptr,
 ) error {
 	var (
-		pNetBlock = uNetBlock.Ptr()
-		err       error
+		pNetBlock    = uNetBlock.Ptr()
+		netBlockInfo protocol.NetINodeNetBlockInfoResponse
+		backend      protocol.NetBlockBackend
+		peerID       snettypes.PeerID
+		uPeer        snettypes.PeerUintptr
+		i            int
+		err          error
 	)
 
 	pNetBlock.MetaDataMutex.Lock()
@@ -93,9 +100,17 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 		goto PREPARE_DONE
 	}
 
-	err = p.nameNodeClient.PrepareNetBlockMetadata(uNetINode, netblockIndex, uNetBlock)
+	err = p.nameNodeClient.PrepareNetBlockMetadata(&netBlockInfo, uNetINode, netblockIndex, uNetBlock)
 	if err != nil {
 		goto PREPARE_DONE
+	}
+
+	pNetBlock.DataNodes.Reset()
+	for i = 0; i < netBlockInfo.BackendsLength(); i++ {
+		netBlockInfo.Backends(&backend, i)
+		copy(peerID[:], netBlockInfo.NetBlockID())
+		uPeer, _ = p.snetDriver.MustGetPeer(&peerID, string(backend.Address()), types.DefaultSDFSRPCProtocol)
+		pNetBlock.DataNodes.Append(uPeer)
 	}
 
 	pNetBlock.IsMetaDataInited = true

@@ -11,21 +11,21 @@ table NetBlockBackend {
 }
 
 table NetINodeInfoRequest {
-	InodeID:string;
-    Size:int;
+	NetINodeID:string;
+    Size:int64;
     NetBlockCap:int;
     MemBlockCap:int;
 }
 
 table NetINodeInfoResponse {
     CommonResponse:CommonResponse;
-    Size:int;
+    Size:int64;
     NetBlockCap:int;
     MemBlockCap:int;
 }
 
 table NetINodeNetBlockInfoRequest {
-	InodeID:string;
+	NetINodeID:string;
     NetBlockIndex:int;
     Cap:int;
 }

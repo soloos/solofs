@@ -14,7 +14,8 @@ type MetaStg struct {
 	DataNodeDriver
 }
 
-func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver, dbDriver, dsn string) error {
+func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
+	dbDriver, dsn string) error {
 	var err error
 
 	p.offheapDriver = offheapDriver

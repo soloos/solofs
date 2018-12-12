@@ -13,11 +13,8 @@ import (
 
 func TestNetBlockDriver(t *testing.T) {
 	var (
-		offheapDriver         = &offheap.DefaultOffheapDriver
-		mockMemBlockPool      types.MockMemBlockPool
-		netBlockDriverOptions = NetBlockDriverOptions{
-			int32(-1),
-		}
+		offheapDriver    = &offheap.DefaultOffheapDriver
+		mockMemBlockPool types.MockMemBlockPool
 		snetDriver       snet.SNetDriver
 		snetClientDriver snet.ClientDriver
 		mockServer       MockServer
@@ -32,13 +29,8 @@ func TestNetBlockDriver(t *testing.T) {
 		&nameNodeClient, &dataNodeClient,
 		&netBlockDriver)
 
-	var uPeer0 = snetDriver.MustGetPeer(nil, mockServerAddr, types.DefaultSDFSRPCProtocol)
-	var uPeer1 = snetDriver.MustGetPeer(nil, mockServerAddr, types.DefaultSDFSRPCProtocol)
-
-	assert.NoError(t, netBlockDriver.Init(netBlockDriverOptions, offheapDriver,
-		&snetDriver, &snetClientDriver,
-		&nameNodeClient, &dataNodeClient,
-	))
+	var uPeer0, _ = snetDriver.MustGetPeer(nil, mockServerAddr, types.DefaultSDFSRPCProtocol)
+	var uPeer1, _ = snetDriver.MustGetPeer(nil, mockServerAddr, types.DefaultSDFSRPCProtocol)
 
 	data := make([]byte, 8)
 	for i := 0; i < len(data); i++ {

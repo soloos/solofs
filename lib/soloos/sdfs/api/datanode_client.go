@@ -5,12 +5,10 @@ import (
 )
 
 type DataNodeClient struct {
-	snetDriver       *snet.SNetDriver
 	snetClientDriver *snet.ClientDriver
 }
 
-func (p *DataNodeClient) Init(snetDriver *snet.SNetDriver, snetClientDriver *snet.ClientDriver) error {
-	p.snetDriver = snetDriver
+func (p *DataNodeClient) Init(snetClientDriver *snet.ClientDriver) error {
 	p.snetClientDriver = snetClientDriver
 	return nil
 }

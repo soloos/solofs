@@ -1,7 +1,6 @@
 package api
 
 import (
-	"soloos/log"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
@@ -9,7 +8,8 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeClient) PrepareNetBlockMetadata(uNetINode types.NetINodeUintptr,
+func (p *NameNodeClient) PrepareNetBlockMetadata(netBlockInfo *protocol.NetINodeNetBlockInfoResponse,
+	uNetINode types.NetINodeUintptr,
 	netBlockIndex int,
 	uNetBlock types.NetBlockUintptr,
 ) error {
@@ -17,12 +17,13 @@ func (p *NameNodeClient) PrepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 		req             snettypes.Request
 		resp            snettypes.Response
 		protocolBuilder flatbuffers.Builder
+		netINodeIDOff   flatbuffers.UOffsetT
 		err             error
 	)
 
-	netINodeIDOff := protocolBuilder.CreateString(uNetINode.Ptr().IDStr())
+	netINodeIDOff = protocolBuilder.CreateString(uNetINode.Ptr().IDStr())
 	protocol.NetINodeNetBlockInfoRequestStart(&protocolBuilder)
-	protocol.NetINodeNetBlockInfoRequestAddInodeID(&protocolBuilder, netINodeIDOff)
+	protocol.NetINodeNetBlockInfoRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
 	protocol.NetINodeNetBlockInfoRequestAddNetBlockIndex(&protocolBuilder, int32(netBlockIndex))
 	protocol.NetINodeNetBlockInfoRequestAddCap(&protocolBuilder, int32(uNetINode.Ptr().NetBlockCap))
 	protocolBuilder.Finish(protocol.NetINodeNetBlockInfoRequestEnd(&protocolBuilder))
@@ -39,35 +40,19 @@ func (p *NameNodeClient) PrepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 
 	var (
 		pNetBlock      = uNetBlock.Ptr()
-		netBlockInfo   protocol.NetINodeNetBlockInfoResponse
 		commonResponse protocol.CommonResponse
-		backend        protocol.NetBlockBackend
-		peerID         snettypes.PeerID
-		uPeer          snettypes.PeerUintptr
-		i              int
 	)
 	netBlockInfo.Init(body, flatbuffers.GetUOffsetT(body))
 	netBlockInfo.CommonResponse(&commonResponse)
-	if commonResponse.Code() != snettypes.CODE_OK {
-		if commonResponse.Code() == snettypes.CODE_404 {
-			return types.ErrObjectNotExists
-		} else {
-			log.Warn(string(commonResponse.Error()))
-			return types.ErrRemoteService
-		}
+	err = CommonResponseToError(&commonResponse)
+	if err != nil {
+		return err
 	}
 
 	copy(pNetBlock.ID[:], netBlockInfo.NetBlockID())
-	pNetBlock.IndexInInode = netBlockIndex
+	pNetBlock.IndexInNetINode = netBlockIndex
 	pNetBlock.Len = int(netBlockInfo.Len())
 	pNetBlock.Cap = int(netBlockInfo.Cap())
-	pNetBlock.DataNodes.Reset()
-	for i = 0; i < netBlockInfo.BackendsLength(); i++ {
-		netBlockInfo.Backends(&backend, i)
-		copy(peerID[:], netBlockInfo.NetBlockID())
-		uPeer = p.snetDriver.MustGetPeer(&peerID, string(backend.Address()), types.DefaultSDFSRPCProtocol)
-		pNetBlock.DataNodes.Append(uPeer)
-	}
 
 	return nil
 }

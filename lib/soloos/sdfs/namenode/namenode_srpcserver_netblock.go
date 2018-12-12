@@ -29,26 +29,28 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetadata(reqID uint64,
 
 	// request
 	req.Init(param, flatbuffers.GetUOffsetT(param))
-	copy(netINodeID[:], req.InodeID())
-	uNetINode, err = p.nameNode.MetaStg.GetNetINode(netINodeID)
+	copy(netINodeID[:], req.NetINodeID())
+	uNetINode, err = p.nameNode.metaStg.GetNetINode(netINodeID)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
-			api.SetNetINodeNetBlockInfoResponseError(snettypes.CODE_404, err.Error(), &protocolBuilder)
-			conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+			api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
+		} else {
+			api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
 		}
-		goto SERVICE_DONE
-	}
-
-	// response
-	uNetBlock, err = p.nameNode.MetaStg.MustGetNetBlock(uNetINode, int(req.NetBlockIndex()))
-	if err != nil {
-		api.SetNetINodeNetBlockInfoResponseError(snettypes.CODE_502, err.Error(), &protocolBuilder)
 		conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
 	}
 
-	api.SetNetINodeNetBlockInfoResponse(uNetBlock.Ptr().DataNodes.Slice(),
-		req.Cap(), req.Cap(), &protocolBuilder)
+	// response
+	uNetBlock, err = p.nameNode.metaStg.MustGetNetBlock(uNetINode, int(req.NetBlockIndex()))
+	if err != nil {
+		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
+		conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		goto SERVICE_DONE
+	}
+
+	api.SetNetINodeNetBlockInfoResponse(&protocolBuilder,
+		uNetBlock.Ptr().DataNodes.Slice(), req.Cap(), req.Cap())
 	err = conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 
 SERVICE_DONE:

@@ -12,17 +12,17 @@ func TestNetINodeDriverNetINodeRead(t *testing.T) {
 	var (
 		mockServer       netstg.MockServer
 		memBlockDriver   MemBlockDriver
-		netINodeDriver      NetINodeDriver
+		netINodeDriver   NetINodeDriver
 		netBlockCap      int   = 128
 		memBlockCap      int   = 64
 		blockChunksLimit int32 = 4
-		uNetINode           types.NetINodeUintptr
+		uNetINode        types.NetINodeUintptr
 		err              error
 	)
 	InitDriversWithMockServerForTest(t,
 		"127.0.0.1:10022", &mockServer,
 		&memBlockDriver, &netINodeDriver, memBlockCap, blockChunksLimit)
-	uNetINode, err = netINodeDriver.InitNetINode(0, netBlockCap, memBlockCap)
+	uNetINode, err = netINodeDriver.AllocNetINode(0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 
 	var (

@@ -1,9 +1,18 @@
 package datanode
 
-import "soloos/util/offheap"
+import (
+	"soloos/sdfs/memstg"
+	"soloos/sdfs/metastg"
+	"soloos/snet"
+	"soloos/util/offheap"
+)
 
 type DataNode struct {
-	offheapDriver *offheap.OffheapDriver
+	offheapDriver    *offheap.OffheapDriver
+	snetDriver       *snet.SNetDriver
+	snetClientDriver *snet.ClientDriver
+	netINodeDriver   *memstg.NetINodeDriver
+	metaStg          *metastg.MetaStg
 
 	SRPCServer DataNodeSRPCServer
 }

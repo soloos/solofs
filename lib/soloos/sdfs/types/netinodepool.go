@@ -7,10 +7,10 @@ import (
 )
 
 type NetINodePool struct {
-	offheapDriver   *offheap.OffheapDriver
+	offheapDriver      *offheap.OffheapDriver
 	netINodeObjectPool offheap.RawObjectPool
-	poolRWMutex     sync.RWMutex
-	pool            map[NetINodeID]NetINodeUintptr
+	PoolRWMutex        sync.RWMutex
+	Pool               map[NetINodeID]NetINodeUintptr
 }
 
 func (p *NetINodePool) Init(rawChunksLimit int32,
@@ -26,7 +26,7 @@ func (p *NetINodePool) Init(rawChunksLimit int32,
 		return err
 	}
 
-	p.pool = make(map[NetINodeID]NetINodeUintptr)
+	p.Pool = make(map[NetINodeID]NetINodeUintptr)
 
 	return nil
 }
@@ -42,46 +42,46 @@ func (p *NetINodePool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
 func (p *NetINodePool) MustGetNetINode(netINodeID NetINodeID) (NetINodeUintptr, bool) {
 	var (
 		uNetINode NetINodeUintptr
-		exists bool
+		exists    bool
 	)
 
-	p.poolRWMutex.RLock()
-	uNetINode, exists = p.pool[netINodeID]
-	p.poolRWMutex.RUnlock()
+	p.PoolRWMutex.RLock()
+	uNetINode, exists = p.Pool[netINodeID]
+	p.PoolRWMutex.RUnlock()
 	if exists {
 		return uNetINode, true
 	}
 
-	p.poolRWMutex.Lock()
-	uNetINode, exists = p.pool[netINodeID]
+	p.PoolRWMutex.Lock()
+	uNetINode, exists = p.Pool[netINodeID]
 	if exists {
 		goto GET_DONE
 	}
 
 	uNetINode = NetINodeUintptr(p.netINodeObjectPool.AllocRawObject())
 	uNetINode.Ptr().ID = netINodeID
-	p.pool[netINodeID] = uNetINode
+	p.Pool[netINodeID] = uNetINode
 
 GET_DONE:
-	p.poolRWMutex.Unlock()
+	p.PoolRWMutex.Unlock()
 	return uNetINode, exists
 }
 
 func (p *NetINodePool) ReleaseNetINode(uNetINode NetINodeUintptr) {
 	var exists bool
-	p.poolRWMutex.Lock()
-	_, exists = p.pool[uNetINode.Ptr().ID]
+	p.PoolRWMutex.Lock()
+	_, exists = p.Pool[uNetINode.Ptr().ID]
 	if exists {
-		delete(p.pool, uNetINode.Ptr().ID)
+		delete(p.Pool, uNetINode.Ptr().ID)
 		p.netINodeObjectPool.ReleaseRawObject(uintptr(uNetINode))
 	}
-	p.poolRWMutex.Unlock()
+	p.PoolRWMutex.Unlock()
 }
 
 func (p *NetINodePool) SaveRawNetINode(uNetINode NetINodeUintptr) {
-	p.poolRWMutex.Lock()
-	p.pool[uNetINode.Ptr().ID] = uNetINode
-	p.poolRWMutex.Unlock()
+	p.PoolRWMutex.Lock()
+	p.Pool[uNetINode.Ptr().ID] = uNetINode
+	p.PoolRWMutex.Unlock()
 }
 
 func (p *NetINodePool) AllocRawNetINode() NetINodeUintptr {

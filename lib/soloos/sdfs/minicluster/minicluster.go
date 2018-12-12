@@ -10,25 +10,30 @@ import (
 )
 
 type MiniCluster struct {
-	offheapDriver *offheap.OffheapDriver
-	DataNodes     []datanode.DataNode
-	NameNodes     []namenode.NameNode
+	offheapDriver    *offheap.OffheapDriver
+	DataNodes        []datanode.DataNode
+	DataNodesMetaStg []metastg.MetaStg
+	NameNodes        []namenode.NameNode
+	NameNodesMetaStg []metastg.MetaStg
 }
 
 func (p *MiniCluster) Init(nameNodePorts []int, dataNodePorts []int) {
 	p.offheapDriver = &offheap.DefaultOffheapDriver
 	p.NameNodes = make([]namenode.NameNode, len(nameNodePorts))
+	p.NameNodesMetaStg = make([]metastg.MetaStg, len(nameNodePorts))
 	for i := 0; i < len(nameNodePorts); i++ {
 		nameNodePort := nameNodePorts[i]
-		options := namenode.NameNodeOptions{
+		util.AssertErrIsNil(p.NameNodesMetaStg[i].Init(p.offheapDriver,
+			metastg.TestMetaStgDBDriver,
+			metastg.TestMetaStgDBConnect,
+		))
+		nameNodeOptions := namenode.NameNodeOptions{
 			namenode.NameNodeSRPCServerOptions{
 				"tcp",
 				fmt.Sprintf("127.0.0.1:%d", nameNodePort),
 			},
-			metastg.TestMetaStgDBDriver,
-			metastg.TestMetaStgDBConnect,
 		}
-		util.AssertErrIsNil(p.NameNodes[i].Init(options, p.offheapDriver))
+		util.AssertErrIsNil(p.NameNodes[i].Init(nameNodeOptions, p.offheapDriver, &p.NameNodesMetaStg[i]))
 		go func() {
 			util.AssertErrIsNil(p.NameNodes[i].Serve())
 		}()

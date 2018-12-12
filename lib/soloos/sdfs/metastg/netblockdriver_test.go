@@ -15,7 +15,7 @@ func TestMetaStgNetBlock(t *testing.T) {
 		offheapDriver = &offheap.DefaultOffheapDriver
 		peerPool      offheap.RawObjectPool
 		metastg       MetaStg
-		netINode         types.NetINode
+		netINode      types.NetINode
 		netBlock      types.NetBlock
 		id0           types.NetINodeID
 		id1           types.NetINodeID

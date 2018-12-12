@@ -6,7 +6,5 @@ type NameNodeSRPCServerOptions struct {
 }
 
 type NameNodeOptions struct {
-	SRPCServer       NameNodeSRPCServerOptions
-	MetaStgDBDriver  string
-	MetaStgDBConnect string
+	SRPCServer NameNodeSRPCServerOptions
 }

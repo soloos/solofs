@@ -13,7 +13,7 @@ func TestMetaStgNetINode(t *testing.T) {
 	var (
 		offheapDriver = &offheap.DefaultOffheapDriver
 		metastg       MetaStg
-		netINode         types.NetINode
+		netINode      types.NetINode
 		id0           types.NetINodeID
 		id1           types.NetINodeID
 	)

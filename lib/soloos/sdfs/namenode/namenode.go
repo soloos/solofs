@@ -2,52 +2,24 @@ package namenode
 
 import (
 	"soloos/sdfs/metastg"
-	"soloos/sdfs/types"
-	"soloos/snet"
 	"soloos/util/offheap"
 )
 
 type NameNode struct {
-	offheapDriver    *offheap.OffheapDriver
-	snetDriver       snet.SNetDriver
-	snetClientDriver snet.ClientDriver
-	netBlockPool     types.NetBlockPool
-	netINodePool        types.NetINodePool
+	offheapDriver *offheap.OffheapDriver
+	metaStg       *metastg.MetaStg
 
-	MetaStg    metastg.MetaStg
 	SRPCServer NameNodeSRPCServer
 }
 
 func (p *NameNode) Init(options NameNodeOptions,
-	offheapDriver *offheap.OffheapDriver) error {
+	offheapDriver *offheap.OffheapDriver,
+	metaStg *metastg.MetaStg,
+) error {
 	var err error
 
 	p.offheapDriver = offheapDriver
-
-	err = p.MetaStg.Init(p.offheapDriver, options.MetaStgDBDriver, options.MetaStgDBConnect)
-	if err != nil {
-		return err
-	}
-
-	err = p.snetDriver.Init(p.offheapDriver)
-	if err != nil {
-		return err
-	}
-
-	err = p.snetClientDriver.Init(p.offheapDriver)
-	if err != nil {
-		return err
-	}
-
-	err = p.netBlockPool.Init(-1, p.offheapDriver)
-	if err != nil {
-		return err
-	}
-
-	err = p.netINodePool.Init(-1, p.offheapDriver)
-	if err != nil {
-		return err
-	}
+	p.metaStg = metaStg
 
 	err = p.SRPCServer.Init(p, options.SRPCServer)
 	if err != nil {

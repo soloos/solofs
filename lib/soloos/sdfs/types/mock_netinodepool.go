@@ -29,7 +29,7 @@ func (p *MockNetINodePool) MustGetNetINode(netINodeID NetINodeID) (NetINodeUintp
 	return uNetINode, loaded
 }
 
-func (p *MockNetINodePool) InitNetINode(netBlockCap, memBlockCap int) NetINodeUintptr {
+func (p *MockNetINodePool) AllocNetINode(netBlockCap, memBlockCap int) NetINodeUintptr {
 	var netINodeID NetINodeID
 	util.InitUUID64(&netINodeID)
 	uNetINode, _ := p.MustGetNetINode(netINodeID)

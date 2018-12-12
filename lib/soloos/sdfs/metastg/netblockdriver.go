@@ -35,7 +35,6 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr, netBlo
 	}
 
 GETINODE_DONE:
-
 	return uNetBlock, err
 }
 
@@ -45,6 +44,7 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 		pNetBlock           = uNetBlock.Ptr()
 		backendPeerIDArrStr string
 		peerID              snettypes.PeerID
+		uPeer               snettypes.PeerUintptr
 		err                 error
 	)
 
@@ -53,12 +53,16 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 		goto PREPARE_DONE
 	}
 
-	err = p.FetchNetBlockFromDB(pNetBlock, &backendPeerIDArrStr)
+	err = p.FetchNetBlockByIndexFromDB(uNetINode.Ptr(), pNetBlock, &backendPeerIDArrStr)
 	if err == nil {
-		// TODO backendPeerIDArrStr split by ','
 		backendPeerIDArr := strings.Split(backendPeerIDArrStr, ",")
 		for _, peerIDStr := range backendPeerIDArr {
 			copy(peerID[:], peerIDStr)
+			uPeer = p.metaStg.DataNodeDriver.GetDataNode(&peerID)
+			if uPeer == 0 {
+				return types.ErrObjectNotExists
+			}
+			pNetBlock.DataNodes.Append(uPeer)
 		}
 
 	} else {
@@ -67,7 +71,7 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 		}
 
 		util.InitUUID64(&pNetBlock.ID)
-		pNetBlock.IndexInInode = netBlockIndex
+		pNetBlock.IndexInNetINode = netBlockIndex
 		pNetBlock.Len = 0
 		pNetBlock.Cap = uNetINode.Ptr().NetBlockCap
 		err = p.metaStg.NetINodeDriver.ChooseDataNodesForNewNetBlock(uNetINode, &pNetBlock.DataNodes)

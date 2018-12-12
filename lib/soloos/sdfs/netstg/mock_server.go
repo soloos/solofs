@@ -35,12 +35,32 @@ func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr stri
 		return err
 	}
 
+	p.srpcServer.RegisterService("/NetINode/AllocMetadata", p.NetINodeAllocMetadata)
 	p.srpcServer.RegisterService("/NetBlock/PWrite", p.NetBlockPWrite)
 	p.srpcServer.RegisterService("/NetBlock/PRead", p.NetBlockPRead)
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetadata", p.NetBlockPrepareMetadata)
 	for i := 0; i < len(p.dataNodePeers); i++ {
-		p.dataNodePeers[i] = p.snetDriver.MustGetPeer(nil, p.addr, types.DefaultSDFSRPCProtocol)
+		p.dataNodePeers[i], _ = p.snetDriver.MustGetPeer(nil, p.addr, types.DefaultSDFSRPCProtocol)
 	}
+
+	return nil
+}
+
+func (p *MockServer) NetINodeAllocMetadata(reqID uint64,
+	reqBodySize, reqParamSize uint32,
+	conn *snettypes.Connection) error {
+
+	var blockData = make([]byte, reqBodySize)
+	util.AssertErrIsNil(conn.ReadAll(blockData))
+
+	// request
+	var req protocol.NetINodeInfoRequest
+	req.Init(blockData[:reqParamSize], flatbuffers.GetUOffsetT(blockData[:reqParamSize]))
+
+	// response
+	var protocolBuilder flatbuffers.Builder
+	api.SetNetINodeInfoResponse(&protocolBuilder, req.Size(), req.NetBlockCap(), req.MemBlockCap())
+	util.AssertErrIsNil(conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
 	return nil
 }
@@ -80,7 +100,7 @@ func (p *MockServer) NetBlockPRead(reqID uint64,
 	req.Init(reqData[:reqParamSize], flatbuffers.GetUOffsetT(reqData[:reqParamSize]))
 
 	var protocolBuilder flatbuffers.Builder
-	api.SetNetBlockPReadResponse(snettypes.CODE_OK, req.Length(), &protocolBuilder)
+	api.SetNetBlockPReadResponse(&protocolBuilder, req.Length())
 
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
 	util.AssertErrIsNil(conn.Response(reqID, respBody, make([]byte, req.Length())))
@@ -100,7 +120,7 @@ func (p *MockServer) NetBlockPrepareMetadata(reqID uint64,
 
 	// response
 	var protocolBuilder flatbuffers.Builder
-	api.SetNetINodeNetBlockInfoResponse(p.dataNodePeers[:], req.Cap(), req.Cap(), &protocolBuilder)
+	api.SetNetINodeNetBlockInfoResponse(&protocolBuilder, p.dataNodePeers[:], req.Cap(), req.Cap())
 	util.AssertErrIsNil(conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
 	return nil

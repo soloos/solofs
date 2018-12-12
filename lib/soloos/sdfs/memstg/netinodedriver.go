@@ -19,11 +19,13 @@ type NetINodeDriver struct {
 
 func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 	netBlockDriver *netstg.NetBlockDriver,
-	memBlockDriver *MemBlockDriver) error {
+	memBlockDriver *MemBlockDriver,
+	nameNodeClient *api.NameNodeClient) error {
 	p.offheapDriver = offheapDriver
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
 	p.netINodePool.Init(-1, p.offheapDriver)
+	p.nameNodeClient = nameNodeClient
 	return nil
 }
 
@@ -32,7 +34,7 @@ func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID) (types.Net
 	return p.netINodePool.MustGetNetINode(netINodeID)
 }
 
-func (p *NetINodeDriver) InitNetINode(size int64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
+func (p *NetINodeDriver) AllocNetINode(size int64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
 	var (
 		netINodeID types.NetINodeID
 		uNetINode  types.NetINodeUintptr
@@ -46,7 +48,7 @@ func (p *NetINodeDriver) InitNetINode(size int64, netBlockCap int, memBlockCap i
 		panic("netINode should not exists")
 	}
 
-	err = p.prepareNetINodeMetadata(uNetINode, size, netBlockCap, memBlockCap)
+	err = p.allocNetINodeMetadata(uNetINode, size, netBlockCap, memBlockCap)
 	if err != nil {
 		return 0, err
 	}
@@ -54,7 +56,7 @@ func (p *NetINodeDriver) InitNetINode(size int64, netBlockCap int, memBlockCap i
 	return uNetINode, nil
 }
 
-func (p *NetINodeDriver) prepareNetINodeMetadata(uNetINode types.NetINodeUintptr,
+func (p *NetINodeDriver) allocNetINodeMetadata(uNetINode types.NetINodeUintptr,
 	size int64, netBlockCap int, memBlockCap int) error {
 	var (
 		pNetINode = uNetINode.Ptr()
@@ -66,7 +68,7 @@ func (p *NetINodeDriver) prepareNetINodeMetadata(uNetINode types.NetINodeUintptr
 		goto PREPARE_DONE
 	}
 
-	err = p.nameNodeClient.PrepareNetINodeMetadata(uNetINode, size, netBlockCap, memBlockCap)
+	err = p.nameNodeClient.AllocNetINodeMetadata(uNetINode, size, netBlockCap, memBlockCap)
 	if err != nil {
 		goto PREPARE_DONE
 	}

@@ -3,15 +3,15 @@ package metastg
 func commonSchemaSqls() []string {
 	var sql []string
 	// sql = append(sql, `
-	// drop table b_netnetINode;
+	// drop table b_netinode;
 	// `)
 	sql = append(sql, `
-	create table if not exists b_netnetINode (
-	netnetINode_id char(64),
-	netnetINode_size int,
+	create table if not exists b_netinode (
+	netinode_id char(64),
+	netinode_size int,
 	netblock_cap int,
 	memblock_cap int,
-	primary key(netnetINode_id)
+	primary key(netinode_id)
 	);
 `)
 
@@ -21,8 +21,8 @@ func commonSchemaSqls() []string {
 	sql = append(sql, `
 	create table if not exists b_netblock (
 	netblock_id char(64),
-	netnetINode_id char(64),
-	index_in_netnetINode int,
+	netinode_id char(64),
+	index_in_netinode int,
 	netblock_len int,
 	netblock_cap int,
 	backend_peer_id_arr text,
@@ -30,7 +30,7 @@ func commonSchemaSqls() []string {
 	);
 `)
 	sql = append(sql, `
-	create index if not exists b_netnetINode_netblock_netnetINode_id_index_in_netnetINode on b_netblock(netnetINode_id, index_in_netnetINode);
+	create index if not exists b_netinode_netblock_netinode_id_index_in_netinode on b_netblock(netinode_id, index_in_netinode);
 `)
 
 	// sql = append(sql, `

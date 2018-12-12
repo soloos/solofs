@@ -9,7 +9,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func SetNetINodeNetBlockInfoResponseError(code int, err string, protocolBuilder *flatbuffers.Builder) {
+func SetNetINodeNetBlockInfoResponseError(protocolBuilder *flatbuffers.Builder, code int, err string) {
 	protocolBuilder.Reset()
 	var (
 		errOff            flatbuffers.UOffsetT
@@ -26,8 +26,8 @@ func SetNetINodeNetBlockInfoResponseError(code int, err string, protocolBuilder 
 	protocolBuilder.Finish(protocol.NetINodeNetBlockInfoResponseEnd(protocolBuilder))
 }
 
-func SetNetINodeNetBlockInfoResponse(backends []snettypes.PeerUintptr, netBlockLen, netBlockCap int32,
-	protocolBuilder *flatbuffers.Builder) {
+func SetNetINodeNetBlockInfoResponse(protocolBuilder *flatbuffers.Builder,
+	backends []snettypes.PeerUintptr, netBlockLen, netBlockCap int32) {
 	var (
 		netBlockID        types.NetBlockID
 		peerOff           flatbuffers.UOffsetT
@@ -71,17 +71,17 @@ func SetNetINodeNetBlockInfoResponse(backends []snettypes.PeerUintptr, netBlockL
 	protocolBuilder.Finish(protocol.NetINodeNetBlockInfoResponseEnd(protocolBuilder))
 }
 
-func SetNetBlockPReadResponse(code int32, length int32,
-	protocolBuilder *flatbuffers.Builder) {
+func SetNetBlockPReadResponse(protocolBuilder *flatbuffers.Builder, length int32) {
 	protocolBuilder.Reset()
 	var (
 		commonResponseOff flatbuffers.UOffsetT
 	)
 	protocol.CommonResponseStart(protocolBuilder)
-	protocol.CommonResponseAddCode(protocolBuilder, code)
+	protocol.CommonResponseAddCode(protocolBuilder, snettypes.CODE_OK)
 	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
 
 	protocol.NetBlockPReadResponseStart(protocolBuilder)
 	protocol.NetBlockPReadResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	protocol.NetBlockPReadResponseAddLength(protocolBuilder, length)
 	protocolBuilder.Finish(protocol.NetBlockPReadResponseEnd(protocolBuilder))
 }
