@@ -25,31 +25,31 @@ func (p *memBlockPoolChunk) releaseTmpChunkToTmpChunkPool(uMemBlock types.MemBlo
 }
 
 func (p *memBlockPoolChunk) takeTmpBlockForRelease() types.MemBlockUintptr {
-	iRet := p.workingTmpChunkPool.IteratorAndPop(func(x interface{}) (bool, interface{}) {
-		uMemBlock := x.(types.MemBlockUintptr)
+	iRet := p.workingTmpChunkPool.IteratorAndPop(func(x uintptr) (bool, uintptr) {
+		uMemBlock := types.MemBlockUintptr(x)
 		pMemBlock := uMemBlock.Ptr()
 		if pMemBlock.IsInited() == false && pMemBlock.Chunk.Ptr().Accessor > 0 {
 			return false, 0
 		}
-		return true, uMemBlock
+		return true, uintptr(uMemBlock)
 	})
 
-	if iRet == nil {
-		iRet = p.workingTmpChunkPool.IteratorAndPop(func(x interface{}) (bool, interface{}) {
-			uMemBlock := x.(types.MemBlockUintptr)
+	if iRet == 0 {
+		iRet = p.workingTmpChunkPool.IteratorAndPop(func(x uintptr) (bool, uintptr) {
+			uMemBlock := types.MemBlockUintptr(x)
 			pMemBlock := uMemBlock.Ptr()
 			if pMemBlock.IsInited() == false {
 				return false, 0
 			}
-			return true, uMemBlock
+			return true, uintptr(uMemBlock)
 		})
 	}
 
-	if iRet == nil {
+	if iRet == 0 {
 		return 0
 	}
 
-	return iRet.(types.MemBlockUintptr)
+	return types.MemBlockUintptr(iRet)
 }
 
 func (p *memBlockPoolChunk) beforeReleaseTmpBlock(pMemBlock *types.MemBlock) {
@@ -65,10 +65,10 @@ func (p *memBlockPoolChunk) ReleaseTmpBlock(uMemBlock types.MemBlockUintptr) {
 	p.beforeReleaseTmpBlock(pMemBlock)
 	pMemBlock.Chunk.Ptr().WriteAcquire()
 	if pMemBlock.EnsureRelease() {
-		p.workingTmpChunkPool.IteratorAndPop(func(x interface{}) (bool, interface{}) {
-			uLocalMemBlock := x.(types.MemBlockUintptr)
+		p.workingTmpChunkPool.IteratorAndPop(func(x uintptr) (bool, uintptr) {
+			uLocalMemBlock := types.MemBlockUintptr(x)
 			if uLocalMemBlock == uMemBlock {
-				return true, uLocalMemBlock
+				return true, uintptr(uLocalMemBlock)
 			}
 			return false, 0
 		})
@@ -84,6 +84,6 @@ func (p *memBlockPoolChunk) AllocTmpBlockWithWriteAcquire() types.MemBlockUintpt
 	uMemBlock := p.allocTmpChunkFromTmpChunkPool()
 	uMemBlock.Ptr().Chunk.Ptr().WriteAcquire()
 	uMemBlock.Ptr().CompleteInit()
-	p.workingTmpChunkPool.Put(uMemBlock)
+	p.workingTmpChunkPool.Put(uintptr(uMemBlock))
 	return uMemBlock
 }

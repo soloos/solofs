@@ -7,14 +7,14 @@ import (
 // TODO use lru
 type HotPool struct {
 	mutex   sync.Mutex
-	tmppool []interface{}
+	tmppool []uintptr
 }
 
 func (p *HotPool) Init() error {
 	return nil
 }
 
-func (p *HotPool) Pop() interface{} {
+func (p *HotPool) Pop() uintptr {
 	p.mutex.Lock()
 	last := len(p.tmppool) - 1
 	x := p.tmppool[last]
@@ -23,16 +23,16 @@ func (p *HotPool) Pop() interface{} {
 	return x
 }
 
-func (p *HotPool) Put(x interface{}) {
+func (p *HotPool) Put(x uintptr) {
 	p.mutex.Lock()
 	p.tmppool = append(p.tmppool, x)
 	p.mutex.Unlock()
 }
 
-func (p *HotPool) IteratorAndPop(itFunc func(x interface{}) (bool, interface{})) interface{} {
+func (p *HotPool) IteratorAndPop(itFunc func(x uintptr) (bool, uintptr)) uintptr {
 	var (
 		isBreak  bool
-		ret      interface{}
+		ret      uintptr
 		popIndex int = -1
 	)
 	p.mutex.Lock()
