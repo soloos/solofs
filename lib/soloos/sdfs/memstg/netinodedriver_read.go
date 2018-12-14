@@ -27,7 +27,7 @@ func (p *NetINodeDriver) preadMemBlock(uNetINode types.NetINodeUintptr, memBlock
 			goto READ_DATA_DONE
 		}
 
-		err = p.unsafeMemBlockRebaseNetBlock(uNetINode, uNetBlock, uMemBlock, memBlockIndex)
+		err = p.unsafeMemBlockRebaseNetBlock(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex)
 		if err != nil {
 			goto READ_DATA_DONE
 		}

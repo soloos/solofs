@@ -2,9 +2,7 @@ package api
 
 import (
 	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
-	"soloos/util"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -29,11 +27,9 @@ func SetNetINodeNetBlockInfoResponseError(protocolBuilder *flatbuffers.Builder, 
 func SetNetINodeNetBlockInfoResponse(protocolBuilder *flatbuffers.Builder,
 	backends []snettypes.PeerUintptr, netBlockLen, netBlockCap int32) {
 	var (
-		netBlockID        types.NetBlockID
 		peerOff           flatbuffers.UOffsetT
 		addrOff           flatbuffers.UOffsetT
 		backendOff        flatbuffers.UOffsetT
-		netBlockIDOff     flatbuffers.UOffsetT
 		commonResponseOff flatbuffers.UOffsetT
 		i                 int
 	)
@@ -59,12 +55,8 @@ func SetNetINodeNetBlockInfoResponse(protocolBuilder *flatbuffers.Builder,
 	}
 	backendOff = protocolBuilder.EndVector(len(backends))
 
-	util.InitUUID64(&netBlockID)
-
-	netBlockIDOff = protocolBuilder.CreateByteVector(netBlockID[:])
 	protocol.NetINodeNetBlockInfoResponseStart(protocolBuilder)
 	protocol.NetINodeNetBlockInfoResponseAddCommonResponse(protocolBuilder, commonResponseOff)
-	protocol.NetINodeNetBlockInfoResponseAddNetBlockID(protocolBuilder, netBlockIDOff)
 	protocol.NetINodeNetBlockInfoResponseAddBackends(protocolBuilder, backendOff)
 	protocol.NetINodeNetBlockInfoResponseAddLen(protocolBuilder, netBlockLen)
 	protocol.NetINodeNetBlockInfoResponseAddCap(protocolBuilder, netBlockCap)

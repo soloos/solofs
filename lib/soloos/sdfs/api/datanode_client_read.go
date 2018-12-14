@@ -10,6 +10,7 @@ import (
 
 func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
 	uNetBlock types.NetBlockUintptr,
+	netBlockIndex int,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int,
 	offset int, length int,
@@ -18,13 +19,14 @@ func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
 	var (
 		req             snettypes.Request
 		protocolBuilder flatbuffers.Builder
-		peerOff         flatbuffers.UOffsetT
+		netINodeIDOff   flatbuffers.UOffsetT
 		err             error
 	)
 
-	peerOff = protocolBuilder.CreateByteVector(uNetBlock.Ptr().ID[:])
+	netINodeIDOff = protocolBuilder.CreateByteVector(uNetBlock.Ptr().NetINodeID[:])
 	protocol.NetBlockPReadRequestStart(&protocolBuilder)
-	protocol.NetBlockPReadRequestAddNetBlockID(&protocolBuilder, peerOff)
+	protocol.NetBlockPReadRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
+	protocol.NetBlockPReadRequestAddNetBlockIndex(&protocolBuilder, int32(netBlockIndex))
 	protocol.NetBlockPReadRequestAddOffset(&protocolBuilder, int32(offset))
 	protocol.NetBlockPReadRequestAddLength(&protocolBuilder, int32(length))
 	protocolBuilder.Finish(protocol.NetBlockPReadRequestEnd(&protocolBuilder))

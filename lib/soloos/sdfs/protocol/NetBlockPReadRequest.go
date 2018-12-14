@@ -26,7 +26,7 @@ func (rcv *NetBlockPReadRequest) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *NetBlockPReadRequest) NetBlockID() []byte {
+func (rcv *NetBlockPReadRequest) NetINodeID() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -34,7 +34,7 @@ func (rcv *NetBlockPReadRequest) NetBlockID() []byte {
 	return nil
 }
 
-func (rcv *NetBlockPReadRequest) Offset() int32 {
+func (rcv *NetBlockPReadRequest) NetBlockIndex() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -42,11 +42,11 @@ func (rcv *NetBlockPReadRequest) Offset() int32 {
 	return 0
 }
 
-func (rcv *NetBlockPReadRequest) MutateOffset(n int32) bool {
+func (rcv *NetBlockPReadRequest) MutateNetBlockIndex(n int32) bool {
 	return rcv._tab.MutateInt32Slot(6, n)
 }
 
-func (rcv *NetBlockPReadRequest) Length() int32 {
+func (rcv *NetBlockPReadRequest) Offset() int32 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
@@ -54,21 +54,36 @@ func (rcv *NetBlockPReadRequest) Length() int32 {
 	return 0
 }
 
-func (rcv *NetBlockPReadRequest) MutateLength(n int32) bool {
+func (rcv *NetBlockPReadRequest) MutateOffset(n int32) bool {
 	return rcv._tab.MutateInt32Slot(8, n)
 }
 
-func NetBlockPReadRequestStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
+func (rcv *NetBlockPReadRequest) Length() int32 {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	if o != 0 {
+		return rcv._tab.GetInt32(o + rcv._tab.Pos)
+	}
+	return 0
 }
-func NetBlockPReadRequestAddNetBlockID(builder *flatbuffers.Builder, NetBlockID flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(NetBlockID), 0)
+
+func (rcv *NetBlockPReadRequest) MutateLength(n int32) bool {
+	return rcv._tab.MutateInt32Slot(10, n)
+}
+
+func NetBlockPReadRequestStart(builder *flatbuffers.Builder) {
+	builder.StartObject(4)
+}
+func NetBlockPReadRequestAddNetINodeID(builder *flatbuffers.Builder, NetINodeID flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(NetINodeID), 0)
+}
+func NetBlockPReadRequestAddNetBlockIndex(builder *flatbuffers.Builder, NetBlockIndex int32) {
+	builder.PrependInt32Slot(1, NetBlockIndex, 0)
 }
 func NetBlockPReadRequestAddOffset(builder *flatbuffers.Builder, Offset int32) {
-	builder.PrependInt32Slot(1, Offset, 0)
+	builder.PrependInt32Slot(2, Offset, 0)
 }
 func NetBlockPReadRequestAddLength(builder *flatbuffers.Builder, Length int32) {
-	builder.PrependInt32Slot(2, Length, 0)
+	builder.PrependInt32Slot(3, Length, 0)
 }
 func NetBlockPReadRequestEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

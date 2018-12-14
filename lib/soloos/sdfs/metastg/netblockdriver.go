@@ -3,7 +3,6 @@ package metastg
 import (
 	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
-	"soloos/util"
 	"strings"
 )
 
@@ -53,7 +52,7 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 		goto PREPARE_DONE
 	}
 
-	err = p.FetchNetBlockByIndexFromDB(uNetINode.Ptr(), pNetBlock, &backendPeerIDArrStr)
+	err = p.FetchNetBlockFromDB(uNetINode.Ptr(), netBlockIndex, pNetBlock, &backendPeerIDArrStr)
 	if err == nil {
 		backendPeerIDArr := strings.Split(backendPeerIDArrStr, ",")
 		for _, peerIDStr := range backendPeerIDArr {
@@ -70,7 +69,7 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 			goto PREPARE_DONE
 		}
 
-		util.InitUUID64(&pNetBlock.ID)
+		pNetBlock.NetINodeID = uNetINode.Ptr().ID
 		pNetBlock.IndexInNetINode = netBlockIndex
 		pNetBlock.Len = 0
 		pNetBlock.Cap = uNetINode.Ptr().NetBlockCap

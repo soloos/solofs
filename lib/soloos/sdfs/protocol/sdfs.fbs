@@ -11,7 +11,7 @@ table NetBlockBackend {
 }
 
 table NetINodeInfoRequest {
-	NetINodeID:string;
+    NetINodeID:string;
     Size:int64;
     NetBlockCap:int;
     MemBlockCap:int;
@@ -25,28 +25,29 @@ table NetINodeInfoResponse {
 }
 
 table NetINodeNetBlockInfoRequest {
-	NetINodeID:string;
+    NetINodeID:string;
     NetBlockIndex:int;
     Cap:int;
 }
 
 table NetINodeNetBlockInfoResponse {
     CommonResponse:CommonResponse;
-	NetBlockID:string;
     Len:int;
     Cap:int;
     Backends:[NetBlockBackend];
 }
 
 table NetBlockPWriteRequest {
-	NetBlockID:string;
+    NetINodeID:string;
+    NetBlockIndex:int;
     Offset:int;
     Length:int;
     TransferBackends:[NetBlockBackend];
 }
 
 table NetBlockPReadRequest {
-	NetBlockID:string;
+    NetINodeID:string;
+    NetBlockIndex:int;
     Offset:int;
     Length:int;
 }

@@ -49,7 +49,7 @@ func (p *NameNodeClient) PrepareNetBlockMetadata(netBlockInfo *protocol.NetINode
 		return err
 	}
 
-	copy(pNetBlock.ID[:], netBlockInfo.NetBlockID())
+	pNetBlock.NetINodeID = uNetINode.Ptr().ID
 	pNetBlock.IndexInNetINode = netBlockIndex
 	pNetBlock.Len = int(netBlockInfo.Len())
 	pNetBlock.Cap = int(netBlockInfo.Cap())

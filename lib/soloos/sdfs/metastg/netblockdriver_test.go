@@ -30,7 +30,7 @@ func TestMetaStgNetBlock(t *testing.T) {
 	assert.NoError(t, offheap.DefaultOffheapDriver.InitRawObjectPool(&peerPool, int(snettypes.PeerStructSize), -1, nil, nil))
 
 	netINode.ID = id0
-	netBlock.ID = id1
+	netBlock.NetINodeID = netINode.ID
 
 	uPeer0 := snettypes.PeerUintptr(peerPool.AllocRawObject())
 	util.InitUUID64(&uPeer0.Ptr().PeerID)
@@ -38,21 +38,20 @@ func TestMetaStgNetBlock(t *testing.T) {
 	util.InitUUID64(&uPeer1.Ptr().PeerID)
 	netBlock.DataNodes.Append(uPeer0)
 	netBlock.DataNodes.Append(uPeer1)
+	netBlock.IndexInNetINode = 0
 
 	assert.NoError(t, metastg.StoreNetBlockInDB(&netINode, &netBlock))
 	assert.NoError(t, metastg.StoreNetBlockInDB(&netINode, &netBlock))
 
 	var backendPeerIDArrStr string
 	{
-		assert.NoError(t, metastg.FetchNetBlockFromDB(&netBlock, &backendPeerIDArrStr))
+		assert.NoError(t, metastg.FetchNetBlockFromDB(&netINode, 0, &netBlock, &backendPeerIDArrStr))
 	}
 	{
-		netBlock.ID = id2
-		assert.Equal(t, metastg.FetchNetBlockFromDB(&netBlock, &backendPeerIDArrStr), types.ErrObjectNotExists)
+		assert.Equal(t, metastg.FetchNetBlockFromDB(&netINode, 1, &netBlock, &backendPeerIDArrStr), types.ErrObjectNotExists)
 	}
 	{
-		netBlock.ID = id1
-		assert.NoError(t, metastg.FetchNetBlockFromDB(&netBlock, &backendPeerIDArrStr))
+		assert.NoError(t, metastg.FetchNetBlockFromDB(&netINode, 0, &netBlock, &backendPeerIDArrStr))
 	}
 
 	assert.NoError(t, metastg.Close())

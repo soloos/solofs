@@ -7,6 +7,7 @@ import (
 
 func (p *NetBlockDriver) PRead(uNetINode types.NetINodeUintptr,
 	uNetBlock types.NetBlockUintptr,
+	netBlockIndex int,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int,
 	offset, length int) error {
@@ -21,6 +22,7 @@ func (p *NetBlockDriver) PRead(uNetINode types.NetINodeUintptr,
 
 	err = p.dataNodeClient.PRead(uNetBlock.Ptr().DataNodes.Arr[0],
 		uNetBlock,
+		netBlockIndex,
 		uMemBlock,
 		memBlockIndex,
 		offset, length,

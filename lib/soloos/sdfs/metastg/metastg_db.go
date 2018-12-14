@@ -20,17 +20,13 @@ func commonSchemaSqls() []string {
 	// `)
 	sql = append(sql, `
 	create table if not exists b_netblock (
-	netblock_id char(64),
 	netinode_id char(64),
 	index_in_netinode int,
 	netblock_len int,
 	netblock_cap int,
 	backend_peer_id_arr text,
-	primary key(netblock_id)
+	primary key(netinode_id, index_in_netinode)
 	);
-`)
-	sql = append(sql, `
-	create index if not exists b_netinode_netblock_netinode_id_index_in_netinode on b_netblock(netinode_id, index_in_netinode);
 `)
 
 	// sql = append(sql, `

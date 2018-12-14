@@ -28,8 +28,8 @@ func (p *NameNodeSRPCServer) NetINodeAllocMetadata(reqID uint64,
 
 	// request
 	req.Init(param, flatbuffers.GetUOffsetT(param))
-	copy(netINodeID[:], req.NetINodeID())
 
+	copy(netINodeID[:], req.NetINodeID())
 	uNetINode, err = p.nameNode.metaStg.MustGetNetINode(netINodeID,
 		req.Size(), int(req.NetBlockCap()), int(req.MemBlockCap()))
 	if err != nil {

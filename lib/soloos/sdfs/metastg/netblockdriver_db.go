@@ -8,26 +8,20 @@ import (
 	"github.com/gocraft/dbr"
 )
 
-func (p *NetBlockDriver) doFetchNetBlockFromDB(pNetINode *types.NetINode, pNetBlock *types.NetBlock,
-	backendPeerIDArrStr *string,
-	isUseIDOrIndex bool) (err error) {
+func (p *NetBlockDriver) FetchNetBlockFromDB(pNetINode *types.NetINode,
+	netBlockIndex int, pNetBlock *types.NetBlock,
+	backendPeerIDArrStr *string) (err error) {
 	var (
 		sess    *dbr.Session
 		sqlRows *sql.Rows
 	)
 
 	sess = p.metaStg.DBConn.NewSession(nil)
-	if isUseIDOrIndex {
-		sqlRows, err = sess.Select("index_in_netinode", "netblock_len", "netblock_cap", "backend_peer_id_arr").
-			From("b_netblock").
-			Where("netblock_id=?", pNetBlock.IDStr()).Rows()
-	} else {
-		sqlRows, err = sess.Select("index_in_netinode", "netblock_len", "netblock_cap", "backend_peer_id_arr").
-			From("b_netblock").
-			Where("netinode_id=? and index_in_netinode=?",
-				pNetINode.IDStr(), pNetBlock.IndexInNetINode,
-			).Rows()
-	}
+	sqlRows, err = sess.Select("netblock_len", "netblock_cap", "backend_peer_id_arr").
+		From("b_netblock").
+		Where("netinode_id=? and index_in_netinode=?",
+			pNetINode.IDStr(), netBlockIndex,
+		).Rows()
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -37,7 +31,9 @@ func (p *NetBlockDriver) doFetchNetBlockFromDB(pNetINode *types.NetINode, pNetBl
 		goto QUERY_DONE
 	}
 
-	err = sqlRows.Scan(&pNetBlock.IndexInNetINode, &pNetBlock.Len, &pNetBlock.Cap, backendPeerIDArrStr)
+	pNetBlock.IndexInNetINode = netBlockIndex
+	pNetBlock.NetINodeID = pNetINode.ID
+	err = sqlRows.Scan(&pNetBlock.Len, &pNetBlock.Cap, backendPeerIDArrStr)
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -49,21 +45,10 @@ QUERY_DONE:
 	return err
 }
 
-func (p *NetBlockDriver) FetchNetBlockByIndexFromDB(pNetINode *types.NetINode, pNetBlock *types.NetBlock,
-	backendPeerIDArrStr *string) (err error) {
-	return p.doFetchNetBlockFromDB(pNetINode, pNetBlock, backendPeerIDArrStr, false)
-}
-
-func (p *NetBlockDriver) FetchNetBlockFromDB(pNetBlock *types.NetBlock, backendPeerIDArrStr *string) (err error) {
-	return p.doFetchNetBlockFromDB(nil, pNetBlock, backendPeerIDArrStr, true)
-
-}
-
 func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *types.NetINode, pNetBlock *types.NetBlock) error {
 	var (
 		sess                *dbr.Session
 		tx                  *dbr.Tx
-		netBlockIDStr       = pNetBlock.IDStr()
 		netINodeIDStr       = pNetINode.IDStr()
 		backendPeerIDArrStr bytes.Buffer
 		i                   int
@@ -87,18 +72,16 @@ func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *types.NetINode, pNetBlock 
 	}
 
 	_, err = sess.InsertInto("b_netblock").
-		Columns("netblock_id", "netinode_id", "index_in_netinode", "netblock_len", "netblock_cap", "backend_peer_id_arr").
-		Values(netBlockIDStr, netINodeIDStr, pNetBlock.IndexInNetINode, pNetBlock.Len, pNetBlock.Cap,
+		Columns("netinode_id", "index_in_netinode", "netblock_len", "netblock_cap", "backend_peer_id_arr").
+		Values(netINodeIDStr, pNetBlock.IndexInNetINode, pNetBlock.Len, pNetBlock.Cap,
 			backendPeerIDArrStr.String()).
 		Exec()
 	if err != nil {
 		_, err = sess.Update("b_netblock").
-			Set("netinode_id", netINodeIDStr).
-			Set("index_in_netinode", pNetBlock.IndexInNetINode).
 			Set("netblock_len", pNetBlock.Len).
 			Set("netblock_cap", pNetBlock.Cap).
 			Set("backend_peer_id_arr", backendPeerIDArrStr.String()).
-			Where("netblock_id=?", netBlockIDStr).
+			Where("netinode_id=? and index_in_netinode=?", netINodeIDStr, pNetBlock.IndexInNetINode).
 			Exec()
 	}
 

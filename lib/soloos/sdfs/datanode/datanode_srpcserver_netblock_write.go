@@ -30,7 +30,8 @@ func (p *DataNodeSRPCServer) NetBlockPWrite(reqID uint64,
 	reqParam.Init(reqParamData[:reqParamSize], flatbuffers.GetUOffsetT(reqParamData[:reqParamSize]))
 
 	// uNetBlock = p.dataNode.netBlockDriver.MustGetBlock()
-	log.Error(string(reqParam.NetBlockID()))
+	log.Error(string(reqParam.NetINodeID()))
+	log.Error(string(reqParam.NetBlockIndex()))
 	log.Error(reqParam.Length())
 	log.Error(reqParam.Offset())
 	for i = 0; i < reqParam.TransferBackendsLength(); i++ {

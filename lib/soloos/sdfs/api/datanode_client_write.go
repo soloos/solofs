@@ -22,8 +22,9 @@ func (p *DataNodeClient) UploadMemBlock(uUploadMemBlockJob types.UploadMemBlockJ
 		req                 snettypes.Request
 		resp                snettypes.Response
 		protocolBuilder     flatbuffers.Builder
-		netBlockIDOff       flatbuffers.UOffsetT
+		netINodeIDOff       flatbuffers.UOffsetT
 		backendOff          flatbuffers.UOffsetT
+		uNetBlock           types.NetBlockUintptr
 		netBlockBytesOffset int
 		netBlockBytesEnd    int
 		memBlockCap         int
@@ -36,6 +37,7 @@ func (p *DataNodeClient) UploadMemBlock(uUploadMemBlockJob types.UploadMemBlockJ
 		err                 error
 	)
 
+	uNetBlock = uUploadMemBlockJob.Ptr().UNetBlock
 	pChunkMask = uUploadMemBlockJob.Ptr().UploadMaskProcessing.Ptr()
 
 	req.OffheapBody.OffheapBytes = uUploadMemBlockJob.Ptr().UMemBlock.Ptr().Bytes.Data
@@ -68,12 +70,13 @@ func (p *DataNodeClient) UploadMemBlock(uUploadMemBlockJob types.UploadMemBlockJ
 			backendOff = protocolBuilder.EndVector(len(transferBackends))
 		}
 
-		netBlockIDOff = protocolBuilder.CreateByteVector(uUploadMemBlockJob.Ptr().UNetBlock.Ptr().ID[:])
+		netINodeIDOff = protocolBuilder.CreateByteVector(uNetBlock.Ptr().NetINodeID[:])
 		protocol.NetBlockPWriteRequestStart(&protocolBuilder)
 		if len(transferBackends) > 0 {
 			protocol.NetBlockPWriteRequestAddTransferBackends(&protocolBuilder, backendOff)
 		}
-		protocol.NetBlockPWriteRequestAddNetBlockID(&protocolBuilder, netBlockIDOff)
+		protocol.NetBlockPWriteRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
+		protocol.NetBlockPWriteRequestAddNetBlockIndex(&protocolBuilder, int32(uNetBlock.Ptr().IndexInNetINode))
 		protocol.NetBlockPWriteRequestAddOffset(&protocolBuilder, int32(netBlockBytesOffset))
 		protocol.NetBlockPWriteRequestAddLength(&protocolBuilder, int32(netBlockBytesEnd))
 		protocolBuilder.Finish(protocol.NetBlockPWriteRequestEnd(&protocolBuilder))

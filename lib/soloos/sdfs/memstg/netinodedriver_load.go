@@ -7,6 +7,7 @@ import (
 
 func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUintptr,
 	uNetBlock types.NetBlockUintptr,
+	netBlockIndex int,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int) error {
 	var (
@@ -24,7 +25,7 @@ func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUi
 	}
 
 	uTmpMemBlock = p.memBlockDriver.AllocTmpBlockWithWriteAcquire(uNetINode)
-	err = p.netBlockDriver.PRead(uNetINode, uNetBlock, uTmpMemBlock, memBlockIndex,
+	err = p.netBlockDriver.PRead(uNetINode, uNetBlock, netBlockIndex, uTmpMemBlock, memBlockIndex,
 		memBlockIndex*uNetINode.Ptr().MemBlockCap,
 		uNetINode.Ptr().MemBlockCap,
 	)

@@ -39,16 +39,8 @@ func (rcv *NetINodeNetBlockInfoResponse) CommonResponse(obj *CommonResponse) *Co
 	return nil
 }
 
-func (rcv *NetINodeNetBlockInfoResponse) NetBlockID() []byte {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
-	if o != 0 {
-		return rcv._tab.ByteVector(o + rcv._tab.Pos)
-	}
-	return nil
-}
-
 func (rcv *NetINodeNetBlockInfoResponse) Len() int32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
 	}
@@ -56,11 +48,11 @@ func (rcv *NetINodeNetBlockInfoResponse) Len() int32 {
 }
 
 func (rcv *NetINodeNetBlockInfoResponse) MutateLen(n int32) bool {
-	return rcv._tab.MutateInt32Slot(8, n)
+	return rcv._tab.MutateInt32Slot(6, n)
 }
 
 func (rcv *NetINodeNetBlockInfoResponse) Cap() int32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
 	if o != 0 {
 		return rcv._tab.GetInt32(o + rcv._tab.Pos)
 	}
@@ -68,11 +60,11 @@ func (rcv *NetINodeNetBlockInfoResponse) Cap() int32 {
 }
 
 func (rcv *NetINodeNetBlockInfoResponse) MutateCap(n int32) bool {
-	return rcv._tab.MutateInt32Slot(10, n)
+	return rcv._tab.MutateInt32Slot(8, n)
 }
 
 func (rcv *NetINodeNetBlockInfoResponse) Backends(obj *NetBlockBackend, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 4
@@ -84,7 +76,7 @@ func (rcv *NetINodeNetBlockInfoResponse) Backends(obj *NetBlockBackend, j int) b
 }
 
 func (rcv *NetINodeNetBlockInfoResponse) BackendsLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -92,22 +84,19 @@ func (rcv *NetINodeNetBlockInfoResponse) BackendsLength() int {
 }
 
 func NetINodeNetBlockInfoResponseStart(builder *flatbuffers.Builder) {
-	builder.StartObject(5)
+	builder.StartObject(4)
 }
 func NetINodeNetBlockInfoResponseAddCommonResponse(builder *flatbuffers.Builder, CommonResponse flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(CommonResponse), 0)
 }
-func NetINodeNetBlockInfoResponseAddNetBlockID(builder *flatbuffers.Builder, NetBlockID flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(NetBlockID), 0)
-}
 func NetINodeNetBlockInfoResponseAddLen(builder *flatbuffers.Builder, Len int32) {
-	builder.PrependInt32Slot(2, Len, 0)
+	builder.PrependInt32Slot(1, Len, 0)
 }
 func NetINodeNetBlockInfoResponseAddCap(builder *flatbuffers.Builder, Cap int32) {
-	builder.PrependInt32Slot(3, Cap, 0)
+	builder.PrependInt32Slot(2, Cap, 0)
 }
 func NetINodeNetBlockInfoResponseAddBackends(builder *flatbuffers.Builder, Backends flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(Backends), 0)
+	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(Backends), 0)
 }
 func NetINodeNetBlockInfoResponseStartBackendsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
