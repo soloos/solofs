@@ -39,6 +39,13 @@ func (p *MemBlockDriver) MustGetBlockWithReadAcquire(uNetINode types.NetINodeUin
 	return p.pools[uNetINode.Ptr().MemBlockCap].MustGetBlockWithReadAcquire(memBlockID)
 }
 
+func (p *MemBlockDriver) TryGetBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
+	memBlockIndex int) types.MemBlockUintptr {
+	var memBlockID types.PtrBindIndex
+	types.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
+	return p.pools[uNetINode.Ptr().MemBlockCap].TryGetBlockWithReadAcquire(memBlockID)
+}
+
 func (p *MemBlockDriver) AllocTmpBlockWithWriteAcquire(uNetINode types.NetINodeUintptr) types.MemBlockUintptr {
 	return p.pools[uNetINode.Ptr().MemBlockCap].AllocTmpBlockWithWriteAcquire()
 }

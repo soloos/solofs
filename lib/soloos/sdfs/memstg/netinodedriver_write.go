@@ -13,50 +13,73 @@ func (p *NetINodeDriver) PWrite(uNetINode types.NetINodeUintptr, data []byte, of
 		uMemBlock           types.MemBlockUintptr
 		netBlockIndex       int
 		uNetBlock           types.NetBlockUintptr
+		writeEnd            int64
+		pNetINode           = uNetINode.Ptr()
+		i                   int
 		err                 error
 	)
-	pNetINode := uNetINode.Ptr()
+
 	pNetINode.MetaDataMutex.RLock()
 
-	// write in memblock
-	memBlockIndex = int(offset / int64(pNetINode.MemBlockCap))
-	memBlockBytesOffset = int(offset - int64(memBlockIndex)*int64(pNetINode.MemBlockCap))
-	memBlockBytesEnd = memBlockBytesOffset + len(data)
-	uMemBlock, _ = p.memBlockDriver.MustGetBlockWithReadAcquire(uNetINode, memBlockIndex)
-	isSuccess = uMemBlock.Ptr().PWrite(data, memBlockBytesOffset)
-	if isSuccess == false {
-		// TODO memblock load data
-		panic("write error")
-	}
+	for writeEnd = offset + int64(len(data)); offset < writeEnd; offset += int64(pNetINode.MemBlockCap) {
+		// prepare netBlock
+		netBlockIndex = int(offset / int64(pNetINode.NetBlockCap))
+		uNetBlock, err = p.netBlockDriver.MustGetBlock(uNetINode, netBlockIndex)
 
-	// write in netblock
-	netBlockIndex = int(offset / int64(pNetINode.NetBlockCap))
-	uNetBlock, err = p.netBlockDriver.MustGetBlock(uNetINode, netBlockIndex)
-	if err != nil {
-		goto WRITE_DATA_DONE
-	}
+		// prepare memBlock
+		memBlockIndex = int(offset / int64(pNetINode.MemBlockCap))
+		memBlockBytesOffset = int(offset - int64(memBlockIndex)*int64(pNetINode.MemBlockCap))
+		memBlockBytesEnd = memBlockBytesOffset + len(data)
+		uMemBlock, _ = p.memBlockDriver.MustGetBlockWithReadAcquire(uNetINode, memBlockIndex)
 
-	err = p.netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, memBlockBytesOffset, memBlockBytesEnd)
-	if err != nil {
-		goto WRITE_DATA_DONE
+		// write in memblock
+		for i = 0; i < 6; i++ {
+			isSuccess = uMemBlock.Ptr().PWrite(data, memBlockBytesOffset)
+			if isSuccess == false {
+				err = p.unsafeMemBlockRebaseNetBlock(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex)
+				if err != nil {
+					goto WRITE_DATA_ONE_RUN_DONE
+				}
+			}
+		}
+		if isSuccess == false {
+			// TODO catch error
+			err = types.ErrRetryTooManyTimes
+			goto WRITE_DATA_ONE_RUN_DONE
+		}
+
+		// write in netblock
+		if err != nil {
+			goto WRITE_DATA_ONE_RUN_DONE
+		}
+
+		err = p.netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, memBlockBytesOffset, memBlockBytesEnd)
+		if err != nil {
+			goto WRITE_DATA_ONE_RUN_DONE
+		}
+
+	WRITE_DATA_ONE_RUN_DONE:
+		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
+		if err != nil {
+			goto WRITE_DATA_DONE
+		}
 	}
 
 WRITE_DATA_DONE:
-	uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
 	pNetINode.MetaDataMutex.RUnlock()
 	return err
 }
 
-func (p *NetINodeDriver) FlushMemBlock(uNetINode types.NetINodeUintptr,
-	uMemBlock types.MemBlockUintptr) error {
-	var err error
-	uNetINode.Ptr().MetaDataMutex.Lock()
-	err = p.netBlockDriver.FlushMemBlock(uMemBlock)
-	if err != nil {
-		goto FLUSH_DATA_DONE
-	}
-
-FLUSH_DATA_DONE:
-	uNetINode.Ptr().MetaDataMutex.Unlock()
+func (p *NetINodeDriver) Flush(uNetINode types.NetINodeUintptr) error {
+	// TODO common offset in metadb
+	var (
+		pNetINode = uNetINode.Ptr()
+		err       error
+	)
+	pNetINode.MetaDataMutex.Lock()
+	pNetINode.SyncDataSig.Wait()
+	pNetINode.MetaDataMutex.Unlock()
+	err = pNetINode.LastSyncDataError
+	pNetINode.LastSyncDataError = nil
 	return err
 }

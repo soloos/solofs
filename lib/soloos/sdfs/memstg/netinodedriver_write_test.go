@@ -49,7 +49,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		writeOffset := int64(int64(i) * int64(memBlockCap))
 		memBlockIndex := int(writeOffset / int64(uNetINode.Ptr().MemBlockCap))
 		uMemBlock, _ := memBlockDriver.MustGetBlockWithReadAcquire(uNetINode, memBlockIndex)
-		assert.NoError(t, netINodeDriver.FlushMemBlock(uNetINode, uMemBlock))
+		assert.NoError(t, netINodeDriver.Flush(uNetINode))
 		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
 	}
 

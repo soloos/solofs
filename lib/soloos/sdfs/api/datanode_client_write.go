@@ -10,14 +10,9 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *DataNodeClient) UploadMemBlock(uUploadMemBlockJob types.UploadMemBlockJobUintptr,
-	uPeer snettypes.PeerUintptr,
-	transferBackends []snettypes.PeerUintptr,
+func (p *DataNodeClient) UploadMemBlock(uJob types.UploadMemBlockJobUintptr,
+	uploadPeerIndex int, transferPeersCount int,
 ) error {
-	if uPeer == 0 {
-		return nil
-	}
-
 	var (
 		req                 snettypes.Request
 		resp                snettypes.Response
@@ -33,26 +28,30 @@ func (p *DataNodeClient) UploadMemBlock(uUploadMemBlockJob types.UploadMemBlockJ
 		pChunkMask          *offheap.ChunkMask
 		commonResp          protocol.CommonResponse
 		respBody            = make([]byte, 64)
+		pJob                *types.UploadMemBlockJob
 		i                   int
+		uPeer               snettypes.PeerUintptr
 		err                 error
 	)
 
-	uNetBlock = uUploadMemBlockJob.Ptr().UNetBlock
-	pChunkMask = uUploadMemBlockJob.Ptr().UploadMaskProcessing.Ptr()
+	pJob = uJob.Ptr()
+	uNetBlock = uJob.Ptr().UNetBlock
+	pChunkMask = uJob.Ptr().UploadMaskProcessing.Ptr()
 
-	req.OffheapBody.OffheapBytes = uUploadMemBlockJob.Ptr().UMemBlock.Ptr().Bytes.Data
-	memBlockCap = uUploadMemBlockJob.Ptr().UMemBlock.Ptr().Bytes.Len
+	req.OffheapBody.OffheapBytes = uJob.Ptr().UMemBlock.Ptr().Bytes.Data
+	memBlockCap = uJob.Ptr().UMemBlock.Ptr().Bytes.Len
 	for chunkMaskIndex := 0; chunkMaskIndex < pChunkMask.MaskArrayLen; chunkMaskIndex++ {
 		req.OffheapBody.CopyOffset = pChunkMask.MaskArray[chunkMaskIndex].Offset
 		req.OffheapBody.CopyEnd = pChunkMask.MaskArray[chunkMaskIndex].End
-		netBlockBytesOffset = memBlockCap * uUploadMemBlockJob.Ptr().MemBlockIndex
+		netBlockBytesOffset = memBlockCap * uJob.Ptr().MemBlockIndex
 		netBlockBytesEnd = netBlockBytesOffset + req.OffheapBody.CopyEnd
 		netBlockBytesOffset = netBlockBytesOffset + req.OffheapBody.CopyOffset
 
-		if len(transferBackends) > 0 {
-			for i = 0; i < len(transferBackends); i++ {
-				peerOff = protocolBuilder.CreateByteVector(transferBackends[i].Ptr().PeerID[:])
-				addrOff = protocolBuilder.CreateString(transferBackends[i].Ptr().AddressStr())
+		if transferPeersCount > 0 {
+			for i = 0; i < transferPeersCount; i++ {
+				uPeer = pJob.Backends.Arr[uploadPeerIndex+i+1]
+				peerOff = protocolBuilder.CreateByteVector(uPeer.Ptr().PeerID[:])
+				addrOff = protocolBuilder.CreateString(uPeer.Ptr().AddressStr())
 				protocol.NetBlockBackendStart(&protocolBuilder)
 				protocol.NetBlockBackendAddPeerID(&protocolBuilder, peerOff)
 				protocol.NetBlockBackendAddAddress(&protocolBuilder, addrOff)
@@ -63,16 +62,16 @@ func (p *DataNodeClient) UploadMemBlock(uUploadMemBlockJob types.UploadMemBlockJ
 				}
 			}
 
-			protocol.NetBlockPWriteRequestStartTransferBackendsVector(&protocolBuilder, len(transferBackends))
-			for i = len(transferBackends) - 1; i >= 0; i-- {
+			protocol.NetBlockPWriteRequestStartTransferBackendsVector(&protocolBuilder, transferPeersCount)
+			for i = transferPeersCount - 1; i >= 0; i-- {
 				protocolBuilder.PrependUOffsetT(backendOffs[i])
 			}
-			backendOff = protocolBuilder.EndVector(len(transferBackends))
+			backendOff = protocolBuilder.EndVector(transferPeersCount)
 		}
 
 		netINodeIDOff = protocolBuilder.CreateByteVector(uNetBlock.Ptr().NetINodeID[:])
 		protocol.NetBlockPWriteRequestStart(&protocolBuilder)
-		if len(transferBackends) > 0 {
+		if transferPeersCount > 0 {
 			protocol.NetBlockPWriteRequestAddTransferBackends(&protocolBuilder, backendOff)
 		}
 		protocol.NetBlockPWriteRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
@@ -82,6 +81,7 @@ func (p *DataNodeClient) UploadMemBlock(uUploadMemBlockJob types.UploadMemBlockJ
 		protocolBuilder.Finish(protocol.NetBlockPWriteRequestEnd(&protocolBuilder))
 		req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
+		uPeer = uJob.Ptr().Backends.Arr[uploadPeerIndex]
 		err = p.snetClientDriver.Call(uPeer,
 			"/NetBlock/PWrite", &req, &resp)
 		if err != nil {

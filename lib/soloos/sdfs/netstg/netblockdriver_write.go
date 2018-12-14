@@ -11,14 +11,10 @@ func (p *NetBlockDriver) PWrite(uNetINode types.NetINodeUintptr,
 	offset, end int) error {
 	var err error
 
-	err = p.netBlockDriverUploader.PWrite(uNetBlock, uMemBlock, memBlockIndex, offset, end)
+	err = p.netBlockDriverUploader.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, offset, end)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func (p *NetBlockDriver) FlushMemBlock(uMemBlock types.MemBlockUintptr) error {
-	return p.netBlockDriverUploader.FlushMemBlock(uMemBlock)
 }

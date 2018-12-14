@@ -31,15 +31,16 @@ func (p *DataNodeSRPCServer) NetBlockPWrite(reqID uint64,
 
 	// uNetBlock = p.dataNode.netBlockDriver.MustGetBlock()
 	log.Error(string(reqParam.NetINodeID()))
-	log.Error(string(reqParam.NetBlockIndex()))
-	log.Error(reqParam.Length())
+	log.Error(reqParam.NetBlockIndex())
 	log.Error(reqParam.Offset())
+	log.Error(reqParam.Length())
 	for i = 0; i < reqParam.TransferBackendsLength(); i++ {
 		reqParam.TransferBackends(&backend, i)
 		log.Error(string(backend.Address()))
 	}
 
 	// request file data
+	// TODO write to disk or transfer
 	var tmp = make([]byte, reqBodySize-reqParamSize)
 	err = conn.ReadAll(tmp)
 	if err != nil {

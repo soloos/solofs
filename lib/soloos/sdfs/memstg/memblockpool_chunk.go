@@ -133,7 +133,7 @@ func (p *memBlockPoolChunk) beforeReleaseBlock(pMemBlock *types.MemBlock) {
 	if pMemBlock.IsInited() == false {
 		return
 	}
-	pMemBlock.UploadJob.UploadSig.Wait()
+	pMemBlock.UploadJob.SyncDataSig.Wait()
 	pMemBlock.SetReleasable()
 }
 
@@ -212,4 +212,24 @@ func (p *memBlockPoolChunk) MustGetBlockWithReadAcquire(blockID types.PtrBindInd
 	}
 
 	return uMemBlock, loaded
+}
+
+func (p *memBlockPoolChunk) TryGetBlockWithReadAcquire(blockID types.PtrBindIndex) types.MemBlockUintptr {
+	var (
+		uMemBlock types.MemBlockUintptr
+	)
+
+	p.memBlocksRWMutex.RLock()
+	uMemBlock, _ = p.memBlocks[blockID]
+	if uMemBlock != 0 {
+		uMemBlock.Ptr().Chunk.Ptr().ReadAcquire()
+	}
+	p.memBlocksRWMutex.RUnlock()
+
+	if uMemBlock != 0 && p.checkBlock(blockID, uMemBlock) == false {
+		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
+		uMemBlock = 0
+	}
+
+	return uMemBlock
 }

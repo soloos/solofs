@@ -29,6 +29,10 @@ func (p *MemBlockPool) MustGetBlockWithReadAcquire(memBlockID types.PtrBindIndex
 	return p.chunk.MustGetBlockWithReadAcquire(memBlockID)
 }
 
+func (p *MemBlockPool) TryGetBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {
+	return p.chunk.TryGetBlockWithReadAcquire(memBlockID)
+}
+
 func (p *MemBlockPool) AllocTmpBlockWithWriteAcquire() types.MemBlockUintptr {
 	return p.chunk.AllocTmpBlockWithWriteAcquire()
 }

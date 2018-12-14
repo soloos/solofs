@@ -61,19 +61,14 @@ func TestBase(t *testing.T) {
 	assert.NoError(t, err)
 
 	var (
-		readData       = make([]byte, 93)
-		readOff  int64 = 73
+		testData = make([]byte, 93)
 	)
 
-	uNetBlock, err := netBlockDriver.MustGetBlock(uNetINode, 10)
-	uMemBlock := mockMemBlockPool.AllocMemBlock()
-	memBlockIndex := 0
-	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 0, 12))
-	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 11, 24))
-	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 30, 64))
-	assert.NoError(t, netBlockDriver.FlushMemBlock(uMemBlock))
-	assert.NoError(t, netINodeDriver.PRead(uNetINode, readData, readOff))
-	util.Ignore(uNetINode)
+	assert.NoError(t, netINodeDriver.PWrite(uNetINode, testData[0:12], 0))
+	assert.NoError(t, netINodeDriver.PWrite(uNetINode, testData[11:24], 24))
+	assert.NoError(t, netINodeDriver.PWrite(uNetINode, testData[30:64], 64))
+	assert.NoError(t, netINodeDriver.Flush(uNetINode))
+	assert.NoError(t, netINodeDriver.PRead(uNetINode, testData, 73))
 
 	assert.NoError(t, nameNode.Close())
 	assert.NoError(t, mockServer.Close())

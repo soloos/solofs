@@ -3,14 +3,12 @@ package netstg
 import (
 	"soloos/sdfs/types"
 	"soloos/util"
-	"sync"
 )
 
 type netBlockDriverUploader struct {
 	driver *NetBlockDriver
 
-	uploadMemBlockJobMutex sync.Mutex
-	uploadMemBlockJobChan  chan types.UploadMemBlockJobUintptr
+	uploadMemBlockJobChan chan types.UploadMemBlockJobUintptr
 }
 
 func (p *netBlockDriverUploader) Init(driver *NetBlockDriver) error {

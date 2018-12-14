@@ -2,69 +2,72 @@ package netstg
 
 import (
 	"soloos/sdfs/types"
+	"soloos/util"
 	"soloos/util/offheap"
 )
 
 func (p *netBlockDriverUploader) cronUpload() error {
 	var (
-		uUploadMemBlockJob types.UploadMemBlockJobUintptr
-		pUploadMemBlockJob *types.UploadMemBlockJob
-		pChunkMask         *offheap.ChunkMask
-		i                  int
-		ok                 bool
-		err                error
+		uJob       types.UploadMemBlockJobUintptr
+		pJob       *types.UploadMemBlockJob
+		pNetINode  *types.NetINode
+		pChunkMask *offheap.ChunkMask
+		i          int
+		ok         bool
+		err        error
 	)
 
 	for {
-		uUploadMemBlockJob, ok = <-p.uploadMemBlockJobChan
+		uJob, ok = <-p.uploadMemBlockJobChan
 		if ok == false {
 			panic("uploadMemBlockJobChan closed")
 		}
 
-		pUploadMemBlockJob = uUploadMemBlockJob.Ptr()
+		pJob = uJob.Ptr()
+		pNetINode = pJob.UNetINode.Ptr()
 
-		p.uploadMemBlockJobMutex.Lock()
-		if pUploadMemBlockJob.UploadMaskWaiting.Ptr().MaskArrayLen == 0 {
+		// prepare upload job
+		pJob.UploadPolicyMutex.Lock()
+		if pJob.UploadMaskWaiting.Ptr().MaskArrayLen == 0 {
 			// upload done and continue
-			pUploadMemBlockJob.UploadSig.Done()
-			p.uploadMemBlockJobMutex.Unlock()
-			continue
+			pJob.UploadPolicyMutex.Unlock()
+			goto ONE_RUN_DONE
 		}
+		pJob.UploadMaskSwap()
+		pJob.UploadPolicyMutex.Unlock()
 
 		// start upload
-		pUploadMemBlockJob.UploadMaskSwap()
-		p.uploadMemBlockJobMutex.Unlock()
 
-		pChunkMask = pUploadMemBlockJob.UploadMaskProcessing.Ptr()
+		pChunkMask = pJob.UploadMaskProcessing.Ptr()
+
+		util.AssertTrue(pJob.Backends.Len > 0)
 
 		// upload primary backend
-		{
-			if pUploadMemBlockJob.PrimaryBackendTransferCount > 0 {
-				err = p.driver.dataNodeClient.UploadMemBlock(uUploadMemBlockJob,
-					pUploadMemBlockJob.Backends.Arr[0],
-					pUploadMemBlockJob.Backends.Arr[1:1+pUploadMemBlockJob.PrimaryBackendTransferCount])
-			} else {
-				err = p.driver.dataNodeClient.UploadMemBlock(uUploadMemBlockJob,
-					pUploadMemBlockJob.Backends.Arr[0],
-					nil)
-			}
+		if pJob.PrimaryBackendTransferCount > 0 {
+			err = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, pJob.PrimaryBackendTransferCount)
+		} else {
+			err = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, 0)
 		}
 
 		// upload other backends
-		for i = pUploadMemBlockJob.PrimaryBackendTransferCount + 1; i < pUploadMemBlockJob.Backends.Len; i++ {
-			err = p.driver.dataNodeClient.UploadMemBlock(uUploadMemBlockJob,
-				pUploadMemBlockJob.Backends.Arr[i],
-				nil)
+		for i = pJob.PrimaryBackendTransferCount + 1; i < pJob.Backends.Len; i++ {
+			err = p.driver.dataNodeClient.UploadMemBlock(uJob, i, 0)
 		}
 
-		pUploadMemBlockJob.UploadSig.Done()
+	ONE_RUN_DONE:
+		pJob.SyncDataSig.Done()
+		pNetINode.SyncDataSig.Done()
 
-		// TODO catch error
-		if err != nil {
-			return err
+		if pNetINode.LastSyncDataError != err {
+			err = pNetINode.LastSyncDataError
 		}
 
-		pChunkMask.Reset()
+		if err == nil {
+			pChunkMask.Reset()
+		} else {
+			// TODO catch error
+			pNetINode.LastSyncDataError = err
+		}
 	}
 
 	return nil

@@ -4,7 +4,8 @@ import (
 	"soloos/sdfs/types"
 )
 
-func (p *netBlockDriverUploader) PWrite(uNetBlock types.NetBlockUintptr,
+func (p *netBlockDriverUploader) PWrite(uNetINode types.NetINodeUintptr,
+	uNetBlock types.NetBlockUintptr,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int,
 	offset, end int) error {
@@ -12,37 +13,32 @@ func (p *netBlockDriverUploader) PWrite(uNetBlock types.NetBlockUintptr,
 	var (
 		isMergeEventHappened    bool
 		isMergeWriteMaskSuccess bool = false
+		pMemBlock                    = uMemBlock.Ptr()
 	)
 
-	pMemBlock := uMemBlock.Ptr()
 	for isMergeWriteMaskSuccess == false {
-		p.uploadMemBlockJobMutex.Lock()
 		if pMemBlock.UploadJob.IsUploadPolicyPrepared == false {
-			p.prepareUploadMemBlockJob(&pMemBlock.UploadJob, uNetBlock, uMemBlock, memBlockIndex)
+			p.prepareUploadMemBlockJob(&pMemBlock.UploadJob,
+				uNetINode, uNetBlock, uMemBlock, memBlockIndex)
 		}
 
+		pMemBlock.UploadJob.UploadPolicyMutex.Lock()
 		isMergeEventHappened, isMergeWriteMaskSuccess =
 			pMemBlock.UploadJob.UploadMaskWaiting.Ptr().MergeIncludeNeighbour(offset, end)
+		pMemBlock.UploadJob.UploadPolicyMutex.Unlock()
 
 		if isMergeWriteMaskSuccess {
 			if isMergeEventHappened == false {
-				pMemBlock.UploadJob.UploadSig.Add(1)
+				pMemBlock.UploadJob.UNetINode.Ptr().SyncDataSig.Add(1)
+				pMemBlock.UploadJob.SyncDataSig.Add(1)
 				p.uploadMemBlockJobChan <- pMemBlock.GetUploadMemBlockJobUintptr()
 			}
 		}
-		p.uploadMemBlockJobMutex.Unlock()
 
 		if isMergeWriteMaskSuccess == false {
-			pMemBlock.UploadJob.UploadSig.Wait()
+			pMemBlock.UploadJob.SyncDataSig.Wait()
 		}
 	}
 
-	return nil
-}
-
-func (p *netBlockDriverUploader) FlushMemBlock(uMemBlock types.MemBlockUintptr) error {
-	pMemBlock := uMemBlock.Ptr()
-	// TODO add lock in metadb
-	pMemBlock.UploadJob.UploadSig.Wait()
 	return nil
 }

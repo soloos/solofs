@@ -7,7 +7,6 @@ import (
 	"soloos/sdfs/types"
 	"soloos/snet"
 	snettypes "soloos/snet/types"
-	"soloos/util"
 	"soloos/util/offheap"
 	"testing"
 	"time"
@@ -32,8 +31,8 @@ func TestBase(t *testing.T) {
 		memBlockDriver   memstg.MemBlockDriver
 		netBlockDriver   netstg.NetBlockDriver
 		netINodeDriver   memstg.NetINodeDriver
-		netBlockCap      int   = 1024
-		memBlockCap      int   = 128
+		netBlockCap      int   = 32
+		memBlockCap      int   = 16
 		blockChunksLimit int32 = 4
 		uNetINode        types.NetINodeUintptr
 		err              error
@@ -56,29 +55,11 @@ func TestBase(t *testing.T) {
 	uNetINode, err = netINodeDriver.AllocNetINode(0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 
-	var (
-		readData            = make([]byte, 93)
-		readOff       int64 = 73
-		uNetBlock     types.NetBlockUintptr
-		uMemBlock     types.MemBlockUintptr
-		memBlockIndex int
-	)
-
-	uNetBlock, err = netBlockDriver.MustGetBlock(uNetINode, 10)
-	uMemBlock = mockMemBlockPool.AllocMemBlock()
-	memBlockIndex = 0
-	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 0, 12))
-	// assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 11, 24))
-	// assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 30, 64))
-	assert.NoError(t, netBlockDriver.FlushMemBlock(uMemBlock))
-	// assert.NoError(t, netINodeDriver.PRead(uNetINode, readData, readOff))
-	util.Ignore(readOff)
-	util.Ignore(readData)
-	util.Ignore(memBlockIndex)
-	util.Ignore(uNetBlock)
-	util.Ignore(uMemBlock)
-	util.Ignore(uNetINode)
+	writeData := make([]byte, 6)
+	assert.NoError(t, netINodeDriver.PWrite(uNetINode, writeData, 12))
+	assert.NoError(t, netINodeDriver.Flush(uNetINode))
 
 	assert.NoError(t, dataNode.Close())
 	assert.NoError(t, mockServer.Close())
+	// assert.Equal(t, true, false)
 }

@@ -116,3 +116,10 @@ PREPARE_DONE:
 	pNetBlock.MetaDataMutex.Unlock()
 	return err
 }
+
+func (p *NetBlockDriver) FlushMemBlock(uNetINode types.NetINodeUintptr,
+	uNetBlock types.NetBlockUintptr,
+	uMemBlock types.MemBlockUintptr) error {
+	uMemBlock.Ptr().UploadJob.SyncDataSig.Wait()
+	return nil
+}
