@@ -22,7 +22,11 @@ type MockServer struct {
 	network       string
 	addr          string
 	srpcServer    srpc.Server
-	dataNodePeers [3]snettypes.PeerUintptr
+	dataNodePeers []snettypes.PeerUintptr
+}
+
+func (p *MockServer) SetDataNodePeers(dataNodePeers []snettypes.PeerUintptr) {
+	p.dataNodePeers = dataNodePeers
 }
 
 func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr string) error {
@@ -39,6 +43,7 @@ func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr stri
 	p.srpcServer.RegisterService("/NetBlock/PWrite", p.NetBlockPWrite)
 	p.srpcServer.RegisterService("/NetBlock/PRead", p.NetBlockPRead)
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetadata", p.NetBlockPrepareMetadata)
+	p.dataNodePeers = make([]snettypes.PeerUintptr, 3)
 	for i := 0; i < len(p.dataNodePeers); i++ {
 		p.dataNodePeers[i], _ = p.snetDriver.MustGetPeer(nil, p.addr, types.DefaultSDFSRPCProtocol)
 	}
@@ -80,9 +85,7 @@ func (p *MockServer) NetBlockPWrite(reqID uint64,
 	}
 
 	var protocolBuilder flatbuffers.Builder
-	protocol.CommonResponseStart(&protocolBuilder)
-	protocol.CommonResponseAddCode(&protocolBuilder, snettypes.CODE_OK)
-	protocolBuilder.Finish(protocol.CommonResponseEnd(&protocolBuilder))
+	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
 	util.AssertErrIsNil(conn.SimpleResponse(reqID, respBody))
 

@@ -3,6 +3,7 @@ package memstg
 import (
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
+	"soloos/snet"
 	"soloos/util/offheap"
 	"testing"
 
@@ -13,6 +14,8 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 	var (
 		mockServer       netstg.MockServer
 		mockNetINodePool types.MockNetINodePool
+		snetDriver       snet.SNetDriver
+		netBlockDriver   netstg.NetBlockDriver
 		memBlockDriver   MemBlockDriver
 		netINodeDriver   NetINodeDriver
 		maxBlocks        int32 = 4
@@ -23,9 +26,9 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		uNetINode        types.NetINodeUintptr
 	)
 	assert.NoError(t, mockNetINodePool.Init(&offheap.DefaultOffheapDriver))
-	InitDriversWithMockServerForTest(t,
-		"127.0.0.1:10023", &mockServer,
-		&memBlockDriver, &netINodeDriver,
+	MakeDriversWithMockServerForTest(t,
+		"127.0.0.1:10023", &mockServer, &snetDriver,
+		&netBlockDriver, &memBlockDriver, &netINodeDriver,
 		memBlockCap, blockChunksLimit)
 	uNetINode = mockNetINodePool.AllocNetINode(netBlockCap, memBlockCap)
 

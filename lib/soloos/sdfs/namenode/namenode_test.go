@@ -15,23 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func MakeNameNodeForTest(nameNode *NameNode, metaStg *metastg.MetaStg, nameNodeSRPCServerAddr string) {
-	var (
-		offheapDriver *offheap.OffheapDriver = &offheap.DefaultOffheapDriver
-
-		options = NameNodeOptions{
-			SRPCServer: NameNodeSRPCServerOptions{
-				Network:    "tcp",
-				ListenAddr: nameNodeSRPCServerAddr,
-			},
-		}
-		err error
-	)
-	err = nameNode.Init(options, offheapDriver, metaStg)
-	util.AssertErrIsNil(err)
-}
-
-func TestNetBlockPrepareMetadata(t *testing.T) {
+func TestBase(t *testing.T) {
 	var (
 		offheapDriver          = &offheap.DefaultOffheapDriver
 		metaStg                metastg.MetaStg
@@ -40,7 +24,7 @@ func TestNetBlockPrepareMetadata(t *testing.T) {
 		mockServerAddr         = "127.0.0.1:10301"
 		mockServer             netstg.MockServer
 	)
-	metastg.InitMetaStgForTest(t, offheapDriver, &metaStg)
+	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
 	MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr)
 	go func() {
 		assert.NoError(t, nameNode.Serve())
@@ -61,11 +45,11 @@ func TestNetBlockPrepareMetadata(t *testing.T) {
 		i                int
 		err              error
 	)
-	memstg.InitDriversForTest(t,
+	memstg.MakeDriversForTest(t,
 		&snetDriver,
 		nameNodeSRPCListenAddr,
 		&memBlockDriver, &netBlockDriver, &netINodeDriver, memBlockCap, blockChunksLimit)
-	netstg.InitMockServerForTest(t, &snetDriver, mockServerAddr, &mockServer)
+	netstg.MakeMockServerForTest(t, &snetDriver, mockServerAddr, &mockServer)
 	mockMemBlockPool.Init(offheapDriver, 1024)
 
 	for i = 0; i < 6; i++ {
@@ -92,4 +76,5 @@ func TestNetBlockPrepareMetadata(t *testing.T) {
 	util.Ignore(uNetINode)
 
 	assert.NoError(t, nameNode.Close())
+	assert.NoError(t, mockServer.Close())
 }

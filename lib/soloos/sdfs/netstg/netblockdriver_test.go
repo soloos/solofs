@@ -24,7 +24,7 @@ func TestNetBlockDriver(t *testing.T) {
 	)
 	mockServerAddr := "127.0.0.1:10021"
 	mockMemBlockPool.Init(offheapDriver, 1024)
-	InitDriversWithMockServerForTest(t, &snetDriver, &snetClientDriver,
+	MakeDriversWithMockServerForTest(t, &snetDriver, &snetClientDriver,
 		mockServerAddr, &mockServer,
 		&nameNodeClient, &dataNodeClient,
 		&netBlockDriver)

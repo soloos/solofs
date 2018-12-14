@@ -11,7 +11,6 @@ import (
 )
 
 type NetBlockDriver struct {
-	options              NetBlockDriverOptions
 	offheapDriver        *offheap.OffheapDriver
 	netBlockAllocRWMutex sync.RWMutex
 	offheapPool          offheap.RawObjectPool
@@ -25,22 +24,20 @@ type NetBlockDriver struct {
 	netBlockDriverUploader netBlockDriverUploader
 }
 
-func (p *NetBlockDriver) Init(options NetBlockDriverOptions,
-	offheapDriver *offheap.OffheapDriver,
+func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
 	snetDriver *snet.SNetDriver,
 	snetClientDriver *snet.ClientDriver,
 	nameNodeClient *api.NameNodeClient,
 	dataNodeClient *api.DataNodeClient,
 ) error {
 	var err error
-	p.options = options
 	p.offheapDriver = offheapDriver
 	err = p.netBlockDriverUploader.Init(p)
 	if err != nil {
 		return err
 	}
 
-	err = p.netBlockPool.Init(p.options.RawChunksLimit, p.offheapDriver)
+	err = p.netBlockPool.Init(-1, p.offheapDriver)
 	if err != nil {
 		return err
 	}

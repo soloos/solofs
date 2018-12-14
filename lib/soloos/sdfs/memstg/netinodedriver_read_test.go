@@ -3,6 +3,7 @@ package memstg
 import (
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
+	"soloos/snet"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,6 +12,8 @@ import (
 func TestNetINodeDriverNetINodeRead(t *testing.T) {
 	var (
 		mockServer       netstg.MockServer
+		snetDriver       snet.SNetDriver
+		netBlockDriver   netstg.NetBlockDriver
 		memBlockDriver   MemBlockDriver
 		netINodeDriver   NetINodeDriver
 		netBlockCap      int   = 128
@@ -19,9 +22,9 @@ func TestNetINodeDriverNetINodeRead(t *testing.T) {
 		uNetINode        types.NetINodeUintptr
 		err              error
 	)
-	InitDriversWithMockServerForTest(t,
-		"127.0.0.1:10022", &mockServer,
-		&memBlockDriver, &netINodeDriver, memBlockCap, blockChunksLimit)
+	MakeDriversWithMockServerForTest(t,
+		"127.0.0.1:10022", &mockServer, &snetDriver,
+		&netBlockDriver, &memBlockDriver, &netINodeDriver, memBlockCap, blockChunksLimit)
 	uNetINode, err = netINodeDriver.AllocNetINode(0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 

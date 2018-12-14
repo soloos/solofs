@@ -3,21 +3,31 @@ package datanode
 import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
+	"soloos/sdfs/netstg"
 	"soloos/util/offheap"
 )
 
 type DataNode struct {
 	offheapDriver  *offheap.OffheapDriver
-	netINodeDriver *memstg.NetINodeDriver
 	metaStg        *metastg.MetaStg
+	netBlockDriver *netstg.NetBlockDriver
+	memBlockDriver *memstg.MemBlockDriver
+	netINodeDriver *memstg.NetINodeDriver
 
 	SRPCServer DataNodeSRPCServer
 }
 
-func (p *DataNode) Init(options DataNodeOptions, offheapDriver *offheap.OffheapDriver) error {
+func (p *DataNode) Init(options DataNodeOptions,
+	offheapDriver *offheap.OffheapDriver,
+	metaStg *metastg.MetaStg,
+	netBlockDriver *netstg.NetBlockDriver,
+	memBlockDriver *memstg.MemBlockDriver,
+	netINodeDriver *memstg.NetINodeDriver,
+) error {
 	var err error
 
 	p.offheapDriver = offheapDriver
+	p.metaStg = metaStg
 
 	err = p.SRPCServer.Init(p, options.SRPCServer)
 	if err != nil {

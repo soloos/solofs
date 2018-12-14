@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func InitMemBlockDriversForTest(t *testing.T,
+func MakeMemBlockDriversForTest(t *testing.T,
 	memBlockDriver *MemBlockDriver, offheapDriver *offheap.OffheapDriver,
 	blockChunkSize int, blockChunksLimit int32) {
 	memBlockDriverOptions := MemBlockDriverOptions{
@@ -23,7 +23,7 @@ func InitMemBlockDriversForTest(t *testing.T,
 	assert.NoError(t, memBlockDriver.Init(memBlockDriverOptions, offheapDriver))
 }
 
-func InitDriversForTest(t *testing.T,
+func MakeDriversForTest(t *testing.T,
 	snetDriver *snet.SNetDriver,
 	nameNodeSRPCServerAddr string,
 	memBlockDriver *MemBlockDriver,
@@ -37,41 +37,41 @@ func InitDriversForTest(t *testing.T,
 		dataNodeClient   api.DataNodeClient
 	)
 
-	netstg.InitDriversForTest(t,
+	netstg.MakeDriversForTest(t,
 		snetDriver, &snetClientDriver,
 		nameNodeSRPCServerAddr,
 		&nameNodeClient, &dataNodeClient,
 		netBlockDriver,
 	)
 
-	InitMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
+	MakeMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
 
 	assert.NoError(t, netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient))
 }
 
-func InitDriversWithMockServerForTest(t *testing.T,
+func MakeDriversWithMockServerForTest(t *testing.T,
 	mockServerAddr string,
 	mockServer *netstg.MockServer,
+	snetDriver *snet.SNetDriver,
+	netBlockDriver *netstg.NetBlockDriver,
 	memBlockDriver *MemBlockDriver,
 	netINodeDriver *NetINodeDriver,
 	blockChunkSize int, blockChunksLimit int32) {
 	var (
 		offheapDriver    = &offheap.DefaultOffheapDriver
-		snetDriver       snet.SNetDriver
 		snetClientDriver snet.ClientDriver
 		nameNodeClient   api.NameNodeClient
 		dataNodeClient   api.DataNodeClient
-		netBlockDriver   netstg.NetBlockDriver
 	)
 
-	netstg.InitDriversWithMockServerForTest(t,
-		&snetDriver, &snetClientDriver,
+	netstg.MakeDriversWithMockServerForTest(t,
+		snetDriver, &snetClientDriver,
 		mockServerAddr, mockServer,
 		&nameNodeClient, &dataNodeClient,
-		&netBlockDriver,
+		netBlockDriver,
 	)
 
-	InitMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
+	MakeMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
 
-	assert.NoError(t, netINodeDriver.Init(offheapDriver, &netBlockDriver, memBlockDriver, &nameNodeClient))
+	assert.NoError(t, netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient))
 }

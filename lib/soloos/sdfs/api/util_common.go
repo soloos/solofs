@@ -5,7 +5,17 @@ import (
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
+
+	flatbuffers "github.com/google/flatbuffers/go"
 )
+
+func SetCommonResponseCode(protocolBuilder *flatbuffers.Builder, code int) error {
+	var err error
+	protocol.CommonResponseStart(protocolBuilder)
+	protocol.CommonResponseAddCode(protocolBuilder, int32(code))
+	protocolBuilder.Finish(protocol.CommonResponseEnd(protocolBuilder))
+	return err
+}
 
 func CommonResponseToError(obj *protocol.CommonResponse) error {
 	switch obj.Code() {
