@@ -14,10 +14,10 @@ func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int,
 	offset int, length int,
-	resp *snettypes.Response,
 ) error {
 	var (
 		req             snettypes.Request
+		resp            snettypes.Response
 		protocolBuilder flatbuffers.Builder
 		netINodeIDOff   flatbuffers.UOffsetT
 		err             error
@@ -34,7 +34,7 @@ func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
 
 	// TODO choose datanode
 	err = p.snetClientDriver.Call(uPeer,
-		"/NetBlock/PRead", &req, resp)
+		"/NetBlock/PRead", &req, &resp)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
 		param                       = make([]byte, resp.ParamSize)
 		offsetInMemBlock, readedLen int
 	)
-	err = p.snetClientDriver.ReadResponse(uPeer, &req, resp, param)
+	err = p.snetClientDriver.ReadResponse(uPeer, &req, &resp, param)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
 
 	offsetInMemBlock = int(offset - (uMemBlock.Ptr().Bytes.Cap * memBlockIndex))
 	readedLen = int(resp.BodySize - resp.ParamSize)
-	err = p.snetClientDriver.ReadResponse(uPeer, &req, resp,
+	err = p.snetClientDriver.ReadResponse(uPeer, &req, &resp,
 		(*uMemBlock.Ptr().BytesSlice())[offsetInMemBlock:readedLen])
 
 	return nil

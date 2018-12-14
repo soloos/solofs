@@ -61,7 +61,7 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 			if uPeer == 0 {
 				return types.ErrObjectNotExists
 			}
-			pNetBlock.DataNodes.Append(uPeer)
+			pNetBlock.StorDataBackends.Append(uPeer)
 		}
 
 	} else {
@@ -73,7 +73,7 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 		pNetBlock.IndexInNetINode = netBlockIndex
 		pNetBlock.Len = 0
 		pNetBlock.Cap = uNetINode.Ptr().NetBlockCap
-		err = p.metaStg.NetINodeDriver.ChooseDataNodesForNewNetBlock(uNetINode, &pNetBlock.DataNodes)
+		err = p.metaStg.NetINodeDriver.ChooseDataNodesForNewNetBlock(uNetINode, &pNetBlock.StorDataBackends)
 		if err != nil {
 			goto PREPARE_DONE
 		}

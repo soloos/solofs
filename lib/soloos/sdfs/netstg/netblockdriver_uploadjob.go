@@ -5,22 +5,11 @@ import (
 	snettypes "soloos/snet/types"
 )
 
-func (p *netBlockDriverUploader) SetUploadMemBlockJobBackends(pJob *types.UploadMemBlockJob,
-	backends snettypes.PeerUintptrArray8) {
-	// TODO add block placement policy
-	var i int
-	pJob.Backends.Reset()
-	for i = 0; i < backends.Len; i++ {
-		pJob.Backends.Append(backends.Arr[i])
-	}
-	pJob.PrimaryBackendTransferCount = backends.Len - 1
-}
-
-func (p *netBlockDriverUploader) prepareUploadMemBlockJob(pJob *types.UploadMemBlockJob,
+func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *types.UploadMemBlockJob,
 	uNetINode types.NetINodeUintptr,
-	uNetBlock types.NetBlockUintptr,
-	uMemBlock types.MemBlockUintptr,
-	memBlockIndex int) {
+	uNetBlock types.NetBlockUintptr, netBlockIndex int,
+	uMemBlock types.MemBlockUintptr, memBlockIndex int,
+	backends snettypes.PeerUintptrArray8) {
 	pJob.UploadPolicyMutex.Lock()
 	if pJob.IsUploadPolicyPrepared {
 		pJob.UploadPolicyMutex.Unlock()
@@ -34,7 +23,13 @@ func (p *netBlockDriverUploader) prepareUploadMemBlockJob(pJob *types.UploadMemB
 	pJob.UploadMaskWaitingIndex = 1
 	pJob.UploadMaskSwap()
 
-	p.SetUploadMemBlockJobBackends(pJob, uNetBlock.Ptr().DataNodes)
+	var i int
+	pJob.Backends.Reset()
+	for i = 0; i < backends.Len; i++ {
+		pJob.Backends.Append(backends.Arr[i])
+	}
+	pJob.PrimaryBackendTransferCount = backends.Len - 1
+
 	pJob.IsUploadPolicyPrepared = true
 	pJob.UploadPolicyMutex.Unlock()
 }

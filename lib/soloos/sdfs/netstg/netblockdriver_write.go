@@ -5,13 +5,17 @@ import (
 )
 
 func (p *NetBlockDriver) PWrite(uNetINode types.NetINodeUintptr,
-	uNetBlock types.NetBlockUintptr,
-	uMemBlock types.MemBlockUintptr,
-	memBlockIndex int,
+	uNetBlock types.NetBlockUintptr, netBlockIndex int,
+	uMemBlock types.MemBlockUintptr, memBlockIndex int,
 	offset, end int) error {
-	var err error
+	var (
+		err error
+	)
 
-	err = p.netBlockDriverUploader.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, offset, end)
+	err = p.netBlockDriverUploader.PWrite(uNetINode,
+		uNetBlock, netBlockIndex,
+		uMemBlock, memBlockIndex,
+		offset, end)
 	if err != nil {
 		return err
 	}

@@ -50,7 +50,7 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetadata(reqID uint64,
 	}
 
 	api.SetNetINodeNetBlockInfoResponse(&protocolBuilder,
-		uNetBlock.Ptr().DataNodes.Slice(), req.Cap(), req.Cap())
+		uNetBlock.Ptr().StorDataBackends.Slice(), req.Cap(), req.Cap())
 	err = conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 
 SERVICE_DONE:

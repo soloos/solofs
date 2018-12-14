@@ -18,6 +18,7 @@ func (u UploadMemBlockJobUintptr) Ptr() *UploadMemBlockJob {
 }
 
 type UploadMemBlockJob struct {
+	SyncDataSig                 sync.WaitGroup
 	UploadPolicyMutex           sync.Mutex
 	IsUploadPolicyPrepared      bool
 	UNetINode                   NetINodeUintptr
@@ -28,7 +29,6 @@ type UploadMemBlockJob struct {
 	UploadMask                  [2]offheap.ChunkMask
 	UploadMaskWaiting           offheap.ChunkMaskUintptr
 	UploadMaskProcessing        offheap.ChunkMaskUintptr
-	SyncDataSig                 sync.WaitGroup
 	PrimaryBackendTransferCount int
 	Backends                    snettypes.PeerUintptrArray8
 }

@@ -36,8 +36,8 @@ func TestMetaStgNetBlock(t *testing.T) {
 	util.InitUUID64(&uPeer0.Ptr().PeerID)
 	uPeer1 := snettypes.PeerUintptr(peerPool.AllocRawObject())
 	util.InitUUID64(&uPeer1.Ptr().PeerID)
-	netBlock.DataNodes.Append(uPeer0)
-	netBlock.DataNodes.Append(uPeer1)
+	netBlock.StorDataBackends.Append(uPeer0)
+	netBlock.StorDataBackends.Append(uPeer1)
 	netBlock.IndexInNetINode = 0
 
 	assert.NoError(t, metastg.StoreNetBlockInDB(&netINode, &netBlock))

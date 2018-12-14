@@ -61,11 +61,11 @@ func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *types.NetINode, pNetBlock 
 		goto QUERY_DONE
 	}
 
-	if pNetBlock.DataNodes.Len > 0 {
-		backendPeerIDArrStr.WriteString(pNetBlock.DataNodes.Arr[0].Ptr().PeerIDStr())
-		for i = 1; i < pNetBlock.DataNodes.Len; i++ {
+	if pNetBlock.StorDataBackends.Len > 0 {
+		backendPeerIDArrStr.WriteString(pNetBlock.StorDataBackends.Arr[0].Ptr().PeerIDStr())
+		for i = 1; i < pNetBlock.StorDataBackends.Len; i++ {
 			backendPeerIDArrStr.WriteString(",")
-			backendPeerIDArrStr.WriteString(pNetBlock.DataNodes.Arr[i].Ptr().PeerIDStr())
+			backendPeerIDArrStr.WriteString(pNetBlock.StorDataBackends.Arr[i].Ptr().PeerIDStr())
 		}
 	} else {
 		backendPeerIDArrStr.WriteString("")

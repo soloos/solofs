@@ -53,7 +53,10 @@ func (p *NetINodeDriver) PWrite(uNetINode types.NetINodeUintptr, data []byte, of
 			goto WRITE_DATA_ONE_RUN_DONE
 		}
 
-		err = p.netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, memBlockBytesOffset, memBlockBytesEnd)
+		err = p.netBlockDriver.PWrite(uNetINode,
+			uNetBlock, netBlockIndex,
+			uMemBlock, memBlockIndex,
+			memBlockBytesOffset, memBlockBytesEnd)
 		if err != nil {
 			goto WRITE_DATA_ONE_RUN_DONE
 		}

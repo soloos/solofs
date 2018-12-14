@@ -6,7 +6,6 @@ import (
 	"soloos/snet"
 	"soloos/util/offheap"
 	"testing"
-	"unsafe"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -14,6 +13,7 @@ import (
 func TestNetBlockDriver(t *testing.T) {
 	var (
 		offheapDriver    = &offheap.DefaultOffheapDriver
+		mockNetINodePool types.MockNetINodePool
 		mockMemBlockPool types.MockMemBlockPool
 		snetDriver       snet.SNetDriver
 		snetClientDriver snet.ClientDriver
@@ -23,7 +23,8 @@ func TestNetBlockDriver(t *testing.T) {
 		netBlockDriver   NetBlockDriver
 	)
 	mockServerAddr := "127.0.0.1:10021"
-	mockMemBlockPool.Init(offheapDriver, 1024)
+	assert.NoError(t, mockNetINodePool.Init(&offheap.DefaultOffheapDriver))
+	assert.NoError(t, mockMemBlockPool.Init(offheapDriver, 1024))
 	MakeDriversWithMockServerForTest(t, &snetDriver, &snetClientDriver,
 		mockServerAddr, &mockServer,
 		&nameNodeClient, &dataNodeClient,
@@ -37,22 +38,18 @@ func TestNetBlockDriver(t *testing.T) {
 		data[i] = 1
 	}
 
-	var (
-		netINode  types.NetINode
-		uNetINode types.NetINodeUintptr = types.NetINodeUintptr((unsafe.Pointer(&netINode)))
-	)
-	uNetINode.Ptr().NetBlockCap = 1024
-	uNetINode.Ptr().MemBlockCap = 128
+	uNetINode := mockNetINodePool.AllocNetINode(1024, 128)
 
-	uNetBlock, err := netBlockDriver.MustGetBlock(uNetINode, 10)
+	netBlockIndex := 10
+	uNetBlock, err := netBlockDriver.MustGetBlock(uNetINode, netBlockIndex)
 	assert.NoError(t, err)
-	uNetBlock.Ptr().DataNodes.Append(uPeer0)
-	uNetBlock.Ptr().DataNodes.Append(uPeer1)
+	uNetBlock.Ptr().StorDataBackends.Append(uPeer0)
+	uNetBlock.Ptr().StorDataBackends.Append(uPeer1)
 	uMemBlock := mockMemBlockPool.AllocMemBlock()
 	memBlockIndex := 0
-	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 0, 12))
-	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 11, 24))
-	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, uMemBlock, memBlockIndex, 30, 64))
+	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 0, 12))
+	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 11, 24))
+	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 30, 64))
 	assert.NoError(t, netBlockDriver.FlushMemBlock(uNetINode, uNetBlock, uMemBlock))
 
 	assert.NoError(t, mockServer.Close())

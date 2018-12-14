@@ -20,7 +20,8 @@ type NetBlock struct {
 	IndexInNetINode  int                         `db:"index_in_netinode"`
 	Len              int                         `db:"netblock_len"`
 	Cap              int                         `db:"netblock_cap"`
-	DataNodes        snettypes.PeerUintptrArray8 `db:"-"`
+	StorDataBackends snettypes.PeerUintptrArray8 `db:"-"`
+	SyncDataBackends snettypes.PeerUintptrArray8 `db:"-"`
 	MetaDataMutex    sync.Mutex                  `db:"-"`
 	IsMetaDataInited bool                        `db:"-"`
 }

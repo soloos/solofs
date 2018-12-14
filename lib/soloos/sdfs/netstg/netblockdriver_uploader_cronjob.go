@@ -3,18 +3,16 @@ package netstg
 import (
 	"soloos/sdfs/types"
 	"soloos/util"
-	"soloos/util/offheap"
 )
 
 func (p *netBlockDriverUploader) cronUpload() error {
 	var (
-		uJob       types.UploadMemBlockJobUintptr
-		pJob       *types.UploadMemBlockJob
-		pNetINode  *types.NetINode
-		pChunkMask *offheap.ChunkMask
-		i          int
-		ok         bool
-		err        error
+		uJob      types.UploadMemBlockJobUintptr
+		pJob      *types.UploadMemBlockJob
+		pNetINode *types.NetINode
+		i         int
+		ok        bool
+		err       error
 	)
 
 	for {
@@ -36,18 +34,11 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		pJob.UploadMaskSwap()
 		pJob.UploadPolicyMutex.Unlock()
 
-		// start upload
-
-		pChunkMask = pJob.UploadMaskProcessing.Ptr()
-
 		util.AssertTrue(pJob.Backends.Len > 0)
 
+		// start upload
 		// upload primary backend
-		if pJob.PrimaryBackendTransferCount > 0 {
-			err = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, pJob.PrimaryBackendTransferCount)
-		} else {
-			err = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, 0)
-		}
+		err = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, pJob.PrimaryBackendTransferCount)
 
 		// upload other backends
 		for i = pJob.PrimaryBackendTransferCount + 1; i < pJob.Backends.Len; i++ {
@@ -63,7 +54,7 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		}
 
 		if err == nil {
-			pChunkMask.Reset()
+			pJob.UploadMaskProcessing.Ptr().Reset()
 		} else {
 			// TODO catch error
 			pNetINode.LastSyncDataError = err

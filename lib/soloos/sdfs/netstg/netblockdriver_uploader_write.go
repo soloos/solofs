@@ -5,9 +5,8 @@ import (
 )
 
 func (p *netBlockDriverUploader) PWrite(uNetINode types.NetINodeUintptr,
-	uNetBlock types.NetBlockUintptr,
-	uMemBlock types.MemBlockUintptr,
-	memBlockIndex int,
+	uNetBlock types.NetBlockUintptr, netBlockIndex int,
+	uMemBlock types.MemBlockUintptr, memBlockIndex int,
 	offset, end int) error {
 
 	var (
@@ -18,8 +17,8 @@ func (p *netBlockDriverUploader) PWrite(uNetINode types.NetINodeUintptr,
 
 	for isMergeWriteMaskSuccess == false {
 		if pMemBlock.UploadJob.IsUploadPolicyPrepared == false {
-			p.prepareUploadMemBlockJob(&pMemBlock.UploadJob,
-				uNetINode, uNetBlock, uMemBlock, memBlockIndex)
+			p.PrepareUploadMemBlockJob(&pMemBlock.UploadJob,
+				uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, uNetBlock.Ptr().StorDataBackends)
 		}
 
 		pMemBlock.UploadJob.UploadPolicyMutex.Lock()
