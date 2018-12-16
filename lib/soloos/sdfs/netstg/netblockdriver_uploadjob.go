@@ -23,13 +23,6 @@ func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *types.UploadMemB
 	pJob.UploadMaskWaitingIndex = 1
 	pJob.UploadMaskSwap()
 
-	var i int
-	pJob.Backends.Reset()
-	for i = 0; i < backends.Len; i++ {
-		pJob.Backends.Append(backends.Arr[i])
-	}
-	pJob.PrimaryBackendTransferCount = backends.Len - 1
-
 	pJob.IsUploadPolicyPrepared = true
 	pJob.UploadPolicyMutex.Unlock()
 }

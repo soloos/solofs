@@ -39,10 +39,10 @@ func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr stri
 		return err
 	}
 
-	p.srpcServer.RegisterService("/NetINode/AllocMetadata", p.NetINodeAllocMetadata)
+	p.srpcServer.RegisterService("/NetINode/MustGet", p.NetINodeMustGet)
 	p.srpcServer.RegisterService("/NetBlock/PWrite", p.NetBlockPWrite)
 	p.srpcServer.RegisterService("/NetBlock/PRead", p.NetBlockPRead)
-	p.srpcServer.RegisterService("/NetBlock/PrepareMetadata", p.NetBlockPrepareMetadata)
+	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
 	p.dataNodePeers = make([]snettypes.PeerUintptr, 3)
 	for i := 0; i < len(p.dataNodePeers); i++ {
 		p.dataNodePeers[i], _ = p.snetDriver.MustGetPeer(nil, p.addr, types.DefaultSDFSRPCProtocol)
@@ -51,7 +51,7 @@ func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr stri
 	return nil
 }
 
-func (p *MockServer) NetINodeAllocMetadata(reqID uint64,
+func (p *MockServer) NetINodeMustGet(reqID uint64,
 	reqBodySize, reqParamSize uint32,
 	conn *snettypes.Connection) error {
 
@@ -110,7 +110,7 @@ func (p *MockServer) NetBlockPRead(reqID uint64,
 	return nil
 }
 
-func (p *MockServer) NetBlockPrepareMetadata(reqID uint64,
+func (p *MockServer) NetBlockPrepareMetaData(reqID uint64,
 	reqBodySize, reqParamSize uint32,
 	conn *snettypes.Connection) error {
 

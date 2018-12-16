@@ -16,8 +16,8 @@ func (p *NameNodeSRPCServer) Init(nameNode *NameNode, options NameNodeSRPCServer
 		return err
 	}
 
-	p.srpcServer.RegisterService("/NetINode/AllocMetadata", p.NetINodeAllocMetadata)
-	p.srpcServer.RegisterService("/NetBlock/PrepareMetadata", p.NetBlockPrepareMetadata)
+	p.srpcServer.RegisterService("/NetINode/MustGet", p.NetINodeMustGet)
+	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
 
 	return nil
 }

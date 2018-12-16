@@ -31,12 +31,12 @@ func (p *MemBlockDriver) Init(options MemBlockDriverOptions,
 	return nil
 }
 
-// MustGetBlockWithReadAcquire get or init a memblock's offheap
-func (p *MemBlockDriver) MustGetBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
+// MustGetMemBlockWithReadAcquire get or init a memblock's offheap
+func (p *MemBlockDriver) MustGetMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
 	memBlockIndex int) (types.MemBlockUintptr, bool) {
 	var memBlockID types.PtrBindIndex
 	types.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
-	return p.pools[uNetINode.Ptr().MemBlockCap].MustGetBlockWithReadAcquire(memBlockID)
+	return p.pools[uNetINode.Ptr().MemBlockCap].MustGetMemBlockWithReadAcquire(memBlockID)
 }
 
 func (p *MemBlockDriver) TryGetBlockWithReadAcquire(uNetINode types.NetINodeUintptr,

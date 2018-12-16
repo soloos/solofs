@@ -9,7 +9,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeSRPCServer) NetINodeAllocMetadata(reqID uint64,
+func (p *NameNodeSRPCServer) NetINodeMustGet(reqID uint64,
 	reqBodySize, reqParamSize uint32,
 	conn *snettypes.Connection) error {
 	var (

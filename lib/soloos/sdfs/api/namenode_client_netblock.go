@@ -8,7 +8,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeClient) PrepareNetBlockMetadata(netBlockInfo *protocol.NetINodeNetBlockInfoResponse,
+func (p *NameNodeClient) PrepareNetBlockMetaData(netBlockInfo *protocol.NetINodeNetBlockInfoResponse,
 	uNetINode types.NetINodeUintptr,
 	netBlockIndex int,
 	uNetBlock types.NetBlockUintptr,
@@ -31,7 +31,7 @@ func (p *NameNodeClient) PrepareNetBlockMetadata(netBlockInfo *protocol.NetINode
 
 	// TODO choose namenode
 	err = p.snetClientDriver.Call(p.nameNodePeer,
-		"/NetBlock/PrepareMetadata", &req, &resp)
+		"/NetBlock/PrepareMetaData", &req, &resp)
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
 	p.snetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
 	if err != nil {

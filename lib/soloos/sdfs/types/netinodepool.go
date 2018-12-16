@@ -1,7 +1,6 @@
 package types
 
 import (
-	"soloos/util"
 	"soloos/util/offheap"
 	"sync"
 )
@@ -9,8 +8,8 @@ import (
 type NetINodePool struct {
 	offheapDriver      *offheap.OffheapDriver
 	netINodeObjectPool offheap.RawObjectPool
-	PoolRWMutex        sync.RWMutex
-	Pool               map[NetINodeID]NetINodeUintptr
+	poolRWMutex        sync.RWMutex
+	pool               map[NetINodeID]NetINodeUintptr
 }
 
 func (p *NetINodePool) Init(rawChunksLimit int32,
@@ -26,7 +25,7 @@ func (p *NetINodePool) Init(rawChunksLimit int32,
 		return err
 	}
 
-	p.Pool = make(map[NetINodeID]NetINodeUintptr)
+	p.pool = make(map[NetINodeID]NetINodeUintptr)
 
 	return nil
 }
@@ -38,59 +37,61 @@ func (p *NetINodePool) RawChunkPoolInvokeReleaseRawChunk() {
 func (p *NetINodePool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
 }
 
-// MustGetNetINode get or init a netINodeblock
+// return true if NetINode stored in pool before
+//    	  false if NetINode is alloc
 func (p *NetINodePool) MustGetNetINode(netINodeID NetINodeID) (NetINodeUintptr, bool) {
 	var (
 		uNetINode NetINodeUintptr
 		exists    bool
 	)
-
-	p.PoolRWMutex.RLock()
-	uNetINode, exists = p.Pool[netINodeID]
-	p.PoolRWMutex.RUnlock()
+	p.poolRWMutex.RLock()
+	uNetINode, exists = p.pool[netINodeID]
+	p.poolRWMutex.RUnlock()
 	if exists {
 		return uNetINode, true
 	}
 
-	p.PoolRWMutex.Lock()
-	uNetINode, exists = p.Pool[netINodeID]
-	if exists {
-		goto GET_DONE
+	var isLoaded = true
+
+	p.poolRWMutex.Lock()
+	uNetINode, exists = p.pool[netINodeID]
+	if exists == false {
+		uNetINode = p.AllocRawNetINode()
+		uNetINode.Ptr().ID = netINodeID
+		isLoaded = false
+		p.pool[netINodeID] = uNetINode
 	}
+	p.poolRWMutex.Unlock()
 
-	uNetINode = NetINodeUintptr(p.netINodeObjectPool.AllocRawObject())
-	uNetINode.Ptr().ID = netINodeID
-	p.Pool[netINodeID] = uNetINode
-
-GET_DONE:
-	p.PoolRWMutex.Unlock()
-	return uNetINode, exists
+	return uNetINode, isLoaded
 }
 
-func (p *NetINodePool) ReleaseNetINode(uNetINode NetINodeUintptr) {
-	var exists bool
-	p.PoolRWMutex.Lock()
-	_, exists = p.Pool[uNetINode.Ptr().ID]
+// return true if set RawNetINode success
+//        false if there is RawNetINode exists, and return the old NetINode and release the new one
+func (p *NetINodePool) SetRawNetINode(uNetINode NetINodeUintptr) (NetINodeUintptr, bool) {
+	var (
+		uNetINodeFinal NetINodeUintptr
+		exists         bool
+	)
+	p.poolRWMutex.Lock()
+	uNetINodeFinal, exists = p.pool[uNetINode.Ptr().ID]
 	if exists {
-		delete(p.Pool, uNetINode.Ptr().ID)
-		p.netINodeObjectPool.ReleaseRawObject(uintptr(uNetINode))
+		p.ReleaseRawNetINode(uNetINode)
+	} else {
+		p.pool[uNetINode.Ptr().ID] = uNetINode
+		uNetINodeFinal = uNetINode
 	}
-	p.PoolRWMutex.Unlock()
-}
-
-func (p *NetINodePool) SaveRawNetINode(uNetINode NetINodeUintptr) {
-	p.PoolRWMutex.Lock()
-	p.Pool[uNetINode.Ptr().ID] = uNetINode
-	p.PoolRWMutex.Unlock()
+	p.poolRWMutex.Unlock()
+	return uNetINodeFinal, exists
 }
 
 func (p *NetINodePool) AllocRawNetINode() NetINodeUintptr {
 	var uNetINode NetINodeUintptr
 	uNetINode = NetINodeUintptr(p.netINodeObjectPool.AllocRawObject())
-	util.InitUUID64(&uNetINode.Ptr().ID)
 	return uNetINode
 }
 
 func (p *NetINodePool) ReleaseRawNetINode(uNetINode NetINodeUintptr) {
+	uNetINode.Ptr().Reset()
 	p.netINodeObjectPool.ReleaseRawObject(uintptr(uNetINode))
 }

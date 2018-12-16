@@ -21,10 +21,15 @@ type NetINode struct {
 	Size              int64          `db:"netinode_size"`
 	NetBlockCap       int            `db:"netblock_cap"`
 	MemBlockCap       int            `db:"memblock_cap"`
+	WriteDataRWMutex  sync.RWMutex   `db:"-"`
 	SyncDataSig       sync.WaitGroup `db:"-"`
 	LastSyncDataError error          `db:"-"`
-	MetaDataMutex     sync.RWMutex   `db:"-"`
+	MetaDataInitMutex sync.Mutex     `db:"-"`
 	IsMetaDataInited  bool           `db:"-"`
 }
 
 func (p *NetINode) IDStr() string { return string(p.ID[:]) }
+
+func (p *NetINode) Reset() {
+	p.IsMetaDataInited = false
+}

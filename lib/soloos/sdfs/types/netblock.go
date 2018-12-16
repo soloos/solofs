@@ -16,14 +16,23 @@ type NetBlockUintptr uintptr
 func (u NetBlockUintptr) Ptr() *NetBlock { return (*NetBlock)(unsafe.Pointer(u)) }
 
 type NetBlock struct {
-	NetINodeID       NetINodeID                  `db:"netinode_id"`
-	IndexInNetINode  int                         `db:"index_in_netinode"`
-	Len              int                         `db:"netblock_len"`
-	Cap              int                         `db:"netblock_cap"`
-	StorDataBackends snettypes.PeerUintptrArray8 `db:"-"`
-	SyncDataBackends snettypes.PeerUintptrArray8 `db:"-"`
-	MetaDataMutex    sync.Mutex                  `db:"-"`
-	IsMetaDataInited bool                        `db:"-"`
+	NetINodeID      NetINodeID `db:"netinode_id"`
+	IndexInNetINode int        `db:"index_in_netinode"`
+	Len             int        `db:"netblock_len"`
+	Cap             int        `db:"netblock_cap"`
+
+	StorDataBackends  snettypes.PeerUintptrArray8 `db:"-"`
+	MetaDataInitMutex sync.Mutex                  `db:"-"`
+	IsMetaDataInited  bool                        `db:"-"`
+
+	SyncDataBackends                    snettypes.PeerUintptrArray8 `db:"-"`
+	SyncDataPrimaryBackendTransferCount int                         `db:"-"`
+	SyncDataBackendsInitMutex           sync.Mutex                  `db:"-"`
+	IsSyncDataBackendsInited            bool                        `db:"-"`
 }
 
 func (p *NetBlock) NetINodeIDStr() string { return string(p.NetINodeID[:]) }
+
+func (p *NetBlock) Reset() {
+	p.IsMetaDataInited = false
+}

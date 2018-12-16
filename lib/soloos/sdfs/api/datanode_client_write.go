@@ -14,6 +14,38 @@ func (p *DataNodeClient) UploadMemBlock(uJob types.UploadMemBlockJobUintptr,
 	uploadPeerIndex int, transferPeersCount int,
 ) error {
 	var (
+		uDataNode snettypes.PeerUintptr
+	)
+	uDataNode = uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex]
+	switch uDataNode.Ptr().ServiceProtocol {
+	case snettypes.ProtocolSRPC:
+		return p.doUploadMemBlockWithSRPC(uJob, uploadPeerIndex, transferPeersCount)
+	case snettypes.ProtocolDisk:
+		return p.doUploadMemBlockWithDisk(uJob, uploadPeerIndex, transferPeersCount)
+	}
+
+	return nil
+}
+
+func (p *DataNodeClient) doUploadMemBlockWithDisk(uJob types.UploadMemBlockJobUintptr,
+	uploadPeerIndex int, transferPeersCount int,
+) error {
+	var (
+		uPeer snettypes.PeerUintptr
+		err   error
+	)
+	uPeer = uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex]
+	util.Ignore(uPeer)
+	util.Ignore(uPeer.Ptr().AddressStr())
+	util.Ignore(err)
+	panic("fuck")
+	return nil
+}
+
+func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUintptr,
+	uploadPeerIndex int, transferPeersCount int,
+) error {
+	var (
 		req                 snettypes.Request
 		resp                snettypes.Response
 		protocolBuilder     flatbuffers.Builder
@@ -28,13 +60,11 @@ func (p *DataNodeClient) UploadMemBlock(uJob types.UploadMemBlockJobUintptr,
 		pChunkMask          *offheap.ChunkMask
 		commonResp          protocol.CommonResponse
 		respBody            = make([]byte, 64)
-		pJob                *types.UploadMemBlockJob
 		i                   int
 		uPeer               snettypes.PeerUintptr
 		err                 error
 	)
 
-	pJob = uJob.Ptr()
 	uNetBlock = uJob.Ptr().UNetBlock
 	pChunkMask = uJob.Ptr().UploadMaskProcessing.Ptr()
 
@@ -49,7 +79,7 @@ func (p *DataNodeClient) UploadMemBlock(uJob types.UploadMemBlockJobUintptr,
 
 		if transferPeersCount > 0 {
 			for i = 0; i < transferPeersCount; i++ {
-				uPeer = pJob.Backends.Arr[uploadPeerIndex+i+1]
+				uPeer = uNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex+1+i]
 				peerOff = protocolBuilder.CreateByteVector(uPeer.Ptr().PeerID[:])
 				addrOff = protocolBuilder.CreateString(uPeer.Ptr().AddressStr())
 				protocol.NetBlockBackendStart(&protocolBuilder)
@@ -81,7 +111,7 @@ func (p *DataNodeClient) UploadMemBlock(uJob types.UploadMemBlockJobUintptr,
 		protocolBuilder.Finish(protocol.NetBlockPWriteRequestEnd(&protocolBuilder))
 		req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
-		uPeer = uJob.Ptr().Backends.Arr[uploadPeerIndex]
+		uPeer = uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex]
 		err = p.snetClientDriver.Call(uPeer,
 			"/NetBlock/PWrite", &req, &resp)
 		if err != nil {

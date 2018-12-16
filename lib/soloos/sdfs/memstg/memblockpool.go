@@ -24,9 +24,9 @@ func (p *MemBlockPool) Init(options MemBlockPoolOptions, driver *MemBlockDriver)
 	return nil
 }
 
-// MustGetBlockWithReadAcquire get or init a netINodeblock
-func (p *MemBlockPool) MustGetBlockWithReadAcquire(memBlockID types.PtrBindIndex) (types.MemBlockUintptr, bool) {
-	return p.chunk.MustGetBlockWithReadAcquire(memBlockID)
+// MustGetMemBlockWithReadAcquire get or init a netINodeblock
+func (p *MemBlockPool) MustGetMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) (types.MemBlockUintptr, bool) {
+	return p.chunk.MustGetMemBlockWithReadAcquire(memBlockID)
 }
 
 func (p *MemBlockPool) TryGetBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {

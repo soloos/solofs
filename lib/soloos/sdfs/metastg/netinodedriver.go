@@ -18,87 +18,85 @@ func (p *NetINodeDriver) Init(metaStg *MetaStg) error {
 func (p *NetINodeDriver) GetNetINode(netINodeID types.NetINodeID) (types.NetINodeUintptr, error) {
 	var (
 		uNetINode types.NetINodeUintptr
-		exists    bool
+		pNetINode *types.NetINode
+		isLoaded  bool
 		err       error
 	)
-
-	uNetINode, exists = p.netINodePool.MustGetNetINode(netINodeID)
-
-	if exists == false || uNetINode.Ptr().IsMetaDataInited == false {
-		err = p.prepareNetINodeMetadataOnlyLoadDB(uNetINode)
-		if err != nil {
-			goto GETINODE_DONE
+	uNetINode, isLoaded = p.netINodePool.MustGetNetINode(netINodeID)
+	pNetINode = uNetINode.Ptr()
+	if isLoaded == false || uNetINode.Ptr().IsMetaDataInited == false {
+		pNetINode.MetaDataInitMutex.Lock()
+		if pNetINode.IsMetaDataInited == false {
+			err = p.PrepareNetINodeMetaDataOnlyLoadDB(uNetINode)
+			if err == nil {
+				pNetINode.IsMetaDataInited = true
+			}
 		}
+		pNetINode.MetaDataInitMutex.Unlock()
 	}
 
-GETINODE_DONE:
-	if err == types.ErrObjectNotExists {
-		p.netINodePool.ReleaseNetINode(uNetINode)
+	if err != nil {
+		// TODO: clean uNetINode
+		return 0, err
 	}
 
-	return uNetINode, err
+	return uNetINode, nil
 }
 
 func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
 	size int64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
 	var (
 		uNetINode types.NetINodeUintptr
-		exists    bool
+		pNetINode *types.NetINode
+		isLoaded  bool
 		err       error
 	)
-
-	uNetINode, exists = p.netINodePool.MustGetNetINode(netINodeID)
-
-	if exists == false || uNetINode.Ptr().IsMetaDataInited == false {
-		err = p.prepareNetINodeMetadata(uNetINode, size, netBlockCap, memBlockCap)
-		if err != nil {
-			goto GETINODE_DONE
+	uNetINode, isLoaded = p.netINodePool.MustGetNetINode(netINodeID)
+	pNetINode = uNetINode.Ptr()
+	if isLoaded == false || uNetINode.Ptr().IsMetaDataInited == false {
+		pNetINode.MetaDataInitMutex.Lock()
+		if pNetINode.IsMetaDataInited == false {
+			err = p.PrepareNetINodeMetaDataWithStorDB(uNetINode, size, netBlockCap, memBlockCap)
+			if err == nil {
+				pNetINode.IsMetaDataInited = true
+			}
 		}
+		pNetINode.MetaDataInitMutex.Unlock()
 	}
 
-GETINODE_DONE:
-	return uNetINode, err
+	if err != nil {
+		// TODO: clean uNetINode
+		return 0, err
+	}
+
+	return uNetINode, nil
 }
 
-func (p *NetINodeDriver) prepareNetINodeMetadataOnlyLoadDB(uNetINode types.NetINodeUintptr) error {
+func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetINodeUintptr) error {
 	var (
 		pNetINode = uNetINode.Ptr()
 		err       error
 	)
 
-	pNetINode.MetaDataMutex.Lock()
-	if pNetINode.IsMetaDataInited {
-		goto PREPARE_DONE
-	}
-
 	err = p.FetchNetINodeFromDB(pNetINode)
 	if err != nil {
-		goto PREPARE_DONE
+		return err
 	}
 
-	pNetINode.IsMetaDataInited = true
-
-PREPARE_DONE:
-	pNetINode.MetaDataMutex.Unlock()
-	return err
+	return nil
 }
 
-func (p *NetINodeDriver) prepareNetINodeMetadata(uNetINode types.NetINodeUintptr,
+func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetINodeUintptr,
 	size int64, netBlockCap int, memBlockCap int) error {
 	var (
 		pNetINode = uNetINode.Ptr()
 		err       error
 	)
 
-	pNetINode.MetaDataMutex.Lock()
-	if pNetINode.IsMetaDataInited {
-		goto PREPARE_DONE
-	}
-
 	err = p.FetchNetINodeFromDB(pNetINode)
 	if err != nil {
 		if err != types.ErrObjectNotExists {
-			goto PREPARE_DONE
+			return err
 		}
 
 		pNetINode.Size = size
@@ -106,13 +104,9 @@ func (p *NetINodeDriver) prepareNetINodeMetadata(uNetINode types.NetINodeUintptr
 		pNetINode.MemBlockCap = memBlockCap
 		err = p.StoreNetINodeInDB(pNetINode)
 		if err != nil {
-			goto PREPARE_DONE
+			return err
 		}
 	}
 
-	pNetINode.IsMetaDataInited = true
-
-PREPARE_DONE:
-	pNetINode.MetaDataMutex.Unlock()
-	return err
+	return nil
 }

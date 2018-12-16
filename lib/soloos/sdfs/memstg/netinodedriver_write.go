@@ -19,18 +19,18 @@ func (p *NetINodeDriver) PWrite(uNetINode types.NetINodeUintptr, data []byte, of
 		err                 error
 	)
 
-	pNetINode.MetaDataMutex.RLock()
+	pNetINode.WriteDataRWMutex.RLock()
 
 	for writeEnd = offset + int64(len(data)); offset < writeEnd; offset += int64(pNetINode.MemBlockCap) {
 		// prepare netBlock
 		netBlockIndex = int(offset / int64(pNetINode.NetBlockCap))
-		uNetBlock, err = p.netBlockDriver.MustGetBlock(uNetINode, netBlockIndex)
+		uNetBlock, err = p.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 
 		// prepare memBlock
 		memBlockIndex = int(offset / int64(pNetINode.MemBlockCap))
 		memBlockBytesOffset = int(offset - int64(memBlockIndex)*int64(pNetINode.MemBlockCap))
 		memBlockBytesEnd = memBlockBytesOffset + len(data)
-		uMemBlock, _ = p.memBlockDriver.MustGetBlockWithReadAcquire(uNetINode, memBlockIndex)
+		uMemBlock, _ = p.memBlockDriver.MustGetMemBlockWithReadAcquire(uNetINode, memBlockIndex)
 
 		// write in memblock
 		for i = 0; i < 6; i++ {
@@ -69,7 +69,7 @@ func (p *NetINodeDriver) PWrite(uNetINode types.NetINodeUintptr, data []byte, of
 	}
 
 WRITE_DATA_DONE:
-	pNetINode.MetaDataMutex.RUnlock()
+	pNetINode.WriteDataRWMutex.RUnlock()
 	return err
 }
 
@@ -79,9 +79,9 @@ func (p *NetINodeDriver) Flush(uNetINode types.NetINodeUintptr) error {
 		pNetINode = uNetINode.Ptr()
 		err       error
 	)
-	pNetINode.MetaDataMutex.Lock()
+	pNetINode.WriteDataRWMutex.Lock()
 	pNetINode.SyncDataSig.Wait()
-	pNetINode.MetaDataMutex.Unlock()
+	pNetINode.WriteDataRWMutex.Unlock()
 	err = pNetINode.LastSyncDataError
 	pNetINode.LastSyncDataError = nil
 	return err

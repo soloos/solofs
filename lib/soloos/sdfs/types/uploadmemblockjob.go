@@ -1,7 +1,6 @@
 package types
 
 import (
-	snettypes "soloos/snet/types"
 	"soloos/util/offheap"
 	"sync"
 	"unsafe"
@@ -18,19 +17,17 @@ func (u UploadMemBlockJobUintptr) Ptr() *UploadMemBlockJob {
 }
 
 type UploadMemBlockJob struct {
-	SyncDataSig                 sync.WaitGroup
-	UploadPolicyMutex           sync.Mutex
-	IsUploadPolicyPrepared      bool
-	UNetINode                   NetINodeUintptr
-	UNetBlock                   NetBlockUintptr
-	UMemBlock                   MemBlockUintptr
-	MemBlockIndex               int
-	UploadMaskWaitingIndex      int
-	UploadMask                  [2]offheap.ChunkMask
-	UploadMaskWaiting           offheap.ChunkMaskUintptr
-	UploadMaskProcessing        offheap.ChunkMaskUintptr
-	PrimaryBackendTransferCount int
-	Backends                    snettypes.PeerUintptrArray8
+	SyncDataSig            sync.WaitGroup
+	UploadPolicyMutex      sync.Mutex
+	IsUploadPolicyPrepared bool
+	UNetINode              NetINodeUintptr
+	UNetBlock              NetBlockUintptr
+	UMemBlock              MemBlockUintptr
+	MemBlockIndex          int
+	UploadMaskWaitingIndex int
+	UploadMask             [2]offheap.ChunkMask
+	UploadMaskWaiting      offheap.ChunkMaskUintptr
+	UploadMaskProcessing   offheap.ChunkMaskUintptr
 }
 
 func (p *UploadMemBlockJob) Reset() {

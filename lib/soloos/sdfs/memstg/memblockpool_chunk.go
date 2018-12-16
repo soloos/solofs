@@ -8,12 +8,12 @@ import (
 )
 
 // memBlockPoolChunk
-// user -> MustGetBlockWithReadAcquire -> allocChunkFromChunkPool ->
+// user -> MustGetMemBlockWithReadAcquire -> allocChunkFromChunkPool ->
 //      offheap.BlockPool.AllocBlock ->
 //		BlockPoolAssistant.ChunkPoolInvokeReleaseChunk ->
 //      takeBlockForRelease -> beforeReleaseBlock -> releaseChunkToChunkPool ->
 //		BlockPoolAssistant.ReleaseBlock -> user
-// user -> MustGetBlockWithReadAcquire -> offheap.BlockPool.AllocBlock ->
+// user -> MustGetMemBlockWithReadAcquire -> offheap.BlockPool.AllocBlock ->
 // 		BlockPoolAssistant.ChunkPoolInvokePrepareNewChunk ->
 type memBlockPoolChunk struct {
 	memBlockPool *MemBlockPool
@@ -160,7 +160,7 @@ func (p *memBlockPoolChunk) checkBlock(blockID types.PtrBindIndex, uMemBlock typ
 	return true
 }
 
-func (p *memBlockPoolChunk) MustGetBlockWithReadAcquire(blockID types.PtrBindIndex) (types.MemBlockUintptr, bool) {
+func (p *memBlockPoolChunk) MustGetMemBlockWithReadAcquire(blockID types.PtrBindIndex) (types.MemBlockUintptr, bool) {
 	var (
 		uMemBlock types.MemBlockUintptr
 		loaded    bool = false

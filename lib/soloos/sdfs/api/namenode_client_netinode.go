@@ -8,7 +8,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeClient) AllocNetINodeMetadata(uNetINode types.NetINodeUintptr,
+func (p *NameNodeClient) AllocNetINodeMetaData(uNetINode types.NetINodeUintptr,
 	size int64, netBlockCap int, memBlockCap int,
 ) error {
 	var (
@@ -29,7 +29,7 @@ func (p *NameNodeClient) AllocNetINodeMetadata(uNetINode types.NetINodeUintptr,
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	err = p.snetClientDriver.Call(p.nameNodePeer,
-		"/NetINode/AllocMetadata", &req, &resp)
+		"/NetINode/MustGet", &req, &resp)
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
 	p.snetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
 	if err != nil {

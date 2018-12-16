@@ -17,28 +17,39 @@ func (p *NetBlockDriver) Init(metaStg *MetaStg) error {
 	return nil
 }
 
-func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr, netBlockIndex int) (types.NetBlockUintptr, error) {
+// MustGetNetBlock get or init a netBlock
+func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
+	netBlockIndex int) (types.NetBlockUintptr, error) {
 	var (
 		uNetBlock types.NetBlockUintptr
-		exists    bool
+		pNetBlock *types.NetBlock
+		isLoaded  bool
 		err       error
 	)
 
-	uNetBlock, exists = p.netBlockPool.MustGetNetBlock(uNetINode, netBlockIndex)
-
-	if exists == false || uNetBlock.Ptr().IsMetaDataInited == false {
-		err = p.prepareNetBlockMetadata(uNetINode, netBlockIndex, uNetBlock)
-		if err != nil {
-			goto GETINODE_DONE
+	uNetBlock, isLoaded = p.netBlockPool.MustGetNetBlock(uNetINode, netBlockIndex)
+	pNetBlock = uNetBlock.Ptr()
+	if isLoaded == false || uNetBlock.Ptr().IsMetaDataInited == false {
+		pNetBlock.MetaDataInitMutex.Lock()
+		if pNetBlock.IsMetaDataInited == false {
+			err = p.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
+			if err == nil {
+				pNetBlock.IsMetaDataInited = true
+			}
 		}
+		pNetBlock.MetaDataInitMutex.Unlock()
 	}
 
-GETINODE_DONE:
-	return uNetBlock, err
+	if err != nil {
+		// TODO: clean uNetBlock
+		return 0, err
+	}
+
+	return uNetBlock, nil
 }
 
-func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr, netBlockIndex int,
-	uNetBlock types.NetBlockUintptr) error {
+func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr,
+	uNetINode types.NetINodeUintptr, netBlockIndex int) error {
 	var (
 		pNetBlock           = uNetBlock.Ptr()
 		backendPeerIDArrStr string
@@ -46,11 +57,6 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 		uPeer               snettypes.PeerUintptr
 		err                 error
 	)
-
-	pNetBlock.MetaDataMutex.Lock()
-	if pNetBlock.IsMetaDataInited {
-		goto PREPARE_DONE
-	}
 
 	err = p.FetchNetBlockFromDB(uNetINode.Ptr(), netBlockIndex, pNetBlock, &backendPeerIDArrStr)
 	if err == nil {
@@ -66,7 +72,7 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 
 	} else {
 		if err != types.ErrObjectNotExists {
-			goto PREPARE_DONE
+			return err
 		}
 
 		pNetBlock.NetINodeID = uNetINode.Ptr().ID
@@ -75,18 +81,37 @@ func (p *NetBlockDriver) prepareNetBlockMetadata(uNetINode types.NetINodeUintptr
 		pNetBlock.Cap = uNetINode.Ptr().NetBlockCap
 		err = p.metaStg.NetINodeDriver.ChooseDataNodesForNewNetBlock(uNetINode, &pNetBlock.StorDataBackends)
 		if err != nil {
-			goto PREPARE_DONE
+			return err
 		}
 
 		err = p.StoreNetBlockInDB(uNetINode.Ptr(), pNetBlock)
 		if err != nil {
-			goto PREPARE_DONE
+			return err
 		}
 	}
 
-	pNetBlock.IsMetaDataInited = true
+	return nil
+}
+
+func (p *NetBlockDriver) PrepareNetBlockSyncDataBackendsWithLock(uNetBlock types.NetBlockUintptr,
+	backends snettypes.PeerUintptrArray8,
+) error {
+	var (
+		pNetBlock = uNetBlock.Ptr()
+		err       error
+	)
+
+	pNetBlock.SyncDataBackendsInitMutex.Lock()
+	if pNetBlock.IsSyncDataBackendsInited == true {
+		goto PREPARE_DONE
+	}
+
+	pNetBlock.SyncDataBackends = backends
+	pNetBlock.SyncDataPrimaryBackendTransferCount = 0
+
+	pNetBlock.IsSyncDataBackendsInited = true
 
 PREPARE_DONE:
-	pNetBlock.MetaDataMutex.Unlock()
+	pNetBlock.SyncDataBackendsInitMutex.Unlock()
 	return err
 }

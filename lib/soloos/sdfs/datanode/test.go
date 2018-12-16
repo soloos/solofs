@@ -4,11 +4,13 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
+	"soloos/snet"
 	"soloos/util"
 	"soloos/util/offheap"
 )
 
-func MakeDataNodeForTest(dataNode *DataNode,
+func MakeDataNodeForTest(snetDriver *snet.SNetDriver,
+	dataNode *DataNode,
 	metaStg *metastg.MetaStg,
 	netBlockDriver *netstg.NetBlockDriver,
 	memBlockDriver *memstg.MemBlockDriver,
@@ -26,6 +28,6 @@ func MakeDataNodeForTest(dataNode *DataNode,
 		}
 		err error
 	)
-	err = dataNode.Init(options, offheapDriver, metaStg, netBlockDriver, memBlockDriver, netINodeDriver)
+	err = dataNode.Init(options, offheapDriver, snetDriver, metaStg, netBlockDriver, memBlockDriver)
 	util.AssertErrIsNil(err)
 }

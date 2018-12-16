@@ -41,7 +41,7 @@ func TestNetBlockDriver(t *testing.T) {
 	uNetINode := mockNetINodePool.AllocNetINode(1024, 128)
 
 	netBlockIndex := 10
-	uNetBlock, err := netBlockDriver.MustGetBlock(uNetINode, netBlockIndex)
+	uNetBlock, err := netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 	assert.NoError(t, err)
 	uNetBlock.Ptr().StorDataBackends.Append(uPeer0)
 	uNetBlock.Ptr().StorDataBackends.Append(uPeer1)

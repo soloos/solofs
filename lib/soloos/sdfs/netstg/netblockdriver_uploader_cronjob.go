@@ -10,6 +10,7 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		uJob      types.UploadMemBlockJobUintptr
 		pJob      *types.UploadMemBlockJob
 		pNetINode *types.NetINode
+		pNetBlock *types.NetBlock
 		i         int
 		ok        bool
 		err       error
@@ -23,6 +24,7 @@ func (p *netBlockDriverUploader) cronUpload() error {
 
 		pJob = uJob.Ptr()
 		pNetINode = pJob.UNetINode.Ptr()
+		pNetBlock = pJob.UNetBlock.Ptr()
 
 		// prepare upload job
 		pJob.UploadPolicyMutex.Lock()
@@ -34,14 +36,14 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		pJob.UploadMaskSwap()
 		pJob.UploadPolicyMutex.Unlock()
 
-		util.AssertTrue(pJob.Backends.Len > 0)
+		util.AssertTrue(pNetBlock.SyncDataBackends.Len > 0)
 
 		// start upload
 		// upload primary backend
-		err = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, pJob.PrimaryBackendTransferCount)
+		err = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, pNetBlock.SyncDataPrimaryBackendTransferCount)
 
 		// upload other backends
-		for i = pJob.PrimaryBackendTransferCount + 1; i < pJob.Backends.Len; i++ {
+		for i = pNetBlock.SyncDataPrimaryBackendTransferCount + 1; i < pNetBlock.SyncDataBackends.Len; i++ {
 			err = p.driver.dataNodeClient.UploadMemBlock(uJob, i, 0)
 		}
 

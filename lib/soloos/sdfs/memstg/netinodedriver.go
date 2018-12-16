@@ -4,7 +4,6 @@ import (
 	"soloos/sdfs/api"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
-	"soloos/util"
 	"soloos/util/offheap"
 )
 
@@ -29,53 +28,44 @@ func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 	return nil
 }
 
-// MustGetNetINode get or init a netINodeblock
-func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID) (types.NetINodeUintptr, bool) {
-	return p.netINodePool.MustGetNetINode(netINodeID)
-}
-
-func (p *NetINodeDriver) AllocNetINode(size int64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
+func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
+	size int64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
 	var (
-		netINodeID types.NetINodeID
-		uNetINode  types.NetINodeUintptr
-		exists     bool
-		err        error
+		uNetINode types.NetINodeUintptr
+		pNetINode *types.NetINode
+		isLoaded  bool
+		err       error
 	)
-
-	util.InitUUID64(&netINodeID)
-	uNetINode, exists = p.MustGetNetINode(netINodeID)
-	if exists {
-		panic("netINode should not exists")
+	uNetINode, isLoaded = p.netINodePool.MustGetNetINode(netINodeID)
+	pNetINode = uNetINode.Ptr()
+	if isLoaded == false || uNetINode.Ptr().IsMetaDataInited == false {
+		pNetINode.MetaDataInitMutex.Lock()
+		if pNetINode.IsMetaDataInited == false {
+			err = p.PrepareNetINodeMetaDataWithStorDB(uNetINode, size, netBlockCap, memBlockCap)
+			if err == nil {
+				pNetINode.IsMetaDataInited = true
+			}
+		}
+		pNetINode.MetaDataInitMutex.Unlock()
 	}
 
-	err = p.allocNetINodeMetadata(uNetINode, size, netBlockCap, memBlockCap)
 	if err != nil {
+		// TODO: clean uNetINode
 		return 0, err
 	}
 
 	return uNetINode, nil
 }
 
-func (p *NetINodeDriver) allocNetINodeMetadata(uNetINode types.NetINodeUintptr,
+func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetINodeUintptr,
 	size int64, netBlockCap int, memBlockCap int) error {
-	var (
-		pNetINode = uNetINode.Ptr()
-		err       error
-	)
+	var err error
 
-	pNetINode.MetaDataMutex.Lock()
-	if pNetINode.IsMetaDataInited {
-		goto PREPARE_DONE
-	}
-
-	err = p.nameNodeClient.AllocNetINodeMetadata(uNetINode, size, netBlockCap, memBlockCap)
+	// do alloc
+	err = p.nameNodeClient.AllocNetINodeMetaData(uNetINode, size, netBlockCap, memBlockCap)
 	if err != nil {
-		goto PREPARE_DONE
+		return err
 	}
 
-	pNetINode.IsMetaDataInited = true
-
-PREPARE_DONE:
-	pNetINode.MetaDataMutex.Unlock()
-	return err
+	return nil
 }

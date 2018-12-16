@@ -57,7 +57,9 @@ func TestBase(t *testing.T) {
 		nameNode.metaStg.RegisterDataNode(&peerID, mockServerAddr)
 	}
 
-	uNetINode, err = netINodeDriver.AllocNetINode(0, netBlockCap, memBlockCap)
+	var netINodeID types.NetINodeID
+	util.InitUUID64(&netINodeID)
+	uNetINode, err = netINodeDriver.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 
 	var (

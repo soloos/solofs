@@ -2,6 +2,7 @@ package namenode
 
 import (
 	"soloos/sdfs/metastg"
+	snettypes "soloos/snet/types"
 	"soloos/util/offheap"
 )
 
@@ -27,6 +28,10 @@ func (p *NameNode) Init(options NameNodeOptions,
 	}
 
 	return nil
+}
+
+func (p *NameNode) RegisterDataNode(peerID *snettypes.PeerID, serveAddr string) (snettypes.PeerUintptr, error) {
+	return p.metaStg.RegisterDataNode(peerID, serveAddr)
 }
 
 func (p *NameNode) Serve() error {
