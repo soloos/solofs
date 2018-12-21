@@ -18,20 +18,37 @@ import (
 
 func TestBase(t *testing.T) {
 	var (
-		offheapDriver          = &offheap.DefaultOffheapDriver
-		metaStg                metastg.MetaStg
-		nameNodeSRPCListenAddr = "127.0.0.1:10401"
-		nameNode               namenode.NameNode
-		dataNodeSRPCListenAddr = "127.0.0.1:10400"
-		dataNode               DataNode
+		offheapDriver           = &offheap.DefaultOffheapDriver
+		metaStg                 metastg.MetaStg
+		nameNodeSRPCListenAddr  = "127.0.0.1:10401"
+		nameNode                namenode.NameNode
+		dataNodeSRPCListenAddrs = []string{
+			"127.0.0.1:10410",
+			"127.0.0.1:10411",
+			"127.0.0.1:10412",
+			"127.0.0.1:10413",
+			"127.0.0.1:10414",
+			"127.0.0.1:10415",
+		}
+		dataNodes [6]DataNode
 	)
 
 	var (
 		mockMemBlockPool types.MockMemBlockPool
 		snetDriver       snet.SNetDriver
-		memBlockDriver   memstg.MemBlockDriver
-		netBlockDriver   netstg.NetBlockDriver
-		netINodeDriver   memstg.NetINodeDriver
+
+		memBlockDriverClient memstg.MemBlockDriver
+		netBlockDriverClient netstg.NetBlockDriver
+		netINodeDriverClient memstg.NetINodeDriver
+
+		memBlockDriverNameNode memstg.MemBlockDriver
+		netBlockDriverNameNode netstg.NetBlockDriver
+		netINodeDriverNameNode memstg.NetINodeDriver
+
+		memBlockDriverDataNodes [6]memstg.MemBlockDriver
+		netBlockDriverDataNodes [6]netstg.NetBlockDriver
+		netINodeDriverDataNodes [6]memstg.NetINodeDriver
+
 		netBlockCap      int   = 32
 		memBlockCap      int   = 16
 		blockChunksLimit int32 = 4
@@ -40,41 +57,60 @@ func TestBase(t *testing.T) {
 		err              error
 	)
 	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
-	namenode.MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr)
 	memstg.MakeDriversForTest(t,
 		&snetDriver,
 		nameNodeSRPCListenAddr,
-		&memBlockDriver, &netBlockDriver, &netINodeDriver, memBlockCap, blockChunksLimit)
+		&memBlockDriverClient, &netBlockDriverClient, &netINodeDriverClient, memBlockCap, blockChunksLimit)
+
+	memstg.MakeDriversForTest(t,
+		&snetDriver,
+		nameNodeSRPCListenAddr,
+		&memBlockDriverNameNode, &netBlockDriverNameNode, &netINodeDriverNameNode, memBlockCap, blockChunksLimit)
+	namenode.MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr,
+		&memBlockDriverNameNode, &netBlockDriverNameNode, &netINodeDriverNameNode)
+
 	mockMemBlockPool.Init(offheapDriver, 1024)
 	go func() {
 		assert.NoError(t, nameNode.Serve())
 	}()
 	time.Sleep(time.Millisecond * 300)
 
-	for i = 0; i < 6; i++ {
+	for i = 0; i < len(dataNodeSRPCListenAddrs); i++ {
+		memstg.MakeDriversForTest(t,
+			&snetDriver,
+			nameNodeSRPCListenAddr,
+			&memBlockDriverDataNodes[i],
+			&netBlockDriverDataNodes[i],
+			&netINodeDriverDataNodes[i],
+			memBlockCap, blockChunksLimit)
+
 		var peerID snettypes.PeerID
 		util.InitUUID64(&peerID)
-		nameNode.RegisterDataNode(&peerID, dataNodeSRPCListenAddr)
-	}
+		nameNode.RegisterDataNode(&peerID, dataNodeSRPCListenAddrs[i])
 
-	MakeDataNodeForTest(&snetDriver,
-		&dataNode, &metaStg, &netBlockDriver, &memBlockDriver, &netINodeDriver, dataNodeSRPCListenAddr)
-	go func() {
-		assert.NoError(t, dataNode.Serve())
-	}()
+		MakeDataNodeForTest(&snetDriver,
+			&dataNodes[i], dataNodeSRPCListenAddrs[i], &metaStg,
+			&memBlockDriverDataNodes[i],
+			&netBlockDriverDataNodes[i],
+			&netINodeDriverDataNodes[i])
+		go func(localI int) {
+			assert.NoError(t, dataNodes[localI].Serve())
+		}(i)
+	}
 	time.Sleep(time.Millisecond * 300)
 
 	var netINodeID types.NetINodeID
 	util.InitUUID64(&netINodeID)
-	uNetINode, err = netINodeDriver.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
+	uNetINode, err = netINodeDriverClient.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 
-	writeData := make([]byte, 6)
-	assert.NoError(t, netINodeDriver.PWrite(uNetINode, writeData, 12))
-	assert.NoError(t, netINodeDriver.Flush(uNetINode))
+	writeData := make([]byte, 73)
+	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, writeData, 612))
+	assert.NoError(t, netINodeDriverClient.Flush(uNetINode))
 
-	assert.NoError(t, dataNode.Close())
+	time.Sleep(time.Microsecond * 800)
+	for i = 0; i < len(dataNodeSRPCListenAddrs); i++ {
+		assert.NoError(t, dataNodes[i].Close())
+	}
 	assert.NoError(t, nameNode.Close())
-	// time.Sleep(time.Second * 1)
-	// assert.Equal(t, true, false)
 }

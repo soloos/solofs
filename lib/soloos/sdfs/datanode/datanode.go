@@ -1,6 +1,7 @@
 package datanode
 
 import (
+	"soloos/sdfs/localfs"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
@@ -10,12 +11,15 @@ import (
 )
 
 type DataNode struct {
-	offheapDriver  *offheap.OffheapDriver
-	snetDriver     *snet.SNetDriver
-	metaStg        *metastg.MetaStg
-	netBlockDriver *netstg.NetBlockDriver
-	memBlockDriver *memstg.MemBlockDriver
+	offheapDriver *offheap.OffheapDriver
+	snetDriver    *snet.SNetDriver
+	metaStg       *metastg.MetaStg
 
+	memBlockDriver *memstg.MemBlockDriver
+	netBlockDriver *netstg.NetBlockDriver
+	netINodeDriver *memstg.NetINodeDriver
+
+	localFs        localfs.LocalFs
 	uLocalDiskPeer snettypes.PeerUintptr
 
 	SRPCServer DataNodeSRPCServer
@@ -25,8 +29,9 @@ func (p *DataNode) Init(options DataNodeOptions,
 	offheapDriver *offheap.OffheapDriver,
 	snetDriver *snet.SNetDriver,
 	metaStg *metastg.MetaStg,
-	netBlockDriver *netstg.NetBlockDriver,
 	memBlockDriver *memstg.MemBlockDriver,
+	netBlockDriver *netstg.NetBlockDriver,
+	netINodeDriver *memstg.NetINodeDriver,
 ) error {
 	var err error
 
@@ -35,6 +40,7 @@ func (p *DataNode) Init(options DataNodeOptions,
 	p.metaStg = metaStg
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
+	p.netINodeDriver = netINodeDriver
 
 	err = p.SRPCServer.Init(p, options.SRPCServer)
 	if err != nil {
@@ -42,7 +48,12 @@ func (p *DataNode) Init(options DataNodeOptions,
 	}
 
 	var peerID snettypes.PeerID
-	p.uLocalDiskPeer, _ = p.snetDriver.MustGetPeer(&peerID, "/tmp/testsdfs", snettypes.ProtocolDisk)
+	err = p.localFs.Init("/tmp/testsdfs")
+	if err != nil {
+		return err
+	}
+	p.uLocalDiskPeer, _ = p.snetDriver.MustGetPeer(&peerID, "", snettypes.ProtocolDisk)
+	p.netBlockDriver.SetUploadMemBlockWithDisk(p.localFs.UploadMemBlockWithDisk)
 
 	return nil
 }

@@ -51,15 +51,11 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		pJob.SyncDataSig.Done()
 		pNetINode.SyncDataSig.Done()
 
-		if pNetINode.LastSyncDataError != err {
-			err = pNetINode.LastSyncDataError
-		}
-
-		if err == nil {
-			pJob.UploadMaskProcessing.Ptr().Reset()
-		} else {
+		if err != nil {
 			// TODO catch error
 			pNetINode.LastSyncDataError = err
+		} else {
+			pJob.UploadMaskProcessing.Ptr().Reset()
 		}
 	}
 

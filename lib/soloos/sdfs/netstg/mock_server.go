@@ -40,8 +40,8 @@ func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr stri
 	}
 
 	p.srpcServer.RegisterService("/NetINode/MustGet", p.NetINodeMustGet)
-	p.srpcServer.RegisterService("/NetBlock/PWrite", p.NetBlockPWrite)
-	p.srpcServer.RegisterService("/NetBlock/PRead", p.NetBlockPRead)
+	p.srpcServer.RegisterService("/NetINode/PWrite", p.NetINodePWrite)
+	p.srpcServer.RegisterService("/NetINode/PRead", p.NetINodePRead)
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
 	p.dataNodePeers = make([]snettypes.PeerUintptr, 3)
 	for i := 0; i < len(p.dataNodePeers); i++ {
@@ -70,14 +70,14 @@ func (p *MockServer) NetINodeMustGet(reqID uint64,
 	return nil
 }
 
-func (p *MockServer) NetBlockPWrite(reqID uint64,
+func (p *MockServer) NetINodePWrite(reqID uint64,
 	reqBodySize, reqParamSize uint32,
 	conn *snettypes.Connection) error {
 
 	var reqBody = make([]byte, reqBodySize)
 	util.AssertErrIsNil(conn.ReadAll(reqBody))
 
-	var req protocol.NetBlockPWriteRequest
+	var req protocol.NetINodePWriteRequest
 	req.Init(reqBody[:reqParamSize], flatbuffers.GetUOffsetT(reqBody[:reqParamSize]))
 	var backends = make([]protocol.NetBlockBackend, req.TransferBackendsLength())
 	for i := 0; i < len(backends); i++ {
@@ -92,18 +92,18 @@ func (p *MockServer) NetBlockPWrite(reqID uint64,
 	return nil
 }
 
-func (p *MockServer) NetBlockPRead(reqID uint64,
+func (p *MockServer) NetINodePRead(reqID uint64,
 	reqBodySize, reqParamSize uint32,
 	conn *snettypes.Connection) error {
 
 	var reqData = make([]byte, reqBodySize)
 	util.AssertErrIsNil(conn.ReadAll(reqData))
 
-	var req protocol.NetBlockPReadRequest
+	var req protocol.NetINodePReadRequest
 	req.Init(reqData[:reqParamSize], flatbuffers.GetUOffsetT(reqData[:reqParamSize]))
 
 	var protocolBuilder flatbuffers.Builder
-	api.SetNetBlockPReadResponse(&protocolBuilder, req.Length())
+	api.SetNetINodePReadResponse(&protocolBuilder, req.Length())
 
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
 	util.AssertErrIsNil(conn.Response(reqID, respBody, make([]byte, req.Length())))

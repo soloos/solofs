@@ -4,7 +4,6 @@ import (
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
-	"soloos/util"
 	"soloos/util/offheap"
 
 	flatbuffers "github.com/google/flatbuffers/go"
@@ -21,24 +20,9 @@ func (p *DataNodeClient) UploadMemBlock(uJob types.UploadMemBlockJobUintptr,
 	case snettypes.ProtocolSRPC:
 		return p.doUploadMemBlockWithSRPC(uJob, uploadPeerIndex, transferPeersCount)
 	case snettypes.ProtocolDisk:
-		return p.doUploadMemBlockWithDisk(uJob, uploadPeerIndex, transferPeersCount)
+		return p.uploadMemBlockWithDisk(uJob, uploadPeerIndex, transferPeersCount)
 	}
 
-	return nil
-}
-
-func (p *DataNodeClient) doUploadMemBlockWithDisk(uJob types.UploadMemBlockJobUintptr,
-	uploadPeerIndex int, transferPeersCount int,
-) error {
-	var (
-		uPeer snettypes.PeerUintptr
-		err   error
-	)
-	uPeer = uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex]
-	util.Ignore(uPeer)
-	util.Ignore(uPeer.Ptr().AddressStr())
-	util.Ignore(err)
-	panic("fuck")
 	return nil
 }
 
@@ -52,14 +36,14 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 		netINodeIDOff       flatbuffers.UOffsetT
 		backendOff          flatbuffers.UOffsetT
 		uNetBlock           types.NetBlockUintptr
-		netBlockBytesOffset int
-		netBlockBytesEnd    int
+		netINodeWriteOffset int
+		netINodeWriteLength int
 		memBlockCap         int
 		peerOff, addrOff    flatbuffers.UOffsetT
 		backendOffs         = make([]flatbuffers.UOffsetT, 8)
 		pChunkMask          *offheap.ChunkMask
 		commonResp          protocol.CommonResponse
-		respBody            = make([]byte, 64)
+		respBody            []byte
 		i                   int
 		uPeer               snettypes.PeerUintptr
 		err                 error
@@ -73,9 +57,8 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 	for chunkMaskIndex := 0; chunkMaskIndex < pChunkMask.MaskArrayLen; chunkMaskIndex++ {
 		req.OffheapBody.CopyOffset = pChunkMask.MaskArray[chunkMaskIndex].Offset
 		req.OffheapBody.CopyEnd = pChunkMask.MaskArray[chunkMaskIndex].End
-		netBlockBytesOffset = memBlockCap * uJob.Ptr().MemBlockIndex
-		netBlockBytesEnd = netBlockBytesOffset + req.OffheapBody.CopyEnd
-		netBlockBytesOffset = netBlockBytesOffset + req.OffheapBody.CopyOffset
+		netINodeWriteOffset = memBlockCap*uJob.Ptr().MemBlockIndex + req.OffheapBody.CopyOffset
+		netINodeWriteLength = req.OffheapBody.CopyEnd - req.OffheapBody.CopyOffset
 
 		if transferPeersCount > 0 {
 			for i = 0; i < transferPeersCount; i++ {
@@ -92,7 +75,7 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 				}
 			}
 
-			protocol.NetBlockPWriteRequestStartTransferBackendsVector(&protocolBuilder, transferPeersCount)
+			protocol.NetINodePWriteRequestStartTransferBackendsVector(&protocolBuilder, transferPeersCount)
 			for i = transferPeersCount - 1; i >= 0; i-- {
 				protocolBuilder.PrependUOffsetT(backendOffs[i])
 			}
@@ -100,27 +83,24 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 		}
 
 		netINodeIDOff = protocolBuilder.CreateByteVector(uNetBlock.Ptr().NetINodeID[:])
-		protocol.NetBlockPWriteRequestStart(&protocolBuilder)
+		protocol.NetINodePWriteRequestStart(&protocolBuilder)
 		if transferPeersCount > 0 {
-			protocol.NetBlockPWriteRequestAddTransferBackends(&protocolBuilder, backendOff)
+			protocol.NetINodePWriteRequestAddTransferBackends(&protocolBuilder, backendOff)
 		}
-		protocol.NetBlockPWriteRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-		protocol.NetBlockPWriteRequestAddNetBlockIndex(&protocolBuilder, int32(uNetBlock.Ptr().IndexInNetINode))
-		protocol.NetBlockPWriteRequestAddOffset(&protocolBuilder, int32(netBlockBytesOffset))
-		protocol.NetBlockPWriteRequestAddLength(&protocolBuilder, int32(netBlockBytesEnd))
-		protocolBuilder.Finish(protocol.NetBlockPWriteRequestEnd(&protocolBuilder))
+		protocol.NetINodePWriteRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
+		protocol.NetINodePWriteRequestAddOffset(&protocolBuilder, int64(netINodeWriteOffset))
+		protocol.NetINodePWriteRequestAddLength(&protocolBuilder, int32(netINodeWriteLength))
+		protocolBuilder.Finish(protocol.NetINodePWriteRequestEnd(&protocolBuilder))
 		req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 		uPeer = uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex]
 		err = p.snetClientDriver.Call(uPeer,
-			"/NetBlock/PWrite", &req, &resp)
+			"/NetINode/PWrite", &req, &resp)
 		if err != nil {
 			goto PWRITE_DONE
 		}
 
-		if resp.ParamSize > uint32(cap(respBody)) {
-			respBody = append(respBody, util.DevNullBuf[:int(resp.ParamSize-uint32(cap(respBody)))]...)
-		}
+		respBody = make([]byte, resp.ParamSize)
 		err = p.snetClientDriver.ReadResponse(uPeer, &req, &resp, respBody)
 		if err != nil {
 			goto PWRITE_DONE

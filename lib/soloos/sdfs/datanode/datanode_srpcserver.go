@@ -16,8 +16,8 @@ func (p *DataNodeSRPCServer) Init(dataNode *DataNode, options DataNodeSRPCServer
 		return err
 	}
 
-	p.srpcServer.RegisterService("/NetBlock/PWrite", p.NetBlockPWrite)
-	p.srpcServer.RegisterService("/NetBlock/PRead", p.NetBlockPRead)
+	p.srpcServer.RegisterService("/NetINode/PWrite", p.NetINodePWrite)
+	p.srpcServer.RegisterService("/NetINode/PRead", p.NetINodePRead)
 
 	return nil
 }

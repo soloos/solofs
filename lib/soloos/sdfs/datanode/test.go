@@ -11,11 +11,11 @@ import (
 
 func MakeDataNodeForTest(snetDriver *snet.SNetDriver,
 	dataNode *DataNode,
-	metaStg *metastg.MetaStg,
-	netBlockDriver *netstg.NetBlockDriver,
-	memBlockDriver *memstg.MemBlockDriver,
-	netINodeDriver *memstg.NetINodeDriver,
 	dataNodeSRPCServerAddr string,
+	metaStg *metastg.MetaStg,
+	memBlockDriver *memstg.MemBlockDriver,
+	netBlockDriver *netstg.NetBlockDriver,
+	netINodeDriver *memstg.NetINodeDriver,
 ) {
 	var (
 		offheapDriver *offheap.OffheapDriver = &offheap.DefaultOffheapDriver
@@ -28,6 +28,11 @@ func MakeDataNodeForTest(snetDriver *snet.SNetDriver,
 		}
 		err error
 	)
-	err = dataNode.Init(options, offheapDriver, snetDriver, metaStg, netBlockDriver, memBlockDriver)
+
+	netBlockDriver.SetHelper(nil, metaStg.PrepareNetBlockMetaData)
+	netINodeDriver.SetHelper(nil,
+		metaStg.PrepareNetINodeMetaDataOnlyLoadDB, metaStg.PrepareNetINodeMetaDataWithStorDB)
+	err = dataNode.Init(options, offheapDriver, snetDriver, metaStg,
+		memBlockDriver, netBlockDriver, netINodeDriver)
 	util.AssertErrIsNil(err)
 }

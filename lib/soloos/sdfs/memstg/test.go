@@ -46,7 +46,7 @@ func MakeDriversForTest(t *testing.T,
 
 	MakeMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
 
-	assert.NoError(t, netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient))
+	assert.NoError(t, netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient, nil, nil))
 }
 
 func MakeDriversWithMockServerForTest(t *testing.T,
@@ -73,5 +73,5 @@ func MakeDriversWithMockServerForTest(t *testing.T,
 
 	MakeMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
 
-	assert.NoError(t, netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient))
+	assert.NoError(t, netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient, nil, nil))
 }

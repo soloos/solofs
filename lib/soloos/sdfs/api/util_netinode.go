@@ -41,3 +41,18 @@ func SetNetINodeInfoResponse(protocolBuilder *flatbuffers.Builder,
 	protocol.NetINodeInfoResponseAddMemBlockCap(protocolBuilder, int32(memBlockCap))
 	protocolBuilder.Finish(protocol.NetINodeInfoResponseEnd(protocolBuilder))
 }
+
+func SetNetINodePReadResponse(protocolBuilder *flatbuffers.Builder, length int32) {
+	protocolBuilder.Reset()
+	var (
+		commonResponseOff flatbuffers.UOffsetT
+	)
+	protocol.CommonResponseStart(protocolBuilder)
+	protocol.CommonResponseAddCode(protocolBuilder, snettypes.CODE_OK)
+	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
+
+	protocol.NetINodePReadResponseStart(protocolBuilder)
+	protocol.NetINodePReadResponseAddCommonResponse(protocolBuilder, commonResponseOff)
+	protocol.NetINodePReadResponseAddLength(protocolBuilder, length)
+	protocolBuilder.Finish(protocol.NetINodePReadResponseEnd(protocolBuilder))
+}

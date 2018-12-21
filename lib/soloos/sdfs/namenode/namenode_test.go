@@ -23,20 +23,17 @@ func TestBase(t *testing.T) {
 		nameNode               NameNode
 		mockServerAddr         = "127.0.0.1:10301"
 		mockServer             netstg.MockServer
-	)
-	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
-	MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr)
-	go func() {
-		assert.NoError(t, nameNode.Serve())
-	}()
-	time.Sleep(time.Millisecond * 300)
+		mockMemBlockPool       types.MockMemBlockPool
+		snetDriver             snet.SNetDriver
 
-	var (
-		mockMemBlockPool types.MockMemBlockPool
-		snetDriver       snet.SNetDriver
-		memBlockDriver   memstg.MemBlockDriver
-		netBlockDriver   netstg.NetBlockDriver
-		netINodeDriver   memstg.NetINodeDriver
+		memBlockDriverClient memstg.MemBlockDriver
+		netBlockDriverClient netstg.NetBlockDriver
+		netINodeDriverClient memstg.NetINodeDriver
+
+		memBlockDriverServer memstg.MemBlockDriver
+		netBlockDriverServer netstg.NetBlockDriver
+		netINodeDriverServer memstg.NetINodeDriver
+
 		netBlockCap      int   = 1024
 		memBlockCap      int   = 128
 		blockChunksLimit int32 = 4
@@ -48,29 +45,40 @@ func TestBase(t *testing.T) {
 	memstg.MakeDriversForTest(t,
 		&snetDriver,
 		nameNodeSRPCListenAddr,
-		&memBlockDriver, &netBlockDriver, &netINodeDriver, memBlockCap, blockChunksLimit)
+		&memBlockDriverClient, &netBlockDriverClient, &netINodeDriverClient, memBlockCap, blockChunksLimit)
+	memstg.MakeDriversForTest(t,
+		&snetDriver,
+		nameNodeSRPCListenAddr,
+		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer, memBlockCap, blockChunksLimit)
+	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
+	MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr,
+		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer)
+	go func() {
+		assert.NoError(t, nameNode.Serve())
+	}()
+	time.Sleep(time.Millisecond * 300)
 	netstg.MakeMockServerForTest(t, &snetDriver, mockServerAddr, &mockServer)
 	mockMemBlockPool.Init(offheapDriver, 1024)
 
 	for i = 0; i < 6; i++ {
 		util.InitUUID64(&peerID)
-		nameNode.metaStg.RegisterDataNode(&peerID, mockServerAddr)
+		nameNode.RegisterDataNode(&peerID, mockServerAddr)
 	}
 
 	var netINodeID types.NetINodeID
 	util.InitUUID64(&netINodeID)
-	uNetINode, err = netINodeDriver.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
+	uNetINode, err = netINodeDriverClient.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 
 	var (
 		testData = make([]byte, 93)
 	)
 
-	assert.NoError(t, netINodeDriver.PWrite(uNetINode, testData[0:12], 0))
-	assert.NoError(t, netINodeDriver.PWrite(uNetINode, testData[11:24], 24))
-	assert.NoError(t, netINodeDriver.PWrite(uNetINode, testData[30:64], 64))
-	assert.NoError(t, netINodeDriver.Flush(uNetINode))
-	assert.NoError(t, netINodeDriver.PRead(uNetINode, testData, 73))
+	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, testData[0:12], 0))
+	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, testData[11:24], 24))
+	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, testData[30:64], 64))
+	assert.NoError(t, netINodeDriverClient.Flush(uNetINode))
+	assert.NoError(t, netINodeDriverClient.PRead(uNetINode, testData, 73))
 
 	assert.NoError(t, nameNode.Close())
 	assert.NoError(t, mockServer.Close())

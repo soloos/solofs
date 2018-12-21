@@ -37,22 +37,20 @@ table NetINodeNetBlockInfoResponse {
     Backends:[NetBlockBackend];
 }
 
-table NetBlockPWriteRequest {
+table NetINodePWriteRequest {
     NetINodeID:string;
-    NetBlockIndex:int;
-    Offset:int;
+    Offset:int64;
     Length:int;
     TransferBackends:[NetBlockBackend];
 }
 
-table NetBlockPReadRequest {
+table NetINodePReadRequest {
     NetINodeID:string;
-    NetBlockIndex:int;
-    Offset:int;
+    Offset:int64;
     Length:int;
 }
 
-table NetBlockPReadResponse {
+table NetINodePReadResponse {
     CommonResponse:CommonResponse;
     Length:int;
 }

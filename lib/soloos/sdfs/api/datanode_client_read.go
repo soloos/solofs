@@ -24,23 +24,22 @@ func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
 	)
 
 	netINodeIDOff = protocolBuilder.CreateByteVector(uNetBlock.Ptr().NetINodeID[:])
-	protocol.NetBlockPReadRequestStart(&protocolBuilder)
-	protocol.NetBlockPReadRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-	protocol.NetBlockPReadRequestAddNetBlockIndex(&protocolBuilder, int32(netBlockIndex))
-	protocol.NetBlockPReadRequestAddOffset(&protocolBuilder, int32(offset))
-	protocol.NetBlockPReadRequestAddLength(&protocolBuilder, int32(length))
-	protocolBuilder.Finish(protocol.NetBlockPReadRequestEnd(&protocolBuilder))
+	protocol.NetINodePReadRequestStart(&protocolBuilder)
+	protocol.NetINodePReadRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
+	protocol.NetINodePReadRequestAddOffset(&protocolBuilder, int64(offset))
+	protocol.NetINodePReadRequestAddLength(&protocolBuilder, int32(length))
+	protocolBuilder.Finish(protocol.NetINodePReadRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	// TODO choose datanode
 	err = p.snetClientDriver.Call(uPeer,
-		"/NetBlock/PRead", &req, &resp)
+		"/NetINode/PRead", &req, &resp)
 	if err != nil {
 		return err
 	}
 
 	var (
-		netBlockPReadResp           protocol.NetBlockPReadResponse
+		netBlockPReadResp           protocol.NetINodePReadResponse
 		commonResp                  protocol.CommonResponse
 		param                       = make([]byte, resp.ParamSize)
 		offsetInMemBlock, readedLen int

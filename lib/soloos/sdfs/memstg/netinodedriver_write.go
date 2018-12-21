@@ -2,17 +2,30 @@ package memstg
 
 import (
 	"soloos/sdfs/types"
+	snettypes "soloos/snet/types"
 )
 
-func (p *NetINodeDriver) PWrite(uNetINode types.NetINodeUintptr, data []byte, offset int64) error {
+type pwriteArg struct {
+	conn       *snettypes.Connection
+	dataLength int
+	data       []byte
+	offset     int64
+}
+
+func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
+	arg pwriteArg) error {
 	var (
 		isSuccess           bool
 		memBlockIndex       int
-		memBlockBytesOffset int
-		memBlockBytesEnd    int
+		memBlockStart       int64
+		memBlockWriteOffset int
+		memBlockWriteEnd    int
+		memBlockWriteLength int
 		uMemBlock           types.MemBlockUintptr
 		netBlockIndex       int
 		uNetBlock           types.NetBlockUintptr
+		offset              = arg.offset
+		dataOffset          = 0
 		writeEnd            int64
 		pNetINode           = uNetINode.Ptr()
 		i                   int
@@ -21,25 +34,40 @@ func (p *NetINodeDriver) PWrite(uNetINode types.NetINodeUintptr, data []byte, of
 
 	pNetINode.WriteDataRWMutex.RLock()
 
-	for writeEnd = offset + int64(len(data)); offset < writeEnd; offset += int64(pNetINode.MemBlockCap) {
+	writeEnd = offset + int64(arg.dataLength)
+	for ; offset < writeEnd; offset, dataOffset = offset+int64(pNetINode.MemBlockCap), dataOffset+pNetINode.MemBlockCap {
 		// prepare netBlock
 		netBlockIndex = int(offset / int64(pNetINode.NetBlockCap))
 		uNetBlock, err = p.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 
 		// prepare memBlock
 		memBlockIndex = int(offset / int64(pNetINode.MemBlockCap))
-		memBlockBytesOffset = int(offset - int64(memBlockIndex)*int64(pNetINode.MemBlockCap))
-		memBlockBytesEnd = memBlockBytesOffset + len(data)
+		memBlockStart = int64(memBlockIndex) * int64(pNetINode.MemBlockCap)
+		memBlockWriteOffset = int(offset - memBlockStart)
+		if memBlockStart+int64(pNetINode.MemBlockCap) < writeEnd {
+			// not the last block
+			memBlockWriteLength = int(memBlockStart + int64(pNetINode.MemBlockCap) - offset)
+		} else {
+			// the last block
+			memBlockWriteLength = int(writeEnd - offset)
+		}
+		memBlockWriteEnd = memBlockWriteOffset + memBlockWriteLength
 		uMemBlock, _ = p.memBlockDriver.MustGetMemBlockWithReadAcquire(uNetINode, memBlockIndex)
 
 		// write in memblock
 		for i = 0; i < 6; i++ {
-			isSuccess = uMemBlock.Ptr().PWrite(data, memBlockBytesOffset)
-			if isSuccess == false {
-				err = p.unsafeMemBlockRebaseNetBlock(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex)
-				if err != nil {
-					goto WRITE_DATA_ONE_RUN_DONE
-				}
+			if arg.conn == nil {
+				isSuccess = uMemBlock.Ptr().PWriteWithMem(arg.data[dataOffset:dataOffset+memBlockWriteLength],
+					memBlockWriteOffset)
+			} else {
+				isSuccess = uMemBlock.Ptr().PWriteWithConn(arg.conn, memBlockWriteLength, memBlockWriteOffset)
+			}
+			if isSuccess {
+				break
+			}
+			err = p.unsafeMemBlockRebaseNetBlock(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex)
+			if err != nil {
+				goto WRITE_DATA_ONE_RUN_DONE
 			}
 		}
 		if isSuccess == false {
@@ -56,7 +84,7 @@ func (p *NetINodeDriver) PWrite(uNetINode types.NetINodeUintptr, data []byte, of
 		err = p.netBlockDriver.PWrite(uNetINode,
 			uNetBlock, netBlockIndex,
 			uMemBlock, memBlockIndex,
-			memBlockBytesOffset, memBlockBytesEnd)
+			memBlockWriteOffset, memBlockWriteEnd)
 		if err != nil {
 			goto WRITE_DATA_ONE_RUN_DONE
 		}
@@ -73,8 +101,28 @@ WRITE_DATA_DONE:
 	return err
 }
 
+func (p *NetINodeDriver) PWriteWithConn(uNetINode types.NetINodeUintptr,
+	conn *snettypes.Connection, dataLength int, offset int64) error {
+	return p.doPWrite(uNetINode, pwriteArg{
+		conn:       conn,
+		data:       nil,
+		dataLength: dataLength,
+		offset:     offset,
+	})
+}
+
+func (p *NetINodeDriver) PWriteWithMem(uNetINode types.NetINodeUintptr,
+	data []byte, offset int64) error {
+	return p.doPWrite(uNetINode, pwriteArg{
+		conn:       nil,
+		data:       data,
+		dataLength: len(data),
+		offset:     offset,
+	})
+}
+
 func (p *NetINodeDriver) Flush(uNetINode types.NetINodeUintptr) error {
-	// TODO common offset in metadb
+	// TODO commit offset in metadb
 	var (
 		pNetINode = uNetINode.Ptr()
 		err       error

@@ -10,7 +10,17 @@ import (
 	"sync"
 )
 
+type PrepareNetBlockMetaData func(uNetBlock types.NetBlockUintptr,
+	uNetINode types.NetINodeUintptr, netblockIndex int) error
+
+type NetBlockDriverHelper struct {
+	nameNodeClient          *api.NameNodeClient
+	PrepareNetBlockMetaData PrepareNetBlockMetaData
+}
+
 type NetBlockDriver struct {
+	Helper NetBlockDriverHelper
+
 	offheapDriver        *offheap.OffheapDriver
 	netBlockAllocRWMutex sync.RWMutex
 	offheapPool          offheap.RawObjectPool
@@ -18,7 +28,6 @@ type NetBlockDriver struct {
 
 	snetDriver       *snet.SNetDriver
 	snetClientDriver *snet.ClientDriver
-	nameNodeClient   *api.NameNodeClient
 	dataNodeClient   *api.DataNodeClient
 
 	netBlockDriverUploader netBlockDriverUploader
@@ -29,6 +38,7 @@ func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
 	snetClientDriver *snet.ClientDriver,
 	nameNodeClient *api.NameNodeClient,
 	dataNodeClient *api.DataNodeClient,
+	prepareNetBlockMetaData PrepareNetBlockMetaData,
 ) error {
 	var err error
 	p.offheapDriver = offheapDriver
@@ -44,10 +54,27 @@ func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
 
 	p.snetDriver = snetDriver
 	p.snetClientDriver = snetClientDriver
-	p.nameNodeClient = nameNodeClient
 	p.dataNodeClient = dataNodeClient
 
+	p.SetHelper(nameNodeClient, prepareNetBlockMetaData)
+
 	return nil
+}
+
+func (p *NetBlockDriver) SetHelper(
+	nameNodeClient *api.NameNodeClient,
+	prepareNetBlockMetaData PrepareNetBlockMetaData,
+) {
+	p.Helper.nameNodeClient = nameNodeClient
+	if prepareNetBlockMetaData != nil {
+		p.Helper.PrepareNetBlockMetaData = prepareNetBlockMetaData
+	} else {
+		p.Helper.PrepareNetBlockMetaData = p.prepareNetBlockMetaData
+	}
+}
+
+func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk api.UploadMemBlockWithDisk) {
+	p.dataNodeClient.SetUploadMemBlockWithDisk(uploadMemBlockWithDisk)
 }
 
 func (p *NetBlockDriver) RawChunkPoolInvokeReleaseRawChunk() {
@@ -72,7 +99,7 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	if isLoaded == false || uNetBlock.Ptr().IsMetaDataInited == false {
 		pNetBlock.MetaDataInitMutex.Lock()
 		if pNetBlock.IsMetaDataInited == false {
-			err = p.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
+			err = p.Helper.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
 			if err == nil {
 				pNetBlock.IsMetaDataInited = true
 			}
@@ -88,7 +115,7 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	return uNetBlock, nil
 }
 
-func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr,
+func (p *NetBlockDriver) prepareNetBlockMetaData(uNetBlock types.NetBlockUintptr,
 	uNetINode types.NetINodeUintptr, netblockIndex int) error {
 	var (
 		pNetBlock    = uNetBlock.Ptr()
@@ -100,7 +127,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 		err          error
 	)
 
-	err = p.nameNodeClient.PrepareNetBlockMetaData(&netBlockInfo, uNetINode, netblockIndex, uNetBlock)
+	err = p.Helper.nameNodeClient.PrepareNetBlockMetaData(&netBlockInfo, uNetINode, netblockIndex, uNetBlock)
 	if err != nil {
 		return err
 	}

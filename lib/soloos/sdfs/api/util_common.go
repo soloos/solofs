@@ -9,12 +9,10 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func SetCommonResponseCode(protocolBuilder *flatbuffers.Builder, code int) error {
-	var err error
+func SetCommonResponseCode(protocolBuilder *flatbuffers.Builder, code int) {
 	protocol.CommonResponseStart(protocolBuilder)
 	protocol.CommonResponseAddCode(protocolBuilder, int32(code))
 	protocolBuilder.Finish(protocol.CommonResponseEnd(protocolBuilder))
-	return err
 }
 
 func CommonResponseToError(obj *protocol.CommonResponse) error {

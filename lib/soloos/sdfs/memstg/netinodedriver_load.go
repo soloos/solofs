@@ -36,7 +36,7 @@ func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUi
 	pMemBlock.AvailMask.MergeElementRWMutex.Lock()
 	for i := 0; i < pMemBlock.AvailMask.MaskArrayLen; i++ {
 		chunkMaskEntry = pMemBlock.AvailMask.MaskArray[i]
-		uTmpMemBlock.Ptr().PWrite(
+		uTmpMemBlock.Ptr().PWriteWithMem(
 			(*pMemBlock.BytesSlice())[chunkMaskEntry.Offset:chunkMaskEntry.End],
 			chunkMaskEntry.Offset)
 	}

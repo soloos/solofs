@@ -2,6 +2,8 @@ package types
 
 import (
 	"reflect"
+	"soloos/log"
+	snettypes "soloos/snet/types"
 	"soloos/util/offheap"
 	"sync"
 	"sync/atomic"
@@ -41,7 +43,23 @@ func (p *MemBlock) Contains(offset, end int) bool {
 	return p.AvailMask.Contains(offset, end)
 }
 
-func (p *MemBlock) PWrite(data []byte, offset int) (isSuccess bool) {
+func (p *MemBlock) PWriteWithConn(conn *snettypes.Connection, length int, offset int) (isSuccess bool) {
+	_, isSuccess = p.AvailMask.MergeIncludeNeighbour(offset, offset+length)
+	if isSuccess {
+		var err error
+		if offset+length > p.Bytes.Cap {
+			length = p.Bytes.Cap - offset
+		}
+		err = conn.ReadAll((*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset : offset+length])
+		if err != nil {
+			log.Warn("PWriteWithConn error", err)
+			isSuccess = false
+		}
+	}
+	return
+}
+
+func (p *MemBlock) PWriteWithMem(data []byte, offset int) (isSuccess bool) {
 	_, isSuccess = p.AvailMask.MergeIncludeNeighbour(offset, offset+len(data))
 	if isSuccess {
 		copy((*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset:], data)

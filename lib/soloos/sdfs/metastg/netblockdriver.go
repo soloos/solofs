@@ -17,37 +17,6 @@ func (p *NetBlockDriver) Init(metaStg *MetaStg) error {
 	return nil
 }
 
-// MustGetNetBlock get or init a netBlock
-func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
-	netBlockIndex int) (types.NetBlockUintptr, error) {
-	var (
-		uNetBlock types.NetBlockUintptr
-		pNetBlock *types.NetBlock
-		isLoaded  bool
-		err       error
-	)
-
-	uNetBlock, isLoaded = p.netBlockPool.MustGetNetBlock(uNetINode, netBlockIndex)
-	pNetBlock = uNetBlock.Ptr()
-	if isLoaded == false || uNetBlock.Ptr().IsMetaDataInited == false {
-		pNetBlock.MetaDataInitMutex.Lock()
-		if pNetBlock.IsMetaDataInited == false {
-			err = p.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
-			if err == nil {
-				pNetBlock.IsMetaDataInited = true
-			}
-		}
-		pNetBlock.MetaDataInitMutex.Unlock()
-	}
-
-	if err != nil {
-		// TODO: clean uNetBlock
-		return 0, err
-	}
-
-	return uNetBlock, nil
-}
-
 func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr,
 	uNetINode types.NetINodeUintptr, netBlockIndex int) error {
 	var (
