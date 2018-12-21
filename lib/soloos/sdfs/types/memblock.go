@@ -67,7 +67,16 @@ func (p *MemBlock) PWriteWithMem(data []byte, offset int) (isSuccess bool) {
 	return
 }
 
-func (p *MemBlock) PRead(data []byte, offset int) {
+func (p *MemBlock) PReadWithConn(conn *snettypes.Connection, length int, offset int) error {
+	var err error
+	err = conn.WriteAll((*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset : offset+length])
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *MemBlock) PReadWithMem(data []byte, offset int) {
 	copy(data, (*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset:])
 }
 

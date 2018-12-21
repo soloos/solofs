@@ -16,14 +16,14 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 	arg pwriteArg) error {
 	var (
 		isSuccess           bool
+		uMemBlock           types.MemBlockUintptr
+		uNetBlock           types.NetBlockUintptr
 		memBlockIndex       int
+		netBlockIndex       int
 		memBlockStart       int64
 		memBlockWriteOffset int
 		memBlockWriteEnd    int
 		memBlockWriteLength int
-		uMemBlock           types.MemBlockUintptr
-		netBlockIndex       int
-		uNetBlock           types.NetBlockUintptr
 		offset              = arg.offset
 		dataOffset          = 0
 		writeEnd            int64
@@ -54,6 +54,7 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 		memBlockWriteEnd = memBlockWriteOffset + memBlockWriteLength
 		uMemBlock, _ = p.memBlockDriver.MustGetMemBlockWithReadAcquire(uNetINode, memBlockIndex)
 
+		// TODO refine me
 		// write in memblock
 		for i = 0; i < 6; i++ {
 			if arg.conn == nil {
