@@ -31,7 +31,7 @@ func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
 	pNetINode := uNetINode.Ptr()
 
 	readEnd = offset + int64(arg.dataLength)
-	for ; offset < readEnd; offset, dataOffset = offset+int64(pNetINode.MemBlockCap), dataOffset+pNetINode.MemBlockCap {
+	for ; offset < readEnd; offset, dataOffset = offset+int64(memBlockReadLength), dataOffset+memBlockReadLength {
 		// prepare netBlock
 		netBlockIndex = int(offset / int64(pNetINode.NetBlockCap))
 		uNetBlock, err = p.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)

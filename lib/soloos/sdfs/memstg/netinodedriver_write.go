@@ -35,7 +35,7 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 	pNetINode.WriteDataRWMutex.RLock()
 
 	writeEnd = offset + int64(arg.dataLength)
-	for ; offset < writeEnd; offset, dataOffset = offset+int64(pNetINode.MemBlockCap), dataOffset+pNetINode.MemBlockCap {
+	for ; offset < writeEnd; offset, dataOffset = offset+int64(memBlockWriteLength), dataOffset+memBlockWriteLength {
 		// prepare netBlock
 		netBlockIndex = int(offset / int64(pNetINode.NetBlockCap))
 		uNetBlock, err = p.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)

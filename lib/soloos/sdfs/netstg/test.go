@@ -46,7 +46,7 @@ func MakeDriversForTest(t *testing.T,
 
 	nameNodePeer, _ = snetDriver.MustGetPeer(nil, nameNodeSRPCServerAddr, types.DefaultSDFSRPCProtocol)
 	assert.NoError(t, nameNodeClient.Init(snetClientDriver, nameNodePeer))
-	assert.NoError(t, dataNodeClient.Init(snetClientDriver, nil))
+	assert.NoError(t, dataNodeClient.Init(snetClientDriver, nil, nil))
 	MakeNetBlockDriversForTest(t, netBlockDriver, offheapDriver,
 		snetDriver, snetClientDriver,
 		nameNodeClient, dataNodeClient,

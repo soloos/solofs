@@ -73,15 +73,15 @@ func (p *NetINodeDriver) GetNetINode(netINodeID types.NetINodeID) (types.NetINod
 	)
 	uNetINode, isLoaded = p.netINodePool.MustGetNetINode(netINodeID)
 	pNetINode = uNetINode.Ptr()
-	if isLoaded == false || uNetINode.Ptr().IsMetaDataInited == false {
-		pNetINode.MetaDataInitMutex.Lock()
-		if pNetINode.IsMetaDataInited == false {
+	if isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited == false {
+		pNetINode.DBMetaDataInitMutex.Lock()
+		if pNetINode.IsDBMetaDataInited == false {
 			err = p.Helper.PrepareNetINodeMetaDataOnlyLoadDB(uNetINode)
 			if err == nil {
-				pNetINode.IsMetaDataInited = true
+				pNetINode.IsDBMetaDataInited = true
 			}
 		}
-		pNetINode.MetaDataInitMutex.Unlock()
+		pNetINode.DBMetaDataInitMutex.Unlock()
 	}
 
 	if err != nil {
@@ -102,15 +102,15 @@ func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
 	)
 	uNetINode, isLoaded = p.netINodePool.MustGetNetINode(netINodeID)
 	pNetINode = uNetINode.Ptr()
-	if isLoaded == false || uNetINode.Ptr().IsMetaDataInited == false {
-		pNetINode.MetaDataInitMutex.Lock()
-		if pNetINode.IsMetaDataInited == false {
+	if isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited == false {
+		pNetINode.DBMetaDataInitMutex.Lock()
+		if pNetINode.IsDBMetaDataInited == false {
 			err = p.Helper.PrepareNetINodeMetaDataWithStorDB(uNetINode, size, netBlockCap, memBlockCap)
 			if err == nil {
-				pNetINode.IsMetaDataInited = true
+				pNetINode.IsDBMetaDataInited = true
 			}
 		}
-		pNetINode.MetaDataInitMutex.Unlock()
+		pNetINode.DBMetaDataInitMutex.Unlock()
 	}
 
 	if err != nil {

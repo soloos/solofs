@@ -8,12 +8,33 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
+func (p *DataNodeClient) PReadMemBlock(uNetINode types.NetINodeUintptr,
+	uPeer snettypes.PeerUintptr,
 	uNetBlock types.NetBlockUintptr,
 	netBlockIndex int,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int,
-	offset int, length int,
+	offset int64, length int,
+) error {
+	if uNetBlock.Ptr().LocalDataBackend != 0 {
+		return p.preadMemBlockWithDisk(uNetINode, uPeer, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
+	}
+
+	switch uPeer.Ptr().ServiceProtocol {
+	case snettypes.ProtocolSRPC:
+		return p.doPReadMemBlockWithSRPC(uNetINode, uPeer, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
+	}
+
+	return nil
+}
+
+func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr,
+	uPeer snettypes.PeerUintptr,
+	uNetBlock types.NetBlockUintptr,
+	netBlockIndex int,
+	uMemBlock types.MemBlockUintptr,
+	memBlockIndex int,
+	offset int64, length int,
 ) error {
 	var (
 		req             snettypes.Request
@@ -26,7 +47,7 @@ func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
 	netINodeIDOff = protocolBuilder.CreateByteVector(uNetBlock.Ptr().NetINodeID[:])
 	protocol.NetINodePReadRequestStart(&protocolBuilder)
 	protocol.NetINodePReadRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-	protocol.NetINodePReadRequestAddOffset(&protocolBuilder, int64(offset))
+	protocol.NetINodePReadRequestAddOffset(&protocolBuilder, offset)
 	protocol.NetINodePReadRequestAddLength(&protocolBuilder, int32(length))
 	protocolBuilder.Finish(protocol.NetINodePReadRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
@@ -55,7 +76,7 @@ func (p *DataNodeClient) PRead(uPeer snettypes.PeerUintptr,
 		return types.ErrNetBlockPRead
 	}
 
-	offsetInMemBlock = int(offset - (uMemBlock.Ptr().Bytes.Cap * memBlockIndex))
+	offsetInMemBlock = int(offset - int64(uMemBlock.Ptr().Bytes.Cap)*int64(memBlockIndex))
 	readedLen = int(resp.BodySize - resp.ParamSize)
 	err = p.snetClientDriver.ReadResponse(uPeer, &req, &resp,
 		(*uMemBlock.Ptr().BytesSlice())[offsetInMemBlock:readedLen])

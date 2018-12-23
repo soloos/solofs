@@ -1,12 +1,14 @@
 package datanode
 
 import (
+	"path/filepath"
 	"soloos/sdfs/localfs"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
 	"soloos/snet"
 	snettypes "soloos/snet/types"
+	"soloos/util"
 	"soloos/util/offheap"
 )
 
@@ -48,11 +50,16 @@ func (p *DataNode) Init(options DataNodeOptions,
 	}
 
 	var peerID snettypes.PeerID
-	err = p.localFs.Init("/tmp/testsdfs")
+	{
+		var prefix snettypes.PeerID
+		util.InitUUID64(&prefix)
+		err = p.localFs.Init(filepath.Join("/tmp/testsdfs", string(prefix[:3])))
+	}
 	if err != nil {
 		return err
 	}
 	p.uLocalDiskPeer, _ = p.snetDriver.MustGetPeer(&peerID, "", snettypes.ProtocolDisk)
+	p.netBlockDriver.SetPReadMemBlockWithDisk(p.localFs.PReadMemBlockWithDisk)
 	p.netBlockDriver.SetUploadMemBlockWithDisk(p.localFs.UploadMemBlockWithDisk)
 
 	return nil

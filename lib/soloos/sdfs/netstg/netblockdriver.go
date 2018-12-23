@@ -73,6 +73,10 @@ func (p *NetBlockDriver) SetHelper(
 	}
 }
 
+func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadWithDisk api.PReadMemBlockWithDisk) {
+	p.dataNodeClient.SetPReadMemBlockWithDisk(preadWithDisk)
+}
+
 func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk api.UploadMemBlockWithDisk) {
 	p.dataNodeClient.SetUploadMemBlockWithDisk(uploadMemBlockWithDisk)
 }
@@ -96,15 +100,15 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 
 	uNetBlock, isLoaded = p.netBlockPool.MustGetNetBlock(uNetINode, netBlockIndex)
 	pNetBlock = uNetBlock.Ptr()
-	if isLoaded == false || uNetBlock.Ptr().IsMetaDataInited == false {
-		pNetBlock.MetaDataInitMutex.Lock()
-		if pNetBlock.IsMetaDataInited == false {
+	if isLoaded == false || uNetBlock.Ptr().IsDBMetaDataInited == false {
+		pNetBlock.DBMetaDataInitMutex.Lock()
+		if pNetBlock.IsDBMetaDataInited == false {
 			err = p.Helper.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
 			if err == nil {
-				pNetBlock.IsMetaDataInited = true
+				pNetBlock.IsDBMetaDataInited = true
 			}
 		}
-		pNetBlock.MetaDataInitMutex.Unlock()
+		pNetBlock.DBMetaDataInitMutex.Unlock()
 	}
 
 	if err != nil {

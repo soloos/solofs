@@ -70,7 +70,7 @@ func (p *NetBlockDriver) PrepareNetBlockSyncDataBackendsWithLock(uNetBlock types
 		err       error
 	)
 
-	pNetBlock.SyncDataBackendsInitMutex.Lock()
+	pNetBlock.MemMetaDataInitMutex.Lock()
 	if pNetBlock.IsSyncDataBackendsInited == true {
 		goto PREPARE_DONE
 	}
@@ -81,6 +81,28 @@ func (p *NetBlockDriver) PrepareNetBlockSyncDataBackendsWithLock(uNetBlock types
 	pNetBlock.IsSyncDataBackendsInited = true
 
 PREPARE_DONE:
-	pNetBlock.SyncDataBackendsInitMutex.Unlock()
+	pNetBlock.MemMetaDataInitMutex.Unlock()
+	return err
+}
+
+func (p *NetBlockDriver) PrepareNetBlockLocalDataBackendWithLock(uNetBlock types.NetBlockUintptr,
+	backend snettypes.PeerUintptr,
+) error {
+	var (
+		pNetBlock = uNetBlock.Ptr()
+		err       error
+	)
+
+	pNetBlock.MemMetaDataInitMutex.Lock()
+	if pNetBlock.IsLocalDataBackendInited == true {
+		goto PREPARE_DONE
+	}
+
+	pNetBlock.LocalDataBackend = backend
+
+	pNetBlock.IsLocalDataBackendInited = true
+
+PREPARE_DONE:
+	pNetBlock.MemMetaDataInitMutex.Unlock()
 	return err
 }

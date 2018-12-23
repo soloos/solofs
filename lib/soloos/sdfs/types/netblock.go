@@ -21,18 +21,20 @@ type NetBlock struct {
 	Len             int        `db:"netblock_len"`
 	Cap             int        `db:"netblock_cap"`
 
-	StorDataBackends  snettypes.PeerUintptrArray8 `db:"-"`
-	MetaDataInitMutex sync.Mutex                  `db:"-"`
-	IsMetaDataInited  bool                        `db:"-"`
+	StorDataBackends    snettypes.PeerUintptrArray8 `db:"-"`
+	IsDBMetaDataInited  bool                        `db:"-"`
+	DBMetaDataInitMutex sync.Mutex                  `db:"-"`
 
 	SyncDataBackends                    snettypes.PeerUintptrArray8 `db:"-"`
 	SyncDataPrimaryBackendTransferCount int                         `db:"-"`
-	SyncDataBackendsInitMutex           sync.Mutex                  `db:"-"`
 	IsSyncDataBackendsInited            bool                        `db:"-"`
+	LocalDataBackend                    snettypes.PeerUintptr       `db:"-"`
+	IsLocalDataBackendInited            bool                        `db:"-"`
+	MemMetaDataInitMutex                sync.Mutex                  `db:"-"`
 }
 
 func (p *NetBlock) NetINodeIDStr() string { return string(p.NetINodeID[:]) }
 
 func (p *NetBlock) Reset() {
-	p.IsMetaDataInited = false
+	p.IsDBMetaDataInited = false
 }

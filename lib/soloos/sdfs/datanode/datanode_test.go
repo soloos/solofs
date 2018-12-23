@@ -105,8 +105,16 @@ func TestBase(t *testing.T) {
 	assert.NoError(t, err)
 
 	writeData := make([]byte, 73)
+	writeData[3] = 12
+	writeData[7] = 12
+	writeData[8] = 12
+	writeData[33] = 12
+	writeData[60] = 12
 	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, writeData, 612))
 	assert.NoError(t, netINodeDriverClient.Flush(uNetINode))
+	readData := make([]byte, 73)
+	assert.NoError(t, netINodeDriverClient.PReadWithMem(uNetINode, readData, 612))
+	assert.Equal(t, writeData, readData)
 
 	time.Sleep(time.Microsecond * 800)
 	for i = 0; i < len(dataNodeSRPCListenAddrs); i++ {

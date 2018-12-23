@@ -17,10 +17,10 @@ func (p *DataNodeClient) UploadMemBlock(uJob types.UploadMemBlockJobUintptr,
 	)
 	uDataNode = uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex]
 	switch uDataNode.Ptr().ServiceProtocol {
-	case snettypes.ProtocolSRPC:
-		return p.doUploadMemBlockWithSRPC(uJob, uploadPeerIndex, transferPeersCount)
 	case snettypes.ProtocolDisk:
 		return p.uploadMemBlockWithDisk(uJob, uploadPeerIndex, transferPeersCount)
+	case snettypes.ProtocolSRPC:
+		return p.doUploadMemBlockWithSRPC(uJob, uploadPeerIndex, transferPeersCount)
 	}
 
 	return nil

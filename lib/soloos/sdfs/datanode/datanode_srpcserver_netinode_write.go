@@ -80,8 +80,8 @@ func (p *DataNodeSRPCServer) NetINodePWrite(reqID uint64,
 	}
 
 	// request file data
-	err = p.dataNode.netINodeDriver.PWriteWithConn(uNetINode, conn, int(reqParam.Length()),
-		reqParam.Offset())
+	err = p.dataNode.netINodeDriver.PWriteWithConn(uNetINode, conn,
+		int(reqParam.Length()), reqParam.Offset())
 	if err != nil {
 		return err
 	}
