@@ -23,8 +23,7 @@ func TestNetINodeDriverNetINodeRead(t *testing.T) {
 		uNetINode        types.NetINodeUintptr
 		err              error
 	)
-	MakeDriversWithMockServerForTest(t,
-		"127.0.0.1:10022", &mockServer, &snetDriver,
+	MakeDriversWithMockServerForTest("127.0.0.1:10022", &mockServer, &snetDriver,
 		&netBlockDriver, &memBlockDriver, &netINodeDriver, memBlockCap, blockChunksLimit)
 	var netINodeID types.NetINodeID
 	util.InitUUID64(&netINodeID)

@@ -18,7 +18,9 @@ type MetaStg struct {
 
 func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
 	dbDriver, dsn string,
-	mustGetNetINodeForDirTreeDriver api.MustGetNetINode) error {
+	getNetINodeForDirTreeDriver api.GetNetINode,
+	mustGetNetINodeForDirTreeDriver api.MustGetNetINode,
+) error {
 	var err error
 
 	p.offheapDriver = offheapDriver
@@ -57,6 +59,7 @@ func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
 	err = p.DirTreeDriver.Init(p.offheapDriver,
 		p.dbConn,
 		p.FetchAndUpdateMaxID,
+		getNetINodeForDirTreeDriver,
 		mustGetNetINodeForDirTreeDriver,
 	)
 
@@ -72,4 +75,9 @@ func (p *MetaStg) Close() error {
 	}
 
 	return nil
+}
+
+func (p *MetaStg) GetDBConn() *dbr.Connection {
+	return p.dbConn
+
 }

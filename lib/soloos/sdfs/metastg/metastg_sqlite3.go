@@ -17,5 +17,10 @@ func (p *MetaStg) InstallSqlite3Schema() error {
 		}
 	}
 
+	sqls = baseDataSqls()
+	for _, sql := range sqls {
+		p.dbConn.Exec(sql)
+	}
+
 	return nil
 }

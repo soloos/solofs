@@ -17,5 +17,10 @@ func (p *MetaStg) InstallMysqlSchema() error {
 		}
 	}
 
+	sqls = baseDataSqls()
+	for _, sql := range sqls {
+		p.dbConn.Exec(sql)
+	}
+
 	return nil
 }

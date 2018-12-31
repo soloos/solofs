@@ -25,7 +25,7 @@ func TestNetBlockDriver(t *testing.T) {
 	mockServerAddr := "127.0.0.1:10021"
 	assert.NoError(t, mockNetINodePool.Init(&offheap.DefaultOffheapDriver))
 	assert.NoError(t, mockMemBlockPool.Init(offheapDriver, 1024))
-	MakeDriversWithMockServerForTest(t, &snetDriver, &snetClientDriver,
+	MakeDriversWithMockServerForTest(&snetDriver, &snetClientDriver,
 		mockServerAddr, &mockServer,
 		&nameNodeClient, &dataNodeClient,
 		&netBlockDriver)

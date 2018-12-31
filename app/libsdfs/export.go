@@ -28,7 +28,7 @@ func initEnv() {
 		return
 	}
 
-	env.Init("127.0.0.1:9096", 1024*1024*2, 256)
+	env.Init("127.0.0.1:9096", 1024*1024*2, 256, "sqlite3", "/tmp/sdfs.db")
 	isInited = true
 	log.Info("init success.")
 }

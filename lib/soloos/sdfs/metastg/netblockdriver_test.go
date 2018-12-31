@@ -14,7 +14,7 @@ func TestMetaStgNetBlock(t *testing.T) {
 	var (
 		offheapDriver = &offheap.DefaultOffheapDriver
 		peerPool      offheap.RawObjectPool
-		metastg       MetaStg
+		metaStg       MetaStg
 		netINode      types.NetINode
 		netBlock      types.NetBlock
 		id0           types.NetINodeID
@@ -22,12 +22,12 @@ func TestMetaStgNetBlock(t *testing.T) {
 		id2           types.NetINodeID
 	)
 
-	assert.NoError(t, metastg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect, nil))
+	util.AssertErrIsNil(metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect, nil, nil))
 	util.InitUUID64(&id0)
 	util.InitUUID64(&id1)
 	util.InitUUID64(&id2)
 
-	assert.NoError(t, offheap.DefaultOffheapDriver.InitRawObjectPool(&peerPool, int(snettypes.PeerStructSize), -1, nil, nil))
+	util.AssertErrIsNil(offheap.DefaultOffheapDriver.InitRawObjectPool(&peerPool, int(snettypes.PeerStructSize), -1, nil, nil))
 
 	netINode.ID = id0
 	netBlock.NetINodeID = netINode.ID
@@ -40,19 +40,19 @@ func TestMetaStgNetBlock(t *testing.T) {
 	netBlock.StorDataBackends.Append(uPeer1)
 	netBlock.IndexInNetINode = 0
 
-	assert.NoError(t, metastg.StoreNetBlockInDB(&netINode, &netBlock))
-	assert.NoError(t, metastg.StoreNetBlockInDB(&netINode, &netBlock))
+	util.AssertErrIsNil(metaStg.StoreNetBlockInDB(&netINode, &netBlock))
+	util.AssertErrIsNil(metaStg.StoreNetBlockInDB(&netINode, &netBlock))
 
 	var backendPeerIDArrStr string
 	{
-		assert.NoError(t, metastg.FetchNetBlockFromDB(&netINode, 0, &netBlock, &backendPeerIDArrStr))
+		util.AssertErrIsNil(metaStg.FetchNetBlockFromDB(&netINode, 0, &netBlock, &backendPeerIDArrStr))
 	}
 	{
-		assert.Equal(t, metastg.FetchNetBlockFromDB(&netINode, 1, &netBlock, &backendPeerIDArrStr), types.ErrObjectNotExists)
+		assert.Equal(t, metaStg.FetchNetBlockFromDB(&netINode, 1, &netBlock, &backendPeerIDArrStr), types.ErrObjectNotExists)
 	}
 	{
-		assert.NoError(t, metastg.FetchNetBlockFromDB(&netINode, 0, &netBlock, &backendPeerIDArrStr))
+		util.AssertErrIsNil(metaStg.FetchNetBlockFromDB(&netINode, 0, &netBlock, &backendPeerIDArrStr))
 	}
 
-	assert.NoError(t, metastg.Close())
+	util.AssertErrIsNil(metaStg.Close())
 }

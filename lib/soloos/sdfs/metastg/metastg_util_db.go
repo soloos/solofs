@@ -23,13 +23,13 @@ func (p *MetaStg) FetchAndUpdateMaxID(key string, delta int64) (int64, error) {
 		goto QUERY_DONE
 	}
 
-	isNeedInsert = false
+	isNeedInsert = true
 	if sqlRows.Next() {
 		err = sqlRows.Scan(&maxid)
 		if err != nil {
 			goto QUERY_DONE
 		}
-		isNeedInsert = true
+		isNeedInsert = false
 	}
 
 	if sqlRows != nil {

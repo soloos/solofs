@@ -1,11 +1,21 @@
 package main
 
 import "C"
-import "unsafe"
+import (
+	"soloos/sdfs/libsdfs"
+	"unsafe"
+)
 
 //export GoSdfsOpenFile
 func GoSdfsOpenFile(cInodePath *C.char, flags,
 	bufferSize C.int, replication C.short, blocksize C.long) (uint64, C.int) {
+	var err error
+	fsINodePath := C.GoString(cInodePath)
+	err = env.Client.MetaStg.DirTreeDriver.OpenFile(fsINodePath)
+	if err != nil {
+		return 0, libsdfs.CODE_ERR
+	}
+
 	return 0, 0
 }
 

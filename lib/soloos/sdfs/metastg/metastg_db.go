@@ -1,5 +1,18 @@
 package metastg
 
+import (
+	"fmt"
+	"soloos/sdfs/types"
+)
+
+func baseDataSqls() []string {
+	var sql []string
+	sql = append(sql, fmt.Sprintf(`
+	insert into b_fsinode (fsinode_id,parent_fsinode_id,name,netinode_id,fsinode_type) values(%d,%d,"","",%d);
+	`, 0, -1, types.FSINODE_TYPE_DIR))
+	return sql
+}
+
 func fsSchemaSqls() []string {
 	var sql []string
 	// sql = append(sql, `
@@ -9,16 +22,18 @@ func fsSchemaSqls() []string {
 	create table if not exists b_fsinode (
 	fsinode_id int,
 	parent_fsinode_id int,
-	fsinode_name char(64),
+	name char(64),
+	flag int default 0,
+	permission int default 0,
 	netinode_id char(64),
-	primary key(netinode_id)
+	fsinode_type int,
+	primary key(fsinode_id)
 	);
 `)
 
 	sql = append(sql, `
-	create index if not exists i_b_fsindoe_parent_fsinode_id on b_fsinode(parent_fsinode_id);
+	create index if not exists i_b_fsinode_parent_fsinode_id_and_name on b_fsinode(parent_fsinode_id, name);
 `)
-
 	return sql
 }
 

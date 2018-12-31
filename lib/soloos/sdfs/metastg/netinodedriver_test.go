@@ -12,34 +12,34 @@ import (
 func TestMetaStgNetINode(t *testing.T) {
 	var (
 		offheapDriver = &offheap.DefaultOffheapDriver
-		metastg       MetaStg
+		metaStg       MetaStg
 		netINode      types.NetINode
 		id0           types.NetINodeID
 		id1           types.NetINodeID
 	)
 
-	assert.NoError(t, metastg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect, nil))
+	assert.NoError(t, metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect, nil, nil))
 	util.InitUUID64(&id0)
 	util.InitUUID64(&id1)
 
 	netINode.ID = id0
-	assert.NoError(t, metastg.StoreNetINodeInDB(&netINode))
-	assert.NoError(t, metastg.StoreNetINodeInDB(&netINode))
+	assert.NoError(t, metaStg.StoreNetINodeInDB(&netINode))
+	assert.NoError(t, metaStg.StoreNetINodeInDB(&netINode))
 
 	{
-		err := metastg.FetchNetINodeFromDB(&netINode)
+		err := metaStg.FetchNetINodeFromDB(&netINode)
 		assert.Equal(t, err, nil)
 	}
 	{
 		netINode.ID = id1
-		err := metastg.FetchNetINodeFromDB(&netINode)
+		err := metaStg.FetchNetINodeFromDB(&netINode)
 		assert.Equal(t, err, types.ErrObjectNotExists)
 	}
 	{
 		netINode.ID = id0
-		err := metastg.FetchNetINodeFromDB(&netINode)
+		err := metaStg.FetchNetINodeFromDB(&netINode)
 		assert.NoError(t, err)
 	}
 
-	assert.NoError(t, metastg.Close())
+	assert.NoError(t, metaStg.Close())
 }

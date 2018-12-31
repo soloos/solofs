@@ -5,6 +5,9 @@ bench-sdfs-api:
 bench-sdfs-datanode:
 	cd src/soloos/sdfs/datanode/ && go test -bench=. -benchmem 
 
+bench-sdfs-libsdfs:
+	cd src/soloos/sdfs/libsdfs/ && go test -bench=. -benchmem 
+
 bench-sdfs-memstg:
 	cd src/soloos/sdfs/memstg/ && go test -bench=. -benchmem 
 
@@ -23,4 +26,4 @@ bench-sdfs-netstg:
 bench-sdfs-types:
 	cd src/soloos/sdfs/types/ && go test -bench=. -benchmem 
 
-bench: bench-sdfs-api bench-sdfs-datanode bench-sdfs-memstg bench-sdfs-metastg bench-sdfs-minicluster bench-sdfs-namenode bench-sdfs-netstg bench-sdfs-types
+bench: bench-sdfs-api bench-sdfs-datanode bench-sdfs-libsdfs bench-sdfs-memstg bench-sdfs-metastg bench-sdfs-minicluster bench-sdfs-namenode bench-sdfs-netstg bench-sdfs-types

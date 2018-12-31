@@ -14,6 +14,14 @@ const (
 type NetINodeID = [NetINodeIDBytesNum]byte
 type NetINodeUintptr uintptr
 
+var (
+	ZeroNetINodeID NetINodeID
+)
+
+func init() {
+	copy(ZeroNetINodeID[:], ([]byte("0000000000000000000000000000000000000000000000000000000000000000")[:64]))
+}
+
 func (u NetINodeUintptr) Ptr() *NetINode { return (*NetINode)(unsafe.Pointer(u)) }
 
 type NetINode struct {

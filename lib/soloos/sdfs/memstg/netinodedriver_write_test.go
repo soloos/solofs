@@ -26,8 +26,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		uNetINode        types.NetINodeUintptr
 	)
 	assert.NoError(t, mockNetINodePool.Init(&offheap.DefaultOffheapDriver))
-	MakeDriversWithMockServerForTest(t,
-		"127.0.0.1:10023", &mockServer, &snetDriver,
+	MakeDriversWithMockServerForTest("127.0.0.1:10023", &mockServer, &snetDriver,
 		&netBlockDriver, &memBlockDriver, &netINodeDriver,
 		memBlockCap, blockChunksLimit)
 	uNetINode = mockNetINodePool.AllocNetINode(netBlockCap, memBlockCap)

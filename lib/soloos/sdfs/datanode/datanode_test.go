@@ -61,13 +61,11 @@ func TestBase(t *testing.T) {
 		err              error
 	)
 	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
-	memstg.MakeDriversForTest(t,
-		&snetDriverClient, &snetClientDriverClient,
+	memstg.MakeDriversForTest(&snetDriverClient, &snetClientDriverClient,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverClient, &netBlockDriverClient, &netINodeDriverClient, memBlockCap, blockChunksLimit)
 
-	memstg.MakeDriversForTest(t,
-		&snetDriverNameNode, &snetClientDriverNameNode,
+	memstg.MakeDriversForTest(&snetDriverNameNode, &snetClientDriverNameNode,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverNameNode, &netBlockDriverNameNode, &netINodeDriverNameNode, memBlockCap, blockChunksLimit)
 	namenode.MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr,
@@ -80,8 +78,7 @@ func TestBase(t *testing.T) {
 	time.Sleep(time.Millisecond * 300)
 
 	for i = 0; i < len(dataNodeSRPCListenAddrs); i++ {
-		memstg.MakeDriversForTest(t,
-			&snetDriverDataNodes[i], &snetClientDriverDataNodes[i],
+		memstg.MakeDriversForTest(&snetDriverDataNodes[i], &snetClientDriverDataNodes[i],
 			nameNodeSRPCListenAddr,
 			&memBlockDriverDataNodes[i],
 			&netBlockDriverDataNodes[i],

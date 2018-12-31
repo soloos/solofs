@@ -1,26 +1,23 @@
-package namenode
+package libsdfs
 
 import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
+	"soloos/sdfs/namenode"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
 	"soloos/snet"
 	snettypes "soloos/snet/types"
 	"soloos/util"
 	"soloos/util/offheap"
-	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
-func TestBase(t *testing.T) {
+func MakeMetaStgForTest(metaStg *metastg.MetaStg) {
 	var (
 		offheapDriver          = &offheap.DefaultOffheapDriver
-		metaStg                metastg.MetaStg
 		nameNodeSRPCListenAddr = "127.0.0.1:10300"
-		nameNode               NameNode
+		nameNode               namenode.NameNode
 		mockServerAddr         = "127.0.0.1:10301"
 		mockServer             netstg.MockServer
 		mockMemBlockPool       types.MockMemBlockPool
@@ -35,25 +32,23 @@ func TestBase(t *testing.T) {
 		netBlockDriverServer netstg.NetBlockDriver
 		netINodeDriverServer memstg.NetINodeDriver
 
-		netBlockCap      int   = 1024
 		memBlockCap      int   = 128
 		blockChunksLimit int32 = 4
-		uNetINode        types.NetINodeUintptr
 		peerID           snettypes.PeerID
 		i                int
-		err              error
 	)
+
 	memstg.MakeDriversForTest(&snetDriver, &snetClientDriver,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverClient, &netBlockDriverClient, &netINodeDriverClient, memBlockCap, blockChunksLimit)
 	memstg.MakeDriversForTest(&snetDriver, &snetClientDriver,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer, memBlockCap, blockChunksLimit)
-	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
-	MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr,
+	metastg.MakeMetaStgForTest(offheapDriver, metaStg)
+	namenode.MakeNameNodeForTest(&nameNode, metaStg, nameNodeSRPCListenAddr,
 		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer)
 	go func() {
-		assert.NoError(t, nameNode.Serve())
+		util.AssertErrIsNil(nameNode.Serve())
 	}()
 	time.Sleep(time.Millisecond * 300)
 	netstg.MakeMockServerForTest(&snetDriver, mockServerAddr, &mockServer)
@@ -64,21 +59,15 @@ func TestBase(t *testing.T) {
 		nameNode.RegisterDataNode(&peerID, mockServerAddr)
 	}
 
-	var netINodeID types.NetINodeID
-	util.InitUUID64(&netINodeID)
-	uNetINode, err = netINodeDriverClient.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
-	assert.NoError(t, err)
-
-	var (
-		testData = make([]byte, 93)
+	metaStg.DirTreeDriver.Init(offheapDriver,
+		metaStg.GetDBConn(),
+		metaStg.FetchAndUpdateMaxID,
+		netINodeDriverClient.GetNetINode,
+		netINodeDriverClient.MustGetNetINode,
 	)
+}
 
-	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, testData[0:12], 0))
-	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, testData[11:24], 24))
-	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, testData[30:64], 64))
-	assert.NoError(t, netINodeDriverClient.Flush(uNetINode))
-	assert.NoError(t, netINodeDriverClient.PReadWithMem(uNetINode, testData, 73))
-
-	assert.NoError(t, nameNode.Close())
-	assert.NoError(t, mockServer.Close())
+func MakeClientForTest(client *Client) {
+	client.offheapDriver = &offheap.DefaultOffheapDriver
+	MakeMetaStgForTest(&client.MetaStg)
 }

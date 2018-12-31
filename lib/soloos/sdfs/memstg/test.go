@@ -4,14 +4,11 @@ import (
 	"soloos/sdfs/api"
 	"soloos/sdfs/netstg"
 	"soloos/snet"
+	"soloos/util"
 	"soloos/util/offheap"
-	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-func MakeMemBlockDriversForTest(t *testing.T,
-	memBlockDriver *MemBlockDriver, offheapDriver *offheap.OffheapDriver,
+func MakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, offheapDriver *offheap.OffheapDriver,
 	blockChunkSize int, blockChunksLimit int32) {
 	memBlockDriverOptions := MemBlockDriverOptions{
 		[]MemBlockPoolOptions{
@@ -20,12 +17,10 @@ func MakeMemBlockDriversForTest(t *testing.T,
 			},
 		},
 	}
-	assert.NoError(t, memBlockDriver.Init(offheapDriver, memBlockDriverOptions))
+	util.AssertErrIsNil(memBlockDriver.Init(offheapDriver, memBlockDriverOptions))
 }
 
-func MakeDriversForTest(t *testing.T,
-	snetDriver *snet.NetDriver,
-	snetClientDriver *snet.ClientDriver,
+func MakeDriversForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.ClientDriver,
 	nameNodeSRPCServerAddr string,
 	memBlockDriver *MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
@@ -37,20 +32,18 @@ func MakeDriversForTest(t *testing.T,
 		dataNodeClient api.DataNodeClient
 	)
 
-	netstg.MakeDriversForTest(t,
-		snetDriver, snetClientDriver,
+	netstg.MakeDriversForTest(snetDriver, snetClientDriver,
 		nameNodeSRPCServerAddr,
 		&nameNodeClient, &dataNodeClient,
 		netBlockDriver,
 	)
 
-	MakeMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
+	MakeMemBlockDriversForTest(memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
 
-	assert.NoError(t, netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient, nil, nil))
+	util.AssertErrIsNil(netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient, nil, nil))
 }
 
-func MakeDriversWithMockServerForTest(t *testing.T,
-	mockServerAddr string,
+func MakeDriversWithMockServerForTest(mockServerAddr string,
 	mockServer *netstg.MockServer,
 	snetDriver *snet.NetDriver,
 	netBlockDriver *netstg.NetBlockDriver,
@@ -64,14 +57,13 @@ func MakeDriversWithMockServerForTest(t *testing.T,
 		dataNodeClient   api.DataNodeClient
 	)
 
-	netstg.MakeDriversWithMockServerForTest(t,
-		snetDriver, &snetClientDriver,
+	netstg.MakeDriversWithMockServerForTest(snetDriver, &snetClientDriver,
 		mockServerAddr, mockServer,
 		&nameNodeClient, &dataNodeClient,
 		netBlockDriver,
 	)
 
-	MakeMemBlockDriversForTest(t, memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
+	MakeMemBlockDriversForTest(memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
 
-	assert.NoError(t, netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient, nil, nil))
+	util.AssertErrIsNil(netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient, nil, nil))
 }
