@@ -7,6 +7,6 @@ import (
 
 func MakeMetaStgForTest(offheapDriver *offheap.OffheapDriver, metaStg *MetaStg) {
 	var err error
-	err = metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect)
+	err = metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect, nil)
 	util.AssertErrIsNil(err)
 }

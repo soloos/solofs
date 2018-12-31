@@ -24,7 +24,8 @@ func TestBase(t *testing.T) {
 		mockServerAddr         = "127.0.0.1:10301"
 		mockServer             netstg.MockServer
 		mockMemBlockPool       types.MockMemBlockPool
-		snetDriver             snet.SNetDriver
+		snetDriver             snet.NetDriver
+		snetClientDriver       snet.ClientDriver
 
 		memBlockDriverClient memstg.MemBlockDriver
 		netBlockDriverClient netstg.NetBlockDriver
@@ -43,11 +44,11 @@ func TestBase(t *testing.T) {
 		err              error
 	)
 	memstg.MakeDriversForTest(t,
-		&snetDriver,
+		&snetDriver, &snetClientDriver,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverClient, &netBlockDriverClient, &netINodeDriverClient, memBlockCap, blockChunksLimit)
 	memstg.MakeDriversForTest(t,
-		&snetDriver,
+		&snetDriver, &snetClientDriver,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer, memBlockCap, blockChunksLimit)
 	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)

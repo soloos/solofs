@@ -11,7 +11,7 @@ func (p *MetaStg) InstallSqlite3Schema() error {
 	)
 	sqls = commonSchemaSqls()
 	for _, sql := range sqls {
-		_, err = p.DBConn.Exec(sql)
+		_, err = p.dbConn.Exec(sql)
 		if err != nil {
 			return err
 		}

@@ -10,7 +10,7 @@ import (
 
 type DataNodeDriver struct {
 	metaStg             *MetaStg
-	snetDriver          snet.SNetDriver
+	snetDriver          snet.NetDriver
 	chooseDataNodeIndex uint32
 	dataNodeRWMutex     sync.RWMutex
 	dataNodes           []snettypes.PeerUintptr
@@ -22,7 +22,7 @@ func (p *DataNodeDriver) Init(metaStg *MetaStg) error {
 	return nil
 }
 
-func (p *DataNodeDriver) RegisterDataNode(peerID *snettypes.PeerID, serveAddr string) (snettypes.PeerUintptr, error) {
+func (p *DataNodeDriver) MustGetDataNode(peerID *snettypes.PeerID, serveAddr string) (snettypes.PeerUintptr, error) {
 	var (
 		uDataNode snettypes.PeerUintptr
 		exists    bool

@@ -7,18 +7,8 @@ import (
 	"soloos/util/offheap"
 )
 
-type PrepareNetINodeMetaDataOnlyLoadDB func(uNetINode types.NetINodeUintptr) error
-type PrepareNetINodeMetaDataWithStorDB func(uNetINode types.NetINodeUintptr,
-	size int64, netBlockCap int, memBlockCap int) error
-
-type NetINodeDriverHelper struct {
-	nameNodeClient                    *api.NameNodeClient
-	PrepareNetINodeMetaDataOnlyLoadDB PrepareNetINodeMetaDataOnlyLoadDB
-	PrepareNetINodeMetaDataWithStorDB PrepareNetINodeMetaDataWithStorDB
-}
-
 type NetINodeDriver struct {
-	Helper NetINodeDriverHelper
+	Helper api.NetINodeDriverHelper
 
 	offheapDriver *offheap.OffheapDriver
 	netINodePool  types.NetINodePool
@@ -33,8 +23,8 @@ func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 	memBlockDriver *MemBlockDriver,
 	// for NetINodeDriverHelper
 	nameNodeClient *api.NameNodeClient,
-	prepareNetINodeMetaDataOnlyLoadDB PrepareNetINodeMetaDataOnlyLoadDB,
-	prepareNetINodeMetaDataWithStorDB PrepareNetINodeMetaDataWithStorDB,
+	prepareNetINodeMetaDataOnlyLoadDB api.PrepareNetINodeMetaDataOnlyLoadDB,
+	prepareNetINodeMetaDataWithStorDB api.PrepareNetINodeMetaDataWithStorDB,
 ) error {
 	p.offheapDriver = offheapDriver
 	p.netBlockDriver = netBlockDriver
@@ -48,10 +38,10 @@ func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 
 func (p *NetINodeDriver) SetHelper(
 	nameNodeClient *api.NameNodeClient,
-	prepareNetINodeMetaDataOnlyLoadDB PrepareNetINodeMetaDataOnlyLoadDB,
-	prepareNetINodeMetaDataWithStorDB PrepareNetINodeMetaDataWithStorDB,
+	prepareNetINodeMetaDataOnlyLoadDB api.PrepareNetINodeMetaDataOnlyLoadDB,
+	prepareNetINodeMetaDataWithStorDB api.PrepareNetINodeMetaDataWithStorDB,
 ) {
-	p.Helper.nameNodeClient = nameNodeClient
+	p.Helper.NameNodeClient = nameNodeClient
 	if prepareNetINodeMetaDataOnlyLoadDB != nil {
 		p.Helper.PrepareNetINodeMetaDataOnlyLoadDB = prepareNetINodeMetaDataOnlyLoadDB
 	} else {
@@ -130,7 +120,7 @@ func (p *NetINodeDriver) prepareNetINodeMetaDataWithStorDB(uNetINode types.NetIN
 	var err error
 
 	// do alloc
-	err = p.Helper.nameNodeClient.AllocNetINodeMetaData(uNetINode, size, netBlockCap, memBlockCap)
+	err = p.Helper.NameNodeClient.AllocNetINodeMetaData(uNetINode, size, netBlockCap, memBlockCap)
 	if err != nil {
 		return err
 	}

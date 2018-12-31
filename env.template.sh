@@ -38,12 +38,12 @@ fi
 
 # mkdir -p go.build/cache
 # mkdir -p go.build/tmp
-for folder in `ls ./cmd/`
+for folder in `ls ./app/`
 do 
         if [ ! -e "$(pwd)/src/$folder" ];
         then
                 mkdir -p "$(pwd)/src/"
-                ln -s "$(pwd)/cmd/$folder" "$(pwd)/src/$folder"
+                ln -s "$(pwd)/app/$folder" "$(pwd)/src/$folder"
         fi
 done
 

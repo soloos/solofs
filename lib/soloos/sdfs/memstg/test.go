@@ -20,25 +20,25 @@ func MakeMemBlockDriversForTest(t *testing.T,
 			},
 		},
 	}
-	assert.NoError(t, memBlockDriver.Init(memBlockDriverOptions, offheapDriver))
+	assert.NoError(t, memBlockDriver.Init(offheapDriver, memBlockDriverOptions))
 }
 
 func MakeDriversForTest(t *testing.T,
-	snetDriver *snet.SNetDriver,
+	snetDriver *snet.NetDriver,
+	snetClientDriver *snet.ClientDriver,
 	nameNodeSRPCServerAddr string,
 	memBlockDriver *MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
 	netINodeDriver *NetINodeDriver,
 	blockChunkSize int, blockChunksLimit int32) {
 	var (
-		offheapDriver    = &offheap.DefaultOffheapDriver
-		snetClientDriver snet.ClientDriver
-		nameNodeClient   api.NameNodeClient
-		dataNodeClient   api.DataNodeClient
+		offheapDriver  = &offheap.DefaultOffheapDriver
+		nameNodeClient api.NameNodeClient
+		dataNodeClient api.DataNodeClient
 	)
 
 	netstg.MakeDriversForTest(t,
-		snetDriver, &snetClientDriver,
+		snetDriver, snetClientDriver,
 		nameNodeSRPCServerAddr,
 		&nameNodeClient, &dataNodeClient,
 		netBlockDriver,
@@ -52,7 +52,7 @@ func MakeDriversForTest(t *testing.T,
 func MakeDriversWithMockServerForTest(t *testing.T,
 	mockServerAddr string,
 	mockServer *netstg.MockServer,
-	snetDriver *snet.SNetDriver,
+	snetDriver *snet.NetDriver,
 	netBlockDriver *netstg.NetBlockDriver,
 	memBlockDriver *MemBlockDriver,
 	netINodeDriver *NetINodeDriver,

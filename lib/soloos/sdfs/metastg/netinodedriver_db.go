@@ -7,6 +7,20 @@ import (
 	"github.com/gocraft/dbr"
 )
 
+func (p *NetINodeDriver) UpdateNetINodeInDB(uNetINode types.NetINodeUintptr) error {
+	var (
+		sess *dbr.Session
+		err  error
+	)
+
+	sess = p.helper.DBConn.NewSession(nil)
+	_, err = sess.Update("b_netinode").
+		Set("netinode_size", uNetINode.Ptr().Size).
+		Where("netinode_id=?", uNetINode.Ptr().IDStr()).
+		Exec()
+	return err
+}
+
 func (p *NetINodeDriver) FetchNetINodeFromDB(pNetINode *types.NetINode) error {
 	var (
 		sess    *dbr.Session
@@ -14,7 +28,7 @@ func (p *NetINodeDriver) FetchNetINodeFromDB(pNetINode *types.NetINode) error {
 		err     error
 	)
 
-	sess = p.metaStg.DBConn.NewSession(nil)
+	sess = p.helper.DBConn.NewSession(nil)
 	sqlRows, err = sess.Select("netinode_size", "netblock_cap", "memblock_cap").
 		From("b_netinode").
 		Where("netinode_id=?", pNetINode.IDStr()).Rows()
@@ -47,7 +61,7 @@ func (p *NetINodeDriver) StoreNetINodeInDB(pNetINode *types.NetINode) error {
 		err           error
 	)
 
-	sess = p.metaStg.DBConn.NewSession(nil)
+	sess = p.helper.DBConn.NewSession(nil)
 	tx, err = sess.Begin()
 	if err != nil {
 		goto QUERY_DONE

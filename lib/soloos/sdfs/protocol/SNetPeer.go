@@ -6,27 +6,27 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-type NetBlockBackend struct {
+type SNetPeer struct {
 	_tab flatbuffers.Table
 }
 
-func GetRootAsNetBlockBackend(buf []byte, offset flatbuffers.UOffsetT) *NetBlockBackend {
+func GetRootAsSNetPeer(buf []byte, offset flatbuffers.UOffsetT) *SNetPeer {
 	n := flatbuffers.GetUOffsetT(buf[offset:])
-	x := &NetBlockBackend{}
+	x := &SNetPeer{}
 	x.Init(buf, n+offset)
 	return x
 }
 
-func (rcv *NetBlockBackend) Init(buf []byte, i flatbuffers.UOffsetT) {
+func (rcv *SNetPeer) Init(buf []byte, i flatbuffers.UOffsetT) {
 	rcv._tab.Bytes = buf
 	rcv._tab.Pos = i
 }
 
-func (rcv *NetBlockBackend) Table() flatbuffers.Table {
+func (rcv *SNetPeer) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-func (rcv *NetBlockBackend) PeerID() []byte {
+func (rcv *SNetPeer) PeerID() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -34,7 +34,7 @@ func (rcv *NetBlockBackend) PeerID() []byte {
 	return nil
 }
 
-func (rcv *NetBlockBackend) Address() []byte {
+func (rcv *SNetPeer) Address() []byte {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.ByteVector(o + rcv._tab.Pos)
@@ -42,15 +42,15 @@ func (rcv *NetBlockBackend) Address() []byte {
 	return nil
 }
 
-func NetBlockBackendStart(builder *flatbuffers.Builder) {
+func SNetPeerStart(builder *flatbuffers.Builder) {
 	builder.StartObject(2)
 }
-func NetBlockBackendAddPeerID(builder *flatbuffers.Builder, PeerID flatbuffers.UOffsetT) {
+func SNetPeerAddPeerID(builder *flatbuffers.Builder, PeerID flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(PeerID), 0)
 }
-func NetBlockBackendAddAddress(builder *flatbuffers.Builder, Address flatbuffers.UOffsetT) {
+func SNetPeerAddAddress(builder *flatbuffers.Builder, Address flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(Address), 0)
 }
-func NetBlockBackendEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
+func SNetPeerEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()
 }

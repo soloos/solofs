@@ -10,7 +10,10 @@ type MemBlockPool struct {
 	chunk   memBlockPoolChunk
 }
 
-func (p *MemBlockPool) Init(options MemBlockPoolOptions, driver *MemBlockDriver) error {
+func (p *MemBlockPool) Init(
+	options MemBlockPoolOptions,
+	driver *MemBlockDriver,
+) error {
 	var err error
 
 	p.options = options

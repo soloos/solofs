@@ -43,10 +43,10 @@ func SetNetINodeNetBlockInfoResponse(protocolBuilder *flatbuffers.Builder,
 	for i = 0; i < len(backends); i++ {
 		peerOff = protocolBuilder.CreateByteVector(backends[i].Ptr().PeerID[:])
 		addrOff = protocolBuilder.CreateString(backends[i].Ptr().AddressStr())
-		protocol.NetBlockBackendStart(protocolBuilder)
-		protocol.NetBlockBackendAddPeerID(protocolBuilder, peerOff)
-		protocol.NetBlockBackendAddAddress(protocolBuilder, addrOff)
-		backendOffs[i] = protocol.NetBlockBackendEnd(protocolBuilder)
+		protocol.SNetPeerStart(protocolBuilder)
+		protocol.SNetPeerAddPeerID(protocolBuilder, peerOff)
+		protocol.SNetPeerAddAddress(protocolBuilder, addrOff)
+		backendOffs[i] = protocol.SNetPeerEnd(protocolBuilder)
 	}
 
 	protocol.NetINodeNetBlockInfoResponseStartBackendsVector(protocolBuilder, len(backends))

@@ -63,7 +63,7 @@ func (rcv *NetINodeNetBlockInfoResponse) MutateCap(n int32) bool {
 	return rcv._tab.MutateInt32Slot(8, n)
 }
 
-func (rcv *NetINodeNetBlockInfoResponse) Backends(obj *NetBlockBackend, j int) bool {
+func (rcv *NetINodeNetBlockInfoResponse) Backends(obj *SNetPeer, j int) bool {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(10))
 	if o != 0 {
 		x := rcv._tab.Vector(o)

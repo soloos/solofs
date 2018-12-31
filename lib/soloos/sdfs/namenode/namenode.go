@@ -19,8 +19,8 @@ type NameNode struct {
 	SRPCServer NameNodeSRPCServer
 }
 
-func (p *NameNode) Init(options NameNodeOptions,
-	offheapDriver *offheap.OffheapDriver,
+func (p *NameNode) Init(offheapDriver *offheap.OffheapDriver,
+	srpcServerListenAddr string,
 	metaStg *metastg.MetaStg,
 	memBlockDriver *memstg.MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
@@ -34,7 +34,7 @@ func (p *NameNode) Init(options NameNodeOptions,
 	p.netBlockDriver = netBlockDriver
 	p.netINodeDriver = netINodeDriver
 
-	err = p.SRPCServer.Init(p, options.SRPCServer)
+	err = p.SRPCServer.Init(p, srpcServerListenAddr)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func (p *NameNode) Init(options NameNodeOptions,
 }
 
 func (p *NameNode) RegisterDataNode(peerID *snettypes.PeerID, serveAddr string) (snettypes.PeerUintptr, error) {
-	return p.metaStg.RegisterDataNode(peerID, serveAddr)
+	return p.metaStg.MustGetDataNode(peerID, serveAddr)
 }
 
 func (p *NameNode) Serve() error {

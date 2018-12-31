@@ -13,7 +13,7 @@ import (
 func TestNetINodeDriverNetINodeRead(t *testing.T) {
 	var (
 		mockServer       netstg.MockServer
-		snetDriver       snet.SNetDriver
+		snetDriver       snet.NetDriver
 		netBlockDriver   netstg.NetBlockDriver
 		memBlockDriver   MemBlockDriver
 		netINodeDriver   NetINodeDriver

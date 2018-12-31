@@ -18,7 +18,7 @@ const (
 )
 
 type MockServer struct {
-	snetDriver    *snet.SNetDriver
+	snetDriver    *snet.NetDriver
 	network       string
 	addr          string
 	srpcServer    srpc.Server
@@ -29,7 +29,7 @@ func (p *MockServer) SetDataNodePeers(dataNodePeers []snettypes.PeerUintptr) {
 	p.dataNodePeers = dataNodePeers
 }
 
-func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr string) error {
+func (p *MockServer) Init(snetDriver *snet.NetDriver, network string, addr string) error {
 	var err error
 	p.snetDriver = snetDriver
 	p.network = network
@@ -39,6 +39,7 @@ func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr stri
 		return err
 	}
 
+	p.srpcServer.RegisterService("/DataNode/Register", p.DataNodeRegister)
 	p.srpcServer.RegisterService("/NetINode/MustGet", p.NetINodeMustGet)
 	p.srpcServer.RegisterService("/NetINode/PWrite", p.NetINodePWrite)
 	p.srpcServer.RegisterService("/NetINode/PRead", p.NetINodePRead)
@@ -47,6 +48,20 @@ func (p *MockServer) Init(snetDriver *snet.SNetDriver, network string, addr stri
 	for i := 0; i < len(p.dataNodePeers); i++ {
 		p.dataNodePeers[i], _ = p.snetDriver.MustGetPeer(nil, p.addr, types.DefaultSDFSRPCProtocol)
 	}
+
+	return nil
+}
+
+func (p *MockServer) DataNodeRegister(reqID uint64,
+	reqBodySize, reqParamSize uint32,
+	conn *snettypes.Connection) error {
+
+	var param = make([]byte, reqBodySize)
+	util.AssertErrIsNil(conn.ReadAll(param))
+
+	var protocolBuilder flatbuffers.Builder
+	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
+	util.AssertErrIsNil(conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
 	return nil
 }
@@ -79,7 +94,7 @@ func (p *MockServer) NetINodePWrite(reqID uint64,
 
 	var req protocol.NetINodePWriteRequest
 	req.Init(reqBody[:reqParamSize], flatbuffers.GetUOffsetT(reqBody[:reqParamSize]))
-	var backends = make([]protocol.NetBlockBackend, req.TransferBackendsLength())
+	var backends = make([]protocol.SNetPeer, req.TransferBackendsLength())
 	for i := 0; i < len(backends); i++ {
 		req.TransferBackends(&backends[i], i)
 	}

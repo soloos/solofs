@@ -14,7 +14,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 	var (
 		mockServer       netstg.MockServer
 		mockNetINodePool types.MockNetINodePool
-		snetDriver       snet.SNetDriver
+		snetDriver       snet.NetDriver
 		netBlockDriver   netstg.NetBlockDriver
 		memBlockDriver   MemBlockDriver
 		netINodeDriver   NetINodeDriver

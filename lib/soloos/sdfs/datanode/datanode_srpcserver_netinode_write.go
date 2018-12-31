@@ -15,7 +15,7 @@ func (p *DataNodeSRPCServer) NetINodePWrite(reqID uint64,
 	var (
 		reqParamData         = make([]byte, reqParamSize)
 		reqParam             protocol.NetINodePWriteRequest
-		syncDataProtoBackend protocol.NetBlockBackend
+		syncDataProtoBackend protocol.SNetPeer
 		syncDataBackends     snettypes.PeerUintptrArray8
 		uPeer                snettypes.PeerUintptr
 		peerID               snettypes.PeerID

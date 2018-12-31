@@ -15,20 +15,13 @@ func MakeNameNodeForTest(nameNode *NameNode, metaStg *metastg.MetaStg, nameNodeS
 ) {
 	var (
 		offheapDriver *offheap.OffheapDriver = &offheap.DefaultOffheapDriver
-
-		options = NameNodeOptions{
-			SRPCServer: NameNodeSRPCServerOptions{
-				Network:    "tcp",
-				ListenAddr: nameNodeSRPCServerAddr,
-			},
-		}
-		err error
+		err           error
 	)
 
 	netBlockDriver.SetHelper(nil, metaStg.PrepareNetBlockMetaData)
 	netINodeDriver.SetHelper(nil,
 		metaStg.PrepareNetINodeMetaDataOnlyLoadDB, metaStg.PrepareNetINodeMetaDataWithStorDB)
-	err = nameNode.Init(options, offheapDriver, metaStg,
+	err = nameNode.Init(offheapDriver, nameNodeSRPCServerAddr, metaStg,
 		memBlockDriver,
 		netBlockDriver,
 		netINodeDriver,

@@ -16,7 +16,7 @@ func (p *NetBlockDriver) FetchNetBlockFromDB(pNetINode *types.NetINode,
 		sqlRows *sql.Rows
 	)
 
-	sess = p.metaStg.DBConn.NewSession(nil)
+	sess = p.helper.DBConn.NewSession(nil)
 	sqlRows, err = sess.Select("netblock_len", "netblock_cap", "backend_peer_id_arr").
 		From("b_netblock").
 		Where("netinode_id=? and index_in_netinode=?",
@@ -55,7 +55,7 @@ func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *types.NetINode, pNetBlock 
 		err                 error
 	)
 
-	sess = p.metaStg.DBConn.NewSession(nil)
+	sess = p.helper.DBConn.NewSession(nil)
 	tx, err = sess.Begin()
 	if err != nil {
 		goto QUERY_DONE

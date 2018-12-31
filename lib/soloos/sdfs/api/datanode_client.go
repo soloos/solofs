@@ -20,12 +20,8 @@ type DataNodeClient struct {
 	uploadMemBlockWithDisk UploadMemBlockWithDisk
 }
 
-func (p *DataNodeClient) Init(snetClientDriver *snet.ClientDriver,
-	preadWithDisk PReadMemBlockWithDisk,
-	uploadMemBlockWithDisk UploadMemBlockWithDisk) error {
+func (p *DataNodeClient) Init(snetClientDriver *snet.ClientDriver) error {
 	p.snetClientDriver = snetClientDriver
-	p.SetPReadMemBlockWithDisk(preadWithDisk)
-	p.SetUploadMemBlockWithDisk(uploadMemBlockWithDisk)
 	return nil
 }
 

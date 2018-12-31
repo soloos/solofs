@@ -1,20 +1,43 @@
 package metastg
 
 import (
+	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
+	"soloos/util/offheap"
 	"strings"
+
+	"github.com/gocraft/dbr"
 )
 
+type NetBlockDriverHelper struct {
+	DBConn                        *dbr.Connection
+	ChooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock
+	GetDataNode                   api.GetDataNode
+}
+
 type NetBlockDriver struct {
-	metaStg      *MetaStg
+	helper       NetBlockDriverHelper
 	netBlockPool types.NetBlockPool
 }
 
-func (p *NetBlockDriver) Init(metaStg *MetaStg) error {
-	p.metaStg = metaStg
-	p.netBlockPool.Init(-1, p.metaStg.offheapDriver)
+func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
+	dbConn *dbr.Connection,
+	getDataNode api.GetDataNode,
+	chooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock,
+) error {
+	p.SetHelper(dbConn, getDataNode, chooseDataNodesForNewNetBlock)
+	p.netBlockPool.Init(-1, offheapDriver)
 	return nil
+}
+
+func (p *NetBlockDriver) SetHelper(dbConn *dbr.Connection,
+	getDataNode api.GetDataNode,
+	chooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock,
+) {
+	p.helper.DBConn = dbConn
+	p.helper.GetDataNode = getDataNode
+	p.helper.ChooseDataNodesForNewNetBlock = chooseDataNodesForNewNetBlock
 }
 
 func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr,
@@ -32,7 +55,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 		backendPeerIDArr := strings.Split(backendPeerIDArrStr, ",")
 		for _, peerIDStr := range backendPeerIDArr {
 			copy(peerID[:], peerIDStr)
-			uPeer = p.metaStg.DataNodeDriver.GetDataNode(&peerID)
+			uPeer = p.helper.GetDataNode(&peerID)
 			if uPeer == 0 {
 				return types.ErrObjectNotExists
 			}
@@ -48,7 +71,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 		pNetBlock.IndexInNetINode = netBlockIndex
 		pNetBlock.Len = 0
 		pNetBlock.Cap = uNetINode.Ptr().NetBlockCap
-		err = p.metaStg.NetINodeDriver.ChooseDataNodesForNewNetBlock(uNetINode, &pNetBlock.StorDataBackends)
+		err = p.helper.ChooseDataNodesForNewNetBlock(uNetINode, &pNetBlock.StorDataBackends)
 		if err != nil {
 			return err
 		}

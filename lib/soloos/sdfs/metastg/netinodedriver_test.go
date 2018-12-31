@@ -18,7 +18,7 @@ func TestMetaStgNetINode(t *testing.T) {
 		id1           types.NetINodeID
 	)
 
-	assert.NoError(t, metastg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect))
+	assert.NoError(t, metastg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect, nil))
 	util.InitUUID64(&id0)
 	util.InitUUID64(&id1)
 

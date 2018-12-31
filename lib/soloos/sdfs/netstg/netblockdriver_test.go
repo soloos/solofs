@@ -15,7 +15,7 @@ func TestNetBlockDriver(t *testing.T) {
 		offheapDriver    = &offheap.DefaultOffheapDriver
 		mockNetINodePool types.MockNetINodePool
 		mockMemBlockPool types.MockMemBlockPool
-		snetDriver       snet.SNetDriver
+		snetDriver       snet.NetDriver
 		snetClientDriver snet.ClientDriver
 		mockServer       MockServer
 		nameNodeClient   api.NameNodeClient

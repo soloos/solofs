@@ -5,5 +5,6 @@ import (
 )
 
 const (
+	DefaultSDFSRPCNetwork  = "tcp"
 	DefaultSDFSRPCProtocol = snettypes.ProtocolSRPC
 )

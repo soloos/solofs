@@ -65,13 +65,13 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 				uPeer = uNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex+1+i]
 				peerOff = protocolBuilder.CreateByteVector(uPeer.Ptr().PeerID[:])
 				addrOff = protocolBuilder.CreateString(uPeer.Ptr().AddressStr())
-				protocol.NetBlockBackendStart(&protocolBuilder)
-				protocol.NetBlockBackendAddPeerID(&protocolBuilder, peerOff)
-				protocol.NetBlockBackendAddAddress(&protocolBuilder, addrOff)
+				protocol.SNetPeerStart(&protocolBuilder)
+				protocol.SNetPeerAddPeerID(&protocolBuilder, peerOff)
+				protocol.SNetPeerAddAddress(&protocolBuilder, addrOff)
 				if i < cap(backendOffs) {
-					backendOffs[i] = protocol.NetBlockBackendEnd(&protocolBuilder)
+					backendOffs[i] = protocol.SNetPeerEnd(&protocolBuilder)
 				} else {
-					backendOffs = append(backendOffs, protocol.NetBlockBackendEnd(&protocolBuilder))
+					backendOffs = append(backendOffs, protocol.SNetPeerEnd(&protocolBuilder))
 				}
 			}
 

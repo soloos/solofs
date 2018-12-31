@@ -1,10 +1,12 @@
 package datanode
 
-type DataNodeSRPCServerOptions struct {
-	Network    string
-	ListenAddr string
-}
+import snettypes "soloos/snet/types"
 
 type DataNodeOptions struct {
-	SRPCServer DataNodeSRPCServerOptions
+	PeerID               snettypes.PeerID
+	SrpcServerListenAddr string
+	SrpcServerServeAddr  string
+	LocalFsRoot          string
+	NameNodePeerID       snettypes.PeerID
+	NameNodeSRPCServer   string
 }

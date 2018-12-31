@@ -10,8 +10,10 @@ type MemBlockDriver struct {
 	pools         map[int]*MemBlockPool
 }
 
-func (p *MemBlockDriver) Init(options MemBlockDriverOptions,
-	offheapDriver *offheap.OffheapDriver) error {
+func (p *MemBlockDriver) Init(
+	offheapDriver *offheap.OffheapDriver,
+	options MemBlockDriverOptions,
+) error {
 	var err error
 
 	p.offheapDriver = offheapDriver

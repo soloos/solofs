@@ -1,6 +1,7 @@
 package metastg
 
 import (
+	"soloos/sdfs/api"
 	"soloos/util/offheap"
 
 	"github.com/gocraft/dbr"
@@ -8,18 +9,20 @@ import (
 
 type MetaStg struct {
 	offheapDriver *offheap.OffheapDriver
-	DBConn        *dbr.Connection
+	dbConn        *dbr.Connection
+	DataNodeDriver
 	NetINodeDriver
 	NetBlockDriver
-	DataNodeDriver
+	DirTreeDriver
 }
 
 func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
-	dbDriver, dsn string) error {
+	dbDriver, dsn string,
+	mustGetNetINodeForDirTreeDriver api.MustGetNetINode) error {
 	var err error
 
 	p.offheapDriver = offheapDriver
-	p.DBConn, err = dbr.Open(dbDriver, dsn, nil)
+	p.dbConn, err = dbr.Open(dbDriver, dsn, nil)
 	if err != nil {
 		return err
 	}
@@ -31,20 +34,31 @@ func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
 		err = p.InstallSqlite3Schema()
 	}
 
-	err = p.NetINodeDriver.Init(p)
-	if err != nil {
-		return err
-	}
-
-	err = p.NetBlockDriver.Init(p)
-	if err != nil {
-		return err
-	}
-
 	err = p.DataNodeDriver.Init(p)
 	if err != nil {
 		return err
 	}
+
+	err = p.NetINodeDriver.Init(p.offheapDriver,
+		p.dbConn,
+		p.DataNodeDriver.ChooseOneDataNode)
+	if err != nil {
+		return err
+	}
+
+	err = p.NetBlockDriver.Init(p.offheapDriver,
+		p.dbConn,
+		p.DataNodeDriver.GetDataNode,
+		p.NetINodeDriver.ChooseDataNodesForNewNetBlock)
+	if err != nil {
+		return err
+	}
+
+	err = p.DirTreeDriver.Init(p.offheapDriver,
+		p.dbConn,
+		p.FetchAndUpdateMaxID,
+		mustGetNetINodeForDirTreeDriver,
+	)
 
 	return nil
 }
@@ -52,7 +66,7 @@ func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
 func (p *MetaStg) Close() error {
 	var err error
 
-	err = p.DBConn.Close()
+	err = p.dbConn.Close()
 	if err != nil {
 		return err
 	}

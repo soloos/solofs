@@ -11,7 +11,10 @@ SOURCES = $(shell find . -name '*.go') $(GENERATED_PROTOS)
 
 fbs: $(GENERATED_PROTOS)
 
-all:sdfsd sdfsd-mock
+all:sdfsd sdfsd-mock libsdfs
+
+libsdfs:
+	$(SDFS_PREFIX) go build -tags="kcp quic" -i -ldflags '$(SDFS_LDFLAGS)' -o ./bin/libsdfs.so -buildmode=c-shared libsdfs
 
 sdfsd:
 	$(SDFS_PREFIX) go build -i -ldflags '$(SDFS_LDFLAGS)' -o ./bin/sdfsd sdfsd

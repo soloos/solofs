@@ -9,7 +9,7 @@ func (p *NetINodeDriver) ChooseDataNodesForNewNetBlock(uNetINode types.NetINodeU
 	backends *snettypes.PeerUintptrArray8) error {
 	backends.Reset()
 	for i := 0; i < 3; i++ {
-		backends.Append(p.metaStg.DataNodeDriver.ChooseOneDataNode())
+		backends.Append(p.helper.ChooseOneDataNode())
 	}
 	return nil
 }

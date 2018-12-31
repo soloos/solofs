@@ -5,7 +5,7 @@ table CommonResponse {
     Error:string;
 }
 
-table NetBlockBackend {
+table SNetPeer {
     PeerID:string;
     Address:string;
 }
@@ -34,14 +34,14 @@ table NetINodeNetBlockInfoResponse {
     CommonResponse:CommonResponse;
     Len:int;
     Cap:int;
-    Backends:[NetBlockBackend];
+    Backends:[SNetPeer];
 }
 
 table NetINodePWriteRequest {
     NetINodeID:string;
     Offset:int64;
     Length:int;
-    TransferBackends:[NetBlockBackend];
+    TransferBackends:[SNetPeer];
 }
 
 table NetINodePReadRequest {

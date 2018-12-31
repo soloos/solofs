@@ -7,7 +7,6 @@ import (
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
 	"soloos/snet"
-	snettypes "soloos/snet/types"
 	"soloos/util"
 	"soloos/util/offheap"
 	"testing"
@@ -35,19 +34,24 @@ func TestBase(t *testing.T) {
 
 	var (
 		mockMemBlockPool types.MockMemBlockPool
-		snetDriver       snet.SNetDriver
 
-		memBlockDriverClient memstg.MemBlockDriver
-		netBlockDriverClient netstg.NetBlockDriver
-		netINodeDriverClient memstg.NetINodeDriver
+		snetDriverClient       snet.NetDriver
+		snetClientDriverClient snet.ClientDriver
+		memBlockDriverClient   memstg.MemBlockDriver
+		netBlockDriverClient   netstg.NetBlockDriver
+		netINodeDriverClient   memstg.NetINodeDriver
 
-		memBlockDriverNameNode memstg.MemBlockDriver
-		netBlockDriverNameNode netstg.NetBlockDriver
-		netINodeDriverNameNode memstg.NetINodeDriver
+		snetDriverNameNode       snet.NetDriver
+		snetClientDriverNameNode snet.ClientDriver
+		memBlockDriverNameNode   memstg.MemBlockDriver
+		netBlockDriverNameNode   netstg.NetBlockDriver
+		netINodeDriverNameNode   memstg.NetINodeDriver
 
-		memBlockDriverDataNodes [6]memstg.MemBlockDriver
-		netBlockDriverDataNodes [6]netstg.NetBlockDriver
-		netINodeDriverDataNodes [6]memstg.NetINodeDriver
+		snetDriverDataNodes       [6]snet.NetDriver
+		snetClientDriverDataNodes [6]snet.ClientDriver
+		memBlockDriverDataNodes   [6]memstg.MemBlockDriver
+		netBlockDriverDataNodes   [6]netstg.NetBlockDriver
+		netINodeDriverDataNodes   [6]memstg.NetINodeDriver
 
 		netBlockCap      int   = 32
 		memBlockCap      int   = 16
@@ -58,12 +62,12 @@ func TestBase(t *testing.T) {
 	)
 	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
 	memstg.MakeDriversForTest(t,
-		&snetDriver,
+		&snetDriverClient, &snetClientDriverClient,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverClient, &netBlockDriverClient, &netINodeDriverClient, memBlockCap, blockChunksLimit)
 
 	memstg.MakeDriversForTest(t,
-		&snetDriver,
+		&snetDriverNameNode, &snetClientDriverNameNode,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverNameNode, &netBlockDriverNameNode, &netINodeDriverNameNode, memBlockCap, blockChunksLimit)
 	namenode.MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr,
@@ -77,19 +81,16 @@ func TestBase(t *testing.T) {
 
 	for i = 0; i < len(dataNodeSRPCListenAddrs); i++ {
 		memstg.MakeDriversForTest(t,
-			&snetDriver,
+			&snetDriverDataNodes[i], &snetClientDriverDataNodes[i],
 			nameNodeSRPCListenAddr,
 			&memBlockDriverDataNodes[i],
 			&netBlockDriverDataNodes[i],
 			&netINodeDriverDataNodes[i],
 			memBlockCap, blockChunksLimit)
 
-		var peerID snettypes.PeerID
-		util.InitUUID64(&peerID)
-		nameNode.RegisterDataNode(&peerID, dataNodeSRPCListenAddrs[i])
-
-		MakeDataNodeForTest(&snetDriver,
+		MakeDataNodeForTest(&snetDriverDataNodes[i], &snetClientDriverDataNodes[i],
 			&dataNodes[i], dataNodeSRPCListenAddrs[i], &metaStg,
+			nameNodeSRPCListenAddr,
 			&memBlockDriverDataNodes[i],
 			&netBlockDriverDataNodes[i],
 			&netINodeDriverDataNodes[i])
@@ -116,7 +117,7 @@ func TestBase(t *testing.T) {
 	assert.NoError(t, netINodeDriverClient.PReadWithMem(uNetINode, readData, 612))
 	assert.Equal(t, writeData, readData)
 
-	time.Sleep(time.Microsecond * 800)
+	time.Sleep(time.Microsecond * 600)
 	for i = 0; i < len(dataNodeSRPCListenAddrs); i++ {
 		assert.NoError(t, dataNodes[i].Close())
 	}

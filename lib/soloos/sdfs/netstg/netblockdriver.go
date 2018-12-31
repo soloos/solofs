@@ -26,7 +26,7 @@ type NetBlockDriver struct {
 	offheapPool          offheap.RawObjectPool
 	netBlockPool         types.NetBlockPool
 
-	snetDriver       *snet.SNetDriver
+	snetDriver       *snet.NetDriver
 	snetClientDriver *snet.ClientDriver
 	dataNodeClient   *api.DataNodeClient
 
@@ -34,7 +34,7 @@ type NetBlockDriver struct {
 }
 
 func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
-	snetDriver *snet.SNetDriver,
+	snetDriver *snet.NetDriver,
 	snetClientDriver *snet.ClientDriver,
 	nameNodeClient *api.NameNodeClient,
 	dataNodeClient *api.DataNodeClient,
@@ -42,11 +42,6 @@ func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
 ) error {
 	var err error
 	p.offheapDriver = offheapDriver
-	err = p.netBlockDriverUploader.Init(p)
-	if err != nil {
-		return err
-	}
-
 	err = p.netBlockPool.Init(-1, p.offheapDriver)
 	if err != nil {
 		return err
@@ -57,6 +52,11 @@ func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
 	p.dataNodeClient = dataNodeClient
 
 	p.SetHelper(nameNodeClient, prepareNetBlockMetaData)
+
+	err = p.netBlockDriverUploader.Init(p)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -124,7 +124,7 @@ func (p *NetBlockDriver) prepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 	var (
 		pNetBlock    = uNetBlock.Ptr()
 		netBlockInfo protocol.NetINodeNetBlockInfoResponse
-		backend      protocol.NetBlockBackend
+		backend      protocol.SNetPeer
 		peerID       snettypes.PeerID
 		uPeer        snettypes.PeerUintptr
 		i            int
@@ -157,4 +157,8 @@ func (p *NetBlockDriver) FlushMemBlock(uNetINode types.NetINodeUintptr,
 	uMemBlock types.MemBlockUintptr) error {
 	uMemBlock.Ptr().UploadJob.SyncDataSig.Wait()
 	return nil
+}
+
+func (p *NetBlockDriver) GetDataNodeClient() *api.DataNodeClient {
+	return p.dataNodeClient
 }
