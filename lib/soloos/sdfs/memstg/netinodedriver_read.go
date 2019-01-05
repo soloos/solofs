@@ -1,6 +1,7 @@
 package memstg
 
 import (
+	"io"
 	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
 )
@@ -13,7 +14,7 @@ type preadArg struct {
 }
 
 func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
-	arg preadArg) error {
+	arg preadArg) (int, error) {
 	var (
 		uMemBlock          types.MemBlockUintptr
 		uNetBlock          types.NetBlockUintptr
@@ -29,6 +30,14 @@ func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
 		err                error
 	)
 	pNetINode := uNetINode.Ptr()
+
+	if pNetINode.Size < arg.offset {
+		return 0, io.EOF
+	}
+
+	if arg.offset+int64(arg.dataLength) > pNetINode.Size {
+		arg.dataLength = int(pNetINode.Size - arg.offset)
+	}
 
 	readEnd = offset + int64(arg.dataLength)
 	for ; offset < readEnd; offset, dataOffset = offset+int64(memBlockReadLength), dataOffset+memBlockReadLength {
@@ -77,11 +86,11 @@ func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
 	}
 
 READ_DATA_DONE:
-	return err
+	return arg.dataLength, err
 }
 
 func (p *NetINodeDriver) PReadWithConn(uNetINode types.NetINodeUintptr,
-	conn *snettypes.Connection, dataLength int, offset int64) error {
+	conn *snettypes.Connection, dataLength int, offset int64) (int, error) {
 	return p.doPRead(uNetINode, preadArg{
 		conn:       conn,
 		data:       nil,
@@ -91,7 +100,7 @@ func (p *NetINodeDriver) PReadWithConn(uNetINode types.NetINodeUintptr,
 }
 
 func (p *NetINodeDriver) PReadWithMem(uNetINode types.NetINodeUintptr,
-	data []byte, offset int64) error {
+	data []byte, offset int64) (int, error) {
 	return p.doPRead(uNetINode, preadArg{
 		conn:       nil,
 		data:       data,

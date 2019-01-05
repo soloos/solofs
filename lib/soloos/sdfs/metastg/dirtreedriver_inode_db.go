@@ -3,6 +3,7 @@ package metastg
 import (
 	"database/sql"
 	"soloos/sdfs/types"
+	"time"
 
 	"github.com/gocraft/dbr"
 )
@@ -20,27 +21,50 @@ func (p *DirTreeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
 	return err
 }
 
-func (p *DirTreeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID, literalFunc func(types.FsINode) bool) error {
+func (p *DirTreeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
+	beforeLiteralFunc func(resultCount int) bool,
+	literalFunc func(types.FsINode) bool,
+) error {
 	var (
 		sess          *dbr.Session
 		sqlRows       *sql.Rows
 		ret           types.FsINode
 		netINodeIDStr string
+		resultCount   int
 		err           error
 	)
 
 	sess = p.helper.DBConn.NewSession(nil)
-	sqlRows, err = sess.Select("fsinode_id", "parent_fsinode_id", "name", "flag", "permission", "netinode_id", "fsinode_type").
+
+	sqlRows, err = sess.Select("count(fsinode_id) as result").
 		From("b_fsinode").
-		Where("parent_fsinode_id=?",
-			parentID,
-		).Rows()
+		Where("parent_fsinode_id=?", parentID).Rows()
+	if err != nil {
+		goto QUERY_DONE
+	}
+	if sqlRows.Next() {
+		err = sqlRows.Scan(&resultCount)
+		if err != nil {
+			goto QUERY_DONE
+		}
+	}
+	sqlRows.Close()
+
+	if beforeLiteralFunc(resultCount) == false {
+		goto QUERY_DONE
+	}
+
+	sqlRows, err = sess.Select("fsinode_id", "parent_fsinode_id", "name", "flag",
+		"permission", "netinode_id", "fsinode_type", "ctime", "mtime").
+		From("b_fsinode").
+		Where("parent_fsinode_id=?", parentID).Rows()
 	if err != nil {
 		goto QUERY_DONE
 	}
 
 	for sqlRows.Next() {
-		err = sqlRows.Scan(&ret.ID, &ret.ParentID, &ret.Name, &ret.Flag, &ret.Permission, &netINodeIDStr, &ret.Type)
+		err = sqlRows.Scan(&ret.ID, &ret.ParentID, &ret.Name, &ret.Flag, &ret.Permission,
+			&netINodeIDStr, &ret.Type, &ret.CTime, &ret.MTime)
 		if err != nil {
 			goto QUERY_DONE
 		}
@@ -70,6 +94,7 @@ func (p *DirTreeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
 		goto QUERY_DONE
 	}
 
+	fsINode.MTime = time.Now().Unix()
 	_, err = sess.Update("b_fsinode").
 		Set("fsinode_id", fsINode.ID).
 		Set("parent_fsinode_id", fsINode.ParentID).
@@ -78,8 +103,8 @@ func (p *DirTreeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
 		Set("permission", fsINode.Permission).
 		Set("netinode_id", string(fsINode.NetINodeID[:])).
 		Set("fsinode_type", fsINode.Type).
+		Set("mtime", fsINode.MTime).
 		Where("fsinode_id=?", fsINode.ID).
-		Limit(1).
 		Exec()
 	if err != nil {
 		goto QUERY_DONE
@@ -107,9 +132,13 @@ func (p *DirTreeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
 		goto QUERY_DONE
 	}
 
+	fsINode.CTime = time.Now().Unix()
+	fsINode.MTime = time.Now().Unix()
 	_, err = sess.InsertInto("b_fsinode").
-		Columns("fsinode_id", "parent_fsinode_id", "name", "flag", "permission", "netinode_id", "fsinode_type").
-		Values(fsINode.ID, fsINode.ParentID, fsINode.Name, fsINode.Flag, fsINode.Permission, string(fsINode.NetINodeID[:]), fsINode.Type).
+		Columns("fsinode_id", "parent_fsinode_id", "name", "flag", "permission",
+			"netinode_id", "fsinode_type", "ctime", "mtime").
+		Values(fsINode.ID, fsINode.ParentID, fsINode.Name, fsINode.Flag, fsINode.Permission,
+			string(fsINode.NetINodeID[:]), fsINode.Type, fsINode.CTime, fsINode.MTime).
 		Exec()
 	if err != nil {
 		goto QUERY_DONE
@@ -124,27 +153,76 @@ QUERY_DONE:
 	return err
 }
 
-func (p *DirTreeDriver) GetFsINodeByIDFromDB(parentID types.FsINodeID, fsINodeName string) (types.FsINode, error) {
+func (p *DirTreeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.FsINode, error) {
 	var (
 		sess          *dbr.Session
 		sqlRows       *sql.Rows
-		key           = p.MakeFsINodeKey(parentID, fsINodeName)
 		ret           types.FsINode
 		netINodeIDStr string
 		exists        bool
 		err           error
 	)
 
-	p.fsINodesRWMutex.RLock()
-	ret, exists = p.fsINodes[key]
-	p.fsINodesRWMutex.RUnlock()
+	p.fsINodesByIDRWMutex.RLock()
+	ret, exists = p.fsINodesByID[fsINodeID]
+	p.fsINodesByIDRWMutex.RUnlock()
 	if exists {
 		return ret, nil
 	}
 
-	p.fsINodesRWMutex.Lock()
 	sess = p.helper.DBConn.NewSession(nil)
-	sqlRows, err = sess.Select("fsinode_id", "parent_fsinode_id", "name", "flag", "permission", "netinode_id", "fsinode_type").
+	sqlRows, err = sess.Select("fsinode_id", "parent_fsinode_id", "name", "flag", "permission",
+		"netinode_id", "fsinode_type", "ctime", "mtime").
+		From("b_fsinode").
+		Where("fsinode_id=?",
+			fsINodeID,
+		).Limit(1).Rows()
+	if err != nil {
+		goto QUERY_DONE
+	}
+
+	if sqlRows.Next() == false {
+		err = types.ErrObjectNotExists
+		goto QUERY_DONE
+	}
+
+	err = sqlRows.Scan(&ret.ID, &ret.ParentID, &ret.Name, &ret.Flag, &ret.Permission,
+		&netINodeIDStr, &ret.Type, &ret.CTime, &ret.MTime)
+	if err != nil {
+		goto QUERY_DONE
+	}
+	copy(ret.NetINodeID[:], []byte(netINodeIDStr))
+
+QUERY_DONE:
+	if err == nil {
+		err = p.prepareAndSetFsINodeCache(&ret)
+	}
+	if sqlRows != nil {
+		sqlRows.Close()
+	}
+	return ret, err
+}
+
+func (p *DirTreeDriver) GetFsINodeByPathFromDB(parentID types.FsINodeID, fsINodeName string) (types.FsINode, error) {
+	var (
+		sess          *dbr.Session
+		sqlRows       *sql.Rows
+		ret           types.FsINode
+		netINodeIDStr string
+		exists        bool
+		err           error
+	)
+
+	p.fsINodesByPathRWMutex.RLock()
+	ret, exists = p.fsINodesByPath[p.MakeFsINodeKey(parentID, fsINodeName)]
+	p.fsINodesByPathRWMutex.RUnlock()
+	if exists {
+		return ret, nil
+	}
+
+	sess = p.helper.DBConn.NewSession(nil)
+	sqlRows, err = sess.Select("fsinode_id", "parent_fsinode_id", "name", "flag", "permission",
+		"netinode_id", "fsinode_type", "ctime", "mtime").
 		From("b_fsinode").
 		Where("parent_fsinode_id=? and name=?",
 			parentID, fsINodeName,
@@ -158,14 +236,17 @@ func (p *DirTreeDriver) GetFsINodeByIDFromDB(parentID types.FsINodeID, fsINodeNa
 		goto QUERY_DONE
 	}
 
-	err = sqlRows.Scan(&ret.ID, &ret.ParentID, &ret.Name, &ret.Flag, &ret.Permission, &netINodeIDStr, &ret.Type)
+	err = sqlRows.Scan(&ret.ID, &ret.ParentID, &ret.Name, &ret.Flag, &ret.Permission,
+		&netINodeIDStr, &ret.Type, &ret.CTime, &ret.MTime)
 	if err != nil {
 		goto QUERY_DONE
 	}
 	copy(ret.NetINodeID[:], []byte(netINodeIDStr))
 
 QUERY_DONE:
-	p.fsINodesRWMutex.Unlock()
+	if err == nil {
+		err = p.prepareAndSetFsINodeCache(&ret)
+	}
 	if sqlRows != nil {
 		sqlRows.Close()
 	}

@@ -5,6 +5,9 @@ const (
 
 	TRUE  = 1
 	FALSE = 0
+
+	DefaultNetBlockCap int = 1024 * 1024 * 8
+	DefaultMemBlockCap int = 1024 * 1024 * 2
 )
 
 const (

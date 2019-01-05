@@ -97,7 +97,9 @@ func TestBase(t *testing.T) {
 	}
 	time.Sleep(time.Millisecond * 300)
 
-	var netINodeID types.NetINodeID
+	var (
+		netINodeID types.NetINodeID
+	)
 	util.InitUUID64(&netINodeID)
 	uNetINode, err = netINodeDriverClient.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
@@ -111,7 +113,8 @@ func TestBase(t *testing.T) {
 	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, writeData, 612))
 	assert.NoError(t, netINodeDriverClient.Flush(uNetINode))
 	readData := make([]byte, 73)
-	assert.NoError(t, netINodeDriverClient.PReadWithMem(uNetINode, readData, 612))
+	_, err = netINodeDriverClient.PReadWithMem(uNetINode, readData, 612)
+	assert.NoError(t, err)
 	assert.Equal(t, writeData, readData)
 
 	time.Sleep(time.Microsecond * 600)

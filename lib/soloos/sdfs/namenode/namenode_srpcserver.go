@@ -23,6 +23,7 @@ func (p *NameNodeSRPCServer) Init(nameNode *NameNode, srpcServerListenAddr strin
 	}
 
 	p.srpcServer.RegisterService("/DataNode/Register", p.DataNodeRegister)
+	p.srpcServer.RegisterService("/NetINode/Get", p.NetINodeGet)
 	p.srpcServer.RegisterService("/NetINode/MustGet", p.NetINodeMustGet)
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
 

@@ -8,7 +8,8 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeClient) AllocNetINodeMetaData(uNetINode types.NetINodeUintptr,
+func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
+	uNetINode types.NetINodeUintptr,
 	size int64, netBlockCap int, memBlockCap int,
 ) error {
 	var (
@@ -28,8 +29,14 @@ func (p *NameNodeClient) AllocNetINodeMetaData(uNetINode types.NetINodeUintptr,
 	protocolBuilder.Finish(protocol.NetINodeNetBlockInfoRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
-	err = p.snetClientDriver.Call(p.nameNodePeer,
-		"/NetINode/MustGet", &req, &resp)
+	if isMustGet {
+		err = p.snetClientDriver.Call(p.nameNodePeer,
+			"/NetINode/MustGet", &req, &resp)
+	} else {
+		err = p.snetClientDriver.Call(p.nameNodePeer,
+			"/NetINode/Get", &req, &resp)
+	}
+
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
 	p.snetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
 	if err != nil {
@@ -53,4 +60,16 @@ func (p *NameNodeClient) AllocNetINodeMetaData(uNetINode types.NetINodeUintptr,
 	uNetINode.Ptr().MemBlockCap = int(netINodeInfo.MemBlockCap())
 
 	return nil
+}
+
+func (p *NameNodeClient) GetNetINodeMetaData(uNetINode types.NetINodeUintptr,
+	size int64, netBlockCap int, memBlockCap int,
+) error {
+	return p.doGetNetINodeMetaData(false, uNetINode, size, netBlockCap, memBlockCap)
+}
+
+func (p *NameNodeClient) MustGetNetINodeMetaData(uNetINode types.NetINodeUintptr,
+	size int64, netBlockCap int, memBlockCap int,
+) error {
+	return p.doGetNetINodeMetaData(true, uNetINode, size, netBlockCap, memBlockCap)
 }

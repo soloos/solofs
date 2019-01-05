@@ -8,6 +8,7 @@ import (
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
 	"soloos/sdfs/netstg"
+	"soloos/sdfs/types"
 	"soloos/snet"
 	snettypes "soloos/snet/types"
 	"soloos/util"
@@ -37,7 +38,7 @@ func (p *Env) Init() {
 	util.AssertErrIsNil(p.SNetClientDriver.Init(p.offheapDriver))
 
 	util.AssertErrIsNil(p.MetaStg.Init(p.offheapDriver,
-		dbDriver, dsn, nil))
+		dbDriver, dsn, nil, nil))
 
 	p.DataNodeClient.Init(&p.SNetClientDriver)
 
@@ -45,7 +46,7 @@ func (p *Env) Init() {
 		var options = memstg.MemBlockDriverOptions{
 			[]memstg.MemBlockPoolOptions{
 				memstg.MemBlockPoolOptions{
-					1024 * 1024 * 2,
+					types.DefaultMemBlockCap,
 					256,
 				},
 			},
@@ -64,17 +65,22 @@ func (p *Env) Init() {
 	))
 }
 
-func (p *Env) startNameNode() {
+func (p *Env) startCommon(options Options) {
+	if options.PProfListenAddr != "" {
+		go util.PProfServe(options.PProfListenAddr)
+	}
+}
+
+func (p *Env) startNameNode(options Options) {
 	var (
-		listenAddr = os.Args[2]
-		nameNode   namenode.NameNode
+		nameNode namenode.NameNode
 	)
 
 	p.NetBlockDriver.SetHelper(nil, p.MetaStg.PrepareNetBlockMetaData)
 	p.NetINodeDriver.SetHelper(nil,
 		p.MetaStg.PrepareNetINodeMetaDataOnlyLoadDB, p.MetaStg.PrepareNetINodeMetaDataWithStorDB)
 	util.AssertErrIsNil(nameNode.Init(p.offheapDriver,
-		listenAddr,
+		options.ListenAddr,
 		&p.MetaStg,
 		&p.MemBlockDriver,
 		&p.NetBlockDriver,
@@ -84,35 +90,30 @@ func (p *Env) startNameNode() {
 	util.AssertErrIsNil(nameNode.Close())
 }
 
-func (p *Env) startDataNode() {
+func (p *Env) startDataNode(options Options) {
 	var (
-		dataNodePeerIDStr   = os.Args[2]
-		listenAddr          = os.Args[3]
-		dataNodeLocalFsRoot = os.Args[4]
-		nameNodePeerIDStr   = os.Args[5]
-		nameNodeAddr        = os.Args[6]
-		dataNodePeerID      snettypes.PeerID
-		dataNode            datanode.DataNode
-		nameNodePeerID      snettypes.PeerID
-		options             datanode.DataNodeOptions
+		dataNodePeerID  snettypes.PeerID
+		dataNode        datanode.DataNode
+		nameNodePeerID  snettypes.PeerID
+		dataNodeOptions datanode.DataNodeOptions
 	)
 
-	copy(dataNodePeerID[:], []byte(dataNodePeerIDStr))
-	copy(nameNodePeerID[:], []byte(nameNodePeerIDStr))
+	copy(dataNodePeerID[:], []byte(options.DataNodePeerIDStr))
+	copy(nameNodePeerID[:], []byte(options.NameNodePeerIDStr))
 
-	options = datanode.DataNodeOptions{
+	dataNodeOptions = datanode.DataNodeOptions{
 		PeerID:               dataNodePeerID,
-		SrpcServerListenAddr: listenAddr,
-		SrpcServerServeAddr:  listenAddr,
-		LocalFsRoot:          dataNodeLocalFsRoot,
+		SrpcServerListenAddr: options.ListenAddr,
+		SrpcServerServeAddr:  options.ListenAddr,
+		LocalFsRoot:          options.DataNodeLocalFsRoot,
 		NameNodePeerID:       nameNodePeerID,
-		NameNodeSRPCServer:   nameNodeAddr,
+		NameNodeSRPCServer:   options.NameNodeAddr,
 	}
 
 	p.NetBlockDriver.SetHelper(nil, p.MetaStg.PrepareNetBlockMetaData)
 	p.NetINodeDriver.SetHelper(nil,
 		p.MetaStg.PrepareNetINodeMetaDataOnlyLoadDB, p.MetaStg.PrepareNetINodeMetaDataWithStorDB)
-	util.AssertErrIsNil(dataNode.Init(p.offheapDriver, options,
+	util.AssertErrIsNil(dataNode.Init(p.offheapDriver, dataNodeOptions,
 		&p.SNetDriver, &p.SNetClientDriver,
 		&p.MetaStg,
 		&p.MemBlockDriver,
@@ -124,16 +125,26 @@ func (p *Env) startDataNode() {
 }
 
 func main() {
-	var env Env
+	var (
+		env     Env
+		options Options
+		err     error
+	)
+
 	env.Init()
 
-	mode := os.Args[1]
+	optionsFile := os.Args[1]
 
-	if mode == "namenode" {
-		env.startNameNode()
+	options, err = LoadOptionsFile(optionsFile)
+	util.AssertErrIsNil(err)
+
+	if options.Mode == "namenode" {
+		env.startCommon(options)
+		env.startNameNode(options)
 	}
 
-	if mode == "datanode" {
-		env.startDataNode()
+	if options.Mode == "datanode" {
+		env.startCommon(options)
+		env.startDataNode(options)
 	}
 }

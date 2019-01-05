@@ -66,11 +66,7 @@ func (p *NetBlockDriver) SetHelper(
 	prepareNetBlockMetaData PrepareNetBlockMetaData,
 ) {
 	p.Helper.nameNodeClient = nameNodeClient
-	if prepareNetBlockMetaData != nil {
-		p.Helper.PrepareNetBlockMetaData = prepareNetBlockMetaData
-	} else {
-		p.Helper.PrepareNetBlockMetaData = p.prepareNetBlockMetaData
-	}
+	p.Helper.PrepareNetBlockMetaData = prepareNetBlockMetaData
 }
 
 func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadWithDisk api.PReadMemBlockWithDisk) {
@@ -119,8 +115,11 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	return uNetBlock, nil
 }
 
-func (p *NetBlockDriver) prepareNetBlockMetaData(uNetBlock types.NetBlockUintptr,
-	uNetINode types.NetINodeUintptr, netblockIndex int) error {
+// TODO make this configurable
+func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr,
+	uNetINode types.NetINodeUintptr, netblockIndex int,
+	syncDataPrimaryBackendTransferCount int,
+) error {
 	var (
 		pNetBlock    = uNetBlock.Ptr()
 		netBlockInfo protocol.NetINodeNetBlockInfoResponse
@@ -145,10 +144,30 @@ func (p *NetBlockDriver) prepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 	}
 
 	pNetBlock.SyncDataBackends = pNetBlock.StorDataBackends
-	pNetBlock.SyncDataPrimaryBackendTransferCount = pNetBlock.SyncDataBackends.Len - 1
+	pNetBlock.SyncDataPrimaryBackendTransferCount = syncDataPrimaryBackendTransferCount
+	return nil
+}
 
-	pNetBlock.IsSyncDataBackendsInited = true
+func (p *NetBlockDriver) PrepareNetBlockMetaDataWithTransfer(uNetBlock types.NetBlockUintptr,
+	uNetINode types.NetINodeUintptr, netblockIndex int) error {
+	var err error
+	err = p.doPrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex,
+		uNetBlock.Ptr().SyncDataBackends.Len-1)
+	if err != nil {
+		return err
+	}
+	uNetBlock.Ptr().IsSyncDataBackendsInited = true
+	return nil
+}
 
+func (p *NetBlockDriver) PrepareNetBlockMetaDataWithFanout(uNetBlock types.NetBlockUintptr,
+	uNetINode types.NetINodeUintptr, netblockIndex int) error {
+	var err error
+	err = p.doPrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex, 0)
+	if err != nil {
+		return err
+	}
+	uNetBlock.Ptr().IsSyncDataBackendsInited = true
 	return nil
 }
 

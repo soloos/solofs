@@ -77,7 +77,8 @@ func TestBase(t *testing.T) {
 	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, testData[11:24], 24))
 	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, testData[30:64], 64))
 	assert.NoError(t, netINodeDriverClient.Flush(uNetINode))
-	assert.NoError(t, netINodeDriverClient.PReadWithMem(uNetINode, testData, 73))
+	_, err = netINodeDriverClient.PReadWithMem(uNetINode, testData, 73)
+	assert.NoError(t, err)
 
 	assert.NoError(t, nameNode.Close())
 	assert.NoError(t, mockServer.Close())

@@ -3,11 +3,17 @@ package libsdfs
 import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
+	"soloos/sdfs/types"
 	"soloos/util/offheap"
+	"sync"
 )
 
 type Client struct {
 	offheapDriver *offheap.OffheapDriver
+
+	FileTableIndexs  sync.NoGCUintptrPool
+	FileTableRWMutex sync.RWMutex
+	FileTable        []types.FsINodeFileHandler
 
 	MemStg  memstg.MemStg
 	MetaStg metastg.MetaStg
@@ -39,6 +45,15 @@ func (p *Client) Init(nameNodeSRPCServerAddr string,
 	)
 	if err != nil {
 		return err
+	}
+
+	p.FileTableIndexs.New = func() uintptr {
+		var fdID uintptr
+		p.FileTableRWMutex.Lock()
+		fdID = uintptr(len(p.FileTable))
+		p.FileTable = append(p.FileTable, types.FsINodeFileHandler{})
+		p.FileTableRWMutex.Unlock()
+		return fdID
 	}
 
 	return nil

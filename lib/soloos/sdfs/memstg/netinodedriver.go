@@ -112,15 +112,21 @@ func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
 }
 
 func (p *NetINodeDriver) prepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetINodeUintptr) error {
-	panic("not support")
+	var err error
+
+	err = p.Helper.NameNodeClient.GetNetINodeMetaData(uNetINode, -1, -1, -1)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *NetINodeDriver) prepareNetINodeMetaDataWithStorDB(uNetINode types.NetINodeUintptr,
 	size int64, netBlockCap int, memBlockCap int) error {
 	var err error
 
-	// do alloc
-	err = p.Helper.NameNodeClient.AllocNetINodeMetaData(uNetINode, size, netBlockCap, memBlockCap)
+	err = p.Helper.NameNodeClient.MustGetNetINodeMetaData(uNetINode, size, netBlockCap, memBlockCap)
 	if err != nil {
 		return err
 	}

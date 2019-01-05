@@ -44,6 +44,10 @@ table NetINodePWriteRequest {
     TransferBackends:[SNetPeer];
 }
 
+table NetINodeFlushRequest {
+    NetINodeID:string;
+}
+
 table NetINodePReadRequest {
     NetINodeID:string;
     Offset:int64;

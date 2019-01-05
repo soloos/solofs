@@ -98,6 +98,10 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 	}
 
 WRITE_DATA_DONE:
+	if pNetINode.Size < writeEnd {
+		pNetINode.Size = writeEnd
+	}
+
 	pNetINode.WriteDataRWMutex.RUnlock()
 	return err
 }

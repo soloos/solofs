@@ -37,6 +37,7 @@ func (p *DataNodeSRPCServer) NetINodePRead(reqID uint64,
 		lastNetBlockIndex  int
 		netBlockIndex      int
 		respBody           []byte
+		readDataSize       int
 	)
 	copy(netINodeID[:], reqParam.NetINodeID())
 	uNetINode, err = p.dataNode.netINodeDriver.GetNetINode(netINodeID)
@@ -50,9 +51,16 @@ func (p *DataNodeSRPCServer) NetINodePRead(reqID uint64,
 		}
 	}
 
+	// calculate file data size
+	if reqParam.Offset()+int64(reqParam.Length()) > uNetINode.Ptr().Size {
+		readDataSize = int(uNetINode.Ptr().Size - reqParam.Offset())
+	} else {
+		readDataSize = int(reqParam.Length())
+	}
+
 	// prepare uNetBlock
 	firstNetBlockIndex = int(reqParam.Offset() / int64(uNetINode.Ptr().NetBlockCap))
-	lastNetBlockIndex = int((reqParam.Offset() + int64(reqParam.Length())) / int64(uNetINode.Ptr().NetBlockCap))
+	lastNetBlockIndex = int((reqParam.Offset() + int64(readDataSize)) / int64(uNetINode.Ptr().NetBlockCap))
 	for netBlockIndex = firstNetBlockIndex; netBlockIndex <= lastNetBlockIndex; netBlockIndex++ {
 		uNetBlock, err = p.dataNode.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 		if err != nil {
@@ -72,15 +80,17 @@ SERVICE_REQUEST_DONE:
 	}
 
 	// request file data
-	api.SetNetINodePReadResponse(&protocolBuilder, reqParam.Length())
+	api.SetNetINodePReadResponse(&protocolBuilder, int32(readDataSize))
 	respBody = protocolBuilder.Bytes[protocolBuilder.Head():]
-	err = conn.ResponseHeaderParam(reqID, respBody, int(reqParam.Length()))
+	// TODO set write length
+	err = conn.ResponseHeaderParam(reqID, respBody, int(readDataSize))
 	if err != nil {
 		goto SERVICE_RESPONSE_DONE
 	}
 
-	err = p.dataNode.netINodeDriver.PReadWithConn(uNetINode, conn,
-		int(reqParam.Length()), reqParam.Offset())
+	// TODO get readedDataLength
+	_, err = p.dataNode.netINodeDriver.PReadWithConn(uNetINode, conn,
+		int(readDataSize), reqParam.Offset())
 	if err != nil {
 		goto SERVICE_RESPONSE_DONE
 	}

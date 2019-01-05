@@ -92,7 +92,10 @@ SERVICE_DONE:
 		return nil
 	}
 
-	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
+	if err == nil {
+		api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
+	}
+
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
 	err = conn.SimpleResponse(reqID, respBody)
 	if err != nil {

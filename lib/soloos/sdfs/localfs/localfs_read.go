@@ -9,10 +9,11 @@ func (p *LocalFs) PReadMemBlockWithDisk(uNetINode types.NetINodeUintptr,
 	uPeer snettypes.PeerUintptr,
 	uNetBlock types.NetBlockUintptr, netBlockIndex int,
 	uMemBlock types.MemBlockUintptr, memBlockIndex int,
-	offset int64, length int) error {
+	offset int64, length int) (int, error) {
 	var (
 		fd                 *Fd
 		memBlockReadOffset int
+		readedLen          int
 		err                error
 	)
 
@@ -22,7 +23,7 @@ func (p *LocalFs) PReadMemBlockWithDisk(uNetINode types.NetINodeUintptr,
 	}
 
 	memBlockReadOffset = int(offset - int64(memBlockIndex)*int64(uMemBlock.Ptr().Bytes.Cap))
-	err = fd.PReadMemBlock(uMemBlock,
+	readedLen, err = fd.PReadMemBlock(uMemBlock,
 		memBlockReadOffset,
 		memBlockReadOffset+length,
 		offset)
@@ -34,5 +35,5 @@ PREAD_DONE:
 	// TODO catch close file error
 	p.fdDriver.Close(fd)
 
-	return nil
+	return readedLen, nil
 }

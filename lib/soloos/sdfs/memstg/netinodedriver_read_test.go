@@ -34,8 +34,12 @@ func TestNetINodeDriverNetINodeRead(t *testing.T) {
 		readData       = make([]byte, 93)
 		readOff  int64 = 73
 	)
-	assert.NoError(t, netINodeDriver.PReadWithMem(uNetINode, readData, readOff))
-	assert.NoError(t, netINodeDriver.PReadWithMem(uNetINode, readData, readOff))
+
+	err = netINodeDriver.PWriteWithMem(uNetINode, readData, readOff)
+	assert.NoError(t, err)
+
+	_, err = netINodeDriver.PReadWithMem(uNetINode, readData, readOff)
+	assert.NoError(t, err)
 
 	assert.NoError(t, mockServer.Close())
 }

@@ -1,7 +1,6 @@
 package libsdfs
 
 import (
-	"soloos/log"
 	"soloos/sdfs/types"
 	"soloos/util"
 	"testing"
@@ -28,10 +27,20 @@ func TestMetaStgDirTreeDriverBase(t *testing.T) {
 	err = client.MetaStg.DirTreeDriver.DeleteINodeByPath("/test/hi4")
 	assert.NoError(t, err)
 
-	err = client.MetaStg.DirTreeDriver.ListFsINodeByParentPath("/test", func(fsINode types.FsINode) bool {
-		log.Error(fsINode.Name)
-		return true
-	})
+	err = client.MetaStg.DirTreeDriver.Rename("/test/hi5", "/testhi5")
 	assert.NoError(t, err)
-	assert.Equal(t, true, false)
+	err = client.MetaStg.DirTreeDriver.Rename("/testhi5", "/test/hi5")
+	assert.NoError(t, err)
+
+	err = client.MetaStg.DirTreeDriver.ListFsINodeByParentPath("/test",
+		func(resultCount int) bool {
+			return true
+		},
+		func(fsINode types.FsINode) bool {
+			return true
+		})
+	assert.NoError(t, err)
+
+	_, err = client.MetaStg.DirTreeDriver.OpenFile("/noexists/hi5")
+	assert.Equal(t, err, types.ErrObjectNotExists)
 }

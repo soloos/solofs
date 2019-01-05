@@ -36,13 +36,13 @@ func (p *MemStg) Init(offheapDriver *offheap.OffheapDriver,
 		return err
 	}
 
-	err = p.SnetClientDriver.Init(p.offheapDriver)
+	nameNodePeer, _ = p.SnetDriver.MustGetPeer(nil, nameNodeSRPCServerAddr, types.DefaultSDFSRPCProtocol)
+	err = p.NameNodeClient.Init(&p.SnetClientDriver, nameNodePeer)
 	if err != nil {
 		return err
 	}
 
-	nameNodePeer, _ = p.SnetDriver.MustGetPeer(nil, nameNodeSRPCServerAddr, types.DefaultSDFSRPCProtocol)
-	err = p.NameNodeClient.Init(&p.SnetClientDriver, nameNodePeer)
+	err = p.SnetClientDriver.Init(p.offheapDriver)
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func (p *MemStg) Init(offheapDriver *offheap.OffheapDriver,
 	err = p.NetBlockDriver.Init(p.offheapDriver,
 		&p.SnetDriver, &p.SnetClientDriver,
 		&p.NameNodeClient, &p.DataNodeClient,
-		nil,
+		p.NetBlockDriver.PrepareNetBlockMetaDataWithFanout,
 	)
 	if err != nil {
 		return err

@@ -3,6 +3,7 @@ package main
 import "C"
 
 import (
+	"os"
 	"soloos/log"
 	"sync"
 )
@@ -28,7 +29,7 @@ func initEnv() {
 		return
 	}
 
-	env.Init("127.0.0.1:9096", 1024*1024*2, 256, "sqlite3", "/tmp/sdfs.db")
+	env.Init(os.Args[1])
 	isInited = true
 	log.Info("init success.")
 }

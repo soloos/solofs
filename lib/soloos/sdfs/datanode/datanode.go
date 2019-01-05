@@ -77,7 +77,7 @@ func (p *DataNode) Init(offheapDriver *offheap.OffheapDriver,
 
 	p.netBlockDriver.SetPReadMemBlockWithDisk(p.localFs.PReadMemBlockWithDisk)
 	p.netBlockDriver.SetUploadMemBlockWithDisk(p.localFs.UploadMemBlockWithDisk)
-	p.netBlockDriver.SetHelper(nil, p.metaStg.PrepareNetBlockMetaData)
+	p.netBlockDriver.SetHelper(&p.nameNodeClient, p.netBlockDriver.PrepareNetBlockMetaDataWithFanout)
 
 	p.netINodeDriver.SetHelper(nil,
 		p.metaStg.PrepareNetINodeMetaDataOnlyLoadDB, p.metaStg.PrepareNetINodeMetaDataWithStorDB)

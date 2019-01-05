@@ -15,7 +15,7 @@ func (p *DataNodeClient) PReadMemBlock(uNetINode types.NetINodeUintptr,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int,
 	offset int64, length int,
-) error {
+) (int, error) {
 	if uNetBlock.Ptr().LocalDataBackend != 0 {
 		return p.preadMemBlockWithDisk(uNetINode, uPeer, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}
@@ -25,7 +25,7 @@ func (p *DataNodeClient) PReadMemBlock(uNetINode types.NetINodeUintptr,
 		return p.doPReadMemBlockWithSRPC(uNetINode, uPeer, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}
 
-	return nil
+	return 0, types.ErrServiceNotExists
 }
 
 func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr,
@@ -35,7 +35,7 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int,
 	offset int64, length int,
-) error {
+) (int, error) {
 	var (
 		req             snettypes.Request
 		resp            snettypes.Response
@@ -56,7 +56,7 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr
 	err = p.snetClientDriver.Call(uPeer,
 		"/NetINode/PRead", &req, &resp)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	var (
@@ -67,19 +67,22 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr
 	)
 	err = p.snetClientDriver.ReadResponse(uPeer, &req, &resp, param)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	netBlockPReadResp.Init(param, flatbuffers.GetUOffsetT(param))
 	netBlockPReadResp.CommonResponse(&commonResp)
 	if commonResp.Code() != snettypes.CODE_OK {
-		return types.ErrNetBlockPRead
+		return 0, types.ErrNetBlockPRead
 	}
 
 	offsetInMemBlock = int(offset - int64(uMemBlock.Ptr().Bytes.Cap)*int64(memBlockIndex))
 	readedLen = int(resp.BodySize - resp.ParamSize)
 	err = p.snetClientDriver.ReadResponse(uPeer, &req, &resp,
 		(*uMemBlock.Ptr().BytesSlice())[offsetInMemBlock:readedLen])
+	if err != nil {
+		return 0, err
+	}
 
-	return nil
+	return int(netBlockPReadResp.Length()), err
 }

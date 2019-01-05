@@ -10,7 +10,7 @@ type PReadMemBlockWithDisk func(uNetINode types.NetINodeUintptr,
 	uPeer snettypes.PeerUintptr,
 	uNetBlock types.NetBlockUintptr, netBlockIndex int,
 	uMemBlock types.MemBlockUintptr, memBlockIndex int,
-	offset int64, length int) error
+	offset int64, length int) (int, error)
 type UploadMemBlockWithDisk func(uJob types.UploadMemBlockJobUintptr,
 	uploadPeerIndex int, transferPeersCount int) error
 

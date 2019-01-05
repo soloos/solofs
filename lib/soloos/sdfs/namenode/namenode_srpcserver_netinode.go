@@ -1,6 +1,7 @@
 package namenode
 
 import (
+	"soloos/log"
 	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
@@ -9,7 +10,8 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeSRPCServer) NetINodeMustGet(reqID uint64,
+func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool,
+	reqID uint64,
 	reqBodySize, reqParamSize uint32,
 	conn *snettypes.Connection) error {
 	var (
@@ -30,9 +32,22 @@ func (p *NameNodeSRPCServer) NetINodeMustGet(reqID uint64,
 	req.Init(param, flatbuffers.GetUOffsetT(param))
 
 	copy(netINodeID[:], req.NetINodeID())
-	uNetINode, err = p.nameNode.netINodeDriver.MustGetNetINode(netINodeID,
-		req.Size(), int(req.NetBlockCap()), int(req.MemBlockCap()))
+	if isMustGet {
+		uNetINode, err = p.nameNode.netINodeDriver.MustGetNetINode(netINodeID,
+			req.Size(), int(req.NetBlockCap()), int(req.MemBlockCap()))
+	} else {
+		uNetINode, err = p.nameNode.netINodeDriver.GetNetINode(netINodeID)
+	}
+
 	if err != nil {
+		if err == types.ErrObjectNotExists {
+			api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
+			conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+			err = nil
+			goto SERVICE_DONE
+		}
+
+		log.Info("get netinode from db error:", err, string(netINodeID[:]))
 		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
 		conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
@@ -46,4 +61,16 @@ func (p *NameNodeSRPCServer) NetINodeMustGet(reqID uint64,
 
 SERVICE_DONE:
 	return err
+}
+
+func (p *NameNodeSRPCServer) NetINodeGet(reqID uint64,
+	reqBodySize, reqParamSize uint32,
+	conn *snettypes.Connection) error {
+	return p.doNetINodeGet(false, reqID, reqBodySize, reqParamSize, conn)
+}
+
+func (p *NameNodeSRPCServer) NetINodeMustGet(reqID uint64,
+	reqBodySize, reqParamSize uint32,
+	conn *snettypes.Connection) error {
+	return p.doNetINodeGet(true, reqID, reqBodySize, reqParamSize, conn)
 }

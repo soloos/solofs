@@ -24,8 +24,11 @@ type DirTreeDriver struct {
 	maxFsINodeID      int64
 	helper            DirTreeDriverHelper
 
-	fsINodesRWMutex sync.RWMutex
-	fsINodes        map[string]types.FsINode
+	fsINodesByPathRWMutex sync.RWMutex
+	fsINodesByPath        map[string]types.FsINode
+	fsINodesByIDRWMutex   sync.RWMutex
+	fsINodesByID          map[types.FsINodeID]types.FsINode
+	rootFsINode           types.FsINode
 }
 
 func (p *DirTreeDriver) Init(offheapDriver *offheap.OffheapDriver,

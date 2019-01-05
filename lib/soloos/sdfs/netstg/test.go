@@ -20,7 +20,7 @@ func MakeNetBlockDriversForTest(netBlockDriver *NetBlockDriver,
 	util.AssertErrIsNil(netBlockDriver.Init(offheapDriver,
 		snetDriver, snetClientDriver,
 		nameNodeClient, dataNodeClient,
-		nil,
+		netBlockDriver.PrepareNetBlockMetaDataWithTransfer,
 	))
 }
 

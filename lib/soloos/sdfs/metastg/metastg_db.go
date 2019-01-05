@@ -27,13 +27,16 @@ func fsSchemaSqls() []string {
 	permission int default 0,
 	netinode_id char(64),
 	fsinode_type int,
+	ctime int default 0,
+	mtime int default 0,
 	primary key(fsinode_id)
 	);
 `)
 
 	sql = append(sql, `
-	create index if not exists i_b_fsinode_parent_fsinode_id_and_name on b_fsinode(parent_fsinode_id, name);
+	create unique index if not exists i_b_fsinode_parent_fsinode_id_and_name on b_fsinode(parent_fsinode_id, name);
 `)
+
 	return sql
 }
 

@@ -23,6 +23,7 @@ func (p *DataNodeSRPCServer) Init(dataNode *DataNode, srpcServerListenAddr strin
 	}
 
 	p.srpcServer.RegisterService("/NetINode/PWrite", p.NetINodePWrite)
+	p.srpcServer.RegisterService("/NetINode/Flush", p.NetINodeFlush)
 	p.srpcServer.RegisterService("/NetINode/PRead", p.NetINodePRead)
 
 	return nil

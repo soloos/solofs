@@ -1,4 +1,8 @@
 #!/bin/bash
-./bin/sdfsd namenode 127.0.0.1:10601 > ./logs/namenode.10000.log 2>&1 &
+rm -rf /tmp/sdfs*
+./bin/sdfsd ./scripts/namenode.1.json > ./logs/namenode.1.log 2>&1 &
 sleep 1
-./bin/sdfsd datanode 00001 127.0.0.1:10701 /tmp/sdfs_test.data.01 10000 127.0.0.1:10601 > ./logs/datanode.10000.log 2>&1 &
+./bin/sdfsd ./scripts/datanode.1.json > ./logs/datanode.1.log 2>&1 &
+./bin/sdfsd ./scripts/datanode.2.json > ./logs/datanode.2.log 2>&1 &
+./bin/sdfsd ./scripts/datanode.3.json > ./logs/datanode.3.log 2>&1 &
+sleep 1
