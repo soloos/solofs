@@ -6,6 +6,8 @@ import (
 )
 
 type Options struct {
+	MemBlockChunkSize   int
+	MemBlockChunksLimit int32
 	Mode                string
 	DataNodePeerIDStr   string
 	ListenAddr          string

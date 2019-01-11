@@ -1,4 +1,6 @@
 {
+    "MemBlockChunkSize":2097152,
+    "MemBlockChunksLimit":256,
 	"Mode":"datanode",
 	"DataNodePeerIDStr":"0003000000000000000000000000000000000000000000000000000000000000",
 	"ListenAddr":"192.168.56.100:10901",

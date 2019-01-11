@@ -10,20 +10,22 @@ import (
 
 func TestMetaStgDirTreeDriverBase(t *testing.T) {
 	var (
-		client  Client
-		fsINode types.FsINode
-		err     error
+		client      Client
+		fsINode     types.FsINode
+		netBlockCap = types.DefaultNetBlockCap
+		memBlockCap = types.DefaultMemBlockCap
+		err         error
 	)
 	MakeClientForTest(&client)
 
 	fsINode, err = client.MetaStg.DirTreeDriver.Mkdir("/test")
 	util.Ignore(fsINode)
 
-	fsINode, err = client.MetaStg.DirTreeDriver.OpenFile("/test/hi")
-	fsINode, err = client.MetaStg.DirTreeDriver.OpenFile("/test/hi2")
-	fsINode, err = client.MetaStg.DirTreeDriver.OpenFile("/test/hi3")
-	fsINode, err = client.MetaStg.DirTreeDriver.OpenFile("/test/hi4")
-	fsINode, err = client.MetaStg.DirTreeDriver.OpenFile("/test/hi5")
+	fsINode, err = client.MetaStg.DirTreeDriver.OpenFile("/test/hi", netBlockCap, memBlockCap)
+	fsINode, err = client.MetaStg.DirTreeDriver.OpenFile("/test/hi2", netBlockCap, memBlockCap)
+	fsINode, err = client.MetaStg.DirTreeDriver.OpenFile("/test/hi3", netBlockCap, memBlockCap)
+	fsINode, err = client.MetaStg.DirTreeDriver.OpenFile("/test/hi4", netBlockCap, memBlockCap)
+	fsINode, err = client.MetaStg.DirTreeDriver.OpenFile("/test/hi5", netBlockCap, memBlockCap)
 	err = client.MetaStg.DirTreeDriver.DeleteINodeByPath("/test/hi4")
 	assert.NoError(t, err)
 
@@ -41,6 +43,6 @@ func TestMetaStgDirTreeDriverBase(t *testing.T) {
 		})
 	assert.NoError(t, err)
 
-	_, err = client.MetaStg.DirTreeDriver.OpenFile("/noexists/hi5")
+	_, err = client.MetaStg.DirTreeDriver.OpenFile("/noexists/hi5", netBlockCap, memBlockCap)
 	assert.Equal(t, err, types.ErrObjectNotExists)
 }

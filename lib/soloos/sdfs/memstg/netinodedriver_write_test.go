@@ -18,11 +18,11 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		netBlockDriver   netstg.NetBlockDriver
 		memBlockDriver   MemBlockDriver
 		netINodeDriver   NetINodeDriver
-		maxBlocks        int32 = 4
+		maxBlocks        int32 = 16
 		i                int32
 		netBlockCap      int   = 4
 		memBlockCap      int   = 4
-		blockChunksLimit int32 = 4
+		blockChunksLimit int32 = 2
 		uNetINode        types.NetINodeUintptr
 	)
 	assert.NoError(t, mockNetINodePool.Init(&offheap.DefaultOffheapDriver))

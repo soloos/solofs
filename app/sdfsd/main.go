@@ -8,7 +8,6 @@ import (
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
 	"soloos/sdfs/netstg"
-	"soloos/sdfs/types"
 	"soloos/snet"
 	snettypes "soloos/snet/types"
 	"soloos/util"
@@ -16,6 +15,7 @@ import (
 )
 
 type Env struct {
+	options          Options
 	offheapDriver    *offheap.OffheapDriver
 	SNetDriver       snet.NetDriver
 	SNetClientDriver snet.ClientDriver
@@ -26,12 +26,13 @@ type Env struct {
 	NetINodeDriver   memstg.NetINodeDriver
 }
 
-func (p *Env) Init() {
+func (p *Env) Init(options Options) {
 	var (
 		dbDriver = "sqlite3"
 		dsn      = "/tmp/sdfs.db"
 	)
 
+	p.options = options
 	p.offheapDriver = &offheap.DefaultOffheapDriver
 
 	util.AssertErrIsNil(p.SNetDriver.Init(p.offheapDriver))
@@ -43,26 +44,16 @@ func (p *Env) Init() {
 	p.DataNodeClient.Init(&p.SNetClientDriver)
 
 	{
-		var options = memstg.MemBlockDriverOptions{
+		var memBlockDriverOptions = memstg.MemBlockDriverOptions{
 			[]memstg.MemBlockPoolOptions{
 				memstg.MemBlockPoolOptions{
-					types.DefaultMemBlockCap,
-					256,
+					p.options.MemBlockChunkSize,
+					p.options.MemBlockChunksLimit,
 				},
 			},
 		}
-		util.AssertErrIsNil(p.MemBlockDriver.Init(p.offheapDriver, options))
+		util.AssertErrIsNil(p.MemBlockDriver.Init(p.offheapDriver, memBlockDriverOptions))
 	}
-
-	util.AssertErrIsNil(p.NetBlockDriver.Init(p.offheapDriver,
-		&p.SNetDriver, &p.SNetClientDriver,
-		nil, &p.DataNodeClient, nil))
-
-	util.AssertErrIsNil(p.NetINodeDriver.Init(p.offheapDriver,
-		&p.NetBlockDriver,
-		&p.MemBlockDriver,
-		nil, nil, nil,
-	))
 }
 
 func (p *Env) startCommon(options Options) {
@@ -76,9 +67,18 @@ func (p *Env) startNameNode(options Options) {
 		nameNode namenode.NameNode
 	)
 
-	p.NetBlockDriver.SetHelper(nil, p.MetaStg.PrepareNetBlockMetaData)
-	p.NetINodeDriver.SetHelper(nil,
-		p.MetaStg.PrepareNetINodeMetaDataOnlyLoadDB, p.MetaStg.PrepareNetINodeMetaDataWithStorDB)
+	util.AssertErrIsNil(p.NetBlockDriver.Init(p.offheapDriver,
+		&p.SNetDriver, &p.SNetClientDriver,
+		nil, &p.DataNodeClient, p.MetaStg.PrepareNetBlockMetaData))
+
+	util.AssertErrIsNil(p.NetINodeDriver.Init(p.offheapDriver,
+		&p.NetBlockDriver,
+		&p.MemBlockDriver,
+		nil,
+		p.MetaStg.PrepareNetINodeMetaDataOnlyLoadDB,
+		p.MetaStg.PrepareNetINodeMetaDataWithStorDB,
+	))
+
 	util.AssertErrIsNil(nameNode.Init(p.offheapDriver,
 		options.ListenAddr,
 		&p.MetaStg,
@@ -86,6 +86,7 @@ func (p *Env) startNameNode(options Options) {
 		&p.NetBlockDriver,
 		&p.NetINodeDriver,
 	))
+
 	util.AssertErrIsNil(nameNode.Serve())
 	util.AssertErrIsNil(nameNode.Close())
 }
@@ -110,9 +111,18 @@ func (p *Env) startDataNode(options Options) {
 		NameNodeSRPCServer:   options.NameNodeAddr,
 	}
 
-	p.NetBlockDriver.SetHelper(nil, p.MetaStg.PrepareNetBlockMetaData)
-	p.NetINodeDriver.SetHelper(nil,
-		p.MetaStg.PrepareNetINodeMetaDataOnlyLoadDB, p.MetaStg.PrepareNetINodeMetaDataWithStorDB)
+	util.AssertErrIsNil(p.NetBlockDriver.Init(p.offheapDriver,
+		&p.SNetDriver, &p.SNetClientDriver,
+		nil, &p.DataNodeClient, p.MetaStg.PrepareNetBlockMetaData))
+
+	util.AssertErrIsNil(p.NetINodeDriver.Init(p.offheapDriver,
+		&p.NetBlockDriver,
+		&p.MemBlockDriver,
+		nil,
+		p.MetaStg.PrepareNetINodeMetaDataOnlyLoadDB,
+		p.MetaStg.PrepareNetINodeMetaDataWithStorDB,
+	))
+
 	util.AssertErrIsNil(dataNode.Init(p.offheapDriver, dataNodeOptions,
 		&p.SNetDriver, &p.SNetClientDriver,
 		&p.MetaStg,
@@ -131,12 +141,12 @@ func main() {
 		err     error
 	)
 
-	env.Init()
-
 	optionsFile := os.Args[1]
 
 	options, err = LoadOptionsFile(optionsFile)
 	util.AssertErrIsNil(err)
+
+	env.Init(options)
 
 	if options.Mode == "namenode" {
 		env.startCommon(options)

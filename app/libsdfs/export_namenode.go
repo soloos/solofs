@@ -16,7 +16,9 @@ func GoSdfsOpenFile(cInodePath *C.char, flags,
 		err         error
 	)
 
-	fsINode, err = env.Client.MetaStg.DirTreeDriver.OpenFile(fsINodePath)
+	fsINode, err = env.Client.MetaStg.DirTreeDriver.OpenFile(fsINodePath,
+		types.DefaultNetBlockCap,
+		env.Options.MemBlockChunkSize)
 	if err != nil {
 		return 0, libsdfs.CODE_ERR
 	}

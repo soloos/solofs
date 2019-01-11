@@ -42,9 +42,13 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetIN
 
 	err = p.FetchNetINodeFromDB(pNetINode)
 	if err != nil {
-		return err
+		goto PREPARE_DONE
 	}
 
+PREPARE_DONE:
+	if err == nil {
+		pNetINode.IsDBMetaDataInited = true
+	}
 	return nil
 }
 
@@ -58,7 +62,7 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetIN
 	err = p.FetchNetINodeFromDB(pNetINode)
 	if err != nil {
 		if err != types.ErrObjectNotExists {
-			return err
+			goto PREPARE_DONE
 		}
 
 		pNetINode.Size = size
@@ -66,9 +70,13 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetIN
 		pNetINode.MemBlockCap = memBlockCap
 		err = p.StoreNetINodeInDB(pNetINode)
 		if err != nil {
-			return err
+			goto PREPARE_DONE
 		}
 	}
 
+PREPARE_DONE:
+	if err == nil {
+		pNetINode.IsDBMetaDataInited = true
+	}
 	return nil
 }

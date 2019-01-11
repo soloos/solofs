@@ -100,9 +100,6 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 		pNetBlock.DBMetaDataInitMutex.Lock()
 		if pNetBlock.IsDBMetaDataInited == false {
 			err = p.Helper.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
-			if err == nil {
-				pNetBlock.IsDBMetaDataInited = true
-			}
 		}
 		pNetBlock.DBMetaDataInitMutex.Unlock()
 	}
@@ -156,7 +153,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaDataWithTransfer(uNetBlock types.Net
 	if err != nil {
 		return err
 	}
-	uNetBlock.Ptr().IsSyncDataBackendsInited = true
+	uNetBlock.Ptr().IsDBMetaDataInited = true
 	return nil
 }
 
@@ -167,7 +164,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaDataWithFanout(uNetBlock types.NetBl
 	if err != nil {
 		return err
 	}
-	uNetBlock.Ptr().IsSyncDataBackendsInited = true
+	uNetBlock.Ptr().IsDBMetaDataInited = true
 	return nil
 }
 

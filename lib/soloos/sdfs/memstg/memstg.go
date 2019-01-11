@@ -67,7 +67,9 @@ func (p *MemStg) Init(offheapDriver *offheap.OffheapDriver,
 	}
 
 	err = p.NetINodeDriver.Init(p.offheapDriver, &p.NetBlockDriver, &p.MemBlockDriver,
-		&p.NameNodeClient, nil, nil)
+		&p.NameNodeClient,
+		p.NetINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
+		p.NetINodeDriver.PrepareNetINodeMetaDataWithStorDB)
 	if err != nil {
 		return err
 	}

@@ -6,18 +6,18 @@ import (
 	"strings"
 )
 
-func (p *DirTreeDriver) allocNetINode() (types.NetINodeID, error) {
+func (p *DirTreeDriver) allocNetINode(netBlockCap int, memBlockCap int) (types.NetINodeID, error) {
 	var (
 		netINodeID types.NetINodeID
 		err        error
 	)
 
 	util.InitUUID64(&netINodeID)
-	_, err = p.helper.MustGetNetINode(netINodeID, 0, types.DefaultNetBlockCap, types.DefaultMemBlockCap)
+	_, err = p.helper.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
 	return netINodeID, err
 }
 
-func (p *DirTreeDriver) OpenFile(fsInodePath string) (types.FsINode, error) {
+func (p *DirTreeDriver) OpenFile(fsInodePath string, netBlockCap int, memBlockCap int) (types.FsINode, error) {
 	var (
 		paths      []string
 		i          int
@@ -50,7 +50,7 @@ func (p *DirTreeDriver) OpenFile(fsInodePath string) (types.FsINode, error) {
 	}
 
 	if err == types.ErrObjectNotExists {
-		netINodeID, err = p.allocNetINode()
+		netINodeID, err = p.allocNetINode(netBlockCap, memBlockCap)
 		if err != nil {
 			goto OPEN_FILE_DONE
 		}

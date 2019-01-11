@@ -42,16 +42,8 @@ func (p *NetINodeDriver) SetHelper(
 	prepareNetINodeMetaDataWithStorDB api.PrepareNetINodeMetaDataWithStorDB,
 ) {
 	p.Helper.NameNodeClient = nameNodeClient
-	if prepareNetINodeMetaDataOnlyLoadDB != nil {
-		p.Helper.PrepareNetINodeMetaDataOnlyLoadDB = prepareNetINodeMetaDataOnlyLoadDB
-	} else {
-		p.Helper.PrepareNetINodeMetaDataOnlyLoadDB = p.prepareNetINodeMetaDataOnlyLoadDB
-	}
-	if prepareNetINodeMetaDataWithStorDB != nil {
-		p.Helper.PrepareNetINodeMetaDataWithStorDB = prepareNetINodeMetaDataWithStorDB
-	} else {
-		p.Helper.PrepareNetINodeMetaDataWithStorDB = p.prepareNetINodeMetaDataWithStorDB
-	}
+	p.Helper.PrepareNetINodeMetaDataOnlyLoadDB = prepareNetINodeMetaDataOnlyLoadDB
+	p.Helper.PrepareNetINodeMetaDataWithStorDB = prepareNetINodeMetaDataWithStorDB
 }
 
 func (p *NetINodeDriver) GetNetINode(netINodeID types.NetINodeID) (types.NetINodeUintptr, error) {
@@ -67,9 +59,6 @@ func (p *NetINodeDriver) GetNetINode(netINodeID types.NetINodeID) (types.NetINod
 		pNetINode.DBMetaDataInitMutex.Lock()
 		if pNetINode.IsDBMetaDataInited == false {
 			err = p.Helper.PrepareNetINodeMetaDataOnlyLoadDB(uNetINode)
-			if err == nil {
-				pNetINode.IsDBMetaDataInited = true
-			}
 		}
 		pNetINode.DBMetaDataInitMutex.Unlock()
 	}
@@ -96,9 +85,6 @@ func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
 		pNetINode.DBMetaDataInitMutex.Lock()
 		if pNetINode.IsDBMetaDataInited == false {
 			err = p.Helper.PrepareNetINodeMetaDataWithStorDB(uNetINode, size, netBlockCap, memBlockCap)
-			if err == nil {
-				pNetINode.IsDBMetaDataInited = true
-			}
 		}
 		pNetINode.DBMetaDataInitMutex.Unlock()
 	}
@@ -111,25 +97,33 @@ func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
 	return uNetINode, nil
 }
 
-func (p *NetINodeDriver) prepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetINodeUintptr) error {
+func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetINodeUintptr) error {
 	var err error
 
 	err = p.Helper.NameNodeClient.GetNetINodeMetaData(uNetINode, -1, -1, -1)
 	if err != nil {
-		return err
+		goto PREPARE_DONE
 	}
 
+PREPARE_DONE:
+	if err == nil {
+		uNetINode.Ptr().IsDBMetaDataInited = true
+	}
 	return nil
 }
 
-func (p *NetINodeDriver) prepareNetINodeMetaDataWithStorDB(uNetINode types.NetINodeUintptr,
+func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetINodeUintptr,
 	size int64, netBlockCap int, memBlockCap int) error {
 	var err error
 
 	err = p.Helper.NameNodeClient.MustGetNetINodeMetaData(uNetINode, size, netBlockCap, memBlockCap)
 	if err != nil {
-		return err
+		goto PREPARE_DONE
 	}
 
+PREPARE_DONE:
+	if err == nil {
+		uNetINode.Ptr().IsDBMetaDataInited = true
+	}
 	return nil
 }

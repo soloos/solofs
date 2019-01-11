@@ -55,6 +55,7 @@ func TestBase(t *testing.T) {
 
 		netBlockCap      int   = 32
 		memBlockCap      int   = 16
+		maxWriteTimes    int   = 128
 		blockChunksLimit int32 = 4
 		uNetINode        types.NetINodeUintptr
 		i                int
@@ -112,6 +113,11 @@ func TestBase(t *testing.T) {
 	writeData[60] = 12
 	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, writeData, 612))
 	assert.NoError(t, netINodeDriverClient.Flush(uNetINode))
+
+	for i = 0; i < maxWriteTimes; i++ {
+		assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, writeData, int64(netBlockCap*600+8*i)))
+	}
+
 	readData := make([]byte, 73)
 	_, err = netINodeDriverClient.PReadWithMem(uNetINode, readData, 612)
 	assert.NoError(t, err)

@@ -143,18 +143,19 @@ func (p *memBlockPoolChunk) releaseBlock(uMemBlock types.MemBlockUintptr) {
 	pMemBlock.Chunk.Ptr().WriteAcquire()
 	p.beforeReleaseBlock(pMemBlock)
 	if pMemBlock.EnsureRelease() {
+		p.releaseChunkToChunkPool(uMemBlock)
 		p.memBlocksRWMutex.Lock()
 		delete(p.memBlocks, pMemBlock.ID)
 		p.memBlocksRWMutex.Unlock()
 		pMemBlock.Chunk.Ptr().WriteRelease()
-		p.releaseChunkToChunkPool(uMemBlock)
 	} else {
 		pMemBlock.Chunk.Ptr().WriteRelease()
 	}
 }
 
 func (p *memBlockPoolChunk) checkBlock(blockID types.PtrBindIndex, uMemBlock types.MemBlockUintptr) bool {
-	if uMemBlock.Ptr().ID != blockID {
+	if uMemBlock.Ptr().Status == types.MemBlockUninited ||
+		blockID != uMemBlock.Ptr().ID {
 		return false
 	}
 	return true
@@ -168,47 +169,58 @@ func (p *memBlockPoolChunk) MustGetMemBlockWithReadAcquire(blockID types.PtrBind
 
 	p.memBlocksRWMutex.RLock()
 	uMemBlock, _ = p.memBlocks[blockID]
-	if uMemBlock != 0 {
-		loaded = true
-		uMemBlock.Ptr().Chunk.Ptr().ReadAcquire()
-	}
 	p.memBlocksRWMutex.RUnlock()
 
-	if uMemBlock != 0 && p.checkBlock(blockID, uMemBlock) == false {
-		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
-		uMemBlock = 0
+	if uMemBlock != 0 {
+		uMemBlock.Ptr().Chunk.Ptr().ReadAcquire()
+		if p.checkBlock(blockID, uMemBlock) {
+			loaded = true
+		} else {
+			uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
+			uMemBlock = 0
+		}
 	}
 
-	if uMemBlock == 0 {
-		var (
-			pMemBlock    *types.MemBlock
-			uNewMemBlock = p.allocChunkFromChunkPool()
-		)
+	if uMemBlock != 0 {
+		return uMemBlock, loaded
+	}
 
+	// uMemBlock == 0
+	// init uNewMemBlock
+	var (
+		uNewMemBlock             = p.allocChunkFromChunkPool()
+		isNewMemBlockSetted bool = false
+	)
+	uNewMemBlock.Ptr().ID = blockID
+	uNewMemBlock.Ptr().Chunk.Ptr().ReadAcquire()
+	uNewMemBlock.Ptr().CompleteInit()
+
+	for isNewMemBlockSetted == false && loaded == false {
 		p.memBlocksRWMutex.Lock()
-
 		uMemBlock, _ = p.memBlocks[blockID]
 		if uMemBlock == 0 {
-			loaded = false
 			uMemBlock = uNewMemBlock
-			pMemBlock = uMemBlock.Ptr()
-			pMemBlock.ID = blockID
 			p.memBlocks[blockID] = uMemBlock
-		} else {
-			loaded = true
-			pMemBlock = uMemBlock.Ptr()
+			isNewMemBlockSetted = true
 		}
-
-		pMemBlock.Chunk.Ptr().ReadAcquire()
-
 		p.memBlocksRWMutex.Unlock()
 
-		if loaded {
-			p.releaseChunkToChunkPool(uNewMemBlock)
-		} else {
-			pMemBlock.CompleteInit()
-			p.workingChunkPool.Put(uintptr(uMemBlock))
+		if isNewMemBlockSetted == false {
+			uMemBlock.Ptr().Chunk.Ptr().ReadAcquire()
+			if p.checkBlock(blockID, uMemBlock) {
+				loaded = true
+			} else {
+				uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
+				uMemBlock = 0
+			}
 		}
+	}
+
+	if isNewMemBlockSetted {
+		p.workingChunkPool.Put(uintptr(uNewMemBlock))
+	} else {
+		uNewMemBlock.Ptr().Chunk.Ptr().ReadRelease()
+		p.releaseChunkToChunkPool(uNewMemBlock)
 	}
 
 	return uMemBlock, loaded

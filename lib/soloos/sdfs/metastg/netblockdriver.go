@@ -57,14 +57,15 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 			copy(peerID[:], peerIDStr)
 			uPeer = p.helper.GetDataNode(&peerID)
 			if uPeer == 0 {
-				return types.ErrObjectNotExists
+				err = types.ErrObjectNotExists
+				goto PREPARE_DONE
 			}
 			pNetBlock.StorDataBackends.Append(uPeer)
 		}
 
 	} else {
 		if err != types.ErrObjectNotExists {
-			return err
+			goto PREPARE_DONE
 		}
 
 		pNetBlock.NetINodeID = uNetINode.Ptr().ID
@@ -73,16 +74,20 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 		pNetBlock.Cap = uNetINode.Ptr().NetBlockCap
 		err = p.helper.ChooseDataNodesForNewNetBlock(uNetINode, &pNetBlock.StorDataBackends)
 		if err != nil {
-			return err
+			goto PREPARE_DONE
 		}
 
 		err = p.StoreNetBlockInDB(uNetINode.Ptr(), pNetBlock)
 		if err != nil {
-			return err
+			goto PREPARE_DONE
 		}
 	}
 
-	return nil
+PREPARE_DONE:
+	if err == nil {
+		pNetBlock.IsDBMetaDataInited = true
+	}
+	return err
 }
 
 func (p *NetBlockDriver) PrepareNetBlockSyncDataBackendsWithLock(uNetBlock types.NetBlockUintptr,
@@ -101,9 +106,8 @@ func (p *NetBlockDriver) PrepareNetBlockSyncDataBackendsWithLock(uNetBlock types
 	pNetBlock.SyncDataBackends = backends
 	pNetBlock.SyncDataPrimaryBackendTransferCount = 0
 
-	pNetBlock.IsSyncDataBackendsInited = true
-
 PREPARE_DONE:
+	pNetBlock.IsSyncDataBackendsInited = true
 	pNetBlock.MemMetaDataInitMutex.Unlock()
 	return err
 }
@@ -123,9 +127,8 @@ func (p *NetBlockDriver) PrepareNetBlockLocalDataBackendWithLock(uNetBlock types
 
 	pNetBlock.LocalDataBackend = backend
 
-	pNetBlock.IsLocalDataBackendInited = true
-
 PREPARE_DONE:
+	pNetBlock.IsLocalDataBackendInited = true
 	pNetBlock.MemMetaDataInitMutex.Unlock()
 	return err
 }
