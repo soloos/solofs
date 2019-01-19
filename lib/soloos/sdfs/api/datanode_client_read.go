@@ -14,7 +14,7 @@ func (p *DataNodeClient) PReadMemBlock(uNetINode types.NetINodeUintptr,
 	netBlockIndex int,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int,
-	offset int64, length int,
+	offset uint64, length int,
 ) (int, error) {
 	if uNetBlock.Ptr().LocalDataBackend != 0 {
 		return p.preadMemBlockWithDisk(uNetINode, uPeer, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
@@ -34,7 +34,7 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr
 	netBlockIndex int,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int,
-	offset int64, length int,
+	offset uint64, length int,
 ) (int, error) {
 	var (
 		req             snettypes.Request
@@ -76,7 +76,7 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr
 		return 0, types.ErrNetBlockPRead
 	}
 
-	offsetInMemBlock = int(offset - int64(uMemBlock.Ptr().Bytes.Cap)*int64(memBlockIndex))
+	offsetInMemBlock = int(offset - uint64(uMemBlock.Ptr().Bytes.Cap)*uint64(memBlockIndex))
 	readedLen = int(resp.BodySize - resp.ParamSize)
 	err = p.snetClientDriver.ReadResponse(uPeer, &req, &resp,
 		(*uMemBlock.Ptr().BytesSlice())[offsetInMemBlock:readedLen])

@@ -10,7 +10,7 @@ type preadArg struct {
 	conn       *snettypes.Connection
 	dataLength int
 	data       []byte
-	offset     int64
+	offset     uint64
 }
 
 func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
@@ -20,13 +20,13 @@ func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
 		uNetBlock          types.NetBlockUintptr
 		memBlockIndex      int
 		netBlockIndex      int
-		memBlockStart      int64
+		memBlockStart      uint64
 		memBlockReadOffset int
 		// memBlockReadEnd     int
 		memBlockReadLength int
 		offset             = arg.offset
 		dataOffset         int
-		readEnd            int64
+		readEnd            uint64
 		err                error
 	)
 	pNetINode := uNetINode.Ptr()
@@ -35,23 +35,23 @@ func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
 		return 0, io.EOF
 	}
 
-	if arg.offset+int64(arg.dataLength) > pNetINode.Size {
+	if arg.offset+uint64(arg.dataLength) > pNetINode.Size {
 		arg.dataLength = int(pNetINode.Size - arg.offset)
 	}
 
-	readEnd = offset + int64(arg.dataLength)
-	for ; offset < readEnd; offset, dataOffset = offset+int64(memBlockReadLength), dataOffset+memBlockReadLength {
+	readEnd = offset + uint64(arg.dataLength)
+	for ; offset < readEnd; offset, dataOffset = offset+uint64(memBlockReadLength), dataOffset+memBlockReadLength {
 		// prepare netBlock
-		netBlockIndex = int(offset / int64(pNetINode.NetBlockCap))
+		netBlockIndex = int(offset / uint64(pNetINode.NetBlockCap))
 		uNetBlock, err = p.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 
 		// prepare memBlock
-		memBlockIndex = int(offset / int64(pNetINode.MemBlockCap))
-		memBlockStart = int64(memBlockIndex) * int64(pNetINode.MemBlockCap)
+		memBlockIndex = int(offset / uint64(pNetINode.MemBlockCap))
+		memBlockStart = uint64(memBlockIndex) * uint64(pNetINode.MemBlockCap)
 		memBlockReadOffset = int(offset - memBlockStart)
-		if memBlockStart+int64(pNetINode.MemBlockCap) < readEnd {
+		if memBlockStart+uint64(pNetINode.MemBlockCap) < readEnd {
 			// not the last block
-			memBlockReadLength = int(memBlockStart + int64(pNetINode.MemBlockCap) - offset)
+			memBlockReadLength = int(memBlockStart + uint64(pNetINode.MemBlockCap) - offset)
 		} else {
 			// the last block
 			memBlockReadLength = int(readEnd - offset)
@@ -90,7 +90,7 @@ READ_DATA_DONE:
 }
 
 func (p *NetINodeDriver) PReadWithConn(uNetINode types.NetINodeUintptr,
-	conn *snettypes.Connection, dataLength int, offset int64) (int, error) {
+	conn *snettypes.Connection, dataLength int, offset uint64) (int, error) {
 	return p.doPRead(uNetINode, preadArg{
 		conn:       conn,
 		data:       nil,
@@ -100,7 +100,7 @@ func (p *NetINodeDriver) PReadWithConn(uNetINode types.NetINodeUintptr,
 }
 
 func (p *NetINodeDriver) PReadWithMem(uNetINode types.NetINodeUintptr,
-	data []byte, offset int64) (int, error) {
+	data []byte, offset uint64) (int, error) {
 	return p.doPRead(uNetINode, preadArg{
 		conn:       nil,
 		data:       data,

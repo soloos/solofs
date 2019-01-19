@@ -12,14 +12,13 @@ type NetBlockPool struct {
 	pool               map[NetINodeBlockID]NetBlockUintptr
 }
 
-func (p *NetBlockPool) Init(rawChunksLimit int32,
-	offheapDriver *offheap.OffheapDriver) error {
+func (p *NetBlockPool) Init(offheapDriver *offheap.OffheapDriver) error {
 	var err error
 
 	p.offheapDriver = offheapDriver
 
 	err = p.offheapDriver.InitRawObjectPool(&p.netBlockObjectPool,
-		int(NetBlockStructSize), rawChunksLimit,
+		int(NetBlockStructSize), -1,
 		p.RawChunkPoolInvokePrepareNewRawChunk, p.RawChunkPoolInvokeReleaseRawChunk)
 	if err != nil {
 		return err
@@ -35,6 +34,8 @@ func (p *NetBlockPool) RawChunkPoolInvokeReleaseRawChunk() {
 }
 
 func (p *NetBlockPool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
+	uNetBlock := NetBlockUintptr(uRawChunk)
+	uNetBlock.Ptr().SharedPointer.IsInited = true
 }
 
 // return true if NetBlock stored in pool before
@@ -45,59 +46,62 @@ func (p *NetBlockPool) MustGetNetBlock(uNetINode NetINodeUintptr,
 		netINodeBlockID NetINodeBlockID
 		uNetBlock       NetBlockUintptr
 		exists          bool
+		isLoaded        bool
 	)
+
 	EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
-	p.poolRWMutex.RLock()
-	uNetBlock, exists = p.pool[netINodeBlockID]
-	p.poolRWMutex.RUnlock()
-	if exists {
-		return uNetBlock, true
-	}
 
-	var isLoaded = true
+	for {
+		p.poolRWMutex.RLock()
+		uNetBlock, exists = p.pool[netINodeBlockID]
+		p.poolRWMutex.RUnlock()
+		if exists {
+			isLoaded = true
+			goto FETCH_NETBLOCK_DONE
+		}
 
-	p.poolRWMutex.Lock()
-	uNetBlock, exists = p.pool[netINodeBlockID]
-	if exists == false {
-		uNetBlock = p.AllocRawNetBlock()
-		uNetBlock.Ptr().NetINodeID = uNetINode.Ptr().ID
-		uNetBlock.Ptr().IndexInNetINode = netBlockIndex
-		isLoaded = false
-		p.pool[netINodeBlockID] = uNetBlock
+		p.poolRWMutex.Lock()
+		uNetBlock, exists = p.pool[netINodeBlockID]
+		if exists {
+			isLoaded = true
+		} else {
+			uNetBlock = NetBlockUintptr(p.netBlockObjectPool.AllocRawObject())
+			uNetBlock.Ptr().NetINodeID = uNetINode.Ptr().ID
+			uNetBlock.Ptr().IndexInNetINode = netBlockIndex
+			isLoaded = false
+			p.pool[netINodeBlockID] = uNetBlock
+		}
+		p.poolRWMutex.Unlock()
+
+	FETCH_NETBLOCK_DONE:
+		uNetBlock.Ptr().SharedPointer.ReadAcquire()
+
+		if uNetBlock.Ptr().SharedPointer.IsInited == false {
+			uNetBlock.Ptr().SharedPointer.ReadRelease()
+		} else {
+			break
+		}
 	}
-	p.poolRWMutex.Unlock()
 
 	return uNetBlock, isLoaded
 }
 
-// return true if set RawNetBlock success
-//        false if there is RawNetBlock exists, and return the old NetBlock and release the new one
-func (p *NetBlockPool) SetRawNetBlock(uNetINode NetINodeUintptr,
-	netBlockIndex int,
-	uNetBlock NetBlockUintptr) (NetBlockUintptr, bool) {
-	var (
-		netINodeBlockID NetINodeBlockID
-		uNetBlockFinal  NetBlockUintptr
-		exists          bool
-	)
-	EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
-	p.poolRWMutex.Lock()
-	uNetBlockFinal, exists = p.pool[netINodeBlockID]
-	if exists {
-		p.ReleaseRawNetBlock(uNetBlock)
-	} else {
-		p.pool[netINodeBlockID] = uNetBlock
-		uNetBlockFinal = uNetBlock
+func (p *NetBlockPool) ReleaseNetBlock(uNetBlock NetBlockUintptr) {
+	pNetBlock := uNetBlock.Ptr()
+	pNetBlock.SharedPointer.ReadRelease()
+	if pNetBlock.SharedPointer.IsShouldRelease &&
+		pNetBlock.SharedPointer.Accessor == 0 {
+
+		var netINodeBlockID NetINodeBlockID
+		EncodeNetINodeBlockID(&netINodeBlockID, pNetBlock.NetINodeID, pNetBlock.IndexInNetINode)
+
+		pNetBlock.SharedPointer.WriteAcquire()
+		pNetBlock.Reset()
+		p.poolRWMutex.Lock()
+		delete(p.pool, netINodeBlockID)
+		p.poolRWMutex.Unlock()
+		pNetBlock.SharedPointer.WriteRelease()
+
+		p.netBlockObjectPool.ReleaseRawObject(uintptr(uNetBlock))
 	}
-	p.poolRWMutex.Unlock()
-	return uNetBlockFinal, exists
-}
-
-func (p *NetBlockPool) AllocRawNetBlock() NetBlockUintptr {
-	return NetBlockUintptr(p.netBlockObjectPool.AllocRawObject())
-}
-
-func (p *NetBlockPool) ReleaseRawNetBlock(uNetBlock NetBlockUintptr) {
-	uNetBlock.Ptr().Reset()
-	p.netBlockObjectPool.ReleaseRawObject(uintptr(uNetBlock))
 }

@@ -34,16 +34,16 @@ func (rcv *NetINodeInfoRequest) NetINodeID() []byte {
 	return nil
 }
 
-func (rcv *NetINodeInfoRequest) Size() int64 {
+func (rcv *NetINodeInfoRequest) Size() uint64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
-		return rcv._tab.GetInt64(o + rcv._tab.Pos)
+		return rcv._tab.GetUint64(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *NetINodeInfoRequest) MutateSize(n int64) bool {
-	return rcv._tab.MutateInt64Slot(6, n)
+func (rcv *NetINodeInfoRequest) MutateSize(n uint64) bool {
+	return rcv._tab.MutateUint64Slot(6, n)
 }
 
 func (rcv *NetINodeInfoRequest) NetBlockCap() int32 {
@@ -76,8 +76,8 @@ func NetINodeInfoRequestStart(builder *flatbuffers.Builder) {
 func NetINodeInfoRequestAddNetINodeID(builder *flatbuffers.Builder, NetINodeID flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(NetINodeID), 0)
 }
-func NetINodeInfoRequestAddSize(builder *flatbuffers.Builder, Size int64) {
-	builder.PrependInt64Slot(1, Size, 0)
+func NetINodeInfoRequestAddSize(builder *flatbuffers.Builder, Size uint64) {
+	builder.PrependUint64Slot(1, Size, 0)
 }
 func NetINodeInfoRequestAddNetBlockCap(builder *flatbuffers.Builder, NetBlockCap int32) {
 	builder.PrependInt32Slot(2, NetBlockCap, 0)

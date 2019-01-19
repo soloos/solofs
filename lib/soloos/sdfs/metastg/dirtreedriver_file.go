@@ -4,6 +4,7 @@ import (
 	"soloos/sdfs/types"
 	"soloos/util"
 	"strings"
+	"time"
 )
 
 func (p *DirTreeDriver) allocNetINode(netBlockCap int, memBlockCap int) (types.NetINodeID, error) {
@@ -21,7 +22,7 @@ func (p *DirTreeDriver) OpenFile(fsInodePath string, netBlockCap int, memBlockCa
 	var (
 		paths      []string
 		i          int
-		parentID   types.FsINodeID = p.rootFsINode.ID
+		parentID   types.FsINodeID = p.rootFsINode.Ino
 		fsINode    types.FsINode
 		netINodeID types.NetINodeID
 		err        error
@@ -37,14 +38,14 @@ func (p *DirTreeDriver) OpenFile(fsInodePath string, netBlockCap int, memBlockCa
 		if paths[i] == "" {
 			continue
 		}
-		fsINode, err = p.GetFsINodeByPathFromDB(parentID, paths[i])
+		fsINode, err = p.GetFsINodeByNameFromDB(parentID, paths[i])
 		if err != nil {
 			goto OPEN_FILE_DONE
 		}
-		parentID = fsINode.ID
+		parentID = fsINode.Ino
 	}
 
-	fsINode, err = p.GetFsINodeByPathFromDB(parentID, paths[i])
+	fsINode, err = p.GetFsINodeByNameFromDB(parentID, paths[i])
 	if err == nil {
 		goto OPEN_FILE_DONE
 	}
@@ -55,14 +56,23 @@ func (p *DirTreeDriver) OpenFile(fsInodePath string, netBlockCap int, memBlockCa
 			goto OPEN_FILE_DONE
 		}
 
+		now := time.Now()
+		nowt := types.DirTreeTime(now.Unix())
+		nowtnsec := types.DirTreeTimeNsec(now.UnixNano())
 		fsINode = types.FsINode{
-			ID:         p.AllocFsINodeID(),
+			Ino:        p.AllocFsINodeID(),
+			NetINodeID: netINodeID,
 			ParentID:   parentID,
 			Name:       paths[i],
-			Flag:       0,
-			Permission: 0777,
-			NetINodeID: netINodeID,
-			Type:       types.FSINODE_TYPE_FILE,
+			Type:       types.FSINODE_TYPE_IFREG,
+			Atime:      nowt,
+			Ctime:      nowt,
+			Mtime:      nowt,
+			Atimensec:  nowtnsec,
+			Ctimensec:  nowtnsec,
+			Mtimensec:  nowtnsec,
+			Mode:       0,
+			Nlink:      1,
 		}
 		err = p.InsertFsINodeInDB(fsINode)
 	}

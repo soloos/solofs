@@ -34,16 +34,16 @@ func (rcv *NetINodePReadRequest) NetINodeID() []byte {
 	return nil
 }
 
-func (rcv *NetINodePReadRequest) Offset() int64 {
+func (rcv *NetINodePReadRequest) Offset() uint64 {
 	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
-		return rcv._tab.GetInt64(o + rcv._tab.Pos)
+		return rcv._tab.GetUint64(o + rcv._tab.Pos)
 	}
 	return 0
 }
 
-func (rcv *NetINodePReadRequest) MutateOffset(n int64) bool {
-	return rcv._tab.MutateInt64Slot(6, n)
+func (rcv *NetINodePReadRequest) MutateOffset(n uint64) bool {
+	return rcv._tab.MutateUint64Slot(6, n)
 }
 
 func (rcv *NetINodePReadRequest) Length() int32 {
@@ -64,8 +64,8 @@ func NetINodePReadRequestStart(builder *flatbuffers.Builder) {
 func NetINodePReadRequestAddNetINodeID(builder *flatbuffers.Builder, NetINodeID flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(NetINodeID), 0)
 }
-func NetINodePReadRequestAddOffset(builder *flatbuffers.Builder, Offset int64) {
-	builder.PrependInt64Slot(1, Offset, 0)
+func NetINodePReadRequestAddOffset(builder *flatbuffers.Builder, Offset uint64) {
+	builder.PrependUint64Slot(1, Offset, 0)
 }
 func NetINodePReadRequestAddLength(builder *flatbuffers.Builder, Length int32) {
 	builder.PrependInt32Slot(2, Length, 0)

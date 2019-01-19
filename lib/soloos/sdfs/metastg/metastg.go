@@ -1,39 +1,34 @@
 package metastg
 
 import (
-	"soloos/sdfs/api"
+	"soloos/dbcli"
 	"soloos/util/offheap"
-
-	"github.com/gocraft/dbr"
 )
 
 type MetaStg struct {
 	offheapDriver *offheap.OffheapDriver
-	dbConn        *dbr.Connection
+	dbConn        dbcli.Connection
 	DataNodeDriver
 	NetINodeDriver
 	NetBlockDriver
-	DirTreeDriver
 }
 
 func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
 	dbDriver, dsn string,
-	getNetINodeForDirTreeDriver api.GetNetINode,
-	mustGetNetINodeForDirTreeDriver api.MustGetNetINode,
 ) error {
 	var err error
 
 	p.offheapDriver = offheapDriver
-	p.dbConn, err = dbr.Open(dbDriver, dsn, nil)
+	err = p.dbConn.Init(dbDriver, dsn)
 	if err != nil {
 		return err
 	}
 
 	switch dbDriver {
 	case "mysql":
-		err = p.InstallMysqlSchema()
+		err = InstallMysqlSchema(&p.dbConn)
 	case "sqlite3":
-		err = p.InstallSqlite3Schema()
+		err = InstallSqlite3Schema(&p.dbConn)
 	}
 
 	err = p.DataNodeDriver.Init(p)
@@ -42,26 +37,19 @@ func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
 	}
 
 	err = p.NetINodeDriver.Init(p.offheapDriver,
-		p.dbConn,
-		p.DataNodeDriver.ChooseOneDataNode)
+		&p.dbConn,
+		p.DataNodeDriver.ChooseDataNodesForNewNetBlock)
 	if err != nil {
 		return err
 	}
 
 	err = p.NetBlockDriver.Init(p.offheapDriver,
-		p.dbConn,
+		&p.dbConn,
 		p.DataNodeDriver.GetDataNode,
 		p.NetINodeDriver.ChooseDataNodesForNewNetBlock)
 	if err != nil {
 		return err
 	}
-
-	err = p.DirTreeDriver.Init(p.offheapDriver,
-		p.dbConn,
-		p.FetchAndUpdateMaxID,
-		getNetINodeForDirTreeDriver,
-		mustGetNetINodeForDirTreeDriver,
-	)
 
 	return nil
 }
@@ -75,9 +63,4 @@ func (p *MetaStg) Close() error {
 	}
 
 	return nil
-}
-
-func (p *MetaStg) GetDBConn() *dbr.Connection {
-	return p.dbConn
-
 }

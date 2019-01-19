@@ -26,7 +26,7 @@ func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUi
 
 	uTmpMemBlock = p.memBlockDriver.AllocTmpBlockWithWriteAcquire(uNetINode)
 	_, err = p.netBlockDriver.PReadMemBlock(uNetINode, uNetBlock, netBlockIndex, uTmpMemBlock, memBlockIndex,
-		int64(memBlockIndex)*int64(uNetINode.Ptr().MemBlockCap),
+		uint64(memBlockIndex)*uint64(uNetINode.Ptr().MemBlockCap),
 		uNetINode.Ptr().MemBlockCap,
 	)
 	if err != nil {

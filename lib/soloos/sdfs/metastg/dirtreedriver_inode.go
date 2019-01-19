@@ -6,37 +6,92 @@ import (
 	"strconv"
 	"strings"
 	"sync/atomic"
+
+	"github.com/hanwen/go-fuse/fuse"
 )
 
 func (p *DirTreeDriver) MakeFsINodeKey(parentID types.FsINodeID, fsINodeName string) string {
-	return strconv.FormatInt(parentID, 10) + fsINodeName
+	return strconv.FormatUint(parentID, 10) + fsINodeName
+}
+
+func (p *DirTreeDriver) PrepareSchema() error {
+	var err error
+	switch p.helper.DBConn.DBDriver {
+	case "mysql":
+		err = InstallMysqlSchema(p.helper.DBConn)
+	case "sqlite3":
+		err = InstallSqlite3Schema(p.helper.DBConn)
+	}
+	return err
 }
 
 func (p *DirTreeDriver) PrepareINodes() error {
 	var err error
 
 	p.allocINodeIDDalta = 10000 * 10
-	p.lastFsINodeIDInDB, err = p.helper.FetchAndUpdateMaxID("b_fsinode", p.allocINodeIDDalta)
-	if err != nil {
-		return err
+	for p.lastFsINodeIDInDB <= types.RootFsINodeID {
+		p.lastFsINodeIDInDB, err = FetchAndUpdateMaxID(p.helper.DBConn, "b_fsinode", p.allocINodeIDDalta)
+		if err != nil {
+			return err
+		}
+		p.maxFsINodeID = p.lastFsINodeIDInDB
 	}
-	p.maxFsINodeID = p.lastFsINodeIDInDB
 
 	p.fsINodesByPath = make(map[string]types.FsINode)
 	p.fsINodesByID = make(map[types.FsINodeID]types.FsINode)
 
-	p.rootFsINode, err = p.GetFsINodeByPathFromDB(-1, "")
+	p.Mkdir(types.RootFsINodeID, &fuse.MkdirIn{
+		InHeader: fuse.InHeader{
+			Length: 0,
+			Opcode: 0,
+			Unique: 0,
+			NodeId: types.RootFsINodeParentID,
+			Context: fuse.Context{
+				Owner: fuse.Owner{
+					Uid: 0,
+					Gid: 0,
+				},
+				Pid: 0,
+			},
+			Padding: 0,
+		},
+		Mode:  fuse.S_IFDIR | 0777,
+		Umask: 0,
+	}, "", &fuse.EntryOut{})
+
+	p.Mkdir(p.AllocFsINodeID(), &fuse.MkdirIn{
+		InHeader: fuse.InHeader{
+			Length: 0,
+			Opcode: 0,
+			Unique: 0,
+			NodeId: types.RootFsINodeID,
+			Context: fuse.Context{
+				Owner: fuse.Owner{
+					Uid: 0,
+					Gid: 0,
+				},
+				Pid: 0,
+			},
+			Padding: 0,
+		},
+		Mode:  fuse.S_IFDIR | 0777,
+		Umask: 0,
+	}, "tmp", &fuse.EntryOut{})
+
+	p.rootFsINode, err = p.GetFsINodeByNameFromDB(types.RootFsINodeParentID, "")
 	if err != nil {
 		return err
 	}
 
-	p.Mkdir("/tmp")
+	for i := 0; i < len(p.sysFsINode); i++ {
+		p.sysFsINode[i].Ino = types.FsINodeID(i)
+	}
 
 	return nil
 }
 
 func (p *DirTreeDriver) ensureFsINodeHasNetINode(fsINode *types.FsINode) error {
-	if fsINode.Type != types.FSINODE_TYPE_FILE {
+	if fsINode.Type != types.FSINODE_TYPE_IFREG {
 		return nil
 	}
 
@@ -61,7 +116,7 @@ func (p *DirTreeDriver) prepareAndSetFsINodeCache(fsINode *types.FsINode) error 
 	p.fsINodesByPathRWMutex.Unlock()
 
 	p.fsINodesByIDRWMutex.Lock()
-	p.fsINodesByID[fsINode.ID] = *fsINode
+	p.fsINodesByID[fsINode.Ino] = *fsINode
 	p.fsINodesByIDRWMutex.Unlock()
 
 	return nil
@@ -77,10 +132,10 @@ func (p *DirTreeDriver) deleteFsINodeCache(parentID types.FsINodeID, fsINodeName
 	p.fsINodesByIDRWMutex.Unlock()
 }
 
-func (p *DirTreeDriver) AllocFsINodeID() int64 {
-	var ret = atomic.AddInt64(&p.maxFsINodeID, 1)
+func (p *DirTreeDriver) AllocFsINodeID() types.FsINodeID {
+	var ret = atomic.AddUint64(&p.maxFsINodeID, 1)
 	if p.lastFsINodeIDInDB-ret < p.allocINodeIDDalta/100 {
-		util.AssertErrIsNil1(p.helper.FetchAndUpdateMaxID("b_fsinode", p.allocINodeIDDalta))
+		util.AssertErrIsNil1(FetchAndUpdateMaxID(p.helper.DBConn, "b_fsinode", p.allocINodeIDDalta))
 		p.lastFsINodeIDInDB += p.allocINodeIDDalta
 	}
 	return ret
@@ -101,8 +156,8 @@ func (p *DirTreeDriver) DeleteINodeByPath(fsINodePath string) error {
 		}
 	}
 
-	err = p.DeleteFsINodeByIDInDB(fsINode.ID)
-	p.deleteFsINodeCache(fsINode.ParentID, fsINode.Name, fsINode.ID)
+	err = p.DeleteFsINodeByIDInDB(fsINode.Ino)
+	p.deleteFsINodeCache(fsINode.ParentID, fsINode.Name, fsINode.Ino)
 
 	return err
 }
@@ -112,7 +167,26 @@ func (p *DirTreeDriver) GetFsINodeByID(fsINodeID types.FsINodeID) (types.FsINode
 		fsINode types.FsINode
 		err     error
 	)
+
+	if fsINodeID < types.RootFsINodeID {
+		return p.sysFsINode[fsINodeID], nil
+	}
+
 	fsINode, err = p.GetFsINodeByIDFromDB(fsINodeID)
+	if err != nil {
+		return fsINode, err
+	}
+
+	return fsINode, err
+}
+
+func (p *DirTreeDriver) GetFsINodeByName(parentID types.FsINodeID, name string) (types.FsINode, error) {
+	var (
+		fsINode types.FsINode
+		err     error
+	)
+
+	fsINode, err = p.GetFsINodeByNameFromDB(parentID, name)
 	if err != nil {
 		return fsINode, err
 	}
@@ -124,7 +198,7 @@ func (p *DirTreeDriver) GetFsINodeByPath(fsInodePath string) (types.FsINode, err
 	var (
 		paths    []string
 		i        int
-		parentID types.FsINodeID = p.rootFsINode.ID
+		parentID types.FsINodeID = p.rootFsINode.Ino
 		fsINode  types.FsINode
 		err      error
 	)
@@ -143,11 +217,11 @@ func (p *DirTreeDriver) GetFsINodeByPath(fsInodePath string) (types.FsINode, err
 		if paths[i] == "" {
 			continue
 		}
-		fsINode, err = p.GetFsINodeByPathFromDB(parentID, paths[i])
+		fsINode, err = p.GetFsINodeByNameFromDB(parentID, paths[i])
 		if err != nil {
 			return fsINode, err
 		}
-		parentID = fsINode.ID
+		parentID = fsINode.Ino
 	}
 
 	return fsINode, err

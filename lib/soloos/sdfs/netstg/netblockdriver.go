@@ -2,10 +2,8 @@ package netstg
 
 import (
 	"soloos/sdfs/api"
-	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 	"soloos/snet"
-	snettypes "soloos/snet/types"
 	"soloos/util/offheap"
 	"sync"
 )
@@ -42,7 +40,7 @@ func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
 ) error {
 	var err error
 	p.offheapDriver = offheapDriver
-	err = p.netBlockPool.Init(-1, p.offheapDriver)
+	err = p.netBlockPool.Init(p.offheapDriver)
 	if err != nil {
 		return err
 	}
@@ -105,67 +103,12 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	}
 
 	if err != nil {
-		// TODO: clean uNetBlock
+		pNetBlock.SharedPointer.SetReleasable()
+		p.netBlockPool.ReleaseNetBlock(uNetBlock)
 		return 0, err
 	}
 
 	return uNetBlock, nil
-}
-
-// TODO make this configurable
-func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr,
-	uNetINode types.NetINodeUintptr, netblockIndex int,
-	syncDataPrimaryBackendTransferCount int,
-) error {
-	var (
-		pNetBlock    = uNetBlock.Ptr()
-		netBlockInfo protocol.NetINodeNetBlockInfoResponse
-		backend      protocol.SNetPeer
-		peerID       snettypes.PeerID
-		uPeer        snettypes.PeerUintptr
-		i            int
-		err          error
-	)
-
-	err = p.Helper.nameNodeClient.PrepareNetBlockMetaData(&netBlockInfo, uNetINode, netblockIndex, uNetBlock)
-	if err != nil {
-		return err
-	}
-
-	pNetBlock.StorDataBackends.Reset()
-	for i = 0; i < netBlockInfo.BackendsLength(); i++ {
-		netBlockInfo.Backends(&backend, i)
-		copy(peerID[:], backend.PeerID())
-		uPeer, _ = p.snetDriver.MustGetPeer(&peerID, string(backend.Address()), types.DefaultSDFSRPCProtocol)
-		pNetBlock.StorDataBackends.Append(uPeer)
-	}
-
-	pNetBlock.SyncDataBackends = pNetBlock.StorDataBackends
-	pNetBlock.SyncDataPrimaryBackendTransferCount = syncDataPrimaryBackendTransferCount
-	return nil
-}
-
-func (p *NetBlockDriver) PrepareNetBlockMetaDataWithTransfer(uNetBlock types.NetBlockUintptr,
-	uNetINode types.NetINodeUintptr, netblockIndex int) error {
-	var err error
-	err = p.doPrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex,
-		uNetBlock.Ptr().SyncDataBackends.Len-1)
-	if err != nil {
-		return err
-	}
-	uNetBlock.Ptr().IsDBMetaDataInited = true
-	return nil
-}
-
-func (p *NetBlockDriver) PrepareNetBlockMetaDataWithFanout(uNetBlock types.NetBlockUintptr,
-	uNetINode types.NetINodeUintptr, netblockIndex int) error {
-	var err error
-	err = p.doPrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex, 0)
-	if err != nil {
-		return err
-	}
-	uNetBlock.Ptr().IsDBMetaDataInited = true
-	return nil
 }
 
 func (p *NetBlockDriver) FlushMemBlock(uNetINode types.NetINodeUintptr,

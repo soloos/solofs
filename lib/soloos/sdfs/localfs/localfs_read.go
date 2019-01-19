@@ -9,7 +9,7 @@ func (p *LocalFs) PReadMemBlockWithDisk(uNetINode types.NetINodeUintptr,
 	uPeer snettypes.PeerUintptr,
 	uNetBlock types.NetBlockUintptr, netBlockIndex int,
 	uMemBlock types.MemBlockUintptr, memBlockIndex int,
-	offset int64, length int) (int, error) {
+	offset uint64, length int) (int, error) {
 	var (
 		fd                 *Fd
 		memBlockReadOffset int
@@ -22,7 +22,7 @@ func (p *LocalFs) PReadMemBlockWithDisk(uNetINode types.NetINodeUintptr,
 		goto PREAD_DONE
 	}
 
-	memBlockReadOffset = int(offset - int64(memBlockIndex)*int64(uMemBlock.Ptr().Bytes.Cap))
+	memBlockReadOffset = int(offset - uint64(memBlockIndex)*uint64(uMemBlock.Ptr().Bytes.Cap))
 	readedLen, err = fd.PReadMemBlock(uMemBlock,
 		memBlockReadOffset,
 		memBlockReadOffset+length,

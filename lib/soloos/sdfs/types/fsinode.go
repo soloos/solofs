@@ -4,22 +4,36 @@ import (
 	"unsafe"
 )
 
-type FsINodeID = int64
+type FsINodeID = uint64
+type DirTreeTime = uint64
+type DirTreeTimeNsec = uint32
+
+const (
+	RootFsINodeParentID = FsINodeID(0)
+	RootFsINodeID       = FsINodeID(1)
+)
 
 type FsINodeUintptr uintptr
 
 func (u FsINodeUintptr) Ptr() *FsINode { return (*FsINode)(unsafe.Pointer(u)) }
 
 type FsINode struct {
-	ID         FsINodeID
+	Ino        FsINodeID
+	NetINodeID NetINodeID
 	ParentID   FsINodeID
 	Name       string
-	Flag       int
-	Permission int
-	NetINodeID NetINodeID
 	Type       int
-	CTime      int64
-	MTime      int64
+	Atime      DirTreeTime
+	Ctime      DirTreeTime
+	Mtime      DirTreeTime
+	Atimensec  DirTreeTimeNsec
+	Ctimensec  DirTreeTimeNsec
+	Mtimensec  DirTreeTimeNsec
+	Mode       uint32
+	Nlink      uint32
+	Uid        uint32
+	Gid        uint32
+	Rdev       uint32
 	UNetINode  NetINodeUintptr
 }
 

@@ -25,7 +25,7 @@ func SetNetINodeInfoResponseError(protocolBuilder *flatbuffers.Builder, code int
 }
 
 func SetNetINodeInfoResponse(protocolBuilder *flatbuffers.Builder,
-	size int64, netBlockCap int32, memBlockCap int32) {
+	size uint64, netBlockCap int32, memBlockCap int32) {
 	protocolBuilder.Reset()
 	var (
 		commonResponseOff flatbuffers.UOffsetT

@@ -5,6 +5,7 @@ import "errors"
 var (
 	ErrRemoteService      = errors.New("remote service error")
 	ErrServiceNotExists   = errors.New("service not exists")
+	ErrObjectExists       = errors.New("object exists")
 	ErrObjectNotExists    = errors.New("object not exists")
 	ErrObjectNotPrepared  = errors.New("object not prepared")
 	ErrNetBlockPWrite     = errors.New("net block pwrite error")

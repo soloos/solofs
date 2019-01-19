@@ -31,8 +31,8 @@ func TestNetINodeDriverNetINodeRead(t *testing.T) {
 	assert.NoError(t, err)
 
 	var (
-		readData       = make([]byte, 93)
-		readOff  int64 = 73
+		readData        = make([]byte, 93)
+		readOff  uint64 = 73
 	)
 
 	err = netINodeDriver.PWriteWithMem(uNetINode, readData, readOff)

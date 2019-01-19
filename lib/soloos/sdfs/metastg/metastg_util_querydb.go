@@ -2,20 +2,22 @@ package metastg
 
 import (
 	"database/sql"
+	"soloos/dbcli"
+	"soloos/sdfs/types"
 
 	"github.com/gocraft/dbr"
 )
 
-func (p *MetaStg) FetchAndUpdateMaxID(key string, delta int64) (int64, error) {
+func FetchAndUpdateMaxID(dbConn *dbcli.Connection, key string, delta types.FsINodeID) (types.FsINodeID, error) {
 	var (
 		sess         *dbr.Session
 		sqlRows      *sql.Rows
 		isNeedInsert bool
-		maxid        int64
+		maxid        types.FsINodeID
 		err          error
 	)
 
-	sess = p.dbConn.NewSession(nil)
+	sess = dbConn.NewSession(nil)
 	sqlRows, err = sess.Select("maxid").
 		From("b_maxid").
 		Where("key=?", key).Rows()

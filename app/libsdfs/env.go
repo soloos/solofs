@@ -10,8 +10,9 @@ var (
 )
 
 type Env struct {
-	Options Options
-	Client  libsdfs.Client
+	Options      Options
+	ClientDriver libsdfs.ClientDriver
+	Client       libsdfs.Client
 }
 
 func (p *Env) Init(optionsFile string) {
@@ -26,8 +27,9 @@ func (p *Env) Init(optionsFile string) {
 		util.PProfServe(p.Options.PProfListenAddr)
 	}()
 
-	util.AssertErrIsNil(p.Client.Init(p.Options.NameNodeSRPCServerAddr,
+	util.AssertErrIsNil(p.ClientDriver.Init(p.Options.NameNodeSRPCServerAddr,
 		p.Options.MemBlockChunkSize, p.Options.MemBlockChunksLimit,
 		p.Options.DBDriver, p.Options.Dsn,
 	))
+	util.AssertErrIsNil(p.ClientDriver.InitClient(&p.Client))
 }

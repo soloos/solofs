@@ -9,7 +9,7 @@ type pwriteArg struct {
 	conn       *snettypes.Connection
 	dataLength int
 	data       []byte
-	offset     int64
+	offset     uint64
 }
 
 func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
@@ -20,13 +20,13 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 		uNetBlock           types.NetBlockUintptr
 		memBlockIndex       int
 		netBlockIndex       int
-		memBlockStart       int64
+		memBlockStart       uint64
 		memBlockWriteOffset int
 		memBlockWriteEnd    int
 		memBlockWriteLength int
 		offset              = arg.offset
 		dataOffset          = 0
-		writeEnd            int64
+		writeEnd            uint64
 		pNetINode           = uNetINode.Ptr()
 		i                   int
 		err                 error
@@ -34,19 +34,19 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 
 	pNetINode.WriteDataRWMutex.RLock()
 
-	writeEnd = offset + int64(arg.dataLength)
-	for ; offset < writeEnd; offset, dataOffset = offset+int64(memBlockWriteLength), dataOffset+memBlockWriteLength {
+	writeEnd = offset + uint64(arg.dataLength)
+	for ; offset < writeEnd; offset, dataOffset = offset+uint64(memBlockWriteLength), dataOffset+memBlockWriteLength {
 		// prepare netBlock
-		netBlockIndex = int(offset / int64(pNetINode.NetBlockCap))
+		netBlockIndex = int(offset / uint64(pNetINode.NetBlockCap))
 		uNetBlock, err = p.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 
 		// prepare memBlock
-		memBlockIndex = int(offset / int64(pNetINode.MemBlockCap))
-		memBlockStart = int64(memBlockIndex) * int64(pNetINode.MemBlockCap)
+		memBlockIndex = int(offset / uint64(pNetINode.MemBlockCap))
+		memBlockStart = uint64(memBlockIndex) * uint64(pNetINode.MemBlockCap)
 		memBlockWriteOffset = int(offset - memBlockStart)
-		if memBlockStart+int64(pNetINode.MemBlockCap) < writeEnd {
+		if memBlockStart+uint64(pNetINode.MemBlockCap) < writeEnd {
 			// not the last block
-			memBlockWriteLength = int(memBlockStart + int64(pNetINode.MemBlockCap) - offset)
+			memBlockWriteLength = int(memBlockStart + uint64(pNetINode.MemBlockCap) - offset)
 		} else {
 			// the last block
 			memBlockWriteLength = int(writeEnd - offset)
@@ -107,7 +107,7 @@ WRITE_DATA_DONE:
 }
 
 func (p *NetINodeDriver) PWriteWithConn(uNetINode types.NetINodeUintptr,
-	conn *snettypes.Connection, dataLength int, offset int64) error {
+	conn *snettypes.Connection, dataLength int, offset uint64) error {
 	return p.doPWrite(uNetINode, pwriteArg{
 		conn:       conn,
 		data:       nil,
@@ -117,7 +117,7 @@ func (p *NetINodeDriver) PWriteWithConn(uNetINode types.NetINodeUintptr,
 }
 
 func (p *NetINodeDriver) PWriteWithMem(uNetINode types.NetINodeUintptr,
-	data []byte, offset int64) error {
+	data []byte, offset uint64) error {
 	return p.doPWrite(uNetINode, pwriteArg{
 		conn:       nil,
 		data:       data,

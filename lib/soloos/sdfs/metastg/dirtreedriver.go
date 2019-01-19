@@ -2,26 +2,27 @@ package metastg
 
 import "C"
 import (
+	"soloos/dbcli"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	"soloos/util/offheap"
 	"sync"
-
-	"github.com/gocraft/dbr"
+	"time"
 )
 
 type DirTreeDriverHelper struct {
-	DBConn              *dbr.Connection
-	OffheapDriver       *offheap.OffheapDriver
-	FetchAndUpdateMaxID api.FetchAndUpdateMaxID
-	GetNetINode         api.GetNetINode
-	MustGetNetINode     api.MustGetNetINode
+	DBConn          *dbcli.Connection
+	OffheapDriver   *offheap.OffheapDriver
+	GetNetINode     api.GetNetINode
+	MustGetNetINode api.MustGetNetINode
 }
 
 type DirTreeDriver struct {
-	allocINodeIDDalta int64
-	lastFsINodeIDInDB int64
-	maxFsINodeID      int64
+	sysFsINode [2]types.FsINode
+
+	allocINodeIDDalta types.FsINodeID
+	lastFsINodeIDInDB types.FsINodeID
+	maxFsINodeID      types.FsINodeID
 	helper            DirTreeDriverHelper
 
 	fsINodesByPathRWMutex sync.RWMutex
@@ -29,39 +30,47 @@ type DirTreeDriver struct {
 	fsINodesByIDRWMutex   sync.RWMutex
 	fsINodesByID          map[types.FsINodeID]types.FsINode
 	rootFsINode           types.FsINode
+
+	EntryTtl           time.Duration
+	EntryAttrValid     uint64
+	EntryAttrValidNsec uint32
 }
 
 func (p *DirTreeDriver) Init(offheapDriver *offheap.OffheapDriver,
-	dbConn *dbr.Connection,
-	fetchAndUpdateMaxID api.FetchAndUpdateMaxID,
+	dbConn *dbcli.Connection,
 	getNetINode api.GetNetINode,
 	mustGetNetINode api.MustGetNetINode,
 ) error {
 	var err error
 	p.SetHelper(offheapDriver,
 		dbConn,
-		fetchAndUpdateMaxID,
 		getNetINode,
 		mustGetNetINode,
 	)
+
+	err = p.PrepareSchema()
+	if err != nil {
+		return err
+	}
 
 	err = p.PrepareINodes()
 	if err != nil {
 		return err
 	}
 
+	p.EntryTtl = 100 * time.Millisecond
+	splitDuration(p.EntryTtl, &p.EntryAttrValid, &p.EntryAttrValidNsec)
+
 	return nil
 }
 
 func (p *DirTreeDriver) SetHelper(offheapDriver *offheap.OffheapDriver,
-	dbConn *dbr.Connection,
-	fetchAndUpdateMaxID api.FetchAndUpdateMaxID,
+	dbConn *dbcli.Connection,
 	getNetINode api.GetNetINode,
 	mustGetNetINode api.MustGetNetINode,
 ) {
 	p.helper.OffheapDriver = offheapDriver
 	p.helper.DBConn = dbConn
-	p.helper.FetchAndUpdateMaxID = fetchAndUpdateMaxID
 	p.helper.GetNetINode = getNetINode
 	p.helper.MustGetNetINode = mustGetNetINode
 }

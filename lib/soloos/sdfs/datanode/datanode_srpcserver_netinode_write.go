@@ -65,8 +65,8 @@ func (p *DataNodeSRPCServer) NetINodePWrite(reqID uint64,
 	}
 
 	// prepare uNetBlock
-	firstNetBlockIndex = int(reqParam.Offset() / int64(uNetINode.Ptr().NetBlockCap))
-	lastNetBlockIndex = int((reqParam.Offset() + int64(reqParam.Length())) / int64(uNetINode.Ptr().NetBlockCap))
+	firstNetBlockIndex = int(reqParam.Offset() / uint64(uNetINode.Ptr().NetBlockCap))
+	lastNetBlockIndex = int((reqParam.Offset() + uint64(reqParam.Length())) / uint64(uNetINode.Ptr().NetBlockCap))
 	for netBlockIndex = firstNetBlockIndex; netBlockIndex <= lastNetBlockIndex; netBlockIndex++ {
 		uNetBlock, err = p.dataNode.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 		if err != nil {

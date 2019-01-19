@@ -1,6 +1,7 @@
 package libsdfs
 
 import (
+	"soloos/dbcli"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
@@ -13,7 +14,13 @@ import (
 	"time"
 )
 
-func MakeMetaStgForTest(metaStg *metastg.MetaStg) {
+func MakeClientForTest(client *Client) {
+	client.offheapDriver = &offheap.DefaultOffheapDriver
+	var (
+		memStg  memstg.MemStg
+		metaStg metastg.MetaStg
+	)
+
 	var (
 		offheapDriver          = &offheap.DefaultOffheapDriver
 		nameNodeSRPCListenAddr = "127.0.0.1:10300"
@@ -24,9 +31,9 @@ func MakeMetaStgForTest(metaStg *metastg.MetaStg) {
 		snetDriver             snet.NetDriver
 		snetClientDriver       snet.ClientDriver
 
-		memBlockDriverClient memstg.MemBlockDriver
-		netBlockDriverClient netstg.NetBlockDriver
-		netINodeDriverClient memstg.NetINodeDriver
+		memBlockDriverClient *memstg.MemBlockDriver = &memStg.MemBlockDriver
+		netBlockDriverClient *netstg.NetBlockDriver = &memStg.NetBlockDriver
+		netINodeDriverClient *memstg.NetINodeDriver = &memStg.NetINodeDriver
 
 		memBlockDriverServer memstg.MemBlockDriver
 		netBlockDriverServer netstg.NetBlockDriver
@@ -40,12 +47,12 @@ func MakeMetaStgForTest(metaStg *metastg.MetaStg) {
 
 	memstg.MakeDriversForTest(&snetDriver, &snetClientDriver,
 		nameNodeSRPCListenAddr,
-		&memBlockDriverClient, &netBlockDriverClient, &netINodeDriverClient, memBlockCap, blockChunksLimit)
+		memBlockDriverClient, netBlockDriverClient, netINodeDriverClient, memBlockCap, blockChunksLimit)
 	memstg.MakeDriversForTest(&snetDriver, &snetClientDriver,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer, memBlockCap, blockChunksLimit)
-	metastg.MakeMetaStgForTest(offheapDriver, metaStg)
-	namenode.MakeNameNodeForTest(&nameNode, metaStg, nameNodeSRPCListenAddr,
+	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
+	namenode.MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr,
 		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer)
 	go func() {
 		util.AssertErrIsNil(nameNode.Serve())
@@ -59,15 +66,11 @@ func MakeMetaStgForTest(metaStg *metastg.MetaStg) {
 		nameNode.RegisterDataNode(&peerID, mockServerAddr)
 	}
 
-	metaStg.DirTreeDriver.Init(offheapDriver,
-		metaStg.GetDBConn(),
-		metaStg.FetchAndUpdateMaxID,
-		netINodeDriverClient.GetNetINode,
-		netINodeDriverClient.MustGetNetINode,
+	var (
+		dbConn dbcli.Connection
+		err    error
 	)
-}
-
-func MakeClientForTest(client *Client) {
-	client.offheapDriver = &offheap.DefaultOffheapDriver
-	MakeMetaStgForTest(&client.MetaStg)
+	err = dbConn.Init(metastg.TestMetaStgDBDriver, metastg.TestMetaStgDBConnect)
+	util.AssertErrIsNil(err)
+	util.AssertErrIsNil(client.Init(&memStg, &dbConn))
 }

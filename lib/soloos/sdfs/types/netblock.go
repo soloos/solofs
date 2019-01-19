@@ -2,6 +2,7 @@ package types
 
 import (
 	snettypes "soloos/snet/types"
+	"soloos/util/offheap"
 	"sync"
 	"unsafe"
 )
@@ -16,6 +17,8 @@ type NetBlockUintptr uintptr
 func (u NetBlockUintptr) Ptr() *NetBlock { return (*NetBlock)(unsafe.Pointer(u)) }
 
 type NetBlock struct {
+	SharedPointer offheap.SharedPointer `db:"-"`
+
 	NetINodeID      NetINodeID `db:"netinode_id"`
 	IndexInNetINode int        `db:"index_in_netinode"`
 	Len             int        `db:"netblock_len"`

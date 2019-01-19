@@ -3,8 +3,32 @@ package metastg
 import (
 	"path/filepath"
 	"soloos/sdfs/types"
-	"strings"
+	"time"
+
+	"github.com/hanwen/go-fuse/fuse"
 )
+
+func (p *DirTreeDriver) ListFsINodeByParentPath(parentPath string,
+	beforeLiteralFunc func(resultCount int) bool,
+	literalFunc func(types.FsINode) bool,
+) error {
+	var (
+		fsINode types.FsINode
+		err     error
+	)
+
+	fsINode, err = p.GetFsINodeByPath(parentPath)
+	if err != nil {
+		return err
+	}
+
+	err = p.ListFsINodeByParentIDFromDB(fsINode.Ino, beforeLiteralFunc, literalFunc)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func (p *DirTreeDriver) Rename(oldFsINodeName, newFsINodePath string) error {
 	var (
@@ -28,12 +52,12 @@ func (p *DirTreeDriver) Rename(oldFsINodeName, newFsINodePath string) error {
 		return err
 	}
 
-	if parentFsINode.Type != types.FSINODE_TYPE_DIR {
+	if parentFsINode.Type != types.FSINODE_TYPE_IFDIR {
 		return types.ErrObjectNotExists
 	}
 
 	if tmpFileName == "" {
-		fsINode.ParentID = parentFsINode.ID
+		fsINode.ParentID = parentFsINode.Ino
 		// keep fsINode.Name
 		goto PREPARE_PARENT_FSINODE_DONE
 	}
@@ -41,7 +65,7 @@ func (p *DirTreeDriver) Rename(oldFsINodeName, newFsINodePath string) error {
 	tmpFsINode, err = p.GetFsINodeByPath(newFsINodePath)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
-			fsINode.ParentID = parentFsINode.ID
+			fsINode.ParentID = parentFsINode.Ino
 			fsINode.Name = tmpFileName
 			goto PREPARE_PARENT_FSINODE_DONE
 		} else {
@@ -49,9 +73,9 @@ func (p *DirTreeDriver) Rename(oldFsINodeName, newFsINodePath string) error {
 		}
 	}
 
-	if tmpFsINode.Type == types.FSINODE_TYPE_DIR {
+	if tmpFsINode.Type == types.FSINODE_TYPE_IFDIR {
 		parentFsINode = tmpFsINode
-		fsINode.ParentID = parentFsINode.ID
+		fsINode.ParentID = parentFsINode.Ino
 		// keep fsINode.Name
 		goto PREPARE_PARENT_FSINODE_DONE
 	} else {
@@ -59,9 +83,9 @@ func (p *DirTreeDriver) Rename(oldFsINodeName, newFsINodePath string) error {
 	}
 PREPARE_PARENT_FSINODE_DONE:
 
-	p.deleteFsINodeCache(oldFsINode.ParentID, oldFsINode.Name, oldFsINode.ID)
+	p.deleteFsINodeCache(oldFsINode.ParentID, oldFsINode.Name, oldFsINode.Ino)
 
-	err = p.UpdateFsINodeInDB(fsINode)
+	err = p.UpdateFsINodeInDB(&fsINode)
 	if err != nil {
 		return err
 	}
@@ -69,72 +93,44 @@ PREPARE_PARENT_FSINODE_DONE:
 	return nil
 }
 
-func (p *DirTreeDriver) ListFsINodeByParentPath(parentPath string,
-	beforeLiteralFunc func(resultCount int) bool,
-	literalFunc func(types.FsINode) bool,
-) error {
+func (p *DirTreeDriver) Mkdir(ino types.FsINodeID, input *fuse.MkdirIn, name string, output *fuse.EntryOut) error {
 	var (
-		fsINode types.FsINode
-		err     error
-	)
-
-	fsINode, err = p.GetFsINodeByPath(parentPath)
-	if err != nil {
-		return err
-	}
-
-	err = p.ListFsINodeByParentIDFromDB(fsINode.ID, beforeLiteralFunc, literalFunc)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (p *DirTreeDriver) Mkdir(fsInodePath string) (types.FsINode, error) {
-	var (
-		paths    []string
 		fsINode  types.FsINode
-		parentID types.FsINodeID = p.rootFsINode.ID
-		i        int
+		parentID types.FsINodeID = input.InHeader.NodeId
 		err      error
 	)
 
-	paths = strings.Split(fsInodePath, "/")
-	if len(paths) == 0 {
-		return fsINode, types.ErrObjectNotExists
+	_, err = p.GetFsINodeByNameFromDB(parentID, name)
+	if err == nil {
+		return nil
 	}
 
-	if paths[len(paths)-1] == "" {
-		paths = paths[:len(paths)-1]
+	if err != nil && err != types.ErrObjectNotExists {
+		return err
 	}
 
-	for i = 1; i < len(paths); i++ {
-		if paths[i] == "" {
-			continue
-		}
-		fsINode, err = p.GetFsINodeByPathFromDB(parentID, paths[i])
-		if err != nil {
-			if err != types.ErrObjectNotExists {
-				return fsINode, err
-			}
-
-			fsINode = types.FsINode{
-				ID:         p.AllocFsINodeID(),
-				ParentID:   parentID,
-				Name:       paths[i],
-				Flag:       0,
-				Permission: 0777,
-				NetINodeID: types.ZeroNetINodeID,
-				Type:       types.FSINODE_TYPE_DIR,
-			}
-			err = p.InsertFsINodeInDB(fsINode)
-			if err != nil {
-				return fsINode, err
-			}
-		}
-		parentID = fsINode.ID
+	now := time.Now()
+	nowt := types.DirTreeTime(now.Unix())
+	nowtnsec := types.DirTreeTimeNsec(now.UnixNano())
+	fsINode = types.FsINode{
+		Ino:        ino,
+		NetINodeID: types.ZeroNetINodeID,
+		ParentID:   parentID,
+		Name:       name,
+		Type:       types.FSINODE_TYPE_IFDIR,
+		Atime:      nowt,
+		Ctime:      nowt,
+		Mtime:      nowt,
+		Atimensec:  nowtnsec,
+		Ctimensec:  nowtnsec,
+		Mtimensec:  nowtnsec,
+		Mode:       input.Mode,
+		Nlink:      1,
+	}
+	err = p.InsertFsINodeInDB(fsINode)
+	if err != nil {
+		return err
 	}
 
-	return fsINode, err
+	return err
 }

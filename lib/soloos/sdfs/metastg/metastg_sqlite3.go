@@ -1,25 +1,32 @@
 package metastg
 
 import (
+	"soloos/dbcli"
+	"soloos/log"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func (p *MetaStg) InstallSqlite3Schema() error {
+func InstallSqlite3Schema(dbConn *dbcli.Connection) error {
 	var (
 		sqls []string
 		err  error
 	)
-	sqls = commonSchemaSqls()
+	sqls = prepareNetINodesSqls()
 	for _, sql := range sqls {
-		_, err = p.dbConn.Exec(sql)
+		_, err = dbConn.Exec(sql)
 		if err != nil {
+			log.Error(err, sql)
 			return err
 		}
 	}
 
-	sqls = baseDataSqls()
+	sqls = prepareDirTreeSqls()
 	for _, sql := range sqls {
-		p.dbConn.Exec(sql)
+		_, err = dbConn.Exec(sql)
+		if err != nil {
+			log.Error(err, sql)
+		}
 	}
 
 	return nil

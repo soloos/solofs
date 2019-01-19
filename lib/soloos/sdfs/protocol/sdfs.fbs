@@ -12,14 +12,14 @@ table SNetPeer {
 
 table NetINodeInfoRequest {
     NetINodeID:string;
-    Size:int64;
+    Size:uint64;
     NetBlockCap:int;
     MemBlockCap:int;
 }
 
 table NetINodeInfoResponse {
     CommonResponse:CommonResponse;
-    Size:int64;
+    Size:uint64;
     NetBlockCap:int;
     MemBlockCap:int;
 }
@@ -39,7 +39,7 @@ table NetINodeNetBlockInfoResponse {
 
 table NetINodePWriteRequest {
     NetINodeID:string;
-    Offset:int64;
+    Offset:uint64;
     Length:int;
     TransferBackends:[SNetPeer];
 }
@@ -50,7 +50,7 @@ table NetINodeFlushRequest {
 
 table NetINodePReadRequest {
     NetINodeID:string;
-    Offset:int64;
+    Offset:uint64;
     Length:int;
 }
 

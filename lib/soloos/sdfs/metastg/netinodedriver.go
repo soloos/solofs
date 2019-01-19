@@ -1,37 +1,34 @@
 package metastg
 
 import (
+	"soloos/dbcli"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	"soloos/util/offheap"
-
-	"github.com/gocraft/dbr"
 )
 
 type NetINodeDriverHelper struct {
-	DBConn            *dbr.Connection
-	ChooseOneDataNode api.ChooseOneDataNode
+	DBConn                        *dbcli.Connection
+	ChooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock
 }
 
 type NetINodeDriver struct {
-	helper       NetINodeDriverHelper
-	netINodePool types.NetINodePool
+	helper NetINodeDriverHelper
 }
 
 func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
-	dbConn *dbr.Connection,
-	chooseOneDataNode api.ChooseOneDataNode,
+	dbConn *dbcli.Connection,
+	chooseOneDataNode api.ChooseDataNodesForNewNetBlock,
 ) error {
 	p.SetHelper(dbConn, chooseOneDataNode)
-	p.netINodePool.Init(-1, offheapDriver)
 	return nil
 }
 
-func (p *NetINodeDriver) SetHelper(dbConn *dbr.Connection,
-	chooseOneDataNode api.ChooseOneDataNode,
+func (p *NetINodeDriver) SetHelper(dbConn *dbcli.Connection,
+	chooseOneDataNode api.ChooseDataNodesForNewNetBlock,
 ) {
 	p.helper.DBConn = dbConn
-	p.helper.ChooseOneDataNode = chooseOneDataNode
+	p.helper.ChooseDataNodesForNewNetBlock = chooseOneDataNode
 }
 
 func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetINodeUintptr) error {
@@ -53,7 +50,7 @@ PREPARE_DONE:
 }
 
 func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetINodeUintptr,
-	size int64, netBlockCap int, memBlockCap int) error {
+	size uint64, netBlockCap int, memBlockCap int) error {
 	var (
 		pNetINode = uNetINode.Ptr()
 		err       error

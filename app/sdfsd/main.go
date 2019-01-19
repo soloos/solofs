@@ -39,7 +39,7 @@ func (p *Env) Init(options Options) {
 	util.AssertErrIsNil(p.SNetClientDriver.Init(p.offheapDriver))
 
 	util.AssertErrIsNil(p.MetaStg.Init(p.offheapDriver,
-		dbDriver, dsn, nil, nil))
+		dbDriver, dsn))
 
 	p.DataNodeClient.Init(&p.SNetClientDriver)
 

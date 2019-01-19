@@ -6,3 +6,24 @@ const (
 	TestMetaStgDBDriver  = "sqlite3"
 	TestMetaStgDBConnect = "/tmp/sdfs_test.db"
 )
+
+var (
+	schemaDirTreeFsINodeAttr = []string{
+		"fsinode_ino",
+		"netinode_id",
+		"parent_fsinode_ino",
+		"fsinode_name",
+		"fsinode_type",
+		"atime",
+		"ctime",
+		"mtime",
+		"atimensec",
+		"ctimensec",
+		"mtimensec",
+		"mode",
+		"nlink",
+		"uid",
+		"gid",
+		"rdev",
+	}
+)

@@ -1,37 +1,34 @@
 package metastg
 
 import (
+	"soloos/dbcli"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
 	"soloos/util/offheap"
 	"strings"
-
-	"github.com/gocraft/dbr"
 )
 
 type NetBlockDriverHelper struct {
-	DBConn                        *dbr.Connection
+	DBConn                        *dbcli.Connection
 	ChooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock
 	GetDataNode                   api.GetDataNode
 }
 
 type NetBlockDriver struct {
-	helper       NetBlockDriverHelper
-	netBlockPool types.NetBlockPool
+	helper NetBlockDriverHelper
 }
 
 func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
-	dbConn *dbr.Connection,
+	dbConn *dbcli.Connection,
 	getDataNode api.GetDataNode,
 	chooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock,
 ) error {
 	p.SetHelper(dbConn, getDataNode, chooseDataNodesForNewNetBlock)
-	p.netBlockPool.Init(-1, offheapDriver)
 	return nil
 }
 
-func (p *NetBlockDriver) SetHelper(dbConn *dbr.Connection,
+func (p *NetBlockDriver) SetHelper(dbConn *dbcli.Connection,
 	getDataNode api.GetDataNode,
 	chooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock,
 ) {

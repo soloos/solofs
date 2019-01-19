@@ -14,11 +14,11 @@ import (
 func GoSdfsPappend(fdID uint64, buffer unsafe.Pointer, bufferLen, offset int32) (int32, C.int) {
 	var (
 		fsINode types.FsINode
-		fd      = env.Client.FileTableGet(fdID)
+		fd      = env.Client.FdTable.GetFd(fdID)
 		err     error
 	)
 
-	fsINode, err = env.Client.MetaStg.DirTreeDriver.GetFsINodeByID(fd.FsINodeID)
+	fsINode, err = env.Client.DirTreeDriver.GetFsINodeByID(fd.FsINodeID)
 	if err != nil {
 		return 0, libsdfs.CODE_ERR
 	}
@@ -41,11 +41,11 @@ func GoSdfsPappend(fdID uint64, buffer unsafe.Pointer, bufferLen, offset int32) 
 func GoSdfsAppend(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C.int) {
 	var (
 		fsINode types.FsINode
-		fd      = env.Client.FileTableGet(fdID)
+		fd      = env.Client.FdTable.GetFd(fdID)
 		err     error
 	)
 
-	fsINode, err = env.Client.MetaStg.DirTreeDriver.GetFsINodeByID(fd.FsINodeID)
+	fsINode, err = env.Client.DirTreeDriver.GetFsINodeByID(fd.FsINodeID)
 	if err != nil {
 		return 0, libsdfs.CODE_ERR
 	}
@@ -61,7 +61,7 @@ func GoSdfsAppend(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C
 		return 0, libsdfs.CODE_ERR
 	}
 
-	env.Client.FileTableAddAppendPosition(fdID, int64(bufferLen))
+	env.Client.FdTable.FdAddAppendPosition(fdID, int64(bufferLen))
 
 	return bufferLen, libsdfs.CODE_OK
 }
@@ -70,12 +70,12 @@ func GoSdfsAppend(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C
 func GoSdfsRead(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C.int) {
 	var (
 		fsINode        types.FsINode
-		fd             = env.Client.FileTableGet(fdID)
+		fd             = env.Client.FdTable.GetFd(fdID)
 		readDataLength int
 		err            error
 	)
 
-	fsINode, err = env.Client.MetaStg.DirTreeDriver.GetFsINodeByID(fd.FsINodeID)
+	fsINode, err = env.Client.DirTreeDriver.GetFsINodeByID(fd.FsINodeID)
 	if err != nil {
 		return 0, libsdfs.CODE_ERR
 	}
@@ -91,7 +91,7 @@ func GoSdfsRead(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C.i
 		return int32(readDataLength), libsdfs.CODE_ERR
 	}
 
-	env.Client.FileTableAddReadPosition(fdID, int64(bufferLen))
+	env.Client.FdTable.FdAddReadPosition(fdID, int64(bufferLen))
 
 	return int32(readDataLength), libsdfs.CODE_OK
 }
@@ -100,7 +100,7 @@ func GoSdfsRead(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C.i
 func GoSdfsPread(fdID uint64, buffer unsafe.Pointer, bufferLen int32, position int64) (int32, C.int) {
 	var (
 		fsINode        types.FsINode
-		fd             = env.Client.FileTableGet(fdID)
+		fd             = env.Client.FdTable.GetFd(fdID)
 		readDataLength int
 		err            error
 	)
@@ -110,7 +110,7 @@ func GoSdfsPread(fdID uint64, buffer unsafe.Pointer, bufferLen int32, position i
 		Len:  int(bufferLen),
 		Cap:  int(bufferLen),
 	}))
-	fsINode, err = env.Client.MetaStg.DirTreeDriver.GetFsINodeByID(fd.FsINodeID)
+	fsINode, err = env.Client.DirTreeDriver.GetFsINodeByID(fd.FsINodeID)
 	if err != nil {
 		log.Warn(err)
 		return 0, libsdfs.CODE_ERR
@@ -126,7 +126,9 @@ func GoSdfsPread(fdID uint64, buffer unsafe.Pointer, bufferLen int32, position i
 
 //export GoSdfsCloseFile
 func GoSdfsCloseFile(fdID uint64) C.int {
-	return doFlushINode(fdID)
+	ret := doFlushINode(fdID)
+	// env.Client.FdTable.ReleaseFd(fdID)
+	return ret
 }
 
 //export GoSdfsFlushFile
@@ -147,11 +149,11 @@ func GoSdfsHSyncINode(fdID uint64) C.int {
 func doFlushINode(fdID uint64) C.int {
 	var (
 		fsINode types.FsINode
-		fd      = env.Client.FileTableGet(fdID)
+		fd      = env.Client.FdTable.GetFd(fdID)
 		err     error
 	)
 
-	fsINode, err = env.Client.MetaStg.DirTreeDriver.GetFsINodeByID(fd.FsINodeID)
+	fsINode, err = env.Client.DirTreeDriver.GetFsINodeByID(fd.FsINodeID)
 	if err != nil {
 		return libsdfs.CODE_ERR
 	}

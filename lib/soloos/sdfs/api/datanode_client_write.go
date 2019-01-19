@@ -88,7 +88,7 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 			protocol.NetINodePWriteRequestAddTransferBackends(&protocolBuilder, backendOff)
 		}
 		protocol.NetINodePWriteRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
-		protocol.NetINodePWriteRequestAddOffset(&protocolBuilder, int64(netINodeWriteOffset))
+		protocol.NetINodePWriteRequestAddOffset(&protocolBuilder, uint64(netINodeWriteOffset))
 		protocol.NetINodePWriteRequestAddLength(&protocolBuilder, int32(netINodeWriteLength))
 		protocolBuilder.Finish(protocol.NetINodePWriteRequestEnd(&protocolBuilder))
 		req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]

@@ -115,7 +115,7 @@ func TestBase(t *testing.T) {
 	assert.NoError(t, netINodeDriverClient.Flush(uNetINode))
 
 	for i = 0; i < maxWriteTimes; i++ {
-		assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, writeData, int64(netBlockCap*600+8*i)))
+		assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, writeData, uint64(netBlockCap*600+8*i)))
 	}
 
 	readData := make([]byte, 73)

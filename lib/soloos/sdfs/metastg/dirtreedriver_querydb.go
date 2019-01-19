@@ -16,7 +16,7 @@ func (p *DirTreeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
 
 	sess = p.helper.DBConn.NewSession(nil)
 	_, err = sess.DeleteFrom("b_fsinode").
-		Where("fsinode_id=?", fsINodeID).
+		Where("fsinode_ino=?", fsINodeID).
 		Exec()
 	return err
 }
@@ -36,9 +36,9 @@ func (p *DirTreeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 
 	sess = p.helper.DBConn.NewSession(nil)
 
-	sqlRows, err = sess.Select("count(fsinode_id) as result").
+	sqlRows, err = sess.Select("count(fsinode_ino) as result").
 		From("b_fsinode").
-		Where("parent_fsinode_id=?", parentID).Rows()
+		Where("parent_fsinode_ino=?", parentID).Rows()
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -54,17 +54,32 @@ func (p *DirTreeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 		goto QUERY_DONE
 	}
 
-	sqlRows, err = sess.Select("fsinode_id", "parent_fsinode_id", "name", "flag",
-		"permission", "netinode_id", "fsinode_type", "ctime", "mtime").
+	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
 		From("b_fsinode").
-		Where("parent_fsinode_id=?", parentID).Rows()
+		Where("parent_fsinode_ino=?", parentID).Rows()
 	if err != nil {
 		goto QUERY_DONE
 	}
 
 	for sqlRows.Next() {
-		err = sqlRows.Scan(&ret.ID, &ret.ParentID, &ret.Name, &ret.Flag, &ret.Permission,
-			&netINodeIDStr, &ret.Type, &ret.CTime, &ret.MTime)
+		err = sqlRows.Scan(
+			&ret.Ino,
+			&netINodeIDStr,
+			&ret.ParentID,
+			&ret.Name,
+			&ret.Type,
+			&ret.Atime,
+			&ret.Ctime,
+			&ret.Mtime,
+			&ret.Atimensec,
+			&ret.Ctimensec,
+			&ret.Mtimensec,
+			&ret.Mode,
+			&ret.Nlink,
+			&ret.Uid,
+			&ret.Gid,
+			&ret.Rdev,
+		)
 		if err != nil {
 			goto QUERY_DONE
 		}
@@ -81,7 +96,7 @@ QUERY_DONE:
 	return err
 }
 
-func (p *DirTreeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
+func (p *DirTreeDriver) UpdateFsINodeInDB(fsINode *types.FsINode) error {
 	var (
 		sess *dbr.Session
 		tx   *dbr.Tx
@@ -94,17 +109,25 @@ func (p *DirTreeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
 		goto QUERY_DONE
 	}
 
-	fsINode.MTime = time.Now().Unix()
+	fsINode.Mtime = types.DirTreeTime(time.Now().Unix())
 	_, err = sess.Update("b_fsinode").
-		Set("fsinode_id", fsINode.ID).
-		Set("parent_fsinode_id", fsINode.ParentID).
-		Set("name", fsINode.Name).
-		Set("flag", fsINode.Flag).
-		Set("permission", fsINode.Permission).
+		Set("fsinode_ino", fsINode.Ino).
 		Set("netinode_id", string(fsINode.NetINodeID[:])).
+		Set("parent_fsinode_ino", fsINode.ParentID).
+		Set("fsinode_name", fsINode.Name).
 		Set("fsinode_type", fsINode.Type).
-		Set("mtime", fsINode.MTime).
-		Where("fsinode_id=?", fsINode.ID).
+		Set("atime", fsINode.Atime).
+		Set("ctime", fsINode.Ctime).
+		Set("mtime", fsINode.Mtime).
+		Set("atimensec", fsINode.Atimensec).
+		Set("ctimensec", fsINode.Ctimensec).
+		Set("mtimensec", fsINode.Mtimensec).
+		Set("mode", fsINode.Mode).
+		Set("nlink", fsINode.Nlink).
+		Set("uid", fsINode.Uid).
+		Set("gid", fsINode.Gid).
+		Set("rdev", fsINode.Rdev).
+		Where("fsinode_ino=?", fsINode.Ino).
 		Exec()
 	if err != nil {
 		goto QUERY_DONE
@@ -132,13 +155,26 @@ func (p *DirTreeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
 		goto QUERY_DONE
 	}
 
-	fsINode.CTime = time.Now().Unix()
-	fsINode.MTime = time.Now().Unix()
 	_, err = sess.InsertInto("b_fsinode").
-		Columns("fsinode_id", "parent_fsinode_id", "name", "flag", "permission",
-			"netinode_id", "fsinode_type", "ctime", "mtime").
-		Values(fsINode.ID, fsINode.ParentID, fsINode.Name, fsINode.Flag, fsINode.Permission,
-			string(fsINode.NetINodeID[:]), fsINode.Type, fsINode.CTime, fsINode.MTime).
+		Columns(schemaDirTreeFsINodeAttr...).
+		Values(
+			fsINode.Ino,
+			string(fsINode.NetINodeID[:]),
+			fsINode.ParentID,
+			fsINode.Name,
+			fsINode.Type,
+			fsINode.Atime,
+			fsINode.Ctime,
+			fsINode.Mtime,
+			fsINode.Atimensec,
+			fsINode.Ctimensec,
+			fsINode.Mtimensec,
+			fsINode.Mode,
+			fsINode.Nlink,
+			fsINode.Uid,
+			fsINode.Gid,
+			fsINode.Rdev,
+		).
 		Exec()
 	if err != nil {
 		goto QUERY_DONE
@@ -171,10 +207,9 @@ func (p *DirTreeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.F
 	}
 
 	sess = p.helper.DBConn.NewSession(nil)
-	sqlRows, err = sess.Select("fsinode_id", "parent_fsinode_id", "name", "flag", "permission",
-		"netinode_id", "fsinode_type", "ctime", "mtime").
+	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
 		From("b_fsinode").
-		Where("fsinode_id=?",
+		Where("fsinode_ino=?",
 			fsINodeID,
 		).Limit(1).Rows()
 	if err != nil {
@@ -186,8 +221,24 @@ func (p *DirTreeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.F
 		goto QUERY_DONE
 	}
 
-	err = sqlRows.Scan(&ret.ID, &ret.ParentID, &ret.Name, &ret.Flag, &ret.Permission,
-		&netINodeIDStr, &ret.Type, &ret.CTime, &ret.MTime)
+	err = sqlRows.Scan(
+		&ret.Ino,
+		&netINodeIDStr,
+		&ret.ParentID,
+		&ret.Name,
+		&ret.Type,
+		&ret.Atime,
+		&ret.Ctime,
+		&ret.Mtime,
+		&ret.Atimensec,
+		&ret.Ctimensec,
+		&ret.Mtimensec,
+		&ret.Mode,
+		&ret.Nlink,
+		&ret.Uid,
+		&ret.Gid,
+		&ret.Rdev,
+	)
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -203,7 +254,7 @@ QUERY_DONE:
 	return ret, err
 }
 
-func (p *DirTreeDriver) GetFsINodeByPathFromDB(parentID types.FsINodeID, fsINodeName string) (types.FsINode, error) {
+func (p *DirTreeDriver) GetFsINodeByNameFromDB(parentID types.FsINodeID, fsINodeName string) (types.FsINode, error) {
 	var (
 		sess          *dbr.Session
 		sqlRows       *sql.Rows
@@ -221,10 +272,9 @@ func (p *DirTreeDriver) GetFsINodeByPathFromDB(parentID types.FsINodeID, fsINode
 	}
 
 	sess = p.helper.DBConn.NewSession(nil)
-	sqlRows, err = sess.Select("fsinode_id", "parent_fsinode_id", "name", "flag", "permission",
-		"netinode_id", "fsinode_type", "ctime", "mtime").
+	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
 		From("b_fsinode").
-		Where("parent_fsinode_id=? and name=?",
+		Where("parent_fsinode_ino=? and fsinode_name=?",
 			parentID, fsINodeName,
 		).Limit(1).Rows()
 	if err != nil {
@@ -236,8 +286,24 @@ func (p *DirTreeDriver) GetFsINodeByPathFromDB(parentID types.FsINodeID, fsINode
 		goto QUERY_DONE
 	}
 
-	err = sqlRows.Scan(&ret.ID, &ret.ParentID, &ret.Name, &ret.Flag, &ret.Permission,
-		&netINodeIDStr, &ret.Type, &ret.CTime, &ret.MTime)
+	err = sqlRows.Scan(
+		&ret.Ino,
+		&netINodeIDStr,
+		&ret.ParentID,
+		&ret.Name,
+		&ret.Type,
+		&ret.Atime,
+		&ret.Ctime,
+		&ret.Mtime,
+		&ret.Atimensec,
+		&ret.Ctimensec,
+		&ret.Mtimensec,
+		&ret.Mode,
+		&ret.Nlink,
+		&ret.Uid,
+		&ret.Gid,
+		&ret.Rdev,
+	)
 	if err != nil {
 		goto QUERY_DONE
 	}

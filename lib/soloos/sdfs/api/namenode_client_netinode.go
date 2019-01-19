@@ -10,7 +10,7 @@ import (
 
 func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
 	uNetINode types.NetINodeUintptr,
-	size int64, netBlockCap int, memBlockCap int,
+	size uint64, netBlockCap int, memBlockCap int,
 ) error {
 	var (
 		req             snettypes.Request
@@ -63,13 +63,13 @@ func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
 }
 
 func (p *NameNodeClient) GetNetINodeMetaData(uNetINode types.NetINodeUintptr,
-	size int64, netBlockCap int, memBlockCap int,
+	size uint64, netBlockCap int, memBlockCap int,
 ) error {
 	return p.doGetNetINodeMetaData(false, uNetINode, size, netBlockCap, memBlockCap)
 }
 
 func (p *NameNodeClient) MustGetNetINodeMetaData(uNetINode types.NetINodeUintptr,
-	size int64, netBlockCap int, memBlockCap int,
+	size uint64, netBlockCap int, memBlockCap int,
 ) error {
 	return p.doGetNetINodeMetaData(true, uNetINode, size, netBlockCap, memBlockCap)
 }

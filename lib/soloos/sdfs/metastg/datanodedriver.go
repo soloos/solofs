@@ -47,8 +47,14 @@ func (p *DataNodeDriver) GetDataNode(peerID *snettypes.PeerID) snettypes.PeerUin
 	return p.snetDriver.GetPeer(peerID)
 }
 
-func (p *DataNodeDriver) ChooseOneDataNode() snettypes.PeerUintptr {
+func (p *DataNodeDriver) ChooseDataNodesForNewNetBlock(uNetINode types.NetINodeUintptr,
+	backends *snettypes.PeerUintptrArray8) error {
 	var dataNodeIndex uint32
 	dataNodeIndex = atomic.AddUint32(&p.chooseDataNodeIndex, 1)
-	return p.dataNodes[dataNodeIndex%uint32(len(p.dataNodes))]
+
+	backends.Reset()
+	for i := uint32(0); i < 3; i++ {
+		backends.Append(p.dataNodes[int((dataNodeIndex+i)%uint32(len(p.dataNodes)))])
+	}
+	return nil
 }

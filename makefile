@@ -19,8 +19,8 @@ libsdfs:
 sdfsd:
 	$(SDFS_PREFIX) go build -i -ldflags '$(SDFS_LDFLAGS)' -o ./bin/sdfsd sdfsd
 
-sdfsd-mock:
-	$(SDFS_PREFIX) go build -i -ldflags '$(SDFS_LDFLAGS)' -o ./bin/sdfsd-mock sdfsd-mock
+sdfsd-fuse:
+	$(SDFS_PREFIX) go build -i -ldflags '$(SDFS_LDFLAGS)' -o ./bin/sdfsd-fuse sdfsd-fuse
 
 include ./make/test
 include ./make/bench

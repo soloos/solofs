@@ -22,7 +22,7 @@ func TestMetaStgNetBlock(t *testing.T) {
 		id2           types.NetINodeID
 	)
 
-	util.AssertErrIsNil(metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect, nil, nil))
+	util.AssertErrIsNil(metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect))
 	util.InitUUID64(&id0)
 	util.InitUUID64(&id1)
 	util.InitUUID64(&id2)

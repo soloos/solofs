@@ -29,7 +29,7 @@ func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 	p.offheapDriver = offheapDriver
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
-	p.netINodePool.Init(-1, p.offheapDriver)
+	p.netINodePool.Init(p.offheapDriver)
 
 	p.SetHelper(nameNodeClient, prepareNetINodeMetaDataOnlyLoadDB, prepareNetINodeMetaDataWithStorDB)
 
@@ -72,7 +72,7 @@ func (p *NetINodeDriver) GetNetINode(netINodeID types.NetINodeID) (types.NetINod
 }
 
 func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
-	size int64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
+	size uint64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
 	var (
 		uNetINode types.NetINodeUintptr
 		pNetINode *types.NetINode
@@ -90,40 +90,14 @@ func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
 	}
 
 	if err != nil {
-		// TODO: clean uNetINode
+		pNetINode.SharedPointer.SetReleasable()
+		p.netINodePool.ReleaseNetINode(uNetINode)
 		return 0, err
 	}
 
 	return uNetINode, nil
 }
 
-func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetINodeUintptr) error {
-	var err error
-
-	err = p.Helper.NameNodeClient.GetNetINodeMetaData(uNetINode, -1, -1, -1)
-	if err != nil {
-		goto PREPARE_DONE
-	}
-
-PREPARE_DONE:
-	if err == nil {
-		uNetINode.Ptr().IsDBMetaDataInited = true
-	}
-	return nil
-}
-
-func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetINodeUintptr,
-	size int64, netBlockCap int, memBlockCap int) error {
-	var err error
-
-	err = p.Helper.NameNodeClient.MustGetNetINodeMetaData(uNetINode, size, netBlockCap, memBlockCap)
-	if err != nil {
-		goto PREPARE_DONE
-	}
-
-PREPARE_DONE:
-	if err == nil {
-		uNetINode.Ptr().IsDBMetaDataInited = true
-	}
-	return nil
+func (p *NetINodeDriver) ReleaseNetINode(uNetINode types.NetINodeUintptr) {
+	p.netINodePool.ReleaseNetINode(uNetINode)
 }

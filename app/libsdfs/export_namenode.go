@@ -16,14 +16,14 @@ func GoSdfsOpenFile(cInodePath *C.char, flags,
 		err         error
 	)
 
-	fsINode, err = env.Client.MetaStg.DirTreeDriver.OpenFile(fsINodePath,
+	fsINode, err = env.Client.DirTreeDriver.OpenFile(fsINodePath,
 		types.DefaultNetBlockCap,
 		env.Options.MemBlockChunkSize)
 	if err != nil {
 		return 0, libsdfs.CODE_ERR
 	}
 
-	return env.Client.FileTableAlloc(fsINode.ID), libsdfs.CODE_OK
+	return env.Client.FdTable.AllocFd(fsINode.ID), libsdfs.CODE_OK
 }
 
 //export GoSdfsExists
@@ -32,7 +32,7 @@ func GoSdfsExists(cInodePath *C.char) C.int {
 		fsINodePath = C.GoString(cInodePath)
 		err         error
 	)
-	_, err = env.Client.MetaStg.DirTreeDriver.GetFsINodeByPath(fsINodePath)
+	_, err = env.Client.DirTreeDriver.GetFsINodeByPath(fsINodePath)
 	if err != nil {
 		// contains err == types.ErrObjectNotExists
 		return libsdfs.CODE_ERR
@@ -49,7 +49,7 @@ func GoSdfsListDirectory(cInodePath *C.char, ret *unsafe.Pointer, num *C.int) {
 		err         error
 	)
 
-	err = env.Client.MetaStg.ListFsINodeByParentPath(fsINodePath,
+	err = env.Client.DirTreeDriver.ListFsINodeByParentPath(fsINodePath,
 		func(resultCount int) bool {
 			*ret = C.malloc(C.size_t(resultCount) * C.size_t(unsafe.Sizeof(uintptr(0))))
 			*num = C.int(resultCount)
@@ -77,7 +77,7 @@ func GoSdfsCreateDirectory(cInodePath *C.char) C.int {
 		fsINodePath = C.GoString(cInodePath)
 		err         error
 	)
-	_, err = env.Client.MetaStg.Mkdir(fsINodePath)
+	_, err = env.Client.DirTreeDriver.Mkdir(fsINodePath)
 	if err != nil {
 		return libsdfs.CODE_ERR
 	}
@@ -91,7 +91,7 @@ func GoSdfsDelete(cInodePath *C.char, recursive C.int) C.int {
 		fsINodePath = C.GoString(cInodePath)
 		err         error
 	)
-	err = env.Client.MetaStg.DeleteINodeByPath(fsINodePath)
+	err = env.Client.DirTreeDriver.DeleteINodeByPath(fsINodePath)
 	if err != nil {
 		return libsdfs.CODE_ERR
 	}
@@ -102,7 +102,7 @@ func GoSdfsDelete(cInodePath *C.char, recursive C.int) C.int {
 //export GoSdfsRename
 func GoSdfsRename(oldINodePath, newINodePath *C.char) C.int {
 	var err error
-	err = env.Client.MetaStg.Rename(C.GoString(oldINodePath), C.GoString(newINodePath))
+	err = env.Client.DirTreeDriver.Rename(C.GoString(oldINodePath), C.GoString(newINodePath))
 	if err != nil {
 		return libsdfs.CODE_ERR
 	}
@@ -117,7 +117,7 @@ func GoSdfsGetPathInfo(cInodePath *C.char) (inodeID uint64, size int64, mTime ui
 		err       error
 	)
 
-	fsINode, err = env.Client.MetaStg.DirTreeDriver.GetFsINodeByPath(C.GoString(cInodePath))
+	fsINode, err = env.Client.DirTreeDriver.GetFsINodeByPath(C.GoString(cInodePath))
 	if err != nil {
 		return 0, 0, 0, libsdfs.CODE_ERR
 	}
