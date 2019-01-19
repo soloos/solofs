@@ -41,17 +41,21 @@ func (p *MemBlockDriver) MustGetMemBlockWithReadAcquire(uNetINode types.NetINode
 	return p.pools[uNetINode.Ptr().MemBlockCap].MustGetMemBlockWithReadAcquire(memBlockID)
 }
 
-func (p *MemBlockDriver) TryGetBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
+func (p *MemBlockDriver) TryGetMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
 	memBlockIndex int) types.MemBlockUintptr {
 	var memBlockID types.PtrBindIndex
 	types.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
-	return p.pools[uNetINode.Ptr().MemBlockCap].TryGetBlockWithReadAcquire(memBlockID)
+	return p.pools[uNetINode.Ptr().MemBlockCap].TryGetMemBlockWithReadAcquire(memBlockID)
 }
 
-func (p *MemBlockDriver) AllocTmpBlockWithWriteAcquire(uNetINode types.NetINodeUintptr) types.MemBlockUintptr {
-	return p.pools[uNetINode.Ptr().MemBlockCap].AllocTmpBlockWithWriteAcquire()
+func (p *MemBlockDriver) ReleaseMemBlockWithReadRelease(uMemBlock types.MemBlockUintptr) {
+	p.pools[uMemBlock.Ptr().Bytes.Cap].ReleaseMemBlockWithReadRelease(uMemBlock)
 }
 
-func (p *MemBlockDriver) ReleaseTmpBlock(uNetINode types.NetINodeUintptr, uMemBlock types.MemBlockUintptr) {
-	p.pools[uNetINode.Ptr().MemBlockCap].ReleaseTmpBlock(uMemBlock)
+func (p *MemBlockDriver) AllocTmpMemBlockWithWriteAcquire(uNetINode types.NetINodeUintptr) types.MemBlockUintptr {
+	return p.pools[uNetINode.Ptr().MemBlockCap].AllocTmpMemBlockWithWriteAcquire()
+}
+
+func (p *MemBlockDriver) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) {
+	p.pools[uMemBlock.Ptr().Bytes.Cap].ReleaseTmpMemBlock(uMemBlock)
 }

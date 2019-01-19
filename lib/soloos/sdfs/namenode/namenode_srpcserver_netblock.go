@@ -30,7 +30,7 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(reqID uint64,
 	// request
 	req.Init(param, flatbuffers.GetUOffsetT(param))
 	copy(netINodeID[:], req.NetINodeID())
-	uNetINode, err = p.nameNode.netINodeDriver.GetNetINode(netINodeID)
+	uNetINode, err = p.nameNode.netINodeDriver.GetNetINodeWithReadAcquire(netINodeID)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
 			api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
@@ -54,5 +54,6 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(reqID uint64,
 	err = conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 
 SERVICE_DONE:
+	p.nameNode.netINodeDriver.ReleaseNetINodeWithReadRelease(uNetINode)
 	return err
 }

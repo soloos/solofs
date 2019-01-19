@@ -10,7 +10,7 @@ func (p *memBlockPoolChunk) ChunkPoolInvokeReleaseTmpChunk() {
 	if uMemBlock == 0 {
 		return
 	}
-	p.ReleaseTmpBlock(uMemBlock)
+	p.ReleaseTmpMemBlock(uMemBlock)
 }
 
 func (p *memBlockPoolChunk) allocTmpChunkFromTmpChunkPool() types.MemBlockUintptr {
@@ -52,17 +52,17 @@ func (p *memBlockPoolChunk) takeTmpBlockForRelease() types.MemBlockUintptr {
 	return types.MemBlockUintptr(iRet)
 }
 
-func (p *memBlockPoolChunk) beforeReleaseTmpBlock(pMemBlock *types.MemBlock) {
+func (p *memBlockPoolChunk) beforeReleaseTmpMemBlock(pMemBlock *types.MemBlock) {
 	if pMemBlock.IsInited() == false {
 		return
 	}
 	pMemBlock.SetReleasable()
 }
 
-func (p *memBlockPoolChunk) ReleaseTmpBlock(uMemBlock types.MemBlockUintptr) {
+func (p *memBlockPoolChunk) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) {
 	pMemBlock := uMemBlock.Ptr()
 
-	p.beforeReleaseTmpBlock(pMemBlock)
+	p.beforeReleaseTmpMemBlock(pMemBlock)
 	pMemBlock.Chunk.Ptr().WriteAcquire()
 	if pMemBlock.EnsureRelease() {
 		p.workingTmpChunkPool.IteratorAndPop(func(x uintptr) (bool, uintptr) {
@@ -80,7 +80,7 @@ func (p *memBlockPoolChunk) ReleaseTmpBlock(uMemBlock types.MemBlockUintptr) {
 	}
 }
 
-func (p *memBlockPoolChunk) AllocTmpBlockWithWriteAcquire() types.MemBlockUintptr {
+func (p *memBlockPoolChunk) AllocTmpMemBlockWithWriteAcquire() types.MemBlockUintptr {
 	uMemBlock := p.allocTmpChunkFromTmpChunkPool()
 	uMemBlock.Ptr().Chunk.Ptr().WriteAcquire()
 	uMemBlock.Ptr().CompleteInit()

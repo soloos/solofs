@@ -100,7 +100,7 @@ func (p *DirTreeDriver) Mkdir(ino types.FsINodeID, input *fuse.MkdirIn, name str
 		err      error
 	)
 
-	_, err = p.GetFsINodeByNameFromDB(parentID, name)
+	_, err = p.GetFsINodeByName(parentID, name)
 	if err == nil {
 		return nil
 	}

@@ -102,7 +102,7 @@ func TestBase(t *testing.T) {
 		netINodeID types.NetINodeID
 	)
 	util.InitUUID64(&netINodeID)
-	uNetINode, err = netINodeDriverClient.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
+	uNetINode, err = netINodeDriverClient.MustGetNetINodeWithReadAcquire(netINodeID, 0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 
 	writeData := make([]byte, 73)

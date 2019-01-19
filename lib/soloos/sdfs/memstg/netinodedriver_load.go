@@ -24,7 +24,7 @@ func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUi
 		return nil
 	}
 
-	uTmpMemBlock = p.memBlockDriver.AllocTmpBlockWithWriteAcquire(uNetINode)
+	uTmpMemBlock = p.memBlockDriver.AllocTmpMemBlockWithWriteAcquire(uNetINode)
 	_, err = p.netBlockDriver.PReadMemBlock(uNetINode, uNetBlock, netBlockIndex, uTmpMemBlock, memBlockIndex,
 		uint64(memBlockIndex)*uint64(uNetINode.Ptr().MemBlockCap),
 		uNetINode.Ptr().MemBlockCap,
@@ -46,7 +46,7 @@ func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUi
 
 READ_DONE:
 	uTmpMemBlock.Ptr().Chunk.Ptr().WriteRelease()
-	p.memBlockDriver.ReleaseTmpBlock(uNetINode, uTmpMemBlock)
+	p.memBlockDriver.ReleaseTmpMemBlock(uTmpMemBlock)
 	pMemBlock.RebaseNetBlockMutex.Unlock()
 
 	return err

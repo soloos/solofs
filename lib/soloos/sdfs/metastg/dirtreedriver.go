@@ -11,10 +11,10 @@ import (
 )
 
 type DirTreeDriverHelper struct {
-	DBConn          *dbcli.Connection
-	OffheapDriver   *offheap.OffheapDriver
-	GetNetINode     api.GetNetINode
-	MustGetNetINode api.MustGetNetINode
+	DBConn                         *dbcli.Connection
+	OffheapDriver                  *offheap.OffheapDriver
+	GetNetINodeWithReadAcquire     api.GetNetINodeWithReadAcquire
+	MustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire
 }
 
 type DirTreeDriver struct {
@@ -38,14 +38,14 @@ type DirTreeDriver struct {
 
 func (p *DirTreeDriver) Init(offheapDriver *offheap.OffheapDriver,
 	dbConn *dbcli.Connection,
-	getNetINode api.GetNetINode,
-	mustGetNetINode api.MustGetNetINode,
+	getNetINodeWithReadAcquire api.GetNetINodeWithReadAcquire,
+	mustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire,
 ) error {
 	var err error
 	p.SetHelper(offheapDriver,
 		dbConn,
-		getNetINode,
-		mustGetNetINode,
+		getNetINodeWithReadAcquire,
+		mustGetNetINodeWithReadAcquire,
 	)
 
 	err = p.PrepareSchema()
@@ -66,11 +66,11 @@ func (p *DirTreeDriver) Init(offheapDriver *offheap.OffheapDriver,
 
 func (p *DirTreeDriver) SetHelper(offheapDriver *offheap.OffheapDriver,
 	dbConn *dbcli.Connection,
-	getNetINode api.GetNetINode,
-	mustGetNetINode api.MustGetNetINode,
+	getNetINodeWithReadAcquire api.GetNetINodeWithReadAcquire,
+	mustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire,
 ) {
 	p.helper.OffheapDriver = offheapDriver
 	p.helper.DBConn = dbConn
-	p.helper.GetNetINode = getNetINode
-	p.helper.MustGetNetINode = mustGetNetINode
+	p.helper.GetNetINodeWithReadAcquire = getNetINodeWithReadAcquire
+	p.helper.MustGetNetINodeWithReadAcquire = mustGetNetINodeWithReadAcquire
 }

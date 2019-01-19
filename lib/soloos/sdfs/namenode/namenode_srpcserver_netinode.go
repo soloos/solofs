@@ -33,10 +33,10 @@ func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool,
 
 	copy(netINodeID[:], req.NetINodeID())
 	if isMustGet {
-		uNetINode, err = p.nameNode.netINodeDriver.MustGetNetINode(netINodeID,
+		uNetINode, err = p.nameNode.netINodeDriver.MustGetNetINodeWithReadAcquire(netINodeID,
 			req.Size(), int(req.NetBlockCap()), int(req.MemBlockCap()))
 	} else {
-		uNetINode, err = p.nameNode.netINodeDriver.GetNetINode(netINodeID)
+		uNetINode, err = p.nameNode.netINodeDriver.GetNetINodeWithReadAcquire(netINodeID)
 	}
 
 	if err != nil {

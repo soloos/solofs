@@ -23,8 +23,8 @@ func (p *Client) Init(memStg *memstg.MemStg, dbConn *dbcli.Connection) error {
 
 	err = p.DirTreeDriver.Init(p.offheapDriver,
 		dbConn,
-		p.MemStg.GetNetINode,
-		p.MemStg.MustGetNetINode,
+		p.MemStg.GetNetINodeWithReadAcquire,
+		p.MemStg.MustGetNetINodeWithReadAcquire,
 	)
 	if err != nil {
 		return err

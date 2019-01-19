@@ -43,7 +43,7 @@ func (p *DataNodeSRPCServer) NetINodePWrite(reqID uint64,
 		netBlockIndex      int
 	)
 	copy(netINodeID[:], reqParam.NetINodeID())
-	uNetINode, err = p.dataNode.netINodeDriver.GetNetINode(netINodeID)
+	uNetINode, err = p.dataNode.netINodeDriver.GetNetINodeWithReadAcquire(netINodeID)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
 			api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_404)

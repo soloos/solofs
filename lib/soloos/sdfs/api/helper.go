@@ -5,8 +5,8 @@ import (
 	snettypes "soloos/snet/types"
 )
 
-type GetNetINode func(netINodeID types.NetINodeID) (types.NetINodeUintptr, error)
-type MustGetNetINode func(netINodeID types.NetINodeID,
+type GetNetINodeWithReadAcquire func(netINodeID types.NetINodeID) (types.NetINodeUintptr, error)
+type MustGetNetINodeWithReadAcquire func(netINodeID types.NetINodeID,
 	size uint64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error)
 type GetDataNode func(peerID *snettypes.PeerID) snettypes.PeerUintptr
 type ChooseDataNodesForNewNetBlock func(uNetINode types.NetINodeUintptr,

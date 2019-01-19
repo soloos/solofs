@@ -226,7 +226,7 @@ func (p *memBlockPoolChunk) MustGetMemBlockWithReadAcquire(blockID types.PtrBind
 	return uMemBlock, loaded
 }
 
-func (p *memBlockPoolChunk) TryGetBlockWithReadAcquire(blockID types.PtrBindIndex) types.MemBlockUintptr {
+func (p *memBlockPoolChunk) TryGetMemBlockWithReadAcquire(blockID types.PtrBindIndex) types.MemBlockUintptr {
 	var (
 		uMemBlock types.MemBlockUintptr
 	)

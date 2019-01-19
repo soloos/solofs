@@ -40,7 +40,7 @@ func (p *NetINodePool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
 
 // return true if NetINode stored in pool before
 //    	  false if NetINode is alloc
-func (p *NetINodePool) MustGetNetINode(netINodeID NetINodeID) (NetINodeUintptr, bool) {
+func (p *NetINodePool) MustGetNetINodeWithReadAcquire(netINodeID NetINodeID) (NetINodeUintptr, bool) {
 	var (
 		uNetINode NetINodeUintptr
 		exists    bool
@@ -81,7 +81,7 @@ func (p *NetINodePool) MustGetNetINode(netINodeID NetINodeID) (NetINodeUintptr, 
 	return uNetINode, isLoaded
 }
 
-func (p *NetINodePool) ReleaseNetINode(uNetINode NetINodeUintptr) {
+func (p *NetINodePool) ReleaseNetINodeWithReadRelease(uNetINode NetINodeUintptr) {
 	pNetINode := uNetINode.Ptr()
 	pNetINode.SharedPointer.ReadRelease()
 	if pNetINode.SharedPointer.IsShouldRelease &&

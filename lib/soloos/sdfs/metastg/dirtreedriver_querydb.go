@@ -195,16 +195,8 @@ func (p *DirTreeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.F
 		sqlRows       *sql.Rows
 		ret           types.FsINode
 		netINodeIDStr string
-		exists        bool
 		err           error
 	)
-
-	p.fsINodesByIDRWMutex.RLock()
-	ret, exists = p.fsINodesByID[fsINodeID]
-	p.fsINodesByIDRWMutex.RUnlock()
-	if exists {
-		return ret, nil
-	}
 
 	sess = p.helper.DBConn.NewSession(nil)
 	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
@@ -245,9 +237,6 @@ func (p *DirTreeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.F
 	copy(ret.NetINodeID[:], []byte(netINodeIDStr))
 
 QUERY_DONE:
-	if err == nil {
-		err = p.prepareAndSetFsINodeCache(&ret)
-	}
 	if sqlRows != nil {
 		sqlRows.Close()
 	}
@@ -260,16 +249,8 @@ func (p *DirTreeDriver) GetFsINodeByNameFromDB(parentID types.FsINodeID, fsINode
 		sqlRows       *sql.Rows
 		ret           types.FsINode
 		netINodeIDStr string
-		exists        bool
 		err           error
 	)
-
-	p.fsINodesByPathRWMutex.RLock()
-	ret, exists = p.fsINodesByPath[p.MakeFsINodeKey(parentID, fsINodeName)]
-	p.fsINodesByPathRWMutex.RUnlock()
-	if exists {
-		return ret, nil
-	}
 
 	sess = p.helper.DBConn.NewSession(nil)
 	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
@@ -310,9 +291,6 @@ func (p *DirTreeDriver) GetFsINodeByNameFromDB(parentID types.FsINodeID, fsINode
 	copy(ret.NetINodeID[:], []byte(netINodeIDStr))
 
 QUERY_DONE:
-	if err == nil {
-		err = p.prepareAndSetFsINodeCache(&ret)
-	}
 	if sqlRows != nil {
 		sqlRows.Close()
 	}

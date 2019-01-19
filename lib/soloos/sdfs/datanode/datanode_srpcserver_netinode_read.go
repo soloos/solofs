@@ -40,7 +40,7 @@ func (p *DataNodeSRPCServer) NetINodePRead(reqID uint64,
 		readDataSize       int
 	)
 	copy(netINodeID[:], reqParam.NetINodeID())
-	uNetINode, err = p.dataNode.netINodeDriver.GetNetINode(netINodeID)
+	uNetINode, err = p.dataNode.netINodeDriver.GetNetINodeWithReadAcquire(netINodeID)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
 			api.SetNetINodePReadResponseError(&protocolBuilder, snettypes.CODE_404, "")

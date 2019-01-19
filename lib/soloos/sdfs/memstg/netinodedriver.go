@@ -46,14 +46,14 @@ func (p *NetINodeDriver) SetHelper(
 	p.Helper.PrepareNetINodeMetaDataWithStorDB = prepareNetINodeMetaDataWithStorDB
 }
 
-func (p *NetINodeDriver) GetNetINode(netINodeID types.NetINodeID) (types.NetINodeUintptr, error) {
+func (p *NetINodeDriver) GetNetINodeWithReadAcquire(netINodeID types.NetINodeID) (types.NetINodeUintptr, error) {
 	var (
 		uNetINode types.NetINodeUintptr
 		pNetINode *types.NetINode
 		isLoaded  bool
 		err       error
 	)
-	uNetINode, isLoaded = p.netINodePool.MustGetNetINode(netINodeID)
+	uNetINode, isLoaded = p.netINodePool.MustGetNetINodeWithReadAcquire(netINodeID)
 	pNetINode = uNetINode.Ptr()
 	if isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited == false {
 		pNetINode.DBMetaDataInitMutex.Lock()
@@ -64,14 +64,15 @@ func (p *NetINodeDriver) GetNetINode(netINodeID types.NetINodeID) (types.NetINod
 	}
 
 	if err != nil {
-		// TODO: clean uNetINode
+		pNetINode.SharedPointer.SetReleasable()
+		p.ReleaseNetINodeWithReadRelease(uNetINode)
 		return 0, err
 	}
 
 	return uNetINode, nil
 }
 
-func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
+func (p *NetINodeDriver) MustGetNetINodeWithReadAcquire(netINodeID types.NetINodeID,
 	size uint64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
 	var (
 		uNetINode types.NetINodeUintptr
@@ -79,7 +80,7 @@ func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
 		isLoaded  bool
 		err       error
 	)
-	uNetINode, isLoaded = p.netINodePool.MustGetNetINode(netINodeID)
+	uNetINode, isLoaded = p.netINodePool.MustGetNetINodeWithReadAcquire(netINodeID)
 	pNetINode = uNetINode.Ptr()
 	if isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited == false {
 		pNetINode.DBMetaDataInitMutex.Lock()
@@ -91,13 +92,13 @@ func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
 
 	if err != nil {
 		pNetINode.SharedPointer.SetReleasable()
-		p.netINodePool.ReleaseNetINode(uNetINode)
+		p.ReleaseNetINodeWithReadRelease(uNetINode)
 		return 0, err
 	}
 
 	return uNetINode, nil
 }
 
-func (p *NetINodeDriver) ReleaseNetINode(uNetINode types.NetINodeUintptr) {
-	p.netINodePool.ReleaseNetINode(uNetINode)
+func (p *NetINodeDriver) ReleaseNetINodeWithReadRelease(uNetINode types.NetINodeUintptr) {
+	p.netINodePool.ReleaseNetINodeWithReadRelease(uNetINode)
 }

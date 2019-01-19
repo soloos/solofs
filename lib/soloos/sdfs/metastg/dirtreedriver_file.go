@@ -14,7 +14,7 @@ func (p *DirTreeDriver) allocNetINode(netBlockCap int, memBlockCap int) (types.N
 	)
 
 	util.InitUUID64(&netINodeID)
-	_, err = p.helper.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
+	_, err = p.helper.MustGetNetINodeWithReadAcquire(netINodeID, 0, netBlockCap, memBlockCap)
 	return netINodeID, err
 }
 
@@ -38,14 +38,14 @@ func (p *DirTreeDriver) OpenFile(fsInodePath string, netBlockCap int, memBlockCa
 		if paths[i] == "" {
 			continue
 		}
-		fsINode, err = p.GetFsINodeByNameFromDB(parentID, paths[i])
+		fsINode, err = p.GetFsINodeByName(parentID, paths[i])
 		if err != nil {
 			goto OPEN_FILE_DONE
 		}
 		parentID = fsINode.Ino
 	}
 
-	fsINode, err = p.GetFsINodeByNameFromDB(parentID, paths[i])
+	fsINode, err = p.GetFsINodeByName(parentID, paths[i])
 	if err == nil {
 		goto OPEN_FILE_DONE
 	}

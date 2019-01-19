@@ -27,7 +27,7 @@ func TestNetINodeDriverNetINodeRead(t *testing.T) {
 		&netBlockDriver, &memBlockDriver, &netINodeDriver, memBlockCap, blockChunksLimit)
 	var netINodeID types.NetINodeID
 	util.InitUUID64(&netINodeID)
-	uNetINode, err = netINodeDriver.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
+	uNetINode, err = netINodeDriver.MustGetNetINodeWithReadAcquire(netINodeID, 0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 
 	var (

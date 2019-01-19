@@ -78,7 +78,7 @@ func (p *DirTreeDriver) PrepareINodes() error {
 		Umask: 0,
 	}, "tmp", &fuse.EntryOut{})
 
-	p.rootFsINode, err = p.GetFsINodeByNameFromDB(types.RootFsINodeParentID, "")
+	p.rootFsINode, err = p.GetFsINodeByName(types.RootFsINodeParentID, "")
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func (p *DirTreeDriver) ensureFsINodeHasNetINode(fsINode *types.FsINode) error {
 	}
 
 	var err error
-	fsINode.UNetINode, err = p.helper.GetNetINode(fsINode.NetINodeID)
+	fsINode.UNetINode, err = p.helper.GetNetINodeWithReadAcquire(fsINode.NetINodeID)
 	return err
 }
 
@@ -162,38 +162,6 @@ func (p *DirTreeDriver) DeleteINodeByPath(fsINodePath string) error {
 	return err
 }
 
-func (p *DirTreeDriver) GetFsINodeByID(fsINodeID types.FsINodeID) (types.FsINode, error) {
-	var (
-		fsINode types.FsINode
-		err     error
-	)
-
-	if fsINodeID < types.RootFsINodeID {
-		return p.sysFsINode[fsINodeID], nil
-	}
-
-	fsINode, err = p.GetFsINodeByIDFromDB(fsINodeID)
-	if err != nil {
-		return fsINode, err
-	}
-
-	return fsINode, err
-}
-
-func (p *DirTreeDriver) GetFsINodeByName(parentID types.FsINodeID, name string) (types.FsINode, error) {
-	var (
-		fsINode types.FsINode
-		err     error
-	)
-
-	fsINode, err = p.GetFsINodeByNameFromDB(parentID, name)
-	if err != nil {
-		return fsINode, err
-	}
-
-	return fsINode, err
-}
-
 func (p *DirTreeDriver) GetFsINodeByPath(fsInodePath string) (types.FsINode, error) {
 	var (
 		paths    []string
@@ -217,12 +185,64 @@ func (p *DirTreeDriver) GetFsINodeByPath(fsInodePath string) (types.FsINode, err
 		if paths[i] == "" {
 			continue
 		}
-		fsINode, err = p.GetFsINodeByNameFromDB(parentID, paths[i])
+		fsINode, err = p.GetFsINodeByName(parentID, paths[i])
 		if err != nil {
 			return fsINode, err
 		}
 		parentID = fsINode.Ino
 	}
+
+	return fsINode, err
+}
+
+func (p *DirTreeDriver) GetFsINodeByID(fsINodeID types.FsINodeID) (types.FsINode, error) {
+	var (
+		fsINode types.FsINode
+		exists  bool
+		err     error
+	)
+
+	p.fsINodesByIDRWMutex.RLock()
+	fsINode, exists = p.fsINodesByID[fsINodeID]
+	p.fsINodesByIDRWMutex.RUnlock()
+	if exists {
+		return fsINode, nil
+	}
+
+	if fsINodeID < types.RootFsINodeID {
+		return p.sysFsINode[fsINodeID], nil
+	}
+
+	fsINode, err = p.GetFsINodeByIDFromDB(fsINodeID)
+	if err != nil {
+		return fsINode, err
+	}
+
+	err = p.prepareAndSetFsINodeCache(&fsINode)
+
+	return fsINode, err
+}
+
+func (p *DirTreeDriver) GetFsINodeByName(parentID types.FsINodeID, fsINodeName string) (types.FsINode, error) {
+	var (
+		fsINode types.FsINode
+		exists  bool
+		err     error
+	)
+
+	p.fsINodesByPathRWMutex.RLock()
+	fsINode, exists = p.fsINodesByPath[p.MakeFsINodeKey(parentID, fsINodeName)]
+	p.fsINodesByPathRWMutex.RUnlock()
+	if exists {
+		return fsINode, nil
+	}
+
+	fsINode, err = p.GetFsINodeByNameFromDB(parentID, fsINodeName)
+	if err != nil {
+		return fsINode, err
+	}
+
+	err = p.prepareAndSetFsINodeCache(&fsINode)
 
 	return fsINode, err
 }

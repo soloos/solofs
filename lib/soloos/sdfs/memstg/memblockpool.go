@@ -32,14 +32,18 @@ func (p *MemBlockPool) MustGetMemBlockWithReadAcquire(memBlockID types.PtrBindIn
 	return p.chunk.MustGetMemBlockWithReadAcquire(memBlockID)
 }
 
-func (p *MemBlockPool) TryGetBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {
-	return p.chunk.TryGetBlockWithReadAcquire(memBlockID)
+func (p *MemBlockPool) TryGetMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {
+	return p.chunk.TryGetMemBlockWithReadAcquire(memBlockID)
 }
 
-func (p *MemBlockPool) AllocTmpBlockWithWriteAcquire() types.MemBlockUintptr {
-	return p.chunk.AllocTmpBlockWithWriteAcquire()
+func (p *MemBlockPool) ReleaseMemBlockWithReadRelease(uMemBlock types.MemBlockUintptr) {
+	uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
 }
 
-func (p *MemBlockPool) ReleaseTmpBlock(uMemBlock types.MemBlockUintptr) {
-	p.chunk.ReleaseTmpBlock(uMemBlock)
+func (p *MemBlockPool) AllocTmpMemBlockWithWriteAcquire() types.MemBlockUintptr {
+	return p.chunk.AllocTmpMemBlockWithWriteAcquire()
+}
+
+func (p *MemBlockPool) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) {
+	p.chunk.ReleaseTmpMemBlock(uMemBlock)
 }
