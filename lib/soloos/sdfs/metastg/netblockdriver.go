@@ -52,7 +52,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 		backendPeerIDArr := strings.Split(backendPeerIDArrStr, ",")
 		for _, peerIDStr := range backendPeerIDArr {
 			copy(peerID[:], peerIDStr)
-			uPeer = p.helper.GetDataNode(&peerID)
+			uPeer = p.helper.GetDataNode(peerID)
 			if uPeer == 0 {
 				err = types.ErrObjectNotExists
 				goto PREPARE_DONE
@@ -69,7 +69,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 		pNetBlock.IndexInNetINode = netBlockIndex
 		pNetBlock.Len = 0
 		pNetBlock.Cap = uNetINode.Ptr().NetBlockCap
-		err = p.helper.ChooseDataNodesForNewNetBlock(uNetINode, &pNetBlock.StorDataBackends)
+		pNetBlock.StorDataBackends, err = p.helper.ChooseDataNodesForNewNetBlock(uNetINode)
 		if err != nil {
 			goto PREPARE_DONE
 		}

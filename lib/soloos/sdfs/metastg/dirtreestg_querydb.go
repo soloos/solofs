@@ -4,7 +4,7 @@ package metastg
 // var sql []string
 // sql = append(sql, fmt.Sprintf(`
 // insert into b_fsinode (fsinode_ino,parent_fsinode_ino,fsinode_name,netinode_id,fsinode_type) values(%d,%d,"","",%d);
-// `, types.RootFsINodeID, types.RootFsINodeParentID, types.FSINODE_TYPE_IFDIR))
+// `, types.RootFsINodeID, types.RootFsINodeParentID, types.FSINODE_TYPE_DIR))
 // return sql
 // }
 
@@ -16,9 +16,9 @@ func prepareDirTreeSqls() []string {
 	// `)
 	sql = append(sql, `
 	create table if not exists b_maxid (
-	key char(64),
+	mkey char(64),
 	maxid int,
-	primary key(key)
+	primary key(mkey)
 	);
 `)
 
@@ -27,17 +27,18 @@ func prepareDirTreeSqls() []string {
 	// `)
 	sql = append(sql, `
 	create table if not exists b_fsinode (
-	fsinode_ino big int,
+	fsinode_ino bigint,
+	hardlink_ino bigint,
 	netinode_id char(64),
-	parent_fsinode_ino big int,
+	parent_fsinode_ino bigint,
 	fsinode_name char(64),
 	fsinode_type int,
-	atime big int default 0,
-	ctime big int default 0,
-	mtime big int default 0,
-	atimensec big int default 0,
-	ctimensec big int default 0,
-	mtimensec big int default 0,
+	atime bigint default 0,
+	ctime bigint default 0,
+	mtime bigint default 0,
+	atimensec bigint default 0,
+	ctimensec bigint default 0,
+	mtimensec bigint default 0,
 	mode int default 0,
 	nlink int default 0,
 	uid int default 0,
@@ -50,6 +51,14 @@ func prepareDirTreeSqls() []string {
 	sql = append(sql, `
 	create unique index if not exists i_b_fsinode_parent_fsinode_ino_and_fsinode_name 
 	on b_fsinode(parent_fsinode_ino, fsinode_name);
+`)
+
+	sql = append(sql, `
+	create table if not exists b_fsinode_xattr (
+	fsinode_ino bigint,
+	xattr text,
+	primary key(fsinode_ino)
+	);
 `)
 
 	// sql = append(sql, prepareDirTreeDataSqls()...)

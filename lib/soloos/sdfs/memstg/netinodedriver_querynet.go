@@ -5,7 +5,7 @@ import "soloos/sdfs/types"
 func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetINodeUintptr) error {
 	var err error
 
-	err = p.Helper.NameNodeClient.GetNetINodeMetaData(uNetINode, 0, 0, 0)
+	err = p.helper.NameNodeClient.GetNetINodeMetaData(uNetINode, 0, 0, 0)
 	if err != nil {
 		goto PREPARE_DONE
 	}
@@ -21,7 +21,7 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetIN
 	size uint64, netBlockCap int, memBlockCap int) error {
 	var err error
 
-	err = p.Helper.NameNodeClient.MustGetNetINodeMetaData(uNetINode, size, netBlockCap, memBlockCap)
+	err = p.helper.NameNodeClient.MustGetNetINodeMetaData(uNetINode, size, netBlockCap, memBlockCap)
 	if err != nil {
 		goto PREPARE_DONE
 	}

@@ -21,7 +21,7 @@ func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock types.NetBlockUintp
 		err          error
 	)
 
-	err = p.Helper.nameNodeClient.PrepareNetBlockMetaData(&netBlockInfo, uNetINode, netblockIndex, uNetBlock)
+	err = p.helper.NameNodeClient.PrepareNetBlockMetaData(&netBlockInfo, uNetINode, netblockIndex, uNetBlock)
 	if err != nil {
 		return err
 	}

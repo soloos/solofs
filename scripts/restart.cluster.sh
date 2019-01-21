@@ -1,3 +1,3 @@
 #!/bin/bash
-./scripts/clean.cluster.sh
+./scripts/stop.cluster.sh
 ./scripts/start.cluster.sh

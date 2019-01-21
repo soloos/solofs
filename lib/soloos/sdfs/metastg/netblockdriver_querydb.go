@@ -71,13 +71,13 @@ func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *types.NetINode, pNetBlock 
 		backendPeerIDArrStr.WriteString("")
 	}
 
-	_, err = sess.InsertInto("b_netblock").
+	_, err = tx.InsertInto("b_netblock").
 		Columns("netinode_id", "index_in_netinode", "netblock_len", "netblock_cap", "backend_peer_id_arr").
 		Values(netINodeIDStr, pNetBlock.IndexInNetINode, pNetBlock.Len, pNetBlock.Cap,
 			backendPeerIDArrStr.String()).
 		Exec()
 	if err != nil {
-		_, err = sess.Update("b_netblock").
+		_, err = tx.Update("b_netblock").
 			Set("netblock_len", pNetBlock.Len).
 			Set("netblock_cap", pNetBlock.Cap).
 			Set("backend_peer_id_arr", backendPeerIDArrStr.String()).

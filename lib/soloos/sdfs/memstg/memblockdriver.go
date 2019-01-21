@@ -49,7 +49,9 @@ func (p *MemBlockDriver) TryGetMemBlockWithReadAcquire(uNetINode types.NetINodeU
 }
 
 func (p *MemBlockDriver) ReleaseMemBlockWithReadRelease(uMemBlock types.MemBlockUintptr) {
-	p.pools[uMemBlock.Ptr().Bytes.Cap].ReleaseMemBlockWithReadRelease(uMemBlock)
+	if uMemBlock != 0 {
+		p.pools[uMemBlock.Ptr().Bytes.Cap].ReleaseMemBlockWithReadRelease(uMemBlock)
+	}
 }
 
 func (p *MemBlockDriver) AllocTmpMemBlockWithWriteAcquire(uNetINode types.NetINodeUintptr) types.MemBlockUintptr {

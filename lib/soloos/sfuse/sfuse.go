@@ -45,6 +45,11 @@ func (p *Server) Serve() error {
 	return nil
 }
 
-func (p *Server) Stop() error {
-	return p.FuseServer.Unmount()
+func (p *Server) Close() error {
+	var err error
+	err = p.SFuseFs.Close()
+	if err != nil {
+		return err
+	}
+	return nil
 }

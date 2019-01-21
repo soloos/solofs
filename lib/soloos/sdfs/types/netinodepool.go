@@ -82,6 +82,10 @@ func (p *NetINodePool) MustGetNetINodeWithReadAcquire(netINodeID NetINodeID) (Ne
 }
 
 func (p *NetINodePool) ReleaseNetINodeWithReadRelease(uNetINode NetINodeUintptr) {
+	if uNetINode == 0 {
+		return
+	}
+
 	pNetINode := uNetINode.Ptr()
 	pNetINode.SharedPointer.ReadRelease()
 	if pNetINode.SharedPointer.IsShouldRelease &&

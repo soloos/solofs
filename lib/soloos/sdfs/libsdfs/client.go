@@ -10,9 +10,9 @@ import (
 type Client struct {
 	offheapDriver *offheap.OffheapDriver
 
-	MemStg        *memstg.MemStg
-	DirTreeDriver metastg.DirTreeDriver
-	FdTable       FdTable
+	MemStg         *memstg.MemStg
+	MetaDirTreeStg metastg.DirTreeStg
+	MemDirTreeStg  memstg.DirTreeStg
 }
 
 func (p *Client) Init(memStg *memstg.MemStg, dbConn *dbcli.Connection) error {
@@ -21,7 +21,7 @@ func (p *Client) Init(memStg *memstg.MemStg, dbConn *dbcli.Connection) error {
 
 	p.MemStg = memStg
 
-	err = p.DirTreeDriver.Init(p.offheapDriver,
+	err = p.MetaDirTreeStg.Init(p.offheapDriver,
 		dbConn,
 		p.MemStg.GetNetINodeWithReadAcquire,
 		p.MemStg.MustGetNetINodeWithReadAcquire,
@@ -30,7 +30,31 @@ func (p *Client) Init(memStg *memstg.MemStg, dbConn *dbcli.Connection) error {
 		return err
 	}
 
-	err = p.FdTable.Init()
+	err = p.MemDirTreeStg.Init(
+		p.offheapDriver,
+		p.MetaDirTreeStg.FsINodeDriver.AllocFsINodeID,
+		p.MemStg.GetNetINodeWithReadAcquire,
+		p.MemStg.MustGetNetINodeWithReadAcquire,
+		p.MetaDirTreeStg.FsINodeDriver.DeleteFsINodeByIDInDB,
+		p.MetaDirTreeStg.FsINodeDriver.ListFsINodeByParentIDFromDB,
+		p.MetaDirTreeStg.FsINodeDriver.UpdateFsINodeInDB,
+		p.MetaDirTreeStg.FsINodeDriver.InsertFsINodeInDB,
+		p.MetaDirTreeStg.FsINodeDriver.GetFsINodeByIDFromDB,
+		p.MetaDirTreeStg.FsINodeDriver.GetFsINodeByNameFromDB,
+		p.MetaDirTreeStg.FIXAttrDriver.DeleteFIXAttrInDB,
+		p.MetaDirTreeStg.FIXAttrDriver.ReplaceFIXAttrInDB,
+		p.MetaDirTreeStg.FIXAttrDriver.GetFIXAttrByInoFromDB,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *Client) Close() error {
+	var err error
+	err = p.MetaDirTreeStg.Close()
 	if err != nil {
 		return err
 	}

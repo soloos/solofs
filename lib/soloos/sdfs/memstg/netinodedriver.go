@@ -7,15 +7,20 @@ import (
 	"soloos/util/offheap"
 )
 
+type NetINodeDriverHelper struct {
+	*api.NameNodeClient
+	api.PrepareNetINodeMetaDataOnlyLoadDB
+	api.PrepareNetINodeMetaDataWithStorDB
+}
+
 type NetINodeDriver struct {
-	Helper api.NetINodeDriverHelper
+	helper NetINodeDriverHelper
 
 	offheapDriver *offheap.OffheapDriver
 	netINodePool  types.NetINodePool
 
 	memBlockDriver *MemBlockDriver
 	netBlockDriver *netstg.NetBlockDriver
-	netINodeDriver *NetINodeDriver
 }
 
 func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
@@ -41,9 +46,9 @@ func (p *NetINodeDriver) SetHelper(
 	prepareNetINodeMetaDataOnlyLoadDB api.PrepareNetINodeMetaDataOnlyLoadDB,
 	prepareNetINodeMetaDataWithStorDB api.PrepareNetINodeMetaDataWithStorDB,
 ) {
-	p.Helper.NameNodeClient = nameNodeClient
-	p.Helper.PrepareNetINodeMetaDataOnlyLoadDB = prepareNetINodeMetaDataOnlyLoadDB
-	p.Helper.PrepareNetINodeMetaDataWithStorDB = prepareNetINodeMetaDataWithStorDB
+	p.helper.NameNodeClient = nameNodeClient
+	p.helper.PrepareNetINodeMetaDataOnlyLoadDB = prepareNetINodeMetaDataOnlyLoadDB
+	p.helper.PrepareNetINodeMetaDataWithStorDB = prepareNetINodeMetaDataWithStorDB
 }
 
 func (p *NetINodeDriver) GetNetINodeWithReadAcquire(netINodeID types.NetINodeID) (types.NetINodeUintptr, error) {
@@ -58,7 +63,7 @@ func (p *NetINodeDriver) GetNetINodeWithReadAcquire(netINodeID types.NetINodeID)
 	if isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited == false {
 		pNetINode.DBMetaDataInitMutex.Lock()
 		if pNetINode.IsDBMetaDataInited == false {
-			err = p.Helper.PrepareNetINodeMetaDataOnlyLoadDB(uNetINode)
+			err = p.helper.PrepareNetINodeMetaDataOnlyLoadDB(uNetINode)
 		}
 		pNetINode.DBMetaDataInitMutex.Unlock()
 	}
@@ -85,7 +90,7 @@ func (p *NetINodeDriver) MustGetNetINodeWithReadAcquire(netINodeID types.NetINod
 	if isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited == false {
 		pNetINode.DBMetaDataInitMutex.Lock()
 		if pNetINode.IsDBMetaDataInited == false {
-			err = p.Helper.PrepareNetINodeMetaDataWithStorDB(uNetINode, size, netBlockCap, memBlockCap)
+			err = p.helper.PrepareNetINodeMetaDataWithStorDB(uNetINode, size, netBlockCap, memBlockCap)
 		}
 		pNetINode.DBMetaDataInitMutex.Unlock()
 	}

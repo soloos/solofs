@@ -29,4 +29,7 @@ func main() {
 
 	err = sfuseServer.Serve()
 	util.AssertErrIsNil(err)
+
+	err = sfuseServer.Close()
+	util.AssertErrIsNil(err)
 }

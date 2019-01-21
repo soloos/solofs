@@ -1,9 +1,9 @@
 {
+    "DBDriver":"mysql",
+    "Dsn":"root:hello@/sdfs_test",
     "NameNodeSRPCServerAddr":"192.168.56.100:11701",
     "MemBlockChunkSize":2097152,
     "MemBlockChunksLimit":64,
-    "DBDriver":"sqlite3",
-    "Dsn":"/tmp/sdfs.db",
     "PProfListenAddr":"192.168.56.100:11501",
     "SFuseOptions": {
         "MountPoint": "/opt/soloos/sdfsd-fuse-mnt",

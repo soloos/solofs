@@ -20,7 +20,7 @@ func FetchAndUpdateMaxID(dbConn *dbcli.Connection, key string, delta types.FsINo
 	sess = dbConn.NewSession(nil)
 	sqlRows, err = sess.Select("maxid").
 		From("b_maxid").
-		Where("key=?", key).Rows()
+		Where("mkey=?", key).Rows()
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -40,7 +40,7 @@ func FetchAndUpdateMaxID(dbConn *dbcli.Connection, key string, delta types.FsINo
 
 	if isNeedInsert {
 		_, err = sess.InsertInto("b_maxid").
-			Columns("key", "maxid").
+			Columns("mkey", "maxid").
 			Values(key, maxid).
 			Exec()
 		if err != nil {
@@ -50,7 +50,7 @@ func FetchAndUpdateMaxID(dbConn *dbcli.Connection, key string, delta types.FsINo
 		maxid += delta
 		_, err = sess.Update("b_maxid").
 			Set("maxid", maxid).
-			Where("key=?", key).
+			Where("mkey=?", key).
 			Exec()
 	}
 

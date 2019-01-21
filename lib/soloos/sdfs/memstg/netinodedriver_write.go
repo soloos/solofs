@@ -91,7 +91,7 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 		}
 
 	WRITE_DATA_ONE_RUN_DONE:
-		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
+		p.memBlockDriver.ReleaseMemBlockWithReadRelease(uMemBlock)
 		if err != nil {
 			goto WRITE_DATA_DONE
 		}

@@ -12,12 +12,12 @@ type PrepareNetBlockMetaData func(uNetBlock types.NetBlockUintptr,
 	uNetINode types.NetINodeUintptr, netblockIndex int) error
 
 type NetBlockDriverHelper struct {
-	nameNodeClient          *api.NameNodeClient
-	PrepareNetBlockMetaData PrepareNetBlockMetaData
+	*api.NameNodeClient
+	PrepareNetBlockMetaData
 }
 
 type NetBlockDriver struct {
-	Helper NetBlockDriverHelper
+	helper NetBlockDriverHelper
 
 	offheapDriver        *offheap.OffheapDriver
 	netBlockAllocRWMutex sync.RWMutex
@@ -63,8 +63,8 @@ func (p *NetBlockDriver) SetHelper(
 	nameNodeClient *api.NameNodeClient,
 	prepareNetBlockMetaData PrepareNetBlockMetaData,
 ) {
-	p.Helper.nameNodeClient = nameNodeClient
-	p.Helper.PrepareNetBlockMetaData = prepareNetBlockMetaData
+	p.helper.NameNodeClient = nameNodeClient
+	p.helper.PrepareNetBlockMetaData = prepareNetBlockMetaData
 }
 
 func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadWithDisk api.PReadMemBlockWithDisk) {
@@ -97,7 +97,7 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	if isLoaded == false || uNetBlock.Ptr().IsDBMetaDataInited == false {
 		pNetBlock.DBMetaDataInitMutex.Lock()
 		if pNetBlock.IsDBMetaDataInited == false {
-			err = p.Helper.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
+			err = p.helper.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
 		}
 		pNetBlock.DBMetaDataInitMutex.Unlock()
 	}

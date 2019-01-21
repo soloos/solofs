@@ -37,7 +37,9 @@ func (p *MemBlockPool) TryGetMemBlockWithReadAcquire(memBlockID types.PtrBindInd
 }
 
 func (p *MemBlockPool) ReleaseMemBlockWithReadRelease(uMemBlock types.MemBlockUintptr) {
-	uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
+	if uMemBlock != 0 {
+		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
+	}
 }
 
 func (p *MemBlockPool) AllocTmpMemBlockWithWriteAcquire() types.MemBlockUintptr {

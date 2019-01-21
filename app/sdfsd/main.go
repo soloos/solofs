@@ -27,11 +27,6 @@ type Env struct {
 }
 
 func (p *Env) Init(options Options) {
-	var (
-		dbDriver = "sqlite3"
-		dsn      = "/tmp/sdfs.db"
-	)
-
 	p.options = options
 	p.offheapDriver = &offheap.DefaultOffheapDriver
 
@@ -39,7 +34,7 @@ func (p *Env) Init(options Options) {
 	util.AssertErrIsNil(p.SNetClientDriver.Init(p.offheapDriver))
 
 	util.AssertErrIsNil(p.MetaStg.Init(p.offheapDriver,
-		dbDriver, dsn))
+		options.DBDriver, options.Dsn))
 
 	p.DataNodeClient.Init(&p.SNetClientDriver)
 

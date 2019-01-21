@@ -1,4 +1,4 @@
-package libsdfs
+package memstg
 
 import (
 	"soloos/sdfs/types"
@@ -13,10 +13,14 @@ type FdTable struct {
 
 func (p *FdTable) Init() error {
 	p.fdIDsPool.New = func() uintptr {
-		var fdID uintptr
+		var (
+			fdID uintptr
+			fd   types.FsINodeFileHandler
+		)
+		fd.Reset()
 		p.FdsRWMutex.Lock()
 		fdID = uintptr(len(p.Fds))
-		p.Fds = append(p.Fds, types.FsINodeFileHandler{})
+		p.Fds = append(p.Fds, fd)
 		p.FdsRWMutex.Unlock()
 		return fdID
 	}
@@ -32,14 +36,14 @@ func (p *FdTable) AllocFd(fsINodeID types.FsINodeID) uint64 {
 
 }
 
-func (p *FdTable) FdAddAppendPosition(fdID uint64, delta int64) {
+func (p *FdTable) FdAddAppendPosition(fdID uint64, delta uint64) {
 	p.FdsRWMutex.RLock()
 	p.Fds[int(fdID)].AppendPosition += delta
 	p.FdsRWMutex.RUnlock()
 	return
 }
 
-func (p *FdTable) FdAddReadPosition(fdID uint64, delta int64) {
+func (p *FdTable) FdAddReadPosition(fdID uint64, delta uint64) {
 	p.FdsRWMutex.RLock()
 	p.Fds[int(fdID)].ReadPosition += delta
 	p.FdsRWMutex.RUnlock()

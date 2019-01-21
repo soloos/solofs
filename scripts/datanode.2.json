@@ -1,4 +1,6 @@
 {
+    "DBDriver":"mysql",
+    "Dsn":"root:hello@/sdfs_test",
     "MemBlockChunkSize":2097152,
     "MemBlockChunksLimit":256,
 	"Mode":"datanode",

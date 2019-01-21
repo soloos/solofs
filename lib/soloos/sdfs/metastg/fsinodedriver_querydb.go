@@ -3,12 +3,11 @@ package metastg
 import (
 	"database/sql"
 	"soloos/sdfs/types"
-	"time"
 
 	"github.com/gocraft/dbr"
 )
 
-func (p *DirTreeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
+func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
 	var (
 		sess *dbr.Session
 		err  error
@@ -21,17 +20,21 @@ func (p *DirTreeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
 	return err
 }
 
-func (p *DirTreeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
-	beforeLiteralFunc func(resultCount int) bool,
+func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
+	isFetchAllCols bool,
+	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
 	literalFunc func(types.FsINode) bool,
 ) error {
 	var (
-		sess          *dbr.Session
-		sqlRows       *sql.Rows
-		ret           types.FsINode
-		netINodeIDStr string
-		resultCount   int
-		err           error
+		sess            *dbr.Session
+		sqlRows         *sql.Rows
+		ret             types.FsINode
+		fetchRowsLimit  uint64
+		fetchRowsOffset uint64
+		netINodeIDStr   string
+		resultCount     int
+		selectStmt      *dbr.SelectStmt
+		err             error
 	)
 
 	sess = p.helper.DBConn.NewSession(nil)
@@ -50,36 +53,58 @@ func (p *DirTreeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 	}
 	sqlRows.Close()
 
-	if beforeLiteralFunc(resultCount) == false {
+	fetchRowsLimit, fetchRowsOffset = beforeLiteralFunc(resultCount)
+	if fetchRowsLimit == 0 {
 		goto QUERY_DONE
 	}
 
-	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
+	if isFetchAllCols == false {
+		selectStmt = sess.Select(schemaDirTreeFsINodeBasicAttr...)
+	} else {
+		selectStmt = sess.Select(schemaDirTreeFsINodeAttr...)
+	}
+	sqlRows, err = selectStmt.
 		From("b_fsinode").
-		Where("parent_fsinode_ino=?", parentID).Rows()
+		Where("parent_fsinode_ino=?", parentID).
+		OrderDesc("fsinode_ino").
+		Limit(fetchRowsLimit).
+		Offset(fetchRowsOffset).
+		Rows()
 	if err != nil {
 		goto QUERY_DONE
 	}
 
 	for sqlRows.Next() {
-		err = sqlRows.Scan(
-			&ret.Ino,
-			&netINodeIDStr,
-			&ret.ParentID,
-			&ret.Name,
-			&ret.Type,
-			&ret.Atime,
-			&ret.Ctime,
-			&ret.Mtime,
-			&ret.Atimensec,
-			&ret.Ctimensec,
-			&ret.Mtimensec,
-			&ret.Mode,
-			&ret.Nlink,
-			&ret.Uid,
-			&ret.Gid,
-			&ret.Rdev,
-		)
+		if isFetchAllCols == false {
+			err = sqlRows.Scan(
+				&ret.Ino,
+				&ret.HardLinkIno,
+				&netINodeIDStr,
+				&ret.ParentID,
+				&ret.Name,
+				&ret.Mode,
+			)
+		} else {
+			err = sqlRows.Scan(
+				&ret.Ino,
+				&ret.HardLinkIno,
+				&netINodeIDStr,
+				&ret.ParentID,
+				&ret.Name,
+				&ret.Type,
+				&ret.Atime,
+				&ret.Ctime,
+				&ret.Mtime,
+				&ret.Atimensec,
+				&ret.Ctimensec,
+				&ret.Mtimensec,
+				&ret.Mode,
+				&ret.Nlink,
+				&ret.Uid,
+				&ret.Gid,
+				&ret.Rdev,
+			)
+		}
 		if err != nil {
 			goto QUERY_DONE
 		}
@@ -96,7 +121,7 @@ QUERY_DONE:
 	return err
 }
 
-func (p *DirTreeDriver) UpdateFsINodeInDB(fsINode *types.FsINode) error {
+func (p *FsINodeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
 	var (
 		sess *dbr.Session
 		tx   *dbr.Tx
@@ -109,9 +134,9 @@ func (p *DirTreeDriver) UpdateFsINodeInDB(fsINode *types.FsINode) error {
 		goto QUERY_DONE
 	}
 
-	fsINode.Mtime = types.DirTreeTime(time.Now().Unix())
-	_, err = sess.Update("b_fsinode").
+	_, err = tx.Update("b_fsinode").
 		Set("fsinode_ino", fsINode.Ino).
+		Set("hardlink_ino", fsINode.HardLinkIno).
 		Set("netinode_id", string(fsINode.NetINodeID[:])).
 		Set("parent_fsinode_ino", fsINode.ParentID).
 		Set("fsinode_name", fsINode.Name).
@@ -142,7 +167,7 @@ QUERY_DONE:
 	return err
 }
 
-func (p *DirTreeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
+func (p *FsINodeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
 	var (
 		sess *dbr.Session
 		tx   *dbr.Tx
@@ -155,10 +180,11 @@ func (p *DirTreeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
 		goto QUERY_DONE
 	}
 
-	_, err = sess.InsertInto("b_fsinode").
+	_, err = tx.InsertInto("b_fsinode").
 		Columns(schemaDirTreeFsINodeAttr...).
 		Values(
 			fsINode.Ino,
+			fsINode.HardLinkIno,
 			string(fsINode.NetINodeID[:]),
 			fsINode.ParentID,
 			fsINode.Name,
@@ -189,7 +215,7 @@ QUERY_DONE:
 	return err
 }
 
-func (p *DirTreeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.FsINode, error) {
+func (p *FsINodeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.FsINode, error) {
 	var (
 		sess          *dbr.Session
 		sqlRows       *sql.Rows
@@ -215,6 +241,7 @@ func (p *DirTreeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.F
 
 	err = sqlRows.Scan(
 		&ret.Ino,
+		&ret.HardLinkIno,
 		&netINodeIDStr,
 		&ret.ParentID,
 		&ret.Name,
@@ -243,7 +270,7 @@ QUERY_DONE:
 	return ret, err
 }
 
-func (p *DirTreeDriver) GetFsINodeByNameFromDB(parentID types.FsINodeID, fsINodeName string) (types.FsINode, error) {
+func (p *FsINodeDriver) GetFsINodeByNameFromDB(parentID types.FsINodeID, fsINodeName string) (types.FsINode, error) {
 	var (
 		sess          *dbr.Session
 		sqlRows       *sql.Rows
@@ -269,6 +296,7 @@ func (p *DirTreeDriver) GetFsINodeByNameFromDB(parentID types.FsINodeID, fsINode
 
 	err = sqlRows.Scan(
 		&ret.Ino,
+		&ret.HardLinkIno,
 		&netINodeIDStr,
 		&ret.ParentID,
 		&ret.Name,

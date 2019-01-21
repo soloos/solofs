@@ -79,7 +79,7 @@ func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
 		}
 
 	READ_DATA_ONE_RUN_DONE:
-		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
+		p.memBlockDriver.ReleaseMemBlockWithReadRelease(uMemBlock)
 		if err != nil {
 			goto READ_DATA_DONE
 		}

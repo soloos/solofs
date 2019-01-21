@@ -20,6 +20,7 @@ sdfsd:
 	$(SDFS_PREFIX) go build -i -ldflags '$(SDFS_LDFLAGS)' -o ./bin/sdfsd sdfsd
 
 sdfsd-fuse:
+	rm -f bin/sdfsd-fuse
 	$(SDFS_PREFIX) go build -i -ldflags '$(SDFS_LDFLAGS)' -o ./bin/sdfsd-fuse sdfsd-fuse
 
 include ./make/test

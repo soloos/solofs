@@ -5,6 +5,8 @@ import (
 	"soloos/sdfs/libsdfs"
 	"soloos/sdfs/types"
 	"unsafe"
+
+	"github.com/hanwen/go-fuse/fuse"
 )
 
 //export GoSdfsOpenFile
@@ -16,23 +18,24 @@ func GoSdfsOpenFile(cInodePath *C.char, flags,
 		err         error
 	)
 
-	fsINode, err = env.Client.DirTreeDriver.OpenFile(fsINodePath,
+	fsINode, err = env.Client.MemDirTreeStg.OpenFile(fsINodePath,
 		types.DefaultNetBlockCap,
 		env.Options.MemBlockChunkSize)
 	if err != nil {
 		return 0, libsdfs.CODE_ERR
 	}
 
-	return env.Client.FdTable.AllocFd(fsINode.ID), libsdfs.CODE_OK
+	return env.Client.MemDirTreeStg.FdTable.AllocFd(fsINode.Ino), libsdfs.CODE_OK
 }
 
 //export GoSdfsExists
 func GoSdfsExists(cInodePath *C.char) C.int {
 	var (
 		fsINodePath = C.GoString(cInodePath)
+		fsINode     types.FsINode
 		err         error
 	)
-	_, err = env.Client.DirTreeDriver.GetFsINodeByPath(fsINodePath)
+	err = env.Client.MemDirTreeStg.FsINodeDriver.FetchFsINodeByPath(fsINodePath, &fsINode)
 	if err != nil {
 		// contains err == types.ErrObjectNotExists
 		return libsdfs.CODE_ERR
@@ -49,13 +52,13 @@ func GoSdfsListDirectory(cInodePath *C.char, ret *unsafe.Pointer, num *C.int) {
 		err         error
 	)
 
-	err = env.Client.DirTreeDriver.ListFsINodeByParentPath(fsINodePath,
-		func(resultCount int) bool {
+	err = env.Client.MemDirTreeStg.ListFsINodeByParentPath(fsINodePath, false,
+		func(resultCount int) (uint64, uint64) {
 			*ret = C.malloc(C.size_t(resultCount) * C.size_t(unsafe.Sizeof(uintptr(0))))
 			*num = C.int(resultCount)
 			arr = (*[1<<30 - 1]*C.char)(*ret)
 			index = 0
-			return true
+			return uint64(resultCount), 0
 		},
 		func(fsINode types.FsINode) bool {
 			arr[index] = C.CString(fsINode.Name)
@@ -77,7 +80,7 @@ func GoSdfsCreateDirectory(cInodePath *C.char) C.int {
 		fsINodePath = C.GoString(cInodePath)
 		err         error
 	)
-	_, err = env.Client.DirTreeDriver.Mkdir(fsINodePath)
+	err = env.Client.MemDirTreeStg.MkdirAll(fuse.S_IFDIR|0777, fsINodePath)
 	if err != nil {
 		return libsdfs.CODE_ERR
 	}
@@ -91,7 +94,7 @@ func GoSdfsDelete(cInodePath *C.char, recursive C.int) C.int {
 		fsINodePath = C.GoString(cInodePath)
 		err         error
 	)
-	err = env.Client.DirTreeDriver.DeleteINodeByPath(fsINodePath)
+	err = env.Client.MemDirTreeStg.FsINodeDriver.DeleteFsINodeByPath(fsINodePath)
 	if err != nil {
 		return libsdfs.CODE_ERR
 	}
@@ -102,7 +105,7 @@ func GoSdfsDelete(cInodePath *C.char, recursive C.int) C.int {
 //export GoSdfsRename
 func GoSdfsRename(oldINodePath, newINodePath *C.char) C.int {
 	var err error
-	err = env.Client.DirTreeDriver.Rename(C.GoString(oldINodePath), C.GoString(newINodePath))
+	err = env.Client.MemDirTreeStg.Rename(C.GoString(oldINodePath), C.GoString(newINodePath))
 	if err != nil {
 		return libsdfs.CODE_ERR
 	}
@@ -110,22 +113,23 @@ func GoSdfsRename(oldINodePath, newINodePath *C.char) C.int {
 }
 
 //export GoSdfsGetPathInfo
-func GoSdfsGetPathInfo(cInodePath *C.char) (inodeID uint64, size int64, mTime uint64, code C.int) {
+func GoSdfsGetPathInfo(cInodePath *C.char) (inodeID uint64, size uint64, mTime uint64, code C.int) {
 	var (
 		fsINode   types.FsINode
 		uNetINode types.NetINodeUintptr
 		err       error
 	)
 
-	fsINode, err = env.Client.DirTreeDriver.GetFsINodeByPath(C.GoString(cInodePath))
+	err = env.Client.MemDirTreeStg.FsINodeDriver.FetchFsINodeByPath(C.GoString(cInodePath), &fsINode)
 	if err != nil {
 		return 0, 0, 0, libsdfs.CODE_ERR
 	}
 
-	uNetINode, err = env.Client.MemStg.NetINodeDriver.GetNetINode(fsINode.NetINodeID)
+	uNetINode, err = env.Client.MemStg.NetINodeDriver.GetNetINodeWithReadAcquire(fsINode.NetINodeID)
+	defer env.Client.MemStg.NetINodeDriver.ReleaseNetINodeWithReadRelease(uNetINode)
 	if err != nil {
 		return 0, 0, 0, libsdfs.CODE_ERR
 	}
 
-	return uint64(fsINode.ID), uNetINode.Ptr().Size, uint64(fsINode.MTime), libsdfs.CODE_OK
+	return uint64(fsINode.Ino), uNetINode.Ptr().Size, uint64(fsINode.Mtime), libsdfs.CODE_OK
 }

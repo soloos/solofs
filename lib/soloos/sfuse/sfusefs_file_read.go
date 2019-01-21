@@ -17,3 +17,8 @@ func (p ReadResult) Size() int {
 
 func (p ReadResult) Done() {
 }
+
+func (p *SFuseFs) Read(input *fuse.ReadIn, buf []byte) (fuse.ReadResult, fuse.Status) {
+	var ret ReadResult
+	return ret, fuse.EPERM
+}

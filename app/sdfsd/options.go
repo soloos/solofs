@@ -15,6 +15,8 @@ type Options struct {
 	NameNodePeerIDStr   string
 	NameNodeAddr        string
 	PProfListenAddr     string
+	DBDriver            string
+	Dsn                 string
 }
 
 func LoadOptionsFile(optionsFilePath string) (Options, error) {
