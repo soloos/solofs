@@ -14,6 +14,7 @@ var (
 		"netinode_id",
 		"parent_fsinode_ino",
 		"fsinode_name",
+		"fsinode_type",
 		"mode",
 	}
 

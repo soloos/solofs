@@ -34,7 +34,7 @@ func (p *DataNodeSRPCServer) NetINodeFlush(reqID uint64,
 		uNetINode       types.NetINodeUintptr
 	)
 	copy(netINodeID[:], reqParam.NetINodeID())
-	uNetINode, err = p.dataNode.netINodeDriver.GetNetINodeWithReadAcquire(netINodeID)
+	uNetINode, err = p.dataNode.netINodeDriver.GetNetINodeWithReadAcquire(false, netINodeID)
 	defer p.dataNode.netINodeDriver.ReleaseNetINodeWithReadRelease(uNetINode)
 	if err != nil {
 		if err == types.ErrObjectNotExists {

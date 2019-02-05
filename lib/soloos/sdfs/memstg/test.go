@@ -41,7 +41,10 @@ func MakeDriversForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.Clien
 	MakeMemBlockDriversForTest(memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
 
 	util.AssertErrIsNil(netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient,
-		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB, netINodeDriver.PrepareNetINodeMetaDataWithStorDB))
+		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
+		netINodeDriver.PrepareNetINodeMetaDataWithStorDB,
+		netINodeDriver.NetINodeCommitSizeInDB,
+	))
 }
 
 func MakeDriversWithMockServerForTest(mockServerAddr string,
@@ -67,5 +70,8 @@ func MakeDriversWithMockServerForTest(mockServerAddr string,
 	MakeMemBlockDriversForTest(memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
 
 	util.AssertErrIsNil(netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient,
-		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB, netINodeDriver.PrepareNetINodeMetaDataWithStorDB))
+		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
+		netINodeDriver.PrepareNetINodeMetaDataWithStorDB,
+		netINodeDriver.NetINodeCommitSizeInDB,
+	))
 }

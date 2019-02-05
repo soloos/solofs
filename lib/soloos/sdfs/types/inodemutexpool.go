@@ -34,8 +34,6 @@ func (p *INodeRWMutexPool) RawChunkPoolInvokeReleaseRawChunk() {
 }
 
 func (p *INodeRWMutexPool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
-	uINodeRWMutex := INodeRWMutexUintptr(uRawChunk)
-	uINodeRWMutex.Ptr().SharedPointer.IsInited = true
 }
 
 // return true if INodeRWMutex stored in pool before
@@ -63,6 +61,7 @@ func (p *INodeRWMutexPool) MustGetINodeRWMutexWithReadAcquire(inodeRWMutexID INo
 		} else {
 			uINodeRWMutex = INodeRWMutexUintptr(p.inodeRWMutexObjectPool.AllocRawObject())
 			uINodeRWMutex.Ptr().ID = inodeRWMutexID
+			uINodeRWMutex.Ptr().SharedPointer.CompleteInit()
 			isLoaded = false
 			p.pool[inodeRWMutexID] = uINodeRWMutex
 		}
@@ -71,7 +70,7 @@ func (p *INodeRWMutexPool) MustGetINodeRWMutexWithReadAcquire(inodeRWMutexID INo
 	FETCH_NETINODE_DONE:
 		uINodeRWMutex.Ptr().SharedPointer.ReadAcquire()
 
-		if uINodeRWMutex.Ptr().SharedPointer.IsInited == false {
+		if uINodeRWMutex.Ptr().SharedPointer.IsInited() == false {
 			uINodeRWMutex.Ptr().SharedPointer.ReadRelease()
 		} else {
 			break
@@ -88,7 +87,7 @@ func (p *INodeRWMutexPool) ReleaseINodeRWMutexWithReadRelease(uINodeRWMutex INod
 
 	pINodeRWMutex := uINodeRWMutex.Ptr()
 	pINodeRWMutex.SharedPointer.ReadRelease()
-	if pINodeRWMutex.SharedPointer.IsShouldRelease &&
+	if pINodeRWMutex.SharedPointer.IsShouldRelease() &&
 		pINodeRWMutex.SharedPointer.Accessor == 0 {
 
 		pINodeRWMutex.SharedPointer.WriteAcquire()

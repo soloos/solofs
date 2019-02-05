@@ -82,6 +82,7 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 				&netINodeIDStr,
 				&ret.ParentID,
 				&ret.Name,
+				&ret.Type,
 				&ret.Mode,
 			)
 		} else {

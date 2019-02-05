@@ -7,9 +7,10 @@ import (
 	"soloos/timer"
 	"soloos/util"
 	"soloos/util/offheap"
-	"strings"
 	"sync"
 	"time"
+
+	"github.com/hanwen/go-fuse/fuse"
 )
 
 type FsINodeDriverHelper struct {
@@ -45,11 +46,16 @@ type FsINodeDriver struct {
 	INodeRWMutexPool types.INodeRWMutexPool
 
 	FIXAttrDriver FIXAttrDriver
+
+	DefaultNetBlockCap int
+	DefaultMemBlockCap int
 }
 
 func (p *FsINodeDriver) Init(
 	offheapDriver *offheap.OffheapDriver,
 	dirTreeStg *DirTreeStg,
+	defaultNetBlockCap int,
+	defaultMemBlockCap int,
 	allocFsINodeID api.AllocFsINodeID,
 	getNetINodeWithReadAcquire api.GetNetINodeWithReadAcquire,
 	mustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire,
@@ -72,6 +78,10 @@ func (p *FsINodeDriver) Init(
 	}
 
 	p.dirTreeStg = dirTreeStg
+
+	p.DefaultNetBlockCap = defaultNetBlockCap
+	p.DefaultMemBlockCap = defaultMemBlockCap
+
 	p.SetHelper(
 		allocFsINodeID,
 		getNetINodeWithReadAcquire,
@@ -137,19 +147,20 @@ func (p *FsINodeDriver) prepareBaseDir() error {
 	var (
 		fsINode types.FsINode
 		ino     types.FsINodeID
+		code    fuse.Status
 		err     error
 	)
 
 	ino = types.RootFsINodeID
-	err = p.dirTreeStg.Mkdir(&ino, types.RootFsINodeParentID, 0777, "", &fsINode)
-	if err != nil {
-		log.Warn(err)
+	code = p.dirTreeStg.SimpleMkdir(&fsINode, &ino, types.RootFsINodeParentID, 0777, "", 0, 0, types.FS_RDEV)
+	if code != fuse.OK {
+		log.Warn("", code)
 	}
 
 	ino = p.helper.AllocFsINodeID()
-	err = p.dirTreeStg.Mkdir(&ino, types.RootFsINodeID, 0777, "tmp", &fsINode)
-	if err != nil {
-		log.Warn(err)
+	code = p.dirTreeStg.SimpleMkdir(&fsINode, &ino, types.RootFsINodeID, 0777, "tmp", 0, 0, types.FS_RDEV)
+	if code != fuse.OK {
+		log.Warn("tmp", code)
 	}
 
 	err = p.FetchFsINodeByName(types.RootFsINodeParentID, "", &p.RootFsINode)
@@ -178,8 +189,13 @@ func (p *FsINodeDriver) ensureFsINodeHasNetINode(fsINode *types.FsINode) error {
 	}
 
 	var err error
-	fsINode.UNetINode, err = p.helper.GetNetINodeWithReadAcquire(fsINode.NetINodeID)
-	return err
+	fsINode.UNetINode, err = p.helper.GetNetINodeWithReadAcquire(true, fsINode.NetINodeID)
+	if err != nil {
+		return err
+	}
+	fsINode.UNetINode.Ptr().LastCommitSize = fsINode.UNetINode.Ptr().Size
+
+	return nil
 }
 
 // ensureFsINodeValidInCache return false if fsinode invalid in cache
@@ -220,79 +236,20 @@ func (p *FsINodeDriver) DeleteFsINodeCache(parentID types.FsINodeID, fsINodeName
 	p.fsINodesRWMutex.Unlock()
 }
 
-func (p *FsINodeDriver) DeleteFsINodeByPath(fsINodePath string) error {
-	var (
-		fsINode types.FsINode
-		err     error
-	)
-
-	err = p.FetchFsINodeByPath(fsINodePath, &fsINode)
-	if err != nil {
-		if err == types.ErrObjectNotExists {
-			return nil
-		} else {
-			return err
-		}
-	}
-
-	err = p.helper.DeleteFsINodeByIDInDB(fsINode.Ino)
-	p.DeleteFsINodeCache(fsINode.ParentID, fsINode.Name, fsINode.Ino)
-
-	return err
-}
-
-func (p *FsINodeDriver) DeleteFsINodeByIno(ino types.FsINodeID) error {
-	var (
-		fsINode types.FsINode
-		err     error
-	)
-
-	err = p.FetchFsINodeByID(ino, &fsINode)
-	if err != nil {
-		if err == types.ErrObjectNotExists {
-			return nil
-		} else {
-			return err
-		}
-	}
-
-	err = p.helper.DeleteFsINodeByIDInDB(fsINode.Ino)
-	p.DeleteFsINodeCache(fsINode.ParentID, fsINode.Name, fsINode.Ino)
-
-	return err
-}
-
-func (p *FsINodeDriver) FetchFsINodeByPath(fsINodePath string, fsINode *types.FsINode) error {
-	var (
-		paths    []string
-		i        int
-		parentID types.FsINodeID = types.RootFsINodeID
-		err      error
-	)
-
-	paths = strings.Split(fsINodePath, "/")
-
-	if paths[len(paths)-1] == "" {
-		paths = paths[:len(paths)-1]
-	}
-
-	if len(paths) <= 1 {
-		*fsINode = p.RootFsINode
-		return nil
-	}
-
-	for i = 1; i < len(paths); i++ {
-		if paths[i] == "" {
-			continue
-		}
-		err = p.FetchFsINodeByName(parentID, paths[i], fsINode)
+func (p *FsINodeDriver) FetchFsINodeByIDThroughHardLink(fsINodeID types.FsINodeID, fsINode *types.FsINode) error {
+	var err error
+	for {
+		err = p.FetchFsINodeByID(fsINodeID, fsINode)
 		if err != nil {
 			return err
 		}
-		parentID = fsINode.Ino
-	}
 
-	return err
+		if fsINode.Type != types.FSINODE_TYPE_HARD_LINK {
+			return nil
+		}
+
+		fsINodeID = fsINode.HardLinkIno
+	}
 }
 
 func (p *FsINodeDriver) FetchFsINodeByID(fsINodeID types.FsINodeID, fsINode *types.FsINode) error {
@@ -346,33 +303,95 @@ func (p *FsINodeDriver) FetchFsINodeByName(parentID types.FsINodeID, fsINodeName
 	return err
 }
 
-func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINode *types.FsINode) error {
+func (p *FsINodeDriver) UpdateFsINodeInDB(fsINode *types.FsINode) error {
 	var err error
-	pFsINode.Mtime = types.DirTreeTime(p.Timer.Now().Unix())
-	err = p.helper.UpdateFsINodeInDB(*pFsINode)
-	p.DeleteFsINodeCache(pFsINode.ParentID, pFsINode.Name, pFsINode.Ino)
+	fsINode.Ctime = types.DirTreeTime(p.Timer.Now().Unix())
+	err = p.helper.UpdateFsINodeInDB(*fsINode)
+	p.SetFsINodeCache(fsINode)
 	return err
 }
 
-func (p *FsINodeDriver) AllocNetINodeID(fsINode *types.FsINode) {
-	//TODO
+func (p *FsINodeDriver) RefreshFsINodeACMtime(fsINode *types.FsINode) error {
+	var err error
+	now := p.Timer.Now()
+	nowUnixNano := now.UnixNano()
+	if nowUnixNano-fsINode.LastModifyACMTime < int64(time.Millisecond)*600 {
+		return nil
+	}
+
+	nowt := types.DirTreeTime(now.Unix())
+	nowtnsec := types.DirTreeTimeNsec(now.UnixNano())
+
+	fsINode.Atime = nowt
+	fsINode.Atimensec = nowtnsec
+	fsINode.Ctime = nowt
+	fsINode.Ctimensec = nowtnsec
+	fsINode.Mtime = nowt
+	fsINode.Mtimensec = nowtnsec
+
+	err = p.helper.UpdateFsINodeInDB(*fsINode)
+	if err != nil {
+		return err
+	}
+
+	p.SetFsINodeCache(fsINode)
+	fsINode.LastModifyACMTime = nowUnixNano
+	return err
+}
+
+func (p *FsINodeDriver) RefreshFsINodeACMtimeByIno(fsINodeID types.FsINodeID) error {
+	var (
+		fsINode types.FsINode
+		err     error
+	)
+
+	err = p.FetchFsINodeByID(fsINodeID, &fsINode)
+	if err != nil {
+		return err
+	}
+
+	p.RefreshFsINodeACMtime(&fsINode)
+	return err
+}
+
+func (p *FsINodeDriver) AllocNetINodeID(fsINode *types.FsINode) error {
+	var err error
+	//TODO improve alloc NetInodeID
 	util.InitUUID64(&fsINode.NetINodeID)
+	//TODO config memBlockSize netBlockSize
+	fsINode.UNetINode, err = p.helper.MustGetNetINodeWithReadAcquire(fsINode.NetINodeID,
+		0, p.DefaultNetBlockCap, p.DefaultMemBlockCap)
+	return err
 }
 
 func (p *FsINodeDriver) PrepareFsINodeForCreate(fsINode *types.FsINode,
-	netINodeID *types.NetINodeID,
-	parentID types.FsINodeID,
+	fsINodeID *types.FsINodeID, netINodeID *types.NetINodeID, parentID types.FsINodeID,
 	name string, fsINodeType int, mode uint32,
-) {
+	uid uint32, gid uint32, rdev uint32,
+) error {
+	var err error
 	now := p.Timer.Now()
 	nowt := types.DirTreeTime(now.Unix())
 	nowtnsec := types.DirTreeTimeNsec(now.UnixNano())
-	fsINode.Ino = p.helper.AllocFsINodeID()
+	if fsINodeID != nil {
+		fsINode.Ino = *fsINodeID
+	} else {
+		fsINode.Ino = p.helper.AllocFsINodeID()
+	}
+
 	if netINodeID == nil {
-		p.AllocNetINodeID(fsINode)
+		if fsINodeType != types.FSINODE_TYPE_FILE {
+			fsINode.NetINodeID = types.ZeroNetINodeID
+		} else {
+			err = p.AllocNetINodeID(fsINode)
+			if err != nil {
+				return err
+			}
+		}
 	} else {
 		fsINode.NetINodeID = *netINodeID
 	}
+
 	fsINode.ParentID = parentID
 	fsINode.Name = name
 	fsINode.Type = fsINodeType
@@ -384,9 +403,13 @@ func (p *FsINodeDriver) PrepareFsINodeForCreate(fsINode *types.FsINode,
 	fsINode.Mtimensec = nowtnsec
 	fsINode.Mode = mode
 	fsINode.Nlink = 1
+	fsINode.Uid = uid
+	fsINode.Gid = gid
+	fsINode.Rdev = rdev
+	return nil
 }
 
-func (p *FsINodeDriver) CreateINode(fsINode *types.FsINode) error {
+func (p *FsINodeDriver) CreateFsINode(fsINode *types.FsINode) error {
 	var err error
 	err = p.helper.InsertFsINodeInDB(*fsINode)
 	if err != nil {
@@ -394,5 +417,4 @@ func (p *FsINodeDriver) CreateINode(fsINode *types.FsINode) error {
 	}
 
 	return nil
-
 }

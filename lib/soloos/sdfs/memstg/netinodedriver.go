@@ -11,6 +11,7 @@ type NetINodeDriverHelper struct {
 	*api.NameNodeClient
 	api.PrepareNetINodeMetaDataOnlyLoadDB
 	api.PrepareNetINodeMetaDataWithStorDB
+	api.NetINodeCommitSizeInDB
 }
 
 type NetINodeDriver struct {
@@ -30,13 +31,16 @@ func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 	nameNodeClient *api.NameNodeClient,
 	prepareNetINodeMetaDataOnlyLoadDB api.PrepareNetINodeMetaDataOnlyLoadDB,
 	prepareNetINodeMetaDataWithStorDB api.PrepareNetINodeMetaDataWithStorDB,
+	netINodeCommitSizeInDB api.NetINodeCommitSizeInDB,
 ) error {
 	p.offheapDriver = offheapDriver
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
 	p.netINodePool.Init(p.offheapDriver)
 
-	p.SetHelper(nameNodeClient, prepareNetINodeMetaDataOnlyLoadDB, prepareNetINodeMetaDataWithStorDB)
+	p.SetHelper(nameNodeClient,
+		prepareNetINodeMetaDataOnlyLoadDB, prepareNetINodeMetaDataWithStorDB,
+		netINodeCommitSizeInDB)
 
 	return nil
 }
@@ -45,13 +49,15 @@ func (p *NetINodeDriver) SetHelper(
 	nameNodeClient *api.NameNodeClient,
 	prepareNetINodeMetaDataOnlyLoadDB api.PrepareNetINodeMetaDataOnlyLoadDB,
 	prepareNetINodeMetaDataWithStorDB api.PrepareNetINodeMetaDataWithStorDB,
+	netINodeCommitSizeInDB api.NetINodeCommitSizeInDB,
 ) {
 	p.helper.NameNodeClient = nameNodeClient
 	p.helper.PrepareNetINodeMetaDataOnlyLoadDB = prepareNetINodeMetaDataOnlyLoadDB
 	p.helper.PrepareNetINodeMetaDataWithStorDB = prepareNetINodeMetaDataWithStorDB
+	p.helper.NetINodeCommitSizeInDB = netINodeCommitSizeInDB
 }
 
-func (p *NetINodeDriver) GetNetINodeWithReadAcquire(netINodeID types.NetINodeID) (types.NetINodeUintptr, error) {
+func (p *NetINodeDriver) GetNetINodeWithReadAcquire(isForceReload bool, netINodeID types.NetINodeID) (types.NetINodeUintptr, error) {
 	var (
 		uNetINode types.NetINodeUintptr
 		pNetINode *types.NetINode
@@ -60,7 +66,7 @@ func (p *NetINodeDriver) GetNetINodeWithReadAcquire(netINodeID types.NetINodeID)
 	)
 	uNetINode, isLoaded = p.netINodePool.MustGetNetINodeWithReadAcquire(netINodeID)
 	pNetINode = uNetINode.Ptr()
-	if isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited == false {
+	if isForceReload == false && (isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited == false) {
 		pNetINode.DBMetaDataInitMutex.Lock()
 		if pNetINode.IsDBMetaDataInited == false {
 			err = p.helper.PrepareNetINodeMetaDataOnlyLoadDB(uNetINode)
@@ -106,4 +112,8 @@ func (p *NetINodeDriver) MustGetNetINodeWithReadAcquire(netINodeID types.NetINod
 
 func (p *NetINodeDriver) ReleaseNetINodeWithReadRelease(uNetINode types.NetINodeUintptr) {
 	p.netINodePool.ReleaseNetINodeWithReadRelease(uNetINode)
+}
+
+func (p *NetINodeDriver) NetINodeTruncate(uNetINode types.NetINodeUintptr, size uint64) {
+	p.helper.NetINodeCommitSizeInDB(uNetINode, size)
 }

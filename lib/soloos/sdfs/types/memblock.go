@@ -89,21 +89,21 @@ func (p *MemBlock) BytesSlice() *[]byte {
 }
 
 func (p *MemBlock) Reset() {
-	p.Status = MemBlockUninited
+	atomic.StoreInt64(&p.Status, MemBlockUninited)
 	p.AvailMask.Reset()
 	p.UploadJob.Reset()
 }
 
 func (p *MemBlock) CompleteInit() {
-	p.Status = MemBlockIniteded
+	atomic.StoreInt64(&p.Status, MemBlockIniteded)
 }
 
 func (p *MemBlock) IsInited() bool {
-	return p.Status > MemBlockUninited
+	return atomic.LoadInt64(&p.Status) > MemBlockUninited
 }
 
 func (p *MemBlock) SetReleasable() {
-	p.Status = MemBlockReleasable
+	atomic.StoreInt64(&p.Status, MemBlockReleasable)
 }
 
 func (p *MemBlock) EnsureRelease() bool {

@@ -62,14 +62,51 @@ func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
 	return nil
 }
 
-func (p *NameNodeClient) GetNetINodeMetaData(uNetINode types.NetINodeUintptr,
-	size uint64, netBlockCap int, memBlockCap int,
-) error {
-	return p.doGetNetINodeMetaData(false, uNetINode, size, netBlockCap, memBlockCap)
+func (p *NameNodeClient) GetNetINodeMetaData(uNetINode types.NetINodeUintptr) error {
+	return p.doGetNetINodeMetaData(false, uNetINode, 0, 0, 0)
 }
 
 func (p *NameNodeClient) MustGetNetINodeMetaData(uNetINode types.NetINodeUintptr,
 	size uint64, netBlockCap int, memBlockCap int,
 ) error {
 	return p.doGetNetINodeMetaData(true, uNetINode, size, netBlockCap, memBlockCap)
+}
+
+func (p *NameNodeClient) NetINodeCommitSizeInDB(uNetINode types.NetINodeUintptr,
+	size uint64) error {
+	var (
+		req             snettypes.Request
+		resp            snettypes.Response
+		protocolBuilder flatbuffers.Builder
+		netINodeIDOff   flatbuffers.UOffsetT
+		err             error
+	)
+
+	netINodeIDOff = protocolBuilder.CreateByteString(uNetINode.Ptr().ID[:])
+	protocol.NetINodeCommitSizeInDBRequestStart(&protocolBuilder)
+	protocol.NetINodeCommitSizeInDBRequestAddNetINodeID(&protocolBuilder, netINodeIDOff)
+	protocol.NetINodeCommitSizeInDBRequestAddSize(&protocolBuilder, size)
+	protocolBuilder.Finish(protocol.NetINodeCommitSizeInDBRequestEnd(&protocolBuilder))
+	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
+
+	err = p.snetClientDriver.Call(p.nameNodePeer,
+		"/NetINode/CommitSizeInDB", &req, &resp)
+
+	var body = make([]byte, resp.BodySize)[:resp.BodySize]
+	p.snetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
+	if err != nil {
+		return err
+	}
+
+	var (
+		commonResponse protocol.CommonResponse
+	)
+
+	commonResponse.Init(body, flatbuffers.GetUOffsetT(body))
+	err = CommonResponseToError(&commonResponse)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

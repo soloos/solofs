@@ -6,17 +6,18 @@ import (
 )
 
 type Options struct {
-	MemBlockChunkSize   int
-	MemBlockChunksLimit int32
-	Mode                string
-	DataNodePeerIDStr   string
-	ListenAddr          string
-	DataNodeLocalFsRoot string
-	NameNodePeerIDStr   string
-	NameNodeAddr        string
-	PProfListenAddr     string
-	DBDriver            string
-	Dsn                 string
+	DefaultNetBlockCap    int
+	DefaultMemBlockCap    int
+	DefaultMemBlocksLimit int32
+	Mode                  string
+	DataNodePeerIDStr     string
+	ListenAddr            string
+	DataNodeLocalFsRoot   string
+	NameNodePeerIDStr     string
+	NameNodeAddr          string
+	PProfListenAddr       string
+	DBDriver              string
+	Dsn                   string
 }
 
 func LoadOptionsFile(optionsFilePath string) (Options, error) {

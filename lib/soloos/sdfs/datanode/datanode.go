@@ -80,7 +80,10 @@ func (p *DataNode) Init(offheapDriver *offheap.OffheapDriver,
 	p.netBlockDriver.SetHelper(&p.nameNodeClient, p.netBlockDriver.PrepareNetBlockMetaDataWithFanout)
 
 	p.netINodeDriver.SetHelper(nil,
-		p.metaStg.PrepareNetINodeMetaDataOnlyLoadDB, p.metaStg.PrepareNetINodeMetaDataWithStorDB)
+		p.metaStg.PrepareNetINodeMetaDataOnlyLoadDB,
+		p.metaStg.PrepareNetINodeMetaDataWithStorDB,
+		p.metaStg.NetINodeCommitSizeInDB,
+	)
 
 	return nil
 }

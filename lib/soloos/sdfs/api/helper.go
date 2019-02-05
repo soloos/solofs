@@ -10,12 +10,13 @@ type GetDataNode func(peerID snettypes.PeerID) snettypes.PeerUintptr
 type ChooseDataNodesForNewNetBlock func(uNetINode types.NetINodeUintptr) (snettypes.PeerUintptrArray8, error)
 
 // NetINode
-type GetNetINodeWithReadAcquire func(netINodeID types.NetINodeID) (types.NetINodeUintptr, error)
+type GetNetINodeWithReadAcquire func(isForceReload bool, netINodeID types.NetINodeID) (types.NetINodeUintptr, error)
 type MustGetNetINodeWithReadAcquire func(netINodeID types.NetINodeID,
 	size uint64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error)
 type PrepareNetINodeMetaDataOnlyLoadDB func(uNetINode types.NetINodeUintptr) error
 type PrepareNetINodeMetaDataWithStorDB func(uNetINode types.NetINodeUintptr,
 	size uint64, netBlockCap int, memBlockCap int) error
+type NetINodeCommitSizeInDB func(uNetINode types.NetINodeUintptr, size uint64) error
 
 // FsINode
 type AllocFsINodeID func() types.FsINodeID

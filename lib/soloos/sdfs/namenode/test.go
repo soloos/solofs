@@ -20,7 +20,10 @@ func MakeNameNodeForTest(nameNode *NameNode, metaStg *metastg.MetaStg, nameNodeS
 
 	netBlockDriver.SetHelper(nil, metaStg.PrepareNetBlockMetaData)
 	netINodeDriver.SetHelper(nil,
-		metaStg.PrepareNetINodeMetaDataOnlyLoadDB, metaStg.PrepareNetINodeMetaDataWithStorDB)
+		metaStg.PrepareNetINodeMetaDataOnlyLoadDB,
+		metaStg.PrepareNetINodeMetaDataWithStorDB,
+		metaStg.NetINodeCommitSizeInDB,
+	)
 	err = nameNode.Init(offheapDriver, nameNodeSRPCServerAddr, metaStg,
 		memBlockDriver,
 		netBlockDriver,

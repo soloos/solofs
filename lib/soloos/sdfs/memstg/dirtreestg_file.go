@@ -1,18 +1,20 @@
 package memstg
 
 import (
+	"os"
 	"soloos/sdfs/types"
 	"strings"
+
+	"github.com/hanwen/go-fuse/fuse"
 )
 
 func (p *DirTreeStg) OpenFile(fsINodePath string, netBlockCap int, memBlockCap int) (types.FsINode, error) {
 	var (
-		paths     []string
-		i         int
-		parentID  types.FsINodeID = types.RootFsINodeID
-		fsINode   types.FsINode
-		uNetINode types.NetINodeUintptr
-		err       error
+		paths    []string
+		i        int
+		parentID types.FsINodeID = types.RootFsINodeID
+		fsINode  types.FsINode
+		err      error
 	)
 
 	paths = strings.Split(fsINodePath, "/")
@@ -38,32 +40,19 @@ func (p *DirTreeStg) OpenFile(fsINodePath string, netBlockCap int, memBlockCap i
 	}
 
 	if err == types.ErrObjectNotExists {
-		p.FsINodeDriver.AllocNetINodeID(&fsINode)
-		uNetINode, err = p.FsINodeDriver.helper.MustGetNetINodeWithReadAcquire(fsINode.NetINodeID,
-			0, netBlockCap, memBlockCap)
+		err = p.CreateFsINode(&fsINode,
+			nil, nil, parentID,
+			paths[i], types.FSINODE_TYPE_FILE, fuse.S_IFREG|0777,
+			0, 0, types.FS_RDEV)
 		if err != nil {
 			goto OPEN_FILE_DONE
 		}
 
-		now := p.FsINodeDriver.Timer.Now()
-		nowt := types.DirTreeTime(now.Unix())
-		nowtnsec := types.DirTreeTimeNsec(now.UnixNano())
-		fsINode = types.FsINode{
-			Ino:        p.FsINodeDriver.helper.AllocFsINodeID(),
-			NetINodeID: uNetINode.Ptr().ID,
-			ParentID:   parentID,
-			Name:       paths[i],
-			Type:       types.FSINODE_TYPE_FILE,
-			Atime:      nowt,
-			Ctime:      nowt,
-			Mtime:      nowt,
-			Atimensec:  nowtnsec,
-			Ctimensec:  nowtnsec,
-			Mtimensec:  nowtnsec,
-			Mode:       0,
-			Nlink:      1,
+		_, err = p.FsINodeDriver.helper.MustGetNetINodeWithReadAcquire(fsINode.NetINodeID,
+			0, netBlockCap, memBlockCap)
+		if err != nil {
+			goto OPEN_FILE_DONE
 		}
-		err = p.FsINodeDriver.helper.InsertFsINodeInDB(fsINode)
 	}
 
 OPEN_FILE_DONE:
@@ -71,4 +60,94 @@ OPEN_FILE_DONE:
 		err = p.FsINodeDriver.PrepareAndSetFsINodeCache(&fsINode)
 	}
 	return fsINode, err
+}
+
+func (p *DirTreeStg) Create(input *fuse.CreateIn, name string, out *fuse.CreateOut) fuse.Status {
+	var (
+		fsINode types.FsINode
+		err     error
+	)
+
+	if len([]byte(name)) > types.FS_MAX_NAME_LENGTH {
+		return types.FS_ENAMETOOLONG
+	}
+
+	err = p.CreateFsINode(&fsINode,
+		nil, nil, input.NodeId,
+		name, types.FSINODE_TYPE_FILE,
+		uint32(0777)&input.Mode|uint32(fuse.S_IFREG),
+		input.Uid, input.Gid, types.FS_RDEV)
+	if err != nil {
+		return types.ErrorToFuseStatus(err)
+	}
+
+	err = p.SimpleOpen(&fsINode, input.Flags, &out.OpenOut)
+	if err != nil {
+		return types.ErrorToFuseStatus(err)
+	}
+
+	err = p.RefreshFsINodeACMtimeByIno(fsINode.ParentID)
+	if err != nil {
+		return types.ErrorToFuseStatus(err)
+	}
+
+	p.SetFuseEntryOutByFsINode(&out.EntryOut, &fsINode)
+
+	return fuse.OK
+}
+
+func (p *DirTreeStg) Open(input *fuse.OpenIn, out *fuse.OpenOut) fuse.Status {
+	var (
+		fsINode types.FsINode
+		err     error
+	)
+
+	err = p.FetchFsINodeByIDThroughHardLink(input.NodeId, &fsINode)
+	if err != nil {
+		return types.ErrorToFuseStatus(err)
+	}
+
+	err = p.SimpleOpen(&fsINode, input.Flags, out)
+	if err != nil {
+		return types.ErrorToFuseStatus(err)
+	}
+
+	openFlags := int(input.Flags)
+	if (openFlags&os.O_TRUNC != 0) ||
+		(openFlags&os.O_WRONLY != 0) ||
+		(openFlags&os.O_APPEND != 0) {
+		err = p.RefreshFsINodeACMtime(&fsINode)
+		if err != nil {
+			return types.ErrorToFuseStatus(err)
+		}
+	}
+
+	return fuse.OK
+}
+
+func (p *DirTreeStg) Fallocate(input *fuse.FallocateIn) fuse.Status {
+	// TODO maybe should support
+	// not support
+	return fuse.ENODATA
+}
+
+func (p *DirTreeStg) Flush(input *fuse.FlushIn) fuse.Status {
+	var (
+		fsINode types.FsINode
+		err     error
+	)
+
+	err = p.FetchFsINodeByIDThroughHardLink(input.NodeId, &fsINode)
+	if err != nil {
+		return types.ErrorToFuseStatus(err)
+	}
+
+	if fsINode.UNetINode != 0 {
+		err = p.MemStg.NetINodeDriver.Flush(fsINode.UNetINode)
+		if err != nil {
+			return types.ErrorToFuseStatus(err)
+		}
+	}
+
+	return fuse.OK
 }

@@ -6,50 +6,89 @@ import (
 	"github.com/hanwen/go-fuse/fuse"
 )
 
-func (p *DirTreeStg) GetXAttrSize(fsINodeID types.FsINodeID, attr string) (int, fuse.Status) {
+func (p *DirTreeStg) SimpleGetXAttrSize(fsINodeID types.FsINodeID, attr string) (int, fuse.Status) {
 	var (
-		sz  int
-		err error
+		fsINode types.FsINode
+		sz      int
+		err     error
 	)
-	sz, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrSize(fsINodeID, attr)
+	err = p.FetchFsINodeByIDThroughHardLink(fsINodeID, &fsINode)
+	if err != nil {
+		return 0, types.ErrorToFuseStatus(err)
+	}
+
+	sz, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrSize(fsINode.Ino, attr)
 	if err != nil {
 		return 0, types.ErrorToFuseStatus(err)
 	}
 	return sz, fuse.OK
 }
 
-func (p *DirTreeStg) GetXAttrData(fsINodeID types.FsINodeID, attr string) ([]byte, fuse.Status) {
+func (p *DirTreeStg) SimpleGetXAttrData(fsINodeID types.FsINodeID, attr string) ([]byte, fuse.Status) {
 	var (
-		data []byte
-		err  error
+		fsINode types.FsINode
+		data    []byte
+		err     error
 	)
-	data, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrData(fsINodeID, attr)
+	err = p.FetchFsINodeByIDThroughHardLink(fsINodeID, &fsINode)
+	if err != nil {
+		return nil, types.ErrorToFuseStatus(err)
+	}
+
+	data, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrData(fsINode.Ino, attr)
 	if err != nil {
 		return nil, types.ErrorToFuseStatus(err)
 	}
 	return data, fuse.OK
 }
 
-func (p *DirTreeStg) ListXAttr(fsINodeID types.FsINodeID) ([]byte, fuse.Status) {
+func (p *DirTreeStg) SimpleListXAttr(fsINodeID types.FsINodeID) ([]byte, fuse.Status) {
 	var (
-		data []byte
-		err  error
+		fsINode types.FsINode
+		data    []byte
+		err     error
 	)
-	data, err = p.FsINodeDriver.FIXAttrDriver.ListXAttr(fsINodeID)
+	err = p.FetchFsINodeByIDThroughHardLink(fsINodeID, &fsINode)
+	if err != nil {
+		return nil, types.ErrorToFuseStatus(err)
+	}
+
+	data, err = p.FsINodeDriver.FIXAttrDriver.ListXAttr(fsINode.Ino)
 	if err != nil {
 		return nil, types.ErrorToFuseStatus(err)
 	}
 	return data, fuse.OK
 }
 
-func (p *DirTreeStg) SetXAttr(fsINodeID types.FsINodeID, attr string, data []byte) fuse.Status {
+func (p *DirTreeStg) SimpleSetXAttr(fsINodeID types.FsINodeID, attr string, data []byte) fuse.Status {
 	var err error
 	err = p.FsINodeDriver.FIXAttrDriver.SetXAttr(fsINodeID, attr, data)
 	return types.ErrorToFuseStatus(err)
 }
 
-func (p *DirTreeStg) RemoveXAttr(fsINodeID types.FsINodeID, attr string) fuse.Status {
+func (p *DirTreeStg) SimpleRemoveXAttr(fsINodeID types.FsINodeID, attr string) fuse.Status {
 	var err error
 	err = p.FsINodeDriver.FIXAttrDriver.RemoveXAttr(fsINodeID, attr)
 	return types.ErrorToFuseStatus(err)
+}
+
+// Extended attributes.
+func (p *DirTreeStg) GetXAttrSize(header *fuse.InHeader, attr string) (int, fuse.Status) {
+	return p.SimpleGetXAttrSize(header.NodeId, attr)
+}
+
+func (p *DirTreeStg) GetXAttrData(header *fuse.InHeader, attr string) ([]byte, fuse.Status) {
+	return p.SimpleGetXAttrData(header.NodeId, attr)
+}
+
+func (p *DirTreeStg) ListXAttr(header *fuse.InHeader) ([]byte, fuse.Status) {
+	return p.SimpleListXAttr(header.NodeId)
+}
+
+func (p *DirTreeStg) SetXAttr(input *fuse.SetXAttrIn, attr string, data []byte) fuse.Status {
+	return p.SimpleSetXAttr(input.NodeId, attr, data)
+}
+
+func (p *DirTreeStg) RemoveXAttr(header *fuse.InHeader, attr string) fuse.Status {
+	return p.SimpleRemoveXAttr(header.NodeId, attr)
 }

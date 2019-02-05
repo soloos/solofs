@@ -5,6 +5,7 @@ import (
 	"soloos/sdfs/types"
 	"soloos/util/offheap"
 	"sync"
+	"sync/atomic"
 )
 
 // memBlockPoolChunk
@@ -154,7 +155,7 @@ func (p *memBlockPoolChunk) releaseBlock(uMemBlock types.MemBlockUintptr) {
 }
 
 func (p *memBlockPoolChunk) checkBlock(blockID types.PtrBindIndex, uMemBlock types.MemBlockUintptr) bool {
-	if uMemBlock.Ptr().Status == types.MemBlockUninited ||
+	if atomic.LoadInt64(&uMemBlock.Ptr().Status) == types.MemBlockUninited ||
 		blockID != uMemBlock.Ptr().ID {
 		return false
 	}

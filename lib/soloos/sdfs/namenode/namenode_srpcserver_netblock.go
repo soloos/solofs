@@ -30,7 +30,7 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(reqID uint64,
 	// request
 	req.Init(param, flatbuffers.GetUOffsetT(param))
 	copy(netINodeID[:], req.NetINodeID())
-	uNetINode, err = p.nameNode.netINodeDriver.GetNetINodeWithReadAcquire(netINodeID)
+	uNetINode, err = p.nameNode.netINodeDriver.GetNetINodeWithReadAcquire(false, netINodeID)
 	defer p.nameNode.netINodeDriver.ReleaseNetINodeWithReadRelease(uNetINode)
 
 	if err != nil {

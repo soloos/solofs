@@ -43,6 +43,7 @@ func (p *MockServer) Init(snetDriver *snet.NetDriver, network string, addr strin
 	p.srpcServer.RegisterService("/NetINode/MustGet", p.NetINodeMustGet)
 	p.srpcServer.RegisterService("/NetINode/PWrite", p.NetINodePWrite)
 	p.srpcServer.RegisterService("/NetINode/PRead", p.NetINodePRead)
+	p.srpcServer.RegisterService("/NetINode/CommitSizeInDB", p.NetINodeCommitSizeInDB)
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
 	p.dataNodePeers = make([]snettypes.PeerUintptr, 3)
 	for i := 0; i < len(p.dataNodePeers); i++ {
@@ -122,6 +123,21 @@ func (p *MockServer) NetINodePRead(reqID uint64,
 
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
 	util.AssertErrIsNil(conn.Response(reqID, respBody, make([]byte, req.Length())))
+	return nil
+}
+
+func (p *MockServer) NetINodeCommitSizeInDB(reqID uint64,
+	reqBodySize, reqParamSize uint32,
+	conn *snettypes.Connection) error {
+
+	var reqData = make([]byte, reqBodySize)
+	util.AssertErrIsNil(conn.ReadAll(reqData))
+
+	// response
+	var protocolBuilder flatbuffers.Builder
+	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
+	conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+
 	return nil
 }
 

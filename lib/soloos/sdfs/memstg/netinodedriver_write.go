@@ -137,5 +137,16 @@ func (p *NetINodeDriver) Flush(uNetINode types.NetINodeUintptr) error {
 	pNetINode.WriteDataRWMutex.Unlock()
 	err = pNetINode.LastSyncDataError
 	pNetINode.LastSyncDataError = nil
-	return err
+
+	if pNetINode.LastCommitSize == pNetINode.Size {
+		return nil
+	}
+
+	// TODO improve me
+	err = p.NetINodeCommitSizeInDB(uNetINode, pNetINode.Size)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

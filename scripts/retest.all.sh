@@ -1,4 +1,6 @@
 #!/bin/bash
+make sdfsd-fuse
+make sdfsd
 ./scripts/stop.cluster.sh
 ./scripts/stop.sdfsd-fuse.sh
 ./scripts/reformat.mysql.sh

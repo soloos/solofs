@@ -39,6 +39,7 @@ func MakeClientForTest(client *Client) {
 		netBlockDriverServer netstg.NetBlockDriver
 		netINodeDriverServer memstg.NetINodeDriver
 
+		netBlockCap      int   = 1280
 		memBlockCap      int   = 128
 		blockChunksLimit int32 = 4
 		peerID           snettypes.PeerID
@@ -72,5 +73,5 @@ func MakeClientForTest(client *Client) {
 	)
 	err = dbConn.Init(metastg.TestMetaStgDBDriver, metastg.TestMetaStgDBConnect)
 	util.AssertErrIsNil(err)
-	util.AssertErrIsNil(client.Init(&memStg, &dbConn))
+	util.AssertErrIsNil(client.Init(&memStg, &dbConn, netBlockCap, memBlockCap))
 }

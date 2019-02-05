@@ -8,8 +8,9 @@ import (
 
 type Options struct {
 	NameNodeSRPCServerAddr string
-	MemBlockChunkSize      int
-	MemBlockChunksLimit    int32
+	DefaultNetBlockCap     int
+	DefaultMemBlockCap     int
+	DefaultMemBlocksLimit  int32
 	DBDriver               string
 	Dsn                    string
 	PProfListenAddr        string

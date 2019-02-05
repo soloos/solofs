@@ -46,7 +46,7 @@ PREPARE_DONE:
 	if err == nil {
 		pNetINode.IsDBMetaDataInited = true
 	}
-	return nil
+	return err
 }
 
 func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetINodeUintptr,
@@ -75,5 +75,9 @@ PREPARE_DONE:
 	if err == nil {
 		pNetINode.IsDBMetaDataInited = true
 	}
-	return nil
+	return err
+}
+
+func (p *NetINodeDriver) NetINodeTruncate(uNetINode types.NetINodeUintptr, size uint64) error {
+	return p.NetINodeCommitSizeInDB(uNetINode, size)
 }

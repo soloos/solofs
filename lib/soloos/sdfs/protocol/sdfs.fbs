@@ -10,6 +10,11 @@ table SNetPeer {
     Address:string;
 }
 
+table NetINodeCommitSizeInDBRequest {
+    NetINodeID:string;
+    Size:uint64;
+}
+
 table NetINodeInfoRequest {
     NetINodeID:string;
     Size:uint64;

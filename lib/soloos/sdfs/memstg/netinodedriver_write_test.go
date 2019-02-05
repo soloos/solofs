@@ -4,6 +4,7 @@ import (
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
 	"soloos/snet"
+	"soloos/util"
 	"soloos/util/offheap"
 	"testing"
 
@@ -48,7 +49,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		writeOffset := uint64(uint64(i) * uint64(memBlockCap))
 		memBlockIndex := int(writeOffset / uint64(uNetINode.Ptr().MemBlockCap))
 		uMemBlock, _ := memBlockDriver.MustGetMemBlockWithReadAcquire(uNetINode, memBlockIndex)
-		assert.NoError(t, netINodeDriver.Flush(uNetINode))
+		util.AssertErrIsNil(netINodeDriver.Flush(uNetINode))
 		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
 	}
 

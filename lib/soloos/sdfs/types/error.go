@@ -20,6 +20,7 @@ var (
 	ErrRLockFailed        = errors.New("rlock failed")
 	ErrLockFailed         = errors.New("lock failed")
 	ErrInvalidArgs        = errors.New("invalid args")
+	ErrHasNotPermission   = errors.New("has not permission")
 )
 
 func ErrorToFuseStatus(err error) fuse.Status {
@@ -36,6 +37,8 @@ func ErrorToFuseStatus(err error) fuse.Status {
 		return fuse.EAGAIN
 	case ErrObjectHasChildren:
 		return FS_ENOTEMPTY
+	case ErrHasNotPermission:
+		return fuse.EPERM
 	}
 
 	return fuse.EIO

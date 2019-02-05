@@ -7,7 +7,7 @@ import (
 	"github.com/gocraft/dbr"
 )
 
-func (p *NetINodeDriver) UpdateNetINodeInDB(uNetINode types.NetINodeUintptr) error {
+func (p *NetINodeDriver) NetINodeCommitSizeInDB(uNetINode types.NetINodeUintptr, size uint64) error {
 	var (
 		sess *dbr.Session
 		err  error
@@ -15,10 +15,16 @@ func (p *NetINodeDriver) UpdateNetINodeInDB(uNetINode types.NetINodeUintptr) err
 
 	sess = p.helper.DBConn.NewSession(nil)
 	_, err = sess.Update("b_netinode").
-		Set("netinode_size", uNetINode.Ptr().Size).
+		Set("netinode_size", size).
 		Where("netinode_id=?", uNetINode.Ptr().IDStr()).
 		Exec()
-	return err
+	if err != nil {
+		return err
+	}
+
+	uNetINode.Ptr().Size = size
+
+	return nil
 }
 
 func (p *NetINodeDriver) FetchNetINodeFromDB(pNetINode *types.NetINode) error {

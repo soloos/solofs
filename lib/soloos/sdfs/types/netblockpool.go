@@ -34,8 +34,6 @@ func (p *NetBlockPool) RawChunkPoolInvokeReleaseRawChunk() {
 }
 
 func (p *NetBlockPool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
-	uNetBlock := NetBlockUintptr(uRawChunk)
-	uNetBlock.Ptr().SharedPointer.IsInited = true
 }
 
 // return true if NetBlock stored in pool before
@@ -68,6 +66,7 @@ func (p *NetBlockPool) MustGetNetBlock(uNetINode NetINodeUintptr,
 			uNetBlock = NetBlockUintptr(p.netBlockObjectPool.AllocRawObject())
 			uNetBlock.Ptr().NetINodeID = uNetINode.Ptr().ID
 			uNetBlock.Ptr().IndexInNetINode = netBlockIndex
+			uNetBlock.Ptr().SharedPointer.CompleteInit()
 			isLoaded = false
 			p.pool[netINodeBlockID] = uNetBlock
 		}
@@ -76,7 +75,7 @@ func (p *NetBlockPool) MustGetNetBlock(uNetINode NetINodeUintptr,
 	FETCH_NETBLOCK_DONE:
 		uNetBlock.Ptr().SharedPointer.ReadAcquire()
 
-		if uNetBlock.Ptr().SharedPointer.IsInited == false {
+		if uNetBlock.Ptr().SharedPointer.IsInited() == false {
 			uNetBlock.Ptr().SharedPointer.ReadRelease()
 		} else {
 			break
@@ -89,7 +88,7 @@ func (p *NetBlockPool) MustGetNetBlock(uNetINode NetINodeUintptr,
 func (p *NetBlockPool) ReleaseNetBlock(uNetBlock NetBlockUintptr) {
 	pNetBlock := uNetBlock.Ptr()
 	pNetBlock.SharedPointer.ReadRelease()
-	if pNetBlock.SharedPointer.IsShouldRelease &&
+	if pNetBlock.SharedPointer.IsShouldRelease() &&
 		pNetBlock.SharedPointer.Accessor == 0 {
 
 		var netINodeBlockID NetINodeBlockID

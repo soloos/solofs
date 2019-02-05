@@ -21,21 +21,21 @@ func (p *DirTreeStg) setMetaByLKIn(lkIn *fuse.LkIn, meta *types.INodeRWMutexMeta
 }
 
 // GetLk returns existing lock information for file
-func (p *DirTreeStg) GetLk(input *fuse.LkIn, out *fuse.LkOut) error {
+func (p *DirTreeStg) GetLk(input *fuse.LkIn, out *fuse.LkOut) fuse.Status {
 	var (
 		meta types.INodeRWMutexMeta
 		err  error
 	)
 	err = p.FsINodeDriver.GetLk(input.NodeId, &meta)
 	if err != nil {
-		return err
+		return types.ErrorToFuseStatus(err)
 	}
 	p.setLKOutByMeta(out, &meta)
-	return nil
+	return fuse.OK
 }
 
 // SetLk Sets or clears the lock described by lk on file.
-func (p *DirTreeStg) SetLk(input *fuse.LkIn) error {
+func (p *DirTreeStg) SetLk(input *fuse.LkIn) fuse.Status {
 	var (
 		meta types.INodeRWMutexMeta
 		err  error
@@ -43,13 +43,13 @@ func (p *DirTreeStg) SetLk(input *fuse.LkIn) error {
 	p.setMetaByLKIn(input, &meta)
 	err = p.FsINodeDriver.SetLk(input.NodeId, &meta)
 	if err != nil {
-		return err
+		return types.ErrorToFuseStatus(err)
 	}
-	return nil
+	return fuse.OK
 }
 
 // SetLkw Sets or clears the lock described by lk. This call blocks until the operation can be completed.
-func (p *DirTreeStg) SetLkw(input *fuse.LkIn) error {
+func (p *DirTreeStg) SetLkw(input *fuse.LkIn) fuse.Status {
 	var (
 		meta types.INodeRWMutexMeta
 		err  error
@@ -57,7 +57,7 @@ func (p *DirTreeStg) SetLkw(input *fuse.LkIn) error {
 	p.setMetaByLKIn(input, &meta)
 	err = p.FsINodeDriver.SetLkw(input.NodeId, &meta)
 	if err != nil {
-		return err
+		return types.ErrorToFuseStatus(err)
 	}
-	return nil
+	return fuse.OK
 }

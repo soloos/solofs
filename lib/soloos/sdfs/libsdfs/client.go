@@ -15,7 +15,11 @@ type Client struct {
 	MemDirTreeStg  memstg.DirTreeStg
 }
 
-func (p *Client) Init(memStg *memstg.MemStg, dbConn *dbcli.Connection) error {
+func (p *Client) Init(memStg *memstg.MemStg,
+	dbConn *dbcli.Connection,
+	defaultNetBlockCap int,
+	defaultMemBlockCap int,
+) error {
 	var err error
 	p.offheapDriver = &offheap.DefaultOffheapDriver
 
@@ -30,8 +34,11 @@ func (p *Client) Init(memStg *memstg.MemStg, dbConn *dbcli.Connection) error {
 		return err
 	}
 
-	err = p.MemDirTreeStg.Init(
+	err = p.MemDirTreeStg.SdfsInit(
+		p.MemStg,
 		p.offheapDriver,
+		defaultNetBlockCap,
+		defaultMemBlockCap,
 		p.MetaDirTreeStg.FsINodeDriver.AllocFsINodeID,
 		p.MemStg.GetNetINodeWithReadAcquire,
 		p.MemStg.MustGetNetINodeWithReadAcquire,

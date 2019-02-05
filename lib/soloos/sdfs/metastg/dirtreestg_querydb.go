@@ -31,7 +31,7 @@ func prepareDirTreeSqls() []string {
 	hardlink_ino bigint,
 	netinode_id char(64),
 	parent_fsinode_ino bigint,
-	fsinode_name char(64),
+	fsinode_name char(128),
 	fsinode_type int,
 	atime bigint default 0,
 	ctime bigint default 0,

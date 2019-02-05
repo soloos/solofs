@@ -5,6 +5,7 @@ import (
 	"soloos/util"
 	"testing"
 
+	"github.com/hanwen/go-fuse/fuse"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,13 +15,14 @@ func TestMetaStgDirTreeStgBase(t *testing.T) {
 		fsINode     types.FsINode
 		netBlockCap = types.DefaultNetBlockCap
 		memBlockCap = types.DefaultMemBlockCap
+		code        fuse.Status
 		err         error
 	)
 	MakeClientForTest(&client)
 
-	err = client.MemDirTreeStg.Mkdir(nil, types.RootFsINodeID, 0777, "test", &fsINode)
-	if err != types.ErrObjectExists {
-		assert.NoError(t, err)
+	code = client.MemDirTreeStg.SimpleMkdir(&fsINode, nil, types.RootFsINodeID, 0777, "test", 0, 0, types.FS_RDEV)
+	if code != fuse.OK {
+		assert.Equal(t, code, types.FS_EEXIST)
 	}
 
 	util.Ignore(fsINode)
@@ -34,12 +36,12 @@ func TestMetaStgDirTreeStgBase(t *testing.T) {
 	assert.NoError(t, err)
 	fsINode, err = client.MemDirTreeStg.OpenFile("/test/hi5", netBlockCap, memBlockCap)
 	assert.NoError(t, err)
-	err = client.MemDirTreeStg.FsINodeDriver.DeleteFsINodeByPath("/test/hi4")
+	err = client.MemDirTreeStg.DeleteFsINodeByPath("/test/hi4")
 	assert.NoError(t, err)
 
-	err = client.MemDirTreeStg.Rename("/test/hi5", "/testhi5")
+	err = client.MemDirTreeStg.RenameWithFullPath("/test/hi5", "/testhi5")
 	assert.NoError(t, err)
-	err = client.MemDirTreeStg.Rename("/testhi5", "/test/hi5")
+	err = client.MemDirTreeStg.RenameWithFullPath("/testhi5", "/test/hi5")
 	assert.NoError(t, err)
 
 	err = client.MemDirTreeStg.ListFsINodeByParentPath("/test", true,

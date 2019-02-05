@@ -42,8 +42,8 @@ func (p *Env) Init(options Options) {
 		var memBlockDriverOptions = memstg.MemBlockDriverOptions{
 			[]memstg.MemBlockPoolOptions{
 				memstg.MemBlockPoolOptions{
-					p.options.MemBlockChunkSize,
-					p.options.MemBlockChunksLimit,
+					p.options.DefaultMemBlockCap,
+					p.options.DefaultMemBlocksLimit,
 				},
 			},
 		}
@@ -72,6 +72,7 @@ func (p *Env) startNameNode(options Options) {
 		nil,
 		p.MetaStg.PrepareNetINodeMetaDataOnlyLoadDB,
 		p.MetaStg.PrepareNetINodeMetaDataWithStorDB,
+		p.MetaStg.NetINodeCommitSizeInDB,
 	))
 
 	util.AssertErrIsNil(nameNode.Init(p.offheapDriver,
@@ -116,6 +117,7 @@ func (p *Env) startDataNode(options Options) {
 		nil,
 		p.MetaStg.PrepareNetINodeMetaDataOnlyLoadDB,
 		p.MetaStg.PrepareNetINodeMetaDataWithStorDB,
+		p.MetaStg.NetINodeCommitSizeInDB,
 	))
 
 	util.AssertErrIsNil(dataNode.Init(p.offheapDriver, dataNodeOptions,

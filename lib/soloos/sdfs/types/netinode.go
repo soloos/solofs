@@ -26,7 +26,8 @@ func init() {
 func (u NetINodeUintptr) Ptr() *NetINode { return (*NetINode)(unsafe.Pointer(u)) }
 
 type NetINode struct {
-	SharedPointer offheap.SharedPointer `db:"-"`
+	SharedPointer  offheap.SharedPointer `db:"-"`
+	LastCommitSize uint64
 
 	ID                  NetINodeID     `db:"netinode_id"`
 	Size                uint64         `db:"netinode_size"`

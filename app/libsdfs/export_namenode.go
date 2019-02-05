@@ -20,7 +20,7 @@ func GoSdfsOpenFile(cInodePath *C.char, flags,
 
 	fsINode, err = env.Client.MemDirTreeStg.OpenFile(fsINodePath,
 		types.DefaultNetBlockCap,
-		env.Options.MemBlockChunkSize)
+		env.Options.DefaultMemBlockCap)
 	if err != nil {
 		return 0, libsdfs.CODE_ERR
 	}
@@ -35,7 +35,7 @@ func GoSdfsExists(cInodePath *C.char) C.int {
 		fsINode     types.FsINode
 		err         error
 	)
-	err = env.Client.MemDirTreeStg.FsINodeDriver.FetchFsINodeByPath(fsINodePath, &fsINode)
+	err = env.Client.MemDirTreeStg.FetchFsINodeByPath(fsINodePath, &fsINode)
 	if err != nil {
 		// contains err == types.ErrObjectNotExists
 		return libsdfs.CODE_ERR
@@ -78,10 +78,10 @@ func GoSdfsListDirectory(cInodePath *C.char, ret *unsafe.Pointer, num *C.int) {
 func GoSdfsCreateDirectory(cInodePath *C.char) C.int {
 	var (
 		fsINodePath = C.GoString(cInodePath)
-		err         error
+		code        fuse.Status
 	)
-	err = env.Client.MemDirTreeStg.MkdirAll(fuse.S_IFDIR|0777, fsINodePath)
-	if err != nil {
+	code = env.Client.MemDirTreeStg.MkdirAll(0777, fsINodePath, 0, 0)
+	if code != fuse.OK {
 		return libsdfs.CODE_ERR
 	}
 
@@ -94,7 +94,7 @@ func GoSdfsDelete(cInodePath *C.char, recursive C.int) C.int {
 		fsINodePath = C.GoString(cInodePath)
 		err         error
 	)
-	err = env.Client.MemDirTreeStg.FsINodeDriver.DeleteFsINodeByPath(fsINodePath)
+	err = env.Client.MemDirTreeStg.DeleteFsINodeByPath(fsINodePath)
 	if err != nil {
 		return libsdfs.CODE_ERR
 	}
@@ -105,7 +105,7 @@ func GoSdfsDelete(cInodePath *C.char, recursive C.int) C.int {
 //export GoSdfsRename
 func GoSdfsRename(oldINodePath, newINodePath *C.char) C.int {
 	var err error
-	err = env.Client.MemDirTreeStg.Rename(C.GoString(oldINodePath), C.GoString(newINodePath))
+	err = env.Client.MemDirTreeStg.RenameWithFullPath(C.GoString(oldINodePath), C.GoString(newINodePath))
 	if err != nil {
 		return libsdfs.CODE_ERR
 	}
@@ -120,12 +120,12 @@ func GoSdfsGetPathInfo(cInodePath *C.char) (inodeID uint64, size uint64, mTime u
 		err       error
 	)
 
-	err = env.Client.MemDirTreeStg.FsINodeDriver.FetchFsINodeByPath(C.GoString(cInodePath), &fsINode)
+	err = env.Client.MemDirTreeStg.FetchFsINodeByPath(C.GoString(cInodePath), &fsINode)
 	if err != nil {
 		return 0, 0, 0, libsdfs.CODE_ERR
 	}
 
-	uNetINode, err = env.Client.MemStg.NetINodeDriver.GetNetINodeWithReadAcquire(fsINode.NetINodeID)
+	uNetINode, err = env.Client.MemStg.NetINodeDriver.GetNetINodeWithReadAcquire(false, fsINode.NetINodeID)
 	defer env.Client.MemStg.NetINodeDriver.ReleaseNetINodeWithReadRelease(uNetINode)
 	if err != nil {
 		return 0, 0, 0, libsdfs.CODE_ERR

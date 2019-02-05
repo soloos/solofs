@@ -44,5 +44,4 @@ func (p *NameNodeClient) RegisterDataNode(peerID snettypes.PeerID, serveAddr str
 	}
 
 	return nil
-
 }

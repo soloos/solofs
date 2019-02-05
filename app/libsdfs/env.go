@@ -28,8 +28,13 @@ func (p *Env) Init(optionsFile string) {
 	}()
 
 	util.AssertErrIsNil(p.ClientDriver.Init(p.Options.NameNodeSRPCServerAddr,
-		p.Options.MemBlockChunkSize, p.Options.MemBlockChunksLimit,
+		p.Options.DefaultMemBlockCap, p.Options.DefaultMemBlocksLimit,
 		p.Options.DBDriver, p.Options.Dsn,
 	))
-	util.AssertErrIsNil(p.ClientDriver.InitClient(&p.Client))
+
+	if p.Options.DefaultNetBlockCap == 0 {
+		p.Options.DefaultNetBlockCap = p.Options.DefaultMemBlockCap
+	}
+
+	util.AssertErrIsNil(p.ClientDriver.InitClient(&p.Client, p.Options.DefaultNetBlockCap, p.Options.DefaultMemBlockCap))
 }

@@ -42,8 +42,6 @@ func (p *FsINodePool) RawChunkPoolInvokeReleaseRawChunk() {
 }
 
 func (p *FsINodePool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
-	uFsINode := FsINodeUintptr(uRawChunk)
-	uFsINode.Ptr().SharedPointer.IsInited = true
 }
 
 // return true if FsINode stored in fsINodesByPath before
@@ -73,6 +71,7 @@ func (p *FsINodePool) MustGetFsINodeByPathWithReadAcquire(parentID FsINodeID, fs
 			uFsINode = FsINodeUintptr(p.fsINodeObjectPool.AllocRawObject())
 			uFsINode.Ptr().ParentID = parentID
 			uFsINode.Ptr().Name = fsINodeName
+			uFsINode.Ptr().SharedPointer.CompleteInit()
 			isLoaded = false
 			p.fsINodesByPath[fsINodeKey] = uFsINode
 		}
@@ -81,7 +80,7 @@ func (p *FsINodePool) MustGetFsINodeByPathWithReadAcquire(parentID FsINodeID, fs
 	FETCH_NETINODE_DONE:
 		uFsINode.Ptr().SharedPointer.ReadAcquire()
 
-		if uFsINode.Ptr().SharedPointer.IsInited == false {
+		if uFsINode.Ptr().SharedPointer.IsInited() == false {
 			uFsINode.Ptr().SharedPointer.ReadRelease()
 		} else {
 			break
@@ -116,6 +115,7 @@ func (p *FsINodePool) MustGetFsINodeByIDWithReadAcquire(fsINodeID FsINodeID) (Fs
 		} else {
 			uFsINode = FsINodeUintptr(p.fsINodeObjectPool.AllocRawObject())
 			uFsINode.Ptr().Ino = fsINodeID
+			uFsINode.Ptr().SharedPointer.CompleteInit()
 			isLoaded = false
 			p.fsINodesByID[fsINodeID] = uFsINode
 		}
@@ -124,7 +124,7 @@ func (p *FsINodePool) MustGetFsINodeByIDWithReadAcquire(fsINodeID FsINodeID) (Fs
 	FETCH_NETINODE_DONE:
 		uFsINode.Ptr().SharedPointer.ReadAcquire()
 
-		if uFsINode.Ptr().SharedPointer.IsInited == false {
+		if uFsINode.Ptr().SharedPointer.IsInited() == false {
 			uFsINode.Ptr().SharedPointer.ReadRelease()
 		} else {
 			break
@@ -141,7 +141,7 @@ func (p *FsINodePool) ReleaseFsINodeWithReadRelease(uFsINode FsINodeUintptr) {
 
 	pFsINode := uFsINode.Ptr()
 	pFsINode.SharedPointer.ReadRelease()
-	if pFsINode.SharedPointer.IsShouldRelease &&
+	if pFsINode.SharedPointer.IsShouldRelease() &&
 		pFsINode.SharedPointer.Accessor == 0 {
 
 		pFsINode.SharedPointer.WriteAcquire()

@@ -58,6 +58,12 @@ func initMemStg(memStg *memstg.MemStg,
 	return nil
 }
 
-func (p *ClientDriver) InitClient(client *Client) error {
-	return client.Init(&p.MemStg, &p.dbConn)
+func (p *ClientDriver) InitClient(client *Client,
+	defaultNetBlockCap int,
+	defaultMemBlockCap int,
+) error {
+	return client.Init(&p.MemStg, &p.dbConn,
+		defaultNetBlockCap,
+		defaultMemBlockCap,
+	)
 }

@@ -18,13 +18,19 @@ func main() {
 		sfuseServer  sfuse.Server
 	)
 
+	if options.PProfListenAddr != "" {
+		go util.PProfServe(options.PProfListenAddr)
+	}
+
 	err = clientDriver.Init(options.NameNodeSRPCServerAddr,
-		options.MemBlockChunkSize,
-		options.MemBlockChunksLimit,
+		options.DefaultMemBlockCap,
+		options.DefaultMemBlocksLimit,
 		options.DBDriver, options.Dsn)
 	util.AssertErrIsNil(err)
 
-	err = sfuseServer.Init(options.SFuseOptions, &clientDriver)
+	err = sfuseServer.Init(options.SFuseOptions,
+		options.DefaultNetBlockCap, options.DefaultMemBlockCap,
+		&clientDriver)
 	util.AssertErrIsNil(err)
 
 	err = sfuseServer.Serve()
