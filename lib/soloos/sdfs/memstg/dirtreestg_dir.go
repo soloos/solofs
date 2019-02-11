@@ -1,11 +1,9 @@
 package memstg
 
 import (
-	"path/filepath"
+	fsapitypes "soloos/fsapi/types"
 	"soloos/sdfs/types"
 	"strings"
-
-	"github.com/hanwen/go-fuse/fuse"
 )
 
 func (p *DirTreeStg) ListFsINodeByIno(ino types.FsINodeID,
@@ -31,93 +29,7 @@ func (p *DirTreeStg) ListFsINodeByIno(ino types.FsINodeID,
 	return nil
 }
 
-func (p *DirTreeStg) ListFsINodeByParentPath(parentPath string,
-	isFetchAllCols bool,
-	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(types.FsINode) bool,
-) error {
-	var (
-		fsINode types.FsINode
-		err     error
-	)
-
-	err = p.FetchFsINodeByPath(parentPath, &fsINode)
-	if err != nil {
-		return err
-	}
-
-	err = p.FsINodeDriver.helper.ListFsINodeByParentIDFromDB(fsINode.Ino, isFetchAllCols, beforeLiteralFunc, literalFunc)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (p *DirTreeStg) RenameWithFullPath(oldFsINodeName, newFsINodePath string) error {
-	var (
-		fsINode                       types.FsINode
-		oldFsINode                    types.FsINode
-		parentFsINode                 types.FsINode
-		tmpFsINode                    types.FsINode
-		tmpParentDirPath, tmpFileName string
-		err                           error
-	)
-
-	err = p.FetchFsINodeByPath(oldFsINodeName, &oldFsINode)
-	if err != nil {
-		return err
-	}
-	fsINode = oldFsINode
-
-	tmpParentDirPath, tmpFileName = filepath.Split(newFsINodePath)
-	err = p.FetchFsINodeByPath(tmpParentDirPath, &parentFsINode)
-	if err != nil {
-		return err
-	}
-
-	if parentFsINode.Type != types.FSINODE_TYPE_DIR {
-		return types.ErrObjectNotExists
-	}
-
-	if tmpFileName == "" {
-		fsINode.ParentID = parentFsINode.Ino
-		// keep fsINode.Name
-		goto PREPARE_PARENT_FSINODE_DONE
-	}
-
-	err = p.FetchFsINodeByPath(newFsINodePath, &tmpFsINode)
-	if err != nil {
-		if err == types.ErrObjectNotExists {
-			fsINode.ParentID = parentFsINode.Ino
-			fsINode.Name = tmpFileName
-			goto PREPARE_PARENT_FSINODE_DONE
-		} else {
-			return types.ErrObjectNotExists
-		}
-	}
-
-	if tmpFsINode.Type == types.FSINODE_TYPE_DIR {
-		parentFsINode = tmpFsINode
-		fsINode.ParentID = parentFsINode.Ino
-		// keep fsINode.Name
-		goto PREPARE_PARENT_FSINODE_DONE
-	} else {
-		return types.ErrObjectNotExists
-	}
-PREPARE_PARENT_FSINODE_DONE:
-
-	p.FsINodeDriver.DeleteFsINodeCache(oldFsINode.ParentID, oldFsINode.Name, oldFsINode.Ino)
-
-	err = p.UpdateFsINodeInDB(&fsINode)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (p *DirTreeStg) Rename(input *fuse.RenameIn, oldName string, newName string) fuse.Status {
+func (p *DirTreeStg) Rename(input *fsapitypes.RenameIn, oldName string, newName string) fsapitypes.Status {
 	var (
 		oldDirFsINodeID = input.NodeId
 		newDirFsINodeID = input.Newdir
@@ -133,13 +45,13 @@ func (p *DirTreeStg) Rename(input *fuse.RenameIn, oldName string, newName string
 
 	err = p.FetchFsINodeByName(oldDirFsINodeID, oldName, &oldFsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	err = p.FetchFsINodeByName(newDirFsINodeID, newName, &checkFsINode)
 	if err != nil {
 		if err != types.ErrObjectNotExists {
-			return types.ErrorToFuseStatus(err)
+			return types.ErrorToFsStatus(err)
 		}
 	} else {
 		// newName exists
@@ -147,14 +59,14 @@ func (p *DirTreeStg) Rename(input *fuse.RenameIn, oldName string, newName string
 			if oldFsINode.Type == types.FSINODE_TYPE_DIR {
 				isDirEmpty, err = p.CheckIsDirEmpty(&checkFsINode)
 				if err != nil {
-					return types.ErrorToFuseStatus(err)
+					return types.ErrorToFsStatus(err)
 				}
 				if isDirEmpty == false {
 					return types.FS_ENOTEMPTY
 				}
 				err = p.SimpleUnlink(&checkFsINode)
 				if err != nil {
-					return types.ErrorToFuseStatus(err)
+					return types.ErrorToFsStatus(err)
 				}
 
 			} else {
@@ -163,7 +75,7 @@ func (p *DirTreeStg) Rename(input *fuse.RenameIn, oldName string, newName string
 		} else {
 			err = p.SimpleUnlink(&checkFsINode)
 			if err != nil {
-				return types.ErrorToFuseStatus(err)
+				return types.ErrorToFsStatus(err)
 			}
 		}
 	}
@@ -172,25 +84,25 @@ func (p *DirTreeStg) Rename(input *fuse.RenameIn, oldName string, newName string
 	oldFsINode.Name = newName
 	err = p.UpdateFsINodeInDB(&oldFsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	p.FsINodeDriver.DeleteFsINodeCache(oldDirFsINodeID, oldName, oldFsINode.Ino)
 	err = p.FsINodeDriver.PrepareAndSetFsINodeCache(&oldFsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
-	return fuse.OK
+	return fsapitypes.OK
 }
 
-func (p *DirTreeStg) MkdirAll(perms uint32, fsINodePath string, uid uint32, gid uint32) fuse.Status {
+func (p *DirTreeStg) SimpleMkdirAll(perms uint32, fsINodePath string, uid uint32, gid uint32) fsapitypes.Status {
 	var (
 		paths    []string
 		i        int
 		parentID types.FsINodeID = types.RootFsINodeID
 		fsINode  types.FsINode
-		code     fuse.Status
+		code     fsapitypes.Status
 	)
 
 	paths = strings.Split(fsINodePath, "/")
@@ -205,7 +117,7 @@ func (p *DirTreeStg) MkdirAll(perms uint32, fsINodePath string, uid uint32, gid 
 		}
 
 		code = p.SimpleMkdir(&fsINode, nil, parentID, perms, paths[i], uid, gid, types.FS_RDEV)
-		if code != fuse.OK && code != types.FS_EEXIST {
+		if code != fsapitypes.OK && code != types.FS_EEXIST {
 			goto DONE
 		}
 		parentID = fsINode.Ino
@@ -215,32 +127,32 @@ DONE:
 	return code
 }
 
-func (p *DirTreeStg) Mkdir(input *fuse.MkdirIn, name string, out *fuse.EntryOut) fuse.Status {
+func (p *DirTreeStg) Mkdir(input *fsapitypes.MkdirIn, name string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	var (
 		fsINode types.FsINode
-		code    fuse.Status
+		code    fsapitypes.Status
 		err     error
 	)
 
 	code = p.SimpleMkdir(&fsINode, nil, input.NodeId, input.Mode, name, input.Uid, input.Gid, types.FS_RDEV)
-	if code != fuse.OK {
+	if code != fsapitypes.OK {
 		return code
 	}
 
-	p.SetFuseEntryOutByFsINode(out, &fsINode)
+	p.SetFsEntryOutByFsINode(out, &fsINode)
 
 	err = p.RefreshFsINodeACMtimeByIno(fsINode.ParentID)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
-	return fuse.OK
+	return fsapitypes.OK
 }
 
 func (p *DirTreeStg) SimpleMkdir(fsINode *types.FsINode,
 	fsINodeID *types.FsINodeID, parentID types.FsINodeID,
 	perms uint32, name string,
-	uid uint32, gid uint32, rdev uint32) fuse.Status {
+	uid uint32, gid uint32, rdev uint32) fsapitypes.Status {
 	if len([]byte(name)) > types.FS_MAX_NAME_LENGTH {
 		return types.FS_ENAMETOOLONG
 	}
@@ -255,18 +167,18 @@ func (p *DirTreeStg) SimpleMkdir(fsINode *types.FsINode,
 	}
 
 	if err != nil && err != types.ErrObjectNotExists {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	err = p.CreateFsINode(fsINode,
 		fsINodeID, nil, parentID,
-		name, types.FSINODE_TYPE_DIR, fuse.S_IFDIR|perms,
+		name, types.FSINODE_TYPE_DIR, fsapitypes.S_IFDIR|perms,
 		uid, gid, rdev)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
-	return fuse.OK
+	return fsapitypes.OK
 }
 
 func (p *DirTreeStg) CheckIsDirEmpty(fsINode *types.FsINode) (bool, error) {
@@ -291,7 +203,7 @@ func (p *DirTreeStg) CheckIsDirEmpty(fsINode *types.FsINode) (bool, error) {
 	return isDirEmpty, nil
 }
 
-func (p *DirTreeStg) Rmdir(header *fuse.InHeader, name string) fuse.Status {
+func (p *DirTreeStg) Rmdir(header *fsapitypes.InHeader, name string) fsapitypes.Status {
 	var (
 		fsINode    types.FsINode
 		isDirEmpty bool
@@ -300,16 +212,16 @@ func (p *DirTreeStg) Rmdir(header *fuse.InHeader, name string) fuse.Status {
 
 	err = p.FetchFsINodeByName(header.NodeId, name, &fsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	if fsINode.Type != types.FSINODE_TYPE_DIR {
-		return fuse.ENOTDIR
+		return fsapitypes.ENOTDIR
 	}
 
 	isDirEmpty, err = p.CheckIsDirEmpty(&fsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	if isDirEmpty == false {
@@ -318,35 +230,35 @@ func (p *DirTreeStg) Rmdir(header *fuse.InHeader, name string) fuse.Status {
 
 	err = p.SimpleUnlink(&fsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	err = p.RefreshFsINodeACMtimeByIno(header.NodeId)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
-	return fuse.OK
+	return fsapitypes.OK
 }
 
-func (p *DirTreeStg) OpenDir(input *fuse.OpenIn, out *fuse.OpenOut) fuse.Status {
+func (p *DirTreeStg) OpenDir(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapitypes.Status {
 	var (
 		fsINode types.FsINode
 		err     error
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(input.NodeId, &fsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	err = p.SimpleOpen(&fsINode, input.Flags, out)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
-	return fuse.OK
+	return fsapitypes.OK
 }
 
-func (p *DirTreeStg) ReadDir(input *fuse.ReadIn, out *fuse.DirEntryList) fuse.Status {
+func (p *DirTreeStg) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList) fsapitypes.Status {
 	var (
 		fsINodeByIDThroughHardLink types.FsINode
 		isAddDirEntrySuccess       bool
@@ -362,13 +274,13 @@ func (p *DirTreeStg) ReadDir(input *fuse.ReadIn, out *fuse.DirEntryList) fuse.St
 				if err != nil {
 					return false
 				}
-				isAddDirEntrySuccess, _ = out.AddDirEntry(fuse.DirEntry{
+				isAddDirEntrySuccess, _ = out.AddDirEntry(fsapitypes.DirEntry{
 					Mode: fsINodeByIDThroughHardLink.Mode,
 					Name: fsINode.Name,
 					Ino:  fsINodeByIDThroughHardLink.Ino,
 				})
 			} else {
-				isAddDirEntrySuccess, _ = out.AddDirEntry(fuse.DirEntry{
+				isAddDirEntrySuccess, _ = out.AddDirEntry(fsapitypes.DirEntry{
 					Mode: fsINode.Mode,
 					Name: fsINode.Name,
 					Ino:  fsINode.Ino,
@@ -379,16 +291,16 @@ func (p *DirTreeStg) ReadDir(input *fuse.ReadIn, out *fuse.DirEntryList) fuse.St
 		},
 	)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
-	return fuse.OK
+	return fsapitypes.OK
 }
 
-func (p *DirTreeStg) ReadDirPlus(input *fuse.ReadIn, out *fuse.DirEntryList) fuse.Status {
+func (p *DirTreeStg) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList) fsapitypes.Status {
 	var (
 		fsINodeByIDThroughHardLink types.FsINode
-		entryOut                   *fuse.EntryOut
+		entryOut                   *fsapitypes.EntryOut
 		off                        uint64
 		err                        error
 	)
@@ -411,7 +323,7 @@ func (p *DirTreeStg) ReadDirPlus(input *fuse.ReadIn, out *fuse.DirEntryList) fus
 				return false
 			}
 
-			entryOut, off = out.AddDirLookupEntry(fuse.DirEntry{
+			entryOut, off = out.AddDirLookupEntry(fsapitypes.DirEntry{
 				Mode: fsINodeByIDThroughHardLink.Mode,
 				Name: fsINode.Name,
 				Ino:  fsINodeByIDThroughHardLink.Ino,
@@ -420,21 +332,21 @@ func (p *DirTreeStg) ReadDirPlus(input *fuse.ReadIn, out *fuse.DirEntryList) fus
 				return false
 			}
 
-			p.SetFuseEntryOutByFsINode(entryOut, &fsINodeByIDThroughHardLink)
+			p.SetFsEntryOutByFsINode(entryOut, &fsINodeByIDThroughHardLink)
 			return true
 		},
 	)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
-	return fuse.OK
+	return fsapitypes.OK
 }
 
-func (p *DirTreeStg) ReleaseDir(input *fuse.ReleaseIn) {
+func (p *DirTreeStg) ReleaseDir(input *fsapitypes.ReleaseIn) {
 	// TODO make sure releaable
 	p.FdTable.ReleaseFd(input.Fh)
 }
 
-func (p *DirTreeStg) FsyncDir(input *fuse.FsyncIn) fuse.Status {
-	return fuse.OK
+func (p *DirTreeStg) FsyncDir(input *fsapitypes.FsyncIn) fsapitypes.Status {
+	return fsapitypes.OK
 }

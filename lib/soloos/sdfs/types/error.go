@@ -2,8 +2,7 @@ package types
 
 import (
 	"errors"
-
-	"github.com/hanwen/go-fuse/fuse"
+	fsapitypes "soloos/fsapi/types"
 )
 
 var (
@@ -23,23 +22,23 @@ var (
 	ErrHasNotPermission   = errors.New("has not permission")
 )
 
-func ErrorToFuseStatus(err error) fuse.Status {
+func ErrorToFsStatus(err error) fsapitypes.Status {
 	switch err {
 	case nil:
-		return fuse.OK
+		return fsapitypes.OK
 	case ErrObjectNotExists:
-		return fuse.ENOENT
+		return fsapitypes.ENOENT
 	case ErrObjectExists:
 		return FS_EEXIST
 	case ErrRLockFailed:
-		return fuse.EAGAIN
+		return fsapitypes.EAGAIN
 	case ErrLockFailed:
-		return fuse.EAGAIN
+		return fsapitypes.EAGAIN
 	case ErrObjectHasChildren:
 		return FS_ENOTEMPTY
 	case ErrHasNotPermission:
-		return fuse.EPERM
+		return fsapitypes.EPERM
 	}
 
-	return fuse.EIO
+	return fsapitypes.EIO
 }

@@ -22,11 +22,9 @@ func (p *DirTreeStg) Init(offheapDriver *offheap.OffheapDriver,
 
 	p.dbConn = dbConn
 
-	switch p.dbConn.DBDriver {
-	case "mysql":
-		err = p.installMysqlSchema()
-	case "sqlite3":
-		err = p.installSqlite3Schema()
+	err = p.installSchema()
+	if err != nil {
+		return err
 	}
 
 	err = p.FsINodeDriver.Init(offheapDriver, dbConn,

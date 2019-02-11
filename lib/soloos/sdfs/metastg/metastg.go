@@ -24,11 +24,9 @@ func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
 		return err
 	}
 
-	switch dbDriver {
-	case "mysql":
-		err = p.installMysqlSchema()
-	case "sqlite3":
-		err = p.installSqlite3Schema()
+	err = p.installSchema()
+	if err != nil {
+		return err
 	}
 
 	err = p.DataNodeDriver.Init(p)

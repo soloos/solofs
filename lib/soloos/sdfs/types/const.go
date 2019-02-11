@@ -1,9 +1,8 @@
 package types
 
 import (
+	fsapitypes "soloos/fsapi/types"
 	"syscall"
-
-	"github.com/hanwen/go-fuse/fuse"
 )
 
 const (
@@ -34,19 +33,15 @@ const (
 	FS_MAX_NAME_LENGTH = 128
 	FS_RDEV            = 0
 
-	FS_EEXIST       = fuse.Status(syscall.EEXIST)
-	FS_ENOTEMPTY    = fuse.Status(syscall.ENOTEMPTY)
-	FS_ENAMETOOLONG = fuse.Status(syscall.ENAMETOOLONG)
+	FS_EEXIST       = fsapitypes.Status(syscall.EEXIST)
+	FS_ENOTEMPTY    = fsapitypes.Status(syscall.ENOTEMPTY)
+	FS_ENAMETOOLONG = fsapitypes.Status(syscall.ENAMETOOLONG)
 
 	FS_INODE_LOCK_SH = syscall.LOCK_SH
 	FS_INODE_LOCK_EX = syscall.LOCK_EX
 	FS_INODE_LOCK_UN = syscall.LOCK_UN
 
 	FS_XATTR_SOFT_LNKMETA_KEY = "sdfs.soft.link.metadata"
-)
-
-const (
-	FuseName = "sdfs-fuse"
 )
 
 const (

@@ -1,10 +1,8 @@
 package memstg
 
 import (
+	fsapitypes "soloos/fsapi/types"
 	"soloos/sdfs/types"
-	"strings"
-
-	"github.com/hanwen/go-fuse/fuse"
 )
 
 func (p *DirTreeStg) UpdateFsINodeInDB(pFsINode *types.FsINode) error {
@@ -27,59 +25,6 @@ func (p *DirTreeStg) FetchFsINodeByID(fsINodeID types.FsINodeID, fsINode *types.
 
 func (p *DirTreeStg) FetchFsINodeByName(parentID types.FsINodeID, fsINodeName string, fsINode *types.FsINode) error {
 	return p.FsINodeDriver.FetchFsINodeByName(parentID, fsINodeName, fsINode)
-}
-
-func (p *DirTreeStg) FetchFsINodeByPath(fsINodePath string, fsINode *types.FsINode) error {
-	var (
-		paths    []string
-		i        int
-		parentID types.FsINodeID = types.RootFsINodeID
-		err      error
-	)
-
-	paths = strings.Split(fsINodePath, "/")
-
-	if paths[len(paths)-1] == "" {
-		paths = paths[:len(paths)-1]
-	}
-
-	if len(paths) <= 1 {
-		*fsINode = p.FsINodeDriver.RootFsINode
-		return nil
-	}
-
-	for i = 1; i < len(paths); i++ {
-		if paths[i] == "" {
-			continue
-		}
-		err = p.FetchFsINodeByName(parentID, paths[i], fsINode)
-		if err != nil {
-			return err
-		}
-		parentID = fsINode.Ino
-	}
-
-	return err
-}
-
-func (p *DirTreeStg) DeleteFsINodeByPath(fsINodePath string) error {
-	var (
-		fsINode types.FsINode
-		err     error
-	)
-
-	err = p.FetchFsINodeByPath(fsINodePath, &fsINode)
-	if err != nil {
-		if err == types.ErrObjectNotExists {
-			return nil
-		} else {
-			return err
-		}
-	}
-
-	err = p.SimpleUnlink(&fsINode)
-
-	return err
 }
 
 func (p *DirTreeStg) CreateFsINode(fsINode *types.FsINode,
@@ -106,7 +51,7 @@ func (p *DirTreeStg) CreateFsINode(fsINode *types.FsINode,
 	return nil
 }
 
-func (p *DirTreeStg) SimpleOpen(fsINode *types.FsINode, flags uint32, out *fuse.OpenOut) error {
+func (p *DirTreeStg) SimpleOpen(fsINode *types.FsINode, flags uint32, out *fsapitypes.OpenOut) error {
 	out.Fh = p.FdTable.AllocFd(fsINode.Ino)
 	out.OpenFlags = flags
 	return nil
@@ -127,7 +72,7 @@ func (p *DirTreeStg) getFsINodePathLen(fsINode *types.FsINode, startFsNodeID typ
 	return pathLen, nil
 }
 
-func (p *DirTreeStg) Mknod(input *fuse.MknodIn, name string, out *fuse.EntryOut) fuse.Status {
+func (p *DirTreeStg) Mknod(input *fsapitypes.MknodIn, name string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	if len([]byte(name)) > types.FS_MAX_NAME_LENGTH {
 		return types.FS_ENAMETOOLONG
 	}
@@ -141,12 +86,12 @@ func (p *DirTreeStg) Mknod(input *fuse.MknodIn, name string, out *fuse.EntryOut)
 
 	fsINodeType = types.FsModeToFsINodeType(input.Mode)
 	if fsINodeType == types.FSINODE_TYPE_UNKOWN {
-		return fuse.EIO
+		return fsapitypes.EIO
 	}
 
 	err = p.FetchFsINodeByIDThroughHardLink(input.NodeId, &parentFsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	err = p.CreateFsINode(&fsINode,
@@ -154,24 +99,24 @@ func (p *DirTreeStg) Mknod(input *fuse.MknodIn, name string, out *fuse.EntryOut)
 		name, fsINodeType, input.Mode,
 		input.Uid, input.Gid, input.Rdev)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	err = p.RefreshFsINodeACMtimeByIno(input.NodeId)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
-	p.SetFuseEntryOutByFsINode(out, &fsINode)
+	p.SetFsEntryOutByFsINode(out, &fsINode)
 
-	return fuse.OK
+	return fsapitypes.OK
 }
 
 func (p *DirTreeStg) SimpleUnlink(fsINode *types.FsINode) error {
 	return p.FsINodeDriver.UnlinkFsINode(fsINode)
 }
 
-func (p *DirTreeStg) Unlink(header *fuse.InHeader, name string) fuse.Status {
+func (p *DirTreeStg) Unlink(header *fsapitypes.InHeader, name string) fsapitypes.Status {
 	var (
 		fsINode types.FsINode
 		err     error
@@ -179,23 +124,23 @@ func (p *DirTreeStg) Unlink(header *fuse.InHeader, name string) fuse.Status {
 
 	err = p.FetchFsINodeByName(header.NodeId, name, &fsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	err = p.SimpleUnlink(&fsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	err = p.RefreshFsINodeACMtimeByIno(header.NodeId)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
-	return fuse.OK
+	return fsapitypes.OK
 }
 
-func (p *DirTreeStg) Fsync(input *fuse.FsyncIn) fuse.Status {
+func (p *DirTreeStg) Fsync(input *fsapitypes.FsyncIn) fsapitypes.Status {
 	var (
 		fsINode types.FsINode
 		err     error
@@ -203,15 +148,15 @@ func (p *DirTreeStg) Fsync(input *fuse.FsyncIn) fuse.Status {
 
 	err = p.FetchFsINodeByIDThroughHardLink(input.NodeId, &fsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	// TODO flush metadata
 
-	return fuse.OK
+	return fsapitypes.OK
 }
 
-func (p *DirTreeStg) Lookup(header *fuse.InHeader, name string, out *fuse.EntryOut) fuse.Status {
+func (p *DirTreeStg) Lookup(header *fsapitypes.InHeader, name string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	if len([]byte(name)) > types.FS_MAX_NAME_LENGTH {
 		return types.FS_ENAMETOOLONG
 	}
@@ -223,26 +168,26 @@ func (p *DirTreeStg) Lookup(header *fuse.InHeader, name string, out *fuse.EntryO
 
 	err = p.FetchFsINodeByName(header.NodeId, name, &fsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
 	err = p.FetchFsINodeByIDThroughHardLink(fsINode.Ino, &fsINode)
 	if err != nil {
-		return types.ErrorToFuseStatus(err)
+		return types.ErrorToFsStatus(err)
 	}
 
-	p.SetFuseEntryOutByFsINode(out, &fsINode)
-	return fuse.OK
+	p.SetFsEntryOutByFsINode(out, &fsINode)
+	return fsapitypes.OK
 }
 
-func (p *DirTreeStg) Access(input *fuse.AccessIn) fuse.Status {
-	return fuse.OK
+func (p *DirTreeStg) Access(input *fsapitypes.AccessIn) fsapitypes.Status {
+	return fsapitypes.OK
 }
 
 func (p *DirTreeStg) Forget(nodeid, nlookup uint64) {
 }
 
-func (p *DirTreeStg) Release(input *fuse.ReleaseIn) {
+func (p *DirTreeStg) Release(input *fsapitypes.ReleaseIn) {
 }
 
 func (p *DirTreeStg) CheckPermissionChmod(uid uint32, gid uint32, fsINode *types.FsINode) bool {

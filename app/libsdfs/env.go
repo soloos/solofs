@@ -1,6 +1,7 @@
 package main
 
 import (
+	"soloos/fsapi"
 	"soloos/sdfs/libsdfs"
 	"soloos/util"
 )
@@ -13,6 +14,7 @@ type Env struct {
 	Options      Options
 	ClientDriver libsdfs.ClientDriver
 	Client       libsdfs.Client
+	RawFS        fsapi.RawFileSystem
 }
 
 func (p *Env) Init(optionsFile string) {
@@ -37,4 +39,6 @@ func (p *Env) Init(optionsFile string) {
 	}
 
 	util.AssertErrIsNil(p.ClientDriver.InitClient(&p.Client, p.Options.DefaultNetBlockCap, p.Options.DefaultMemBlockCap))
+
+	p.RawFS = p.Client.GetRawFileSystem()
 }

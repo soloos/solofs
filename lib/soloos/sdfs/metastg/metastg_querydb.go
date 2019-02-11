@@ -3,16 +3,16 @@ package metastg
 import (
 	"soloos/log"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-func (p *DirTreeStg) installMysqlSchema() error {
+func (p *MetaStg) installSchema() error {
 	var (
 		sqls []string
 		err  error
 	)
 
-	sqls = prepareDirTreeSqls()
+	sqls = prepareNetINodesSqls()
 	for _, sql := range sqls {
 		_, err = p.dbConn.Exec(sql)
 		if err != nil {

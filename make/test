@@ -1,32 +1,35 @@
 
-test-sdfs-api:
+test-soloos-sdfs-api:
 	go test soloos/sdfs/api
 
-test-sdfs-datanode:
+test-soloos-sdfs-datanode:
 	go test soloos/sdfs/datanode
 
-test-sdfs-libsdfs:
+test-soloos-sdfs-libsdfs:
 	go test soloos/sdfs/libsdfs
 
-test-sdfs-memstg:
+test-soloos-sdfs-memstg:
 	go test soloos/sdfs/memstg
 
-test-sdfs-metastg:
+test-soloos-sdfs-metastg:
 	go test soloos/sdfs/metastg
 
-test-sdfs-minicluster:
+test-soloos-sdfs-minicluster:
 	go test soloos/sdfs/minicluster
 
-test-sdfs-namenode:
+test-soloos-sdfs-namenode:
 	go test soloos/sdfs/namenode
 
-test-sdfs-netstg:
+test-soloos-sdfs-netstg:
 	go test soloos/sdfs/netstg
 
-test-sdfs-types:
+test-soloos-sdfs-types:
 	go test soloos/sdfs/types
 
-test-sfuse:
+test-soloos-sfuse:
 	go test soloos/sfuse
 
-test: test-sdfs-api test-sdfs-datanode test-sdfs-libsdfs test-sdfs-memstg test-sdfs-metastg test-sdfs-minicluster test-sdfs-namenode test-sdfs-netstg test-sdfs-types test-sfuse
+test-libsdfs:
+	go test libsdfs
+
+test: test-soloos-sdfs-api test-soloos-sdfs-datanode test-soloos-sdfs-libsdfs test-soloos-sdfs-memstg test-soloos-sdfs-metastg test-soloos-sdfs-minicluster test-soloos-sdfs-namenode test-soloos-sdfs-netstg test-soloos-sdfs-types test-soloos-sfuse test-libsdfs

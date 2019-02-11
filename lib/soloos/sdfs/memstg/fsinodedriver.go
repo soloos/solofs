@@ -1,6 +1,7 @@
 package memstg
 
 import (
+	fsapitypes "soloos/fsapi/types"
 	"soloos/log"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
@@ -9,8 +10,6 @@ import (
 	"soloos/util/offheap"
 	"sync"
 	"time"
-
-	"github.com/hanwen/go-fuse/fuse"
 )
 
 type FsINodeDriverHelper struct {
@@ -147,19 +146,19 @@ func (p *FsINodeDriver) prepareBaseDir() error {
 	var (
 		fsINode types.FsINode
 		ino     types.FsINodeID
-		code    fuse.Status
+		code    fsapitypes.Status
 		err     error
 	)
 
 	ino = types.RootFsINodeID
 	code = p.dirTreeStg.SimpleMkdir(&fsINode, &ino, types.RootFsINodeParentID, 0777, "", 0, 0, types.FS_RDEV)
-	if code != fuse.OK {
+	if code != fsapitypes.OK {
 		log.Warn("", code)
 	}
 
 	ino = p.helper.AllocFsINodeID()
 	code = p.dirTreeStg.SimpleMkdir(&fsINode, &ino, types.RootFsINodeID, 0777, "tmp", 0, 0, types.FS_RDEV)
-	if code != fuse.OK {
+	if code != fsapitypes.OK {
 		log.Warn("tmp", code)
 	}
 

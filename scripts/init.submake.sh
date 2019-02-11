@@ -1,5 +1,4 @@
 #!/bin/bash
-filepathPrefix='./lib/'
 mkdir -p ./make
 
 maketestfile="./make/test"
@@ -9,48 +8,52 @@ makebenchfile="./make/bench"
 echo '' > $makebenchfile
 
 TestNode () {
-        filepath=${filepathPrefix}$1
+        filepathPrefix=$1
+        filepath=${filepathPrefix}$2/
         if [ "$(find $filepath -maxdepth 1 -name '*_test.go')" ]
         then
-                MODULES="$MODULES $2"
-                echo "$2:" >> $maketestfile
-                echo -e "\tgo test $1" >> $maketestfile
+                MODULES="$MODULES $3"
+                echo "$3:" >> $maketestfile
+                echo -e "\tgo test $2" >> $maketestfile
                 echo "" >> $maketestfile
         fi
 
-        for node in `ls ${filepathPrefix}$1 | sort`
+        for node in `ls ${filepathPrefix}$2/ | sort`
         do
-                if [ -d "${filepathPrefix}$1/$node" ]
+                if [ -d "${filepathPrefix}$2/$node" ]
                 then
-                        TestNode $1/$node $2-$node
+                        TestNode ${filepathPrefix} $2/$node $3-$node
                 fi
         done
 }
 
 BenchNode () {
-        filepath=${filepathPrefix}$1
+        filepathPrefix=$1
+        filepath=${filepathPrefix}$2/
         if [ "$(find $filepath -maxdepth 1 -name '*_test.go')" ]
         then
-                MODULES="$MODULES $2"
-                echo "$2:" >> $makebenchfile
-                # echo -e "\tcd src/$1/ && go test -bench=. -benchmem -cpuprofile profile.out" >> $makebenchfile
-                echo -e "\tcd src/$1/ && go test -bench=. -benchmem " >> $makebenchfile
+                MODULES="$MODULES $3"
+                echo "$3:" >> $makebenchfile
+                # echo -e "\tcd src/$2/ && go test -bench=. -benchmem -cpuprofile profile.out" >> $makebenchfile
+                echo -e "\tcd src/$2/ && go test -bench=. -benchmem " >> $makebenchfile
                 echo "" >> $makebenchfile
         fi
 
-        for node in `ls ${filepathPrefix}$1 | sort`
+        for node in `ls ${filepathPrefix}$2/ | sort`
         do
-                if [ -d "${filepathPrefix}$1/$node" ]
+                if [ -d "${filepathPrefix}$2/$node" ]
                 then
-                        BenchNode $1/$node $2-$node
+                        BenchNode ${filepathPrefix} $2/$node $3-$node
                 fi
         done
 }
 
 MODULES=()
-TestNode "soloos" "test"
+TestNode "./lib/" "soloos" "test-soloos"
+TestNode "./src/" "libsdfs" "test-libsdfs"
 echo "test:$MODULES" >> $maketestfile
 
 MODULES=()
-BenchNode "soloos" "bench"
+BenchNode "./lib/" "soloos" "bench-soloos"
+BenchNode "./src/" "libsdfs" "bench-libsdfs"
 echo "bench:$MODULES" >> $makebenchfile

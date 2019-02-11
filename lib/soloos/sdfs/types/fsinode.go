@@ -1,10 +1,9 @@
 package types
 
 import (
+	fsapitypes "soloos/fsapi/types"
 	"soloos/util/offheap"
 	"unsafe"
-
-	"github.com/hanwen/go-fuse/fuse"
 )
 
 type FsINodeID = uint64
@@ -53,31 +52,31 @@ func (p *FsINode) Reset() {
 }
 
 func FsModeToFsINodeType(mode uint32) int {
-	if mode&fuse.S_IFDIR != 0 {
+	if mode&fsapitypes.S_IFDIR != 0 {
 		return FSINODE_TYPE_DIR
 	}
-	if mode&fuse.S_IFREG != 0 {
+	if mode&fsapitypes.S_IFREG != 0 {
 		return FSINODE_TYPE_FILE
 	}
-	if mode&fuse.S_IFIFO != 0 {
+	if mode&fsapitypes.S_IFIFO != 0 {
 		return FSINODE_TYPE_FIFO
 	}
-	if mode&fuse.S_IFLNK != 0 {
+	if mode&fsapitypes.S_IFLNK != 0 {
 		return FSINODE_TYPE_SOFT_LINK
 	}
 	return FSINODE_TYPE_UNKOWN
 }
 
-func FsINodeTypeToFuseType(fsINodeType int) int {
+func FsINodeTypeToFsType(fsINodeType int) int {
 	switch fsINodeType {
 	case FSINODE_TYPE_DIR:
-		return fuse.S_IFDIR
+		return fsapitypes.S_IFDIR
 	case FSINODE_TYPE_FILE:
-		return fuse.S_IFREG
+		return fsapitypes.S_IFREG
 	case FSINODE_TYPE_FIFO:
-		return fuse.S_IFIFO
+		return fsapitypes.S_IFIFO
 	case FSINODE_TYPE_SOFT_LINK:
-		return fuse.S_IFLNK
+		return fsapitypes.S_IFLNK
 	}
-	return fuse.S_IFREG
+	return fsapitypes.S_IFREG
 }

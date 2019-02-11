@@ -2,18 +2,22 @@ package libsdfs
 
 import (
 	"soloos/dbcli"
+	"soloos/fsapi"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
+	"soloos/sdfsapi"
 	"soloos/util/offheap"
 )
 
 type Client struct {
 	offheapDriver *offheap.OffheapDriver
 
-	MemStg         *memstg.MemStg
-	MetaDirTreeStg metastg.DirTreeStg
-	MemDirTreeStg  memstg.DirTreeStg
+	memStg         *memstg.MemStg
+	metaDirTreeStg metastg.DirTreeStg
+	memDirTreeStg  memstg.DirTreeStg
 }
+
+var _ = sdfsapi.Client(&Client{})
 
 func (p *Client) Init(memStg *memstg.MemStg,
 	dbConn *dbcli.Connection,
@@ -23,34 +27,34 @@ func (p *Client) Init(memStg *memstg.MemStg,
 	var err error
 	p.offheapDriver = &offheap.DefaultOffheapDriver
 
-	p.MemStg = memStg
+	p.memStg = memStg
 
-	err = p.MetaDirTreeStg.Init(p.offheapDriver,
+	err = p.metaDirTreeStg.Init(p.offheapDriver,
 		dbConn,
-		p.MemStg.GetNetINodeWithReadAcquire,
-		p.MemStg.MustGetNetINodeWithReadAcquire,
+		p.memStg.GetNetINodeWithReadAcquire,
+		p.memStg.MustGetNetINodeWithReadAcquire,
 	)
 	if err != nil {
 		return err
 	}
 
-	err = p.MemDirTreeStg.SdfsInit(
-		p.MemStg,
+	err = p.memDirTreeStg.Init(
+		p.memStg,
 		p.offheapDriver,
 		defaultNetBlockCap,
 		defaultMemBlockCap,
-		p.MetaDirTreeStg.FsINodeDriver.AllocFsINodeID,
-		p.MemStg.GetNetINodeWithReadAcquire,
-		p.MemStg.MustGetNetINodeWithReadAcquire,
-		p.MetaDirTreeStg.FsINodeDriver.DeleteFsINodeByIDInDB,
-		p.MetaDirTreeStg.FsINodeDriver.ListFsINodeByParentIDFromDB,
-		p.MetaDirTreeStg.FsINodeDriver.UpdateFsINodeInDB,
-		p.MetaDirTreeStg.FsINodeDriver.InsertFsINodeInDB,
-		p.MetaDirTreeStg.FsINodeDriver.GetFsINodeByIDFromDB,
-		p.MetaDirTreeStg.FsINodeDriver.GetFsINodeByNameFromDB,
-		p.MetaDirTreeStg.FIXAttrDriver.DeleteFIXAttrInDB,
-		p.MetaDirTreeStg.FIXAttrDriver.ReplaceFIXAttrInDB,
-		p.MetaDirTreeStg.FIXAttrDriver.GetFIXAttrByInoFromDB,
+		p.metaDirTreeStg.FsINodeDriver.AllocFsINodeID,
+		p.memStg.GetNetINodeWithReadAcquire,
+		p.memStg.MustGetNetINodeWithReadAcquire,
+		p.metaDirTreeStg.FsINodeDriver.DeleteFsINodeByIDInDB,
+		p.metaDirTreeStg.FsINodeDriver.ListFsINodeByParentIDFromDB,
+		p.metaDirTreeStg.FsINodeDriver.UpdateFsINodeInDB,
+		p.metaDirTreeStg.FsINodeDriver.InsertFsINodeInDB,
+		p.metaDirTreeStg.FsINodeDriver.GetFsINodeByIDFromDB,
+		p.metaDirTreeStg.FsINodeDriver.GetFsINodeByNameFromDB,
+		p.metaDirTreeStg.FIXAttrDriver.DeleteFIXAttrInDB,
+		p.metaDirTreeStg.FIXAttrDriver.ReplaceFIXAttrInDB,
+		p.metaDirTreeStg.FIXAttrDriver.GetFIXAttrByInoFromDB,
 	)
 	if err != nil {
 		return err
@@ -61,10 +65,14 @@ func (p *Client) Init(memStg *memstg.MemStg,
 
 func (p *Client) Close() error {
 	var err error
-	err = p.MetaDirTreeStg.Close()
+	err = p.metaDirTreeStg.Close()
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (p *Client) GetRawFileSystem() fsapi.RawFileSystem {
+	return &p.memDirTreeStg
 }

@@ -1,11 +1,12 @@
 package libsdfs
 
 import (
+	"soloos/fsapi"
+	fsapitypes "soloos/fsapi/types"
 	"soloos/sdfs/types"
 	"soloos/util"
 	"testing"
 
-	"github.com/hanwen/go-fuse/fuse"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,36 +16,38 @@ func TestMetaStgDirTreeStgBase(t *testing.T) {
 		fsINode     types.FsINode
 		netBlockCap = types.DefaultNetBlockCap
 		memBlockCap = types.DefaultMemBlockCap
-		code        fuse.Status
+		rawfs       fsapi.RawFileSystem
+		code        fsapitypes.Status
 		err         error
 	)
 	MakeClientForTest(&client)
+	rawfs = client.GetRawFileSystem()
 
-	code = client.MemDirTreeStg.SimpleMkdir(&fsINode, nil, types.RootFsINodeID, 0777, "test", 0, 0, types.FS_RDEV)
-	if code != fuse.OK {
+	code = rawfs.SimpleMkdir(&fsINode, nil, types.RootFsINodeID, 0777, "test", 0, 0, types.FS_RDEV)
+	if code != fsapitypes.OK {
 		assert.Equal(t, code, types.FS_EEXIST)
 	}
 
 	util.Ignore(fsINode)
-	fsINode, err = client.MemDirTreeStg.OpenFile("/test/hi", netBlockCap, memBlockCap)
+	fsINode, err = rawfs.SimpleOpenFile("/test/hi", netBlockCap, memBlockCap)
 	assert.NoError(t, err)
-	fsINode, err = client.MemDirTreeStg.OpenFile("/test/hi2", netBlockCap, memBlockCap)
+	fsINode, err = rawfs.SimpleOpenFile("/test/hi2", netBlockCap, memBlockCap)
 	assert.NoError(t, err)
-	fsINode, err = client.MemDirTreeStg.OpenFile("/test/hi3", netBlockCap, memBlockCap)
+	fsINode, err = rawfs.SimpleOpenFile("/test/hi3", netBlockCap, memBlockCap)
 	assert.NoError(t, err)
-	fsINode, err = client.MemDirTreeStg.OpenFile("/test/hi4", netBlockCap, memBlockCap)
+	fsINode, err = rawfs.SimpleOpenFile("/test/hi4", netBlockCap, memBlockCap)
 	assert.NoError(t, err)
-	fsINode, err = client.MemDirTreeStg.OpenFile("/test/hi5", netBlockCap, memBlockCap)
+	fsINode, err = rawfs.SimpleOpenFile("/test/hi5", netBlockCap, memBlockCap)
 	assert.NoError(t, err)
-	err = client.MemDirTreeStg.DeleteFsINodeByPath("/test/hi4")
-	assert.NoError(t, err)
-
-	err = client.MemDirTreeStg.RenameWithFullPath("/test/hi5", "/testhi5")
-	assert.NoError(t, err)
-	err = client.MemDirTreeStg.RenameWithFullPath("/testhi5", "/test/hi5")
+	err = rawfs.DeleteFsINodeByPath("/test/hi4")
 	assert.NoError(t, err)
 
-	err = client.MemDirTreeStg.ListFsINodeByParentPath("/test", true,
+	err = rawfs.RenameWithFullPath("/test/hi5", "/testhi5")
+	assert.NoError(t, err)
+	err = rawfs.RenameWithFullPath("/testhi5", "/test/hi5")
+	assert.NoError(t, err)
+
+	err = rawfs.ListFsINodeByParentPath("/test", true,
 		func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
 			return uint64(resultCount), uint64(0)
 		},
@@ -53,6 +56,6 @@ func TestMetaStgDirTreeStgBase(t *testing.T) {
 		})
 	assert.NoError(t, err)
 
-	_, err = client.MemDirTreeStg.OpenFile("/noexists/hi5", netBlockCap, memBlockCap)
+	_, err = rawfs.SimpleOpenFile("/noexists/hi5", netBlockCap, memBlockCap)
 	assert.Equal(t, err, types.ErrObjectNotExists)
 }

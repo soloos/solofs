@@ -1,9 +1,8 @@
 package memstg
 
 import (
+	fsapitypes "soloos/fsapi/types"
 	"soloos/sdfs/types"
-
-	"github.com/hanwen/go-fuse/fuse"
 )
 
 func (p *DirTreeStg) StatLimits() (uint64, uint64) {
@@ -22,7 +21,7 @@ func (p *DirTreeStg) BlkSize() uint32 {
 	return blksize
 }
 
-func (p *DirTreeStg) StatFs(input *fuse.InHeader, out *fuse.StatfsOut) (code fuse.Status) {
+func (p *DirTreeStg) StatFs(input *fsapitypes.InHeader, out *fsapitypes.StatfsOut) (code fsapitypes.Status) {
 	// TODO return real result
 	var (
 		usedSize   uint64 = 1024 * 1024 * 100
@@ -41,5 +40,5 @@ func (p *DirTreeStg) StatFs(input *fuse.InHeader, out *fuse.StatfsOut) (code fus
 	out.NameLen = types.FS_MAX_NAME_LENGTH
 	out.Frsize = blksize
 
-	return fuse.OK
+	return fsapitypes.OK
 }

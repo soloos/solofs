@@ -1,5 +1,7 @@
 package metastg
 
+import "soloos/log"
+
 // func prepareDirTreeDataSqls() []string {
 // var sql []string
 // sql = append(sql, fmt.Sprintf(`
@@ -7,6 +9,23 @@ package metastg
 // `, types.RootFsINodeID, types.RootFsINodeParentID, types.FSINODE_TYPE_DIR))
 // return sql
 // }
+
+func (p *DirTreeStg) installSchema() error {
+	var (
+		sqls []string
+		err  error
+	)
+
+	sqls = prepareDirTreeSqls()
+	for _, sql := range sqls {
+		_, err = p.dbConn.Exec(sql)
+		if err != nil {
+			log.Error(err, sql)
+		}
+	}
+
+	return nil
+}
 
 func prepareDirTreeSqls() []string {
 	var sql []string

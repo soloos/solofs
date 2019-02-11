@@ -3,16 +3,19 @@ package libsdfs
 import (
 	"soloos/dbcli"
 	"soloos/sdfs/memstg"
+	"soloos/sdfsapi"
 	"soloos/util/offheap"
 )
 
 type ClientDriver struct {
-	MemStg memstg.MemStg
+	memStg memstg.MemStg
 	dbConn dbcli.Connection
 }
 
+var _ = sdfsapi.ClientDriver(&ClientDriver{})
+
 func (p *ClientDriver) Init(nameNodeSRPCServerAddr string,
-	memBlockChunkSize int, memBlockChunksLimit int32,
+	defaultMemBlockChunkSize int, defaultMemBlockChunksLimit int32,
 	dbDriver string, dsn string,
 ) error {
 	var (
@@ -20,7 +23,7 @@ func (p *ClientDriver) Init(nameNodeSRPCServerAddr string,
 		err           error
 	)
 
-	err = initMemStg(&p.MemStg, offheapDriver, nameNodeSRPCServerAddr, memBlockChunkSize, memBlockChunksLimit)
+	err = initMemStg(&p.memStg, offheapDriver, nameNodeSRPCServerAddr, defaultMemBlockChunkSize, defaultMemBlockChunksLimit)
 	if err != nil {
 		return err
 	}
@@ -36,14 +39,14 @@ func (p *ClientDriver) Init(nameNodeSRPCServerAddr string,
 func initMemStg(memStg *memstg.MemStg,
 	offheapDriver *offheap.OffheapDriver,
 	nameNodeSRPCServerAddr string,
-	memBlockChunkSize int, memBlockChunksLimit int32,
+	defaultMemBlockChunkSize int, defaultMemBlockChunksLimit int32,
 ) error {
 	var (
 		memBlockDriverOptions = memstg.MemBlockDriverOptions{
 			MemBlockPoolOptionsList: []memstg.MemBlockPoolOptions{
 				memstg.MemBlockPoolOptions{
-					memBlockChunkSize,
-					memBlockChunksLimit,
+					defaultMemBlockChunkSize,
+					defaultMemBlockChunksLimit,
 				},
 			},
 		}
@@ -58,11 +61,12 @@ func initMemStg(memStg *memstg.MemStg,
 	return nil
 }
 
-func (p *ClientDriver) InitClient(client *Client,
+func (p *ClientDriver) InitClient(itClient sdfsapi.Client,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
 ) error {
-	return client.Init(&p.MemStg, &p.dbConn,
+	client := itClient.(*Client)
+	return client.Init(&p.memStg, &p.dbConn,
 		defaultNetBlockCap,
 		defaultMemBlockCap,
 	)

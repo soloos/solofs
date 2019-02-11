@@ -1,21 +1,17 @@
 package sfuse
 
 import (
+	"go-fuse/fuse"
 	"os"
 	"soloos/sdfs/libsdfs"
-	"soloos/sdfs/types"
-
-	"github.com/hanwen/go-fuse/fuse"
-	"github.com/hanwen/go-fuse/fuse/nodefs"
 )
 
 type Server struct {
 	options Options
 
-	Client       libsdfs.Client
-	MountOpts    fuse.MountOptions
-	FuseServer   *fuse.Server
-	FuseConnOpts *nodefs.Options
+	Client     libsdfs.Client
+	MountOpts  fuse.MountOptions
+	FuseServer *fuse.Server
 }
 
 func (p *Server) Init(options Options,
@@ -34,10 +30,10 @@ func (p *Server) Init(options Options,
 
 	p.MountOpts.AllowOther = true
 	// p.MountOpts.MaxWrite = 0
-	p.MountOpts.Name = types.FuseName
+	p.MountOpts.Name = p.Client.GetRawFileSystem().String() + "-fuse"
 	p.MountOpts.Options = append(p.MountOpts.Options, "default_permissions")
 
-	p.FuseServer, err = fuse.NewServer(&p.Client.MemDirTreeStg,
+	p.FuseServer, err = fuse.NewServer(p.Client.GetRawFileSystem(),
 		p.options.MountPoint,
 		&p.MountOpts)
 	if err != nil {

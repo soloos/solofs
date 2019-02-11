@@ -1,10 +1,9 @@
 package memstg
 
 import (
+	fsapitypes "soloos/fsapi/types"
 	"soloos/sdfs/types"
 	"sync/atomic"
-
-	"github.com/hanwen/go-fuse/fuse"
 )
 
 func (p *FsINodeDriver) Link(srcFsINode *types.FsINode,
@@ -43,7 +42,7 @@ func (p *FsINodeDriver) Symlink(parentID types.FsINodeID, pointedTo string, link
 
 	err = p.PrepareFsINodeForCreate(retFsINode,
 		nil, nil, parentID,
-		linkName, types.FSINODE_TYPE_SOFT_LINK, fuse.S_IFLNK|0777,
+		linkName, types.FSINODE_TYPE_SOFT_LINK, fsapitypes.S_IFLNK|0777,
 		0, 0, types.FS_RDEV)
 	if err != nil {
 		return err
