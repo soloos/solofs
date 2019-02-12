@@ -2,54 +2,24 @@ package types
 
 import (
 	fsapitypes "soloos/fsapi/types"
-	"soloos/util/offheap"
-	"unsafe"
+	sdfsapitypes "soloos/sdfsapi/types"
 )
 
-type FsINodeID = uint64
-type DirTreeTime = uint64
-type DirTreeTimeNsec = uint32
+type FsINodeID = sdfsapitypes.FsINodeID
+type DirTreeTime = sdfsapitypes.DirTreeTime
+type DirTreeTimeNsec = sdfsapitypes.DirTreeTimeNsec
 
 const (
-	ZombieFsINodeParentID = FsINodeID(0)
-	RootFsINodeParentID   = FsINodeID(0)
-	RootFsINodeID         = FsINodeID(1)
-	FsINodeStructSize     = unsafe.Sizeof(FsINode{})
-	MaxFsINodeID          = MaxUint64
+	ZombieFsINodeParentID = sdfsapitypes.ZombieFsINodeParentID
+	RootFsINodeParentID   = sdfsapitypes.RootFsINodeParentID
+	RootFsINodeID         = sdfsapitypes.RootFsINodeID
+	FsINodeStructSize     = sdfsapitypes.FsINodeStructSize
+	MaxFsINodeID          = sdfsapitypes.MaxFsINodeID
 )
 
-type FsINodeUintptr uintptr
+type FsINodeUintptr = sdfsapitypes.FsINodeUintptr
 
-func (u FsINodeUintptr) Ptr() *FsINode { return (*FsINode)(unsafe.Pointer(u)) }
-
-type FsINode struct {
-	SharedPointer     offheap.SharedPointer
-	LastModifyACMTime int64
-	LoadInMemAt       int64
-
-	Ino         FsINodeID
-	HardLinkIno FsINodeID
-	NetINodeID  NetINodeID
-	ParentID    FsINodeID
-	Name        string
-	Type        int
-	Atime       DirTreeTime
-	Ctime       DirTreeTime
-	Mtime       DirTreeTime
-	Atimensec   DirTreeTimeNsec
-	Ctimensec   DirTreeTimeNsec
-	Mtimensec   DirTreeTimeNsec
-	Mode        uint32
-	Nlink       int32
-	Uid         uint32
-	Gid         uint32
-	Rdev        uint32
-	UNetINode   NetINodeUintptr
-}
-
-func (p *FsINode) Reset() {
-	p.SharedPointer.Reset()
-}
+type FsINode = sdfsapitypes.FsINode
 
 func FsModeToFsINodeType(mode uint32) int {
 	if mode&fsapitypes.S_IFDIR != 0 {

@@ -1,12 +1,7 @@
 package types
 
-type FsINodeFileHandler struct {
-	FsINodeID      FsINodeID
-	AppendPosition uint64
-	ReadPosition   uint64
-}
+import (
+	sdfsapitypes "soloos/sdfsapi/types"
+)
 
-func (p *FsINodeFileHandler) Reset() {
-	p.AppendPosition = 0
-	p.ReadPosition = 0
-}
+type FsINodeFileHandler = sdfsapitypes.FsINodeFileHandler

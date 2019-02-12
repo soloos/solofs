@@ -1,7 +1,7 @@
 package libsdfs
 
 import (
-	"soloos/dbcli"
+	"soloos/sdbapi"
 	"soloos/sdfs/memstg"
 	"soloos/sdfsapi"
 	"soloos/util/offheap"
@@ -9,7 +9,7 @@ import (
 
 type ClientDriver struct {
 	memStg memstg.MemStg
-	dbConn dbcli.Connection
+	dbConn sdbapi.Connection
 }
 
 var _ = sdfsapi.ClientDriver(&ClientDriver{})

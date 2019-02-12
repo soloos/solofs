@@ -1,7 +1,7 @@
 package metastg
 
 import (
-	"soloos/dbcli"
+	"soloos/sdbapi"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	snettypes "soloos/snet/types"
@@ -10,7 +10,7 @@ import (
 )
 
 type NetBlockDriverHelper struct {
-	DBConn                        *dbcli.Connection
+	DBConn                        *sdbapi.Connection
 	ChooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock
 	GetDataNode                   api.GetDataNode
 }
@@ -20,7 +20,7 @@ type NetBlockDriver struct {
 }
 
 func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
-	dbConn *dbcli.Connection,
+	dbConn *sdbapi.Connection,
 	getDataNode api.GetDataNode,
 	chooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock,
 ) error {
@@ -28,7 +28,7 @@ func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
 	return nil
 }
 
-func (p *NetBlockDriver) SetHelper(dbConn *dbcli.Connection,
+func (p *NetBlockDriver) SetHelper(dbConn *sdbapi.Connection,
 	getDataNode api.GetDataNode,
 	chooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock,
 ) {

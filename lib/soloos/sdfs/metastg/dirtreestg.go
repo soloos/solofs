@@ -2,19 +2,19 @@ package metastg
 
 import "C"
 import (
-	"soloos/dbcli"
+	"soloos/sdbapi"
 	"soloos/sdfs/api"
 	"soloos/util/offheap"
 )
 
 type DirTreeStg struct {
-	dbConn        *dbcli.Connection
+	dbConn        *sdbapi.Connection
 	FsINodeDriver FsINodeDriver
 	FIXAttrDriver FIXAttrDriver
 }
 
 func (p *DirTreeStg) Init(offheapDriver *offheap.OffheapDriver,
-	dbConn *dbcli.Connection,
+	dbConn *sdbapi.Connection,
 	getNetINodeWithReadAcquire api.GetNetINodeWithReadAcquire,
 	mustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire,
 ) error {

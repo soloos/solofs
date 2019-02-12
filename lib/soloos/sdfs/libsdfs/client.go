@@ -1,7 +1,7 @@
 package libsdfs
 
 import (
-	"soloos/dbcli"
+	"soloos/sdbapi"
 	"soloos/fsapi"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
@@ -20,7 +20,7 @@ type Client struct {
 var _ = sdfsapi.Client(&Client{})
 
 func (p *Client) Init(memStg *memstg.MemStg,
-	dbConn *dbcli.Connection,
+	dbConn *sdbapi.Connection,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
 ) error {

@@ -1,18 +1,18 @@
 package metastg
 
 import (
-	"soloos/dbcli"
+	"soloos/sdbapi"
 	"soloos/util/offheap"
 )
 
 // FIXAttrDriver is FsINode XAttr driver
 type FIXAttrDriver struct {
-	DBConn        *dbcli.Connection
+	DBConn        *sdbapi.Connection
 	OffheapDriver *offheap.OffheapDriver
 }
 
 func (p *FIXAttrDriver) Init(offheapDriver *offheap.OffheapDriver,
-	dbConn *dbcli.Connection,
+	dbConn *sdbapi.Connection,
 ) error {
 	p.OffheapDriver = offheapDriver
 	p.DBConn = dbConn

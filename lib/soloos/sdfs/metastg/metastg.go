@@ -1,13 +1,13 @@
 package metastg
 
 import (
-	"soloos/dbcli"
+	"soloos/sdbapi"
 	"soloos/util/offheap"
 )
 
 type MetaStg struct {
 	offheapDriver *offheap.OffheapDriver
-	dbConn        dbcli.Connection
+	dbConn        sdbapi.Connection
 	DataNodeDriver
 	NetINodeDriver
 	NetBlockDriver

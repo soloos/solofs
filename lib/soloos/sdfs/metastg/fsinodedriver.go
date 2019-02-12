@@ -1,7 +1,7 @@
 package metastg
 
 import (
-	"soloos/dbcli"
+	"soloos/sdbapi"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	"soloos/util"
@@ -10,7 +10,7 @@ import (
 )
 
 type FsINodeDriverHelper struct {
-	DBConn                         *dbcli.Connection
+	DBConn                         *sdbapi.Connection
 	OffheapDriver                  *offheap.OffheapDriver
 	GetNetINodeWithReadAcquire     api.GetNetINodeWithReadAcquire
 	MustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire
@@ -25,7 +25,7 @@ type FsINodeDriver struct {
 }
 
 func (p *FsINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
-	dbConn *dbcli.Connection,
+	dbConn *sdbapi.Connection,
 	getNetINodeWithReadAcquire api.GetNetINodeWithReadAcquire,
 	mustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire,
 ) error {
@@ -46,7 +46,7 @@ func (p *FsINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 }
 
 func (p *FsINodeDriver) SetHelper(offheapDriver *offheap.OffheapDriver,
-	dbConn *dbcli.Connection,
+	dbConn *sdbapi.Connection,
 	getNetINodeWithReadAcquire api.GetNetINodeWithReadAcquire,
 	mustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire,
 ) {

@@ -2,18 +2,21 @@ package metastg
 
 import (
 	"database/sql"
+	"soloos/sdbapi"
 	"soloos/sdfs/types"
-
-	"github.com/gocraft/dbr"
 )
 
 func (p *NetINodeDriver) NetINodeCommitSizeInDB(uNetINode types.NetINodeUintptr, size uint64) error {
 	var (
-		sess *dbr.Session
+		sess sdbapi.Session
 		err  error
 	)
 
-	sess = p.helper.DBConn.NewSession(nil)
+	err = p.helper.DBConn.InitSession(&sess)
+	if err != nil {
+		return err
+	}
+
 	_, err = sess.Update("b_netinode").
 		Set("netinode_size", size).
 		Where("netinode_id=?", uNetINode.Ptr().IDStr()).
@@ -29,12 +32,16 @@ func (p *NetINodeDriver) NetINodeCommitSizeInDB(uNetINode types.NetINodeUintptr,
 
 func (p *NetINodeDriver) FetchNetINodeFromDB(pNetINode *types.NetINode) error {
 	var (
-		sess    *dbr.Session
+		sess    sdbapi.Session
 		sqlRows *sql.Rows
 		err     error
 	)
 
-	sess = p.helper.DBConn.NewSession(nil)
+	err = p.helper.DBConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
 	sqlRows, err = sess.Select("netinode_size", "netblock_cap", "memblock_cap").
 		From("b_netinode").
 		Where("netinode_id=?", pNetINode.IDStr()).Rows()
@@ -61,13 +68,17 @@ QUERY_DONE:
 
 func (p *NetINodeDriver) StoreNetINodeInDB(pNetINode *types.NetINode) error {
 	var (
-		sess          *dbr.Session
-		tx            *dbr.Tx
+		sess          sdbapi.Session
+		tx            *sdbapi.Tx
 		netINodeIDStr = pNetINode.IDStr()
 		err           error
 	)
 
-	sess = p.helper.DBConn.NewSession(nil)
+	err = p.helper.DBConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
 	tx, err = sess.Begin()
 	if err != nil {
 		goto QUERY_DONE

@@ -3,20 +3,23 @@ package metastg
 import (
 	"bytes"
 	"database/sql"
+	"soloos/sdbapi"
 	"soloos/sdfs/types"
-
-	"github.com/gocraft/dbr"
 )
 
 func (p *NetBlockDriver) FetchNetBlockFromDB(pNetINode *types.NetINode,
 	netBlockIndex int, pNetBlock *types.NetBlock,
 	backendPeerIDArrStr *string) (err error) {
 	var (
-		sess    *dbr.Session
+		sess    sdbapi.Session
 		sqlRows *sql.Rows
 	)
 
-	sess = p.helper.DBConn.NewSession(nil)
+	err = p.helper.DBConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
 	sqlRows, err = sess.Select("netblock_len", "netblock_cap", "backend_peer_id_arr").
 		From("b_netblock").
 		Where("netinode_id=? and index_in_netinode=?",
@@ -47,15 +50,19 @@ QUERY_DONE:
 
 func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *types.NetINode, pNetBlock *types.NetBlock) error {
 	var (
-		sess                *dbr.Session
-		tx                  *dbr.Tx
+		sess                sdbapi.Session
+		tx                  *sdbapi.Tx
 		netINodeIDStr       = pNetINode.IDStr()
 		backendPeerIDArrStr bytes.Buffer
 		i                   int
 		err                 error
 	)
 
-	sess = p.helper.DBConn.NewSession(nil)
+	err = p.helper.DBConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
 	tx, err = sess.Begin()
 	if err != nil {
 		goto QUERY_DONE

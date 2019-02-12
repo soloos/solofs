@@ -2,18 +2,21 @@ package metastg
 
 import (
 	"database/sql"
+	"soloos/sdbapi"
 	"soloos/sdfs/types"
-
-	"github.com/gocraft/dbr"
 )
 
 func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
 	var (
-		sess *dbr.Session
+		sess sdbapi.Session
 		err  error
 	)
 
-	sess = p.helper.DBConn.NewSession(nil)
+	err = p.helper.DBConn.InitSession(&sess)
+	if err != nil {
+		return err
+	}
+
 	_, err = sess.DeleteFrom("b_fsinode").
 		Where("fsinode_ino=?", fsINodeID).
 		Exec()
@@ -26,18 +29,20 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 	literalFunc func(types.FsINode) bool,
 ) error {
 	var (
-		sess            *dbr.Session
+		sess            sdbapi.Session
 		sqlRows         *sql.Rows
 		ret             types.FsINode
 		fetchRowsLimit  uint64
 		fetchRowsOffset uint64
 		netINodeIDStr   string
 		resultCount     int
-		selectStmt      *dbr.SelectStmt
 		err             error
 	)
 
-	sess = p.helper.DBConn.NewSession(nil)
+	err = p.helper.DBConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
 
 	sqlRows, err = sess.Select("count(fsinode_ino) as result").
 		From("b_fsinode").
@@ -58,18 +63,23 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 		goto QUERY_DONE
 	}
 
-	if isFetchAllCols == false {
-		selectStmt = sess.Select(schemaDirTreeFsINodeBasicAttr...)
-	} else {
-		selectStmt = sess.Select(schemaDirTreeFsINodeAttr...)
+	{
+		var schemaAttr []string
+		if isFetchAllCols == false {
+			schemaAttr = schemaDirTreeFsINodeBasicAttr
+
+		} else {
+			schemaAttr = schemaDirTreeFsINodeAttr
+		}
+		sqlRows, err = sess.Select(schemaAttr...).
+			From("b_fsinode").
+			Where("parent_fsinode_ino=?", parentID).
+			OrderDesc("fsinode_ino").
+			Limit(fetchRowsLimit).
+			Offset(fetchRowsOffset).
+			Rows()
 	}
-	sqlRows, err = selectStmt.
-		From("b_fsinode").
-		Where("parent_fsinode_ino=?", parentID).
-		OrderDesc("fsinode_ino").
-		Limit(fetchRowsLimit).
-		Offset(fetchRowsOffset).
-		Rows()
+
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -124,12 +134,16 @@ QUERY_DONE:
 
 func (p *FsINodeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
 	var (
-		sess *dbr.Session
-		tx   *dbr.Tx
+		sess sdbapi.Session
+		tx   *sdbapi.Tx
 		err  error
 	)
 
-	sess = p.helper.DBConn.NewSession(nil)
+	err = p.helper.DBConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
 	tx, err = sess.Begin()
 	if err != nil {
 		goto QUERY_DONE
@@ -170,12 +184,16 @@ QUERY_DONE:
 
 func (p *FsINodeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
 	var (
-		sess *dbr.Session
-		tx   *dbr.Tx
+		sess sdbapi.Session
+		tx   *sdbapi.Tx
 		err  error
 	)
 
-	sess = p.helper.DBConn.NewSession(nil)
+	err = p.helper.DBConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
 	tx, err = sess.Begin()
 	if err != nil {
 		goto QUERY_DONE
@@ -218,14 +236,18 @@ QUERY_DONE:
 
 func (p *FsINodeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.FsINode, error) {
 	var (
-		sess          *dbr.Session
+		sess          sdbapi.Session
 		sqlRows       *sql.Rows
 		ret           types.FsINode
 		netINodeIDStr string
 		err           error
 	)
 
-	sess = p.helper.DBConn.NewSession(nil)
+	err = p.helper.DBConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
 	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
 		From("b_fsinode").
 		Where("fsinode_ino=?",
@@ -273,14 +295,18 @@ QUERY_DONE:
 
 func (p *FsINodeDriver) GetFsINodeByNameFromDB(parentID types.FsINodeID, fsINodeName string) (types.FsINode, error) {
 	var (
-		sess          *dbr.Session
+		sess          sdbapi.Session
 		sqlRows       *sql.Rows
 		ret           types.FsINode
 		netINodeIDStr string
 		err           error
 	)
 
-	sess = p.helper.DBConn.NewSession(nil)
+	err = p.helper.DBConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
 	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
 		From("b_fsinode").
 		Where("parent_fsinode_ino=? and fsinode_name=?",

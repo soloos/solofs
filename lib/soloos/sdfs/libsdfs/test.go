@@ -1,7 +1,7 @@
 package libsdfs
 
 import (
-	"soloos/dbcli"
+	"soloos/sdbapi"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
@@ -68,7 +68,7 @@ func MakeClientForTest(client *Client) {
 	}
 
 	var (
-		dbConn dbcli.Connection
+		dbConn sdbapi.Connection
 		err    error
 	)
 	err = dbConn.Init(metastg.TestMetaStgDBDriver, metastg.TestMetaStgDBConnect)

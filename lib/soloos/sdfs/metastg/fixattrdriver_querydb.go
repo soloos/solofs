@@ -2,18 +2,21 @@ package metastg
 
 import (
 	"database/sql"
+	"soloos/sdbapi"
 	"soloos/sdfs/types"
-
-	"github.com/gocraft/dbr"
 )
 
 func (p *FIXAttrDriver) DeleteFIXAttrInDB(fsINodeID types.FsINodeID) error {
 	var (
-		sess *dbr.Session
+		sess sdbapi.Session
 		err  error
 	)
 
-	sess = p.DBConn.NewSession(nil)
+	err = p.DBConn.InitSession(&sess)
+	if err != nil {
+		return err
+	}
+
 	_, err = sess.DeleteFrom("b_fsinode_xattr").
 		Where("fsinode_ino=?", fsINodeID).
 		Exec()
@@ -22,13 +25,17 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(fsINodeID types.FsINodeID) error {
 
 func (p *FIXAttrDriver) ReplaceFIXAttrInDB(fsINodeID types.FsINodeID, xattr types.FsINodeXAttr) error {
 	var (
-		sess       *dbr.Session
-		tx         *dbr.Tx
+		sess       sdbapi.Session
+		tx         *sdbapi.Tx
 		xattrBytes []byte
 		err        error
 	)
 
-	sess = p.DBConn.NewSession(nil)
+	err = p.DBConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
 	tx, err = sess.Begin()
 	if err != nil {
 		goto QUERY_DONE
@@ -55,14 +62,18 @@ QUERY_DONE:
 
 func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(fsINodeID types.FsINodeID) (types.FsINodeXAttr, error) {
 	var (
-		sess    *dbr.Session
+		sess    sdbapi.Session
 		sqlRows *sql.Rows
 		xattr   = types.InitFsINodeXAttr()
 		bytes   []byte
 		err     error
 	)
 
-	sess = p.DBConn.NewSession(nil)
+	err = p.DBConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
 	sqlRows, err = sess.Select("xattr").
 		From("b_fsinode_xattr").
 		Where("fsinode_ino=?",
