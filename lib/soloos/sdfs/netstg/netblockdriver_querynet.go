@@ -3,7 +3,7 @@ package netstg
 import (
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/snet/types"
+	snettypes "soloos/common/snet/types"
 )
 
 // TODO make this configurable

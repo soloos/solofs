@@ -1,7 +1,7 @@
 package types
 
 import (
-	snettypes "soloos/snet/types"
+	snettypes "soloos/common/snet/types"
 )
 
 const (

@@ -3,10 +3,10 @@ package netstg
 import (
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
-	"soloos/snet"
-	snettypes "soloos/snet/types"
-	"soloos/util"
-	"soloos/util/offheap"
+	"soloos/common/snet"
+	snettypes "soloos/common/snet/types"
+	"soloos/common/util"
+	"soloos/common/util/offheap"
 	"time"
 )
 

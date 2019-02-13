@@ -1,9 +1,9 @@
 package datanode
 
 import (
-	"soloos/log"
+	"soloos/common/log"
 	"soloos/sdfs/types"
-	"soloos/snet/srpc"
+	"soloos/common/snet/srpc"
 )
 
 type DataNodeSRPCServer struct {

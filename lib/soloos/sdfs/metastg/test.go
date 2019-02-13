@@ -1,8 +1,8 @@
 package metastg
 
 import (
-	"soloos/util"
-	"soloos/util/offheap"
+	"soloos/common/util"
+	"soloos/common/util/offheap"
 )
 
 func MakeMetaStgForTest(offheapDriver *offheap.OffheapDriver, metaStg *MetaStg) {

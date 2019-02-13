@@ -2,7 +2,7 @@ package netstg
 
 import (
 	"soloos/sdfs/types"
-	snettypes "soloos/snet/types"
+	snettypes "soloos/common/snet/types"
 )
 
 func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *types.UploadMemBlockJob,

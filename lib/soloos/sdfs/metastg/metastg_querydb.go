@@ -1,7 +1,7 @@
 package metastg
 
 import (
-	"soloos/log"
+	"soloos/common/log"
 
 	_ "github.com/mattn/go-sqlite3"
 )

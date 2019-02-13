@@ -2,7 +2,7 @@ package sfuse
 
 import (
 	"os"
-	"soloos/go-fuse/fuse"
+	"soloos/common/go-fuse/fuse"
 	"soloos/sdfs/libsdfs"
 )
 

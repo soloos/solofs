@@ -3,7 +3,7 @@ package memstg
 import (
 	"math"
 	"soloos/sdfs/types"
-	"soloos/util/offheap"
+	"soloos/common/util/offheap"
 	"sync"
 	"sync/atomic"
 )

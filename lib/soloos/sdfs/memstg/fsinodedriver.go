@@ -1,13 +1,13 @@
 package memstg
 
 import (
-	fsapitypes "soloos/fsapi/types"
-	"soloos/log"
+	fsapitypes "soloos/common/fsapi/types"
+	"soloos/common/log"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
-	"soloos/timer"
-	"soloos/util"
-	"soloos/util/offheap"
+	"soloos/common/timer"
+	"soloos/common/util"
+	"soloos/common/util/offheap"
 	"sync"
 	"time"
 )

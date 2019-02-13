@@ -3,8 +3,8 @@ package netstg
 import (
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
-	"soloos/snet"
-	"soloos/util/offheap"
+	"soloos/common/snet"
+	"soloos/common/util/offheap"
 	"sync"
 )
 

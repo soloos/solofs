@@ -1,10 +1,10 @@
 package metastg
 
 import (
-	"soloos/sdbapi"
+	"soloos/common/sdbapi"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
-	"soloos/util/offheap"
+	"soloos/common/util/offheap"
 )
 
 type NetINodeDriverHelper struct {

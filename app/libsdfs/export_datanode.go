@@ -4,9 +4,9 @@ import "C"
 import (
 	"io"
 	"reflect"
-	"soloos/log"
+	"soloos/common/log"
 	"soloos/sdfs/types"
-	"soloos/sdfsapi"
+	"soloos/common/sdfsapi"
 	"unsafe"
 )
 

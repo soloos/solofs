@@ -2,7 +2,7 @@ package types
 
 import (
 	"errors"
-	fsapitypes "soloos/fsapi/types"
+	fsapitypes "soloos/common/fsapi/types"
 )
 
 var (

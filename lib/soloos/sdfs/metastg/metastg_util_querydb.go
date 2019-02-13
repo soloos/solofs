@@ -2,7 +2,7 @@ package metastg
 
 import (
 	"database/sql"
-	"soloos/sdbapi"
+	"soloos/common/sdbapi"
 	"soloos/sdfs/types"
 )
 

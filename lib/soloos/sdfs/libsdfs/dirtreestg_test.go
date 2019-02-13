@@ -1,10 +1,10 @@
 package libsdfs
 
 import (
-	"soloos/fsapi"
-	fsapitypes "soloos/fsapi/types"
+	"soloos/common/fsapi"
+	fsapitypes "soloos/common/fsapi/types"
 	"soloos/sdfs/types"
-	"soloos/util"
+	"soloos/common/util"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

@@ -1,8 +1,8 @@
 package types
 
 import (
-	fsapitypes "soloos/fsapi/types"
-	sdfsapitypes "soloos/sdfsapi/types"
+	fsapitypes "soloos/common/fsapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 )
 
 type FsINodeID = sdfsapitypes.FsINodeID

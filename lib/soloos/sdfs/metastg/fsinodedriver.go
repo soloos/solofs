@@ -1,11 +1,11 @@
 package metastg
 
 import (
-	"soloos/sdbapi"
+	"soloos/common/sdbapi"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
-	"soloos/util"
-	"soloos/util/offheap"
+	"soloos/common/util"
+	"soloos/common/util/offheap"
 	"sync/atomic"
 )
 

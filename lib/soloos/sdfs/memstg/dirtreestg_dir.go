@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	fsapitypes "soloos/fsapi/types"
+	fsapitypes "soloos/common/fsapi/types"
 	"soloos/sdfs/types"
 	"strings"
 )

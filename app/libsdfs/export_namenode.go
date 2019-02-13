@@ -2,9 +2,9 @@ package main
 
 import "C"
 import (
-	fsapitypes "soloos/fsapi/types"
+	fsapitypes "soloos/common/fsapi/types"
 	"soloos/sdfs/types"
-	"soloos/sdfsapi"
+	"soloos/common/sdfsapi"
 	"unsafe"
 )
 

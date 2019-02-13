@@ -2,9 +2,9 @@ package metastg
 
 import "C"
 import (
-	"soloos/sdbapi"
+	"soloos/common/sdbapi"
 	"soloos/sdfs/api"
-	"soloos/util/offheap"
+	"soloos/common/util/offheap"
 )
 
 type DirTreeStg struct {

@@ -1,8 +1,8 @@
 package types
 
 import (
-	snettypes "soloos/snet/types"
-	"soloos/util/offheap"
+	snettypes "soloos/common/snet/types"
+	"soloos/common/util/offheap"
 	"sync"
 	"unsafe"
 )

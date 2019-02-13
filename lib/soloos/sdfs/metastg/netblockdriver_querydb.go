@@ -3,7 +3,7 @@ package metastg
 import (
 	"bytes"
 	"database/sql"
-	"soloos/sdbapi"
+	"soloos/common/sdbapi"
 	"soloos/sdfs/types"
 )
 

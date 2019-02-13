@@ -1,6 +1,6 @@
 package datanode
 
-import snettypes "soloos/snet/types"
+import snettypes "soloos/common/snet/types"
 
 type DataNodeOptions struct {
 	PeerID               snettypes.PeerID

@@ -7,9 +7,9 @@ import (
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
-	"soloos/snet"
-	snettypes "soloos/snet/types"
-	"soloos/util/offheap"
+	"soloos/common/snet"
+	snettypes "soloos/common/snet/types"
+	"soloos/common/util/offheap"
 )
 
 type DataNode struct {

@@ -1,7 +1,7 @@
 package types
 
 import (
-	"soloos/util/offheap"
+	"soloos/common/util/offheap"
 	"strconv"
 	"sync"
 )

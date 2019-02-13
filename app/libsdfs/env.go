@@ -1,9 +1,9 @@
 package main
 
 import (
-	"soloos/fsapi"
+	"soloos/common/fsapi"
 	"soloos/sdfs/libsdfs"
-	"soloos/util"
+	"soloos/common/util"
 )
 
 var (

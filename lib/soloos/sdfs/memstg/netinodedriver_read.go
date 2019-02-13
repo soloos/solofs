@@ -3,7 +3,7 @@ package memstg
 import (
 	"io"
 	"soloos/sdfs/types"
-	snettypes "soloos/snet/types"
+	snettypes "soloos/common/snet/types"
 )
 
 type preadArg struct {

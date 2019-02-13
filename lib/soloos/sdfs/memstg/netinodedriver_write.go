@@ -2,7 +2,7 @@ package memstg
 
 import (
 	"soloos/sdfs/types"
-	snettypes "soloos/snet/types"
+	snettypes "soloos/common/snet/types"
 )
 
 type pwriteArg struct {

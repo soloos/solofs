@@ -2,9 +2,9 @@ package metastg
 
 import (
 	"soloos/sdfs/types"
-	snettypes "soloos/snet/types"
-	"soloos/util"
-	"soloos/util/offheap"
+	snettypes "soloos/common/snet/types"
+	"soloos/common/util"
+	"soloos/common/util/offheap"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

@@ -1,7 +1,7 @@
 package types
 
 import (
-	fsapitypes "soloos/fsapi/types"
+	fsapitypes "soloos/common/fsapi/types"
 	"syscall"
 )
 

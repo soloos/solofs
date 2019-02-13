@@ -2,7 +2,7 @@ package memstg
 
 import (
 	"soloos/sdfs/types"
-	"soloos/util/offheap"
+	"soloos/common/util/offheap"
 )
 
 func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUintptr,

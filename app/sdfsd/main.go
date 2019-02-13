@@ -2,7 +2,7 @@ package main
 
 import (
 	"os"
-	"soloos/util"
+	"soloos/common/util"
 )
 
 func main() {

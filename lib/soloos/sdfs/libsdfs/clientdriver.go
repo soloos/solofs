@@ -1,10 +1,10 @@
 package libsdfs
 
 import (
-	"soloos/sdbapi"
+	"soloos/common/sdbapi"
 	"soloos/sdfs/memstg"
-	"soloos/sdfsapi"
-	"soloos/util/offheap"
+	"soloos/common/sdfsapi"
+	"soloos/common/util/offheap"
 )
 
 type ClientDriver struct {

@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
-	"soloos/sfuse"
+	"soloos/sdfs/sfuse"
 )
 
 type Options struct {

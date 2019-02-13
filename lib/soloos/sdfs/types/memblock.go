@@ -2,9 +2,9 @@ package types
 
 import (
 	"reflect"
-	"soloos/log"
-	snettypes "soloos/snet/types"
-	"soloos/util/offheap"
+	"soloos/common/log"
+	snettypes "soloos/common/snet/types"
+	"soloos/common/util/offheap"
 	"sync"
 	"sync/atomic"
 	"unsafe"

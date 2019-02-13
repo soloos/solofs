@@ -2,7 +2,7 @@ package api
 
 import (
 	"soloos/sdfs/types"
-	snettypes "soloos/snet/types"
+	snettypes "soloos/common/snet/types"
 )
 
 // DataNode

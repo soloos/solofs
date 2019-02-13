@@ -2,8 +2,8 @@ package api
 
 import (
 	"soloos/sdfs/types"
-	"soloos/snet"
-	snettypes "soloos/snet/types"
+	"soloos/common/snet"
+	snettypes "soloos/common/snet/types"
 )
 
 type PReadMemBlockWithDisk func(uNetINode types.NetINodeUintptr,

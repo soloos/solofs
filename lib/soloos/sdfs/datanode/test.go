@@ -5,10 +5,10 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
-	"soloos/snet"
-	snettypes "soloos/snet/types"
-	"soloos/util"
-	"soloos/util/offheap"
+	"soloos/common/snet"
+	snettypes "soloos/common/snet/types"
+	"soloos/common/util"
+	"soloos/common/util/offheap"
 )
 
 func MakeDataNodeForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.ClientDriver,

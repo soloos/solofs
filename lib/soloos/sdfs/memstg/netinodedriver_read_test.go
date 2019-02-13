@@ -3,8 +3,8 @@ package memstg
 import (
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
-	"soloos/snet"
-	"soloos/util"
+	"soloos/common/snet"
+	"soloos/common/util"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

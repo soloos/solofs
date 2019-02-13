@@ -4,7 +4,7 @@ import (
 	"soloos/sdfs/api"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
-	"soloos/util/offheap"
+	"soloos/common/util/offheap"
 )
 
 type NetINodeDriverHelper struct {

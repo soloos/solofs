@@ -1,8 +1,8 @@
 package metastg
 
 import (
-	"soloos/sdbapi"
-	"soloos/util/offheap"
+	"soloos/common/sdbapi"
+	"soloos/common/util/offheap"
 )
 
 type MetaStg struct {

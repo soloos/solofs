@@ -1,9 +1,9 @@
 package namenode
 
 import (
-	"soloos/log"
+	"soloos/common/log"
 	"soloos/sdfs/types"
-	"soloos/snet/srpc"
+	"soloos/common/snet/srpc"
 )
 
 type NameNodeSRPCServer struct {

@@ -1,7 +1,7 @@
 package types
 
 import (
-	sdfsapitypes "soloos/sdfsapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 )
 
 const (

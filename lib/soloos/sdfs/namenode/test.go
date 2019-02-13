@@ -4,8 +4,8 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
-	"soloos/util"
-	"soloos/util/offheap"
+	"soloos/common/util"
+	"soloos/common/util/offheap"
 )
 
 func MakeNameNodeForTest(nameNode *NameNode, metaStg *metastg.MetaStg, nameNodeSRPCServerAddr string,

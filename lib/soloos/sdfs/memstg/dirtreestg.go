@@ -1,9 +1,9 @@
 package memstg
 
 import (
-	"soloos/fsapi"
+	"soloos/common/fsapi"
 	"soloos/sdfs/api"
-	"soloos/util/offheap"
+	"soloos/common/util/offheap"
 	"time"
 )
 

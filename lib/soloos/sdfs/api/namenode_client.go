@@ -1,8 +1,8 @@
 package api
 
 import (
-	"soloos/snet"
-	snettypes "soloos/snet/types"
+	"soloos/common/snet"
+	snettypes "soloos/common/snet/types"
 )
 
 type NameNodeClient struct {

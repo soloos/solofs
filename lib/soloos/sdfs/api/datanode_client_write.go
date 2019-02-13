@@ -3,8 +3,8 @@ package api
 import (
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/snet/types"
-	"soloos/util/offheap"
+	snettypes "soloos/common/snet/types"
+	"soloos/common/util/offheap"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )

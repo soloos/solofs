@@ -1,6 +1,6 @@
 package metastg
 
-import "soloos/log"
+import "soloos/common/log"
 
 // func prepareDirTreeDataSqls() []string {
 // var sql []string

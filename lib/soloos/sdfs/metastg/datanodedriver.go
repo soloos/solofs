@@ -2,8 +2,8 @@ package metastg
 
 import (
 	"soloos/sdfs/types"
-	"soloos/snet"
-	snettypes "soloos/snet/types"
+	"soloos/common/snet"
+	snettypes "soloos/common/snet/types"
 	"sync"
 	"sync/atomic"
 )

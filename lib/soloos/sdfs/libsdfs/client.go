@@ -1,12 +1,12 @@
 package libsdfs
 
 import (
-	"soloos/sdbapi"
-	"soloos/fsapi"
+	"soloos/common/sdbapi"
+	"soloos/common/fsapi"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
-	"soloos/sdfsapi"
-	"soloos/util/offheap"
+	"soloos/common/sdfsapi"
+	"soloos/common/util/offheap"
 )
 
 type Client struct {

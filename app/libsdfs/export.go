@@ -4,7 +4,7 @@ import "C"
 
 import (
 	"os"
-	"soloos/log"
+	"soloos/common/log"
 	"sync"
 )
 

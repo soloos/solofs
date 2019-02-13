@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 	"soloos/sdfs/libsdfs"
-	"soloos/sfuse"
-	"soloos/util"
+	"soloos/sdfs/sfuse"
+	"soloos/common/util"
 )
 
 func main() {

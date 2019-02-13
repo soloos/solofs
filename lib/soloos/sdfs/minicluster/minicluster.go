@@ -7,8 +7,8 @@ import (
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
 	"soloos/sdfs/netstg"
-	"soloos/util"
-	"soloos/util/offheap"
+	"soloos/common/util"
+	"soloos/common/util/offheap"
 )
 
 type MiniCluster struct {

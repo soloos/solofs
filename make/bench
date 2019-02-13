@@ -23,13 +23,13 @@ bench-soloos-sdfs-namenode:
 bench-soloos-sdfs-netstg:
 	cd src/soloos/sdfs/netstg/ && go test -bench=. -benchmem 
 
+bench-soloos-sdfs-sfuse:
+	cd src/soloos/sdfs/sfuse/ && go test -bench=. -benchmem 
+
 bench-soloos-sdfs-types:
 	cd src/soloos/sdfs/types/ && go test -bench=. -benchmem 
-
-bench-soloos-sfuse:
-	cd src/soloos/sfuse/ && go test -bench=. -benchmem 
 
 bench-libsdfs:
 	cd src/libsdfs/ && go test -bench=. -benchmem 
 
-bench: bench-soloos-sdfs-api bench-soloos-sdfs-datanode bench-soloos-sdfs-libsdfs bench-soloos-sdfs-memstg bench-soloos-sdfs-metastg bench-soloos-sdfs-minicluster bench-soloos-sdfs-namenode bench-soloos-sdfs-netstg bench-soloos-sdfs-types bench-soloos-sfuse bench-libsdfs
+bench: bench-soloos-sdfs-api bench-soloos-sdfs-datanode bench-soloos-sdfs-libsdfs bench-soloos-sdfs-memstg bench-soloos-sdfs-metastg bench-soloos-sdfs-minicluster bench-soloos-sdfs-namenode bench-soloos-sdfs-netstg bench-soloos-sdfs-sfuse bench-soloos-sdfs-types bench-libsdfs

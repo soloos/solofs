@@ -3,9 +3,9 @@ package memstg
 import (
 	"soloos/sdfs/api"
 	"soloos/sdfs/netstg"
-	"soloos/snet"
-	"soloos/util"
-	"soloos/util/offheap"
+	"soloos/common/snet"
+	"soloos/common/util"
+	"soloos/common/util/offheap"
 )
 
 func MakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, offheapDriver *offheap.OffheapDriver,

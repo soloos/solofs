@@ -2,7 +2,7 @@ package localfs
 
 import (
 	"soloos/sdfs/types"
-	snettypes "soloos/snet/types"
+	snettypes "soloos/common/snet/types"
 )
 
 func (p *LocalFs) PReadMemBlockWithDisk(uNetINode types.NetINodeUintptr,

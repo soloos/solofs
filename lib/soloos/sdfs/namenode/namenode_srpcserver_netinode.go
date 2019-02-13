@@ -1,11 +1,11 @@
 package namenode
 
 import (
-	"soloos/log"
+	"soloos/common/log"
 	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/snet/types"
+	snettypes "soloos/common/snet/types"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
