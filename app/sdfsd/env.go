@@ -1,16 +1,16 @@
 package main
 
 import (
+	"soloos/common/snet"
+	snettypes "soloos/common/snet/types"
+	"soloos/common/util"
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
 	"soloos/sdfs/datanode"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
 	"soloos/sdfs/netstg"
-	"soloos/common/snet"
-	snettypes "soloos/common/snet/types"
-	"soloos/common/util"
-	"soloos/common/util/offheap"
 )
 
 type Env struct {

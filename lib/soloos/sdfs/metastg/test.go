@@ -2,7 +2,7 @@ package metastg
 
 import (
 	"soloos/common/util"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 func MakeMetaStgForTest(offheapDriver *offheap.OffheapDriver, metaStg *MetaStg) {

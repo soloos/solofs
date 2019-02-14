@@ -1,10 +1,10 @@
 package namenode
 
 import (
+	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/common/snet/types"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -44,7 +44,7 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(reqID uint64,
 	}
 
 	// response
-	uNetBlock, err = p.nameNode.netBlockDriver.MustGetNetBlock(uNetINode, int(req.NetBlockIndex()))
+	uNetBlock, err = p.nameNode.netBlockDriver.MustGetNetBlock(uNetINode, req.NetBlockIndex())
 	if err != nil {
 		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
 		conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])

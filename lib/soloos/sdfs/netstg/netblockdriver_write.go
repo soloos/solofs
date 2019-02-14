@@ -5,8 +5,8 @@ import (
 )
 
 func (p *NetBlockDriver) PWrite(uNetINode types.NetINodeUintptr,
-	uNetBlock types.NetBlockUintptr, netBlockIndex int,
-	uMemBlock types.MemBlockUintptr, memBlockIndex int,
+	uNetBlock types.NetBlockUintptr, netBlockIndex int32,
+	uMemBlock types.MemBlockUintptr, memBlockIndex int32,
 	offset, end int) error {
 	var (
 		err error

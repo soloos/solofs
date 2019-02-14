@@ -4,7 +4,7 @@ import "C"
 import (
 	"soloos/common/sdbapi"
 	"soloos/sdfs/api"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 type DirTreeStg struct {

@@ -3,7 +3,7 @@ package metastg
 import (
 	"soloos/sdfs/types"
 	"soloos/common/util"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

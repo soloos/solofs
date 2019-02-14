@@ -8,7 +8,7 @@ import (
 )
 
 func (p *NetBlockDriver) FetchNetBlockFromDB(pNetINode *types.NetINode,
-	netBlockIndex int, pNetBlock *types.NetBlock,
+	netBlockIndex int32, pNetBlock *types.NetBlock,
 	backendPeerIDArrStr *string) (err error) {
 	var (
 		sess    sdbapi.Session

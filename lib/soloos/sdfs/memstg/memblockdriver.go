@@ -1,8 +1,8 @@
 package memstg
 
 import (
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/types"
-	"soloos/common/util/offheap"
 )
 
 type MemBlockDriver struct {
@@ -35,14 +35,14 @@ func (p *MemBlockDriver) Init(
 
 // MustGetMemBlockWithReadAcquire get or init a memblock's offheap
 func (p *MemBlockDriver) MustGetMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
-	memBlockIndex int) (types.MemBlockUintptr, bool) {
+	memBlockIndex int32) (types.MemBlockUintptr, bool) {
 	var memBlockID types.PtrBindIndex
 	types.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
 	return p.pools[uNetINode.Ptr().MemBlockCap].MustGetMemBlockWithReadAcquire(memBlockID)
 }
 
 func (p *MemBlockDriver) TryGetMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
-	memBlockIndex int) types.MemBlockUintptr {
+	memBlockIndex int32) types.MemBlockUintptr {
 	var memBlockID types.PtrBindIndex
 	types.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
 	return p.pools[uNetINode.Ptr().MemBlockCap].TryGetMemBlockWithReadAcquire(memBlockID)
@@ -54,8 +54,8 @@ func (p *MemBlockDriver) ReleaseMemBlockWithReadRelease(uMemBlock types.MemBlock
 	}
 }
 
-func (p *MemBlockDriver) AllocTmpMemBlockWithWriteAcquire(uNetINode types.NetINodeUintptr) types.MemBlockUintptr {
-	return p.pools[uNetINode.Ptr().MemBlockCap].AllocTmpMemBlockWithWriteAcquire()
+func (p *MemBlockDriver) MustGetTmpMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr, memBlockID types.PtrBindIndex) types.MemBlockUintptr {
+	return p.pools[uNetINode.Ptr().MemBlockCap].MustGetTmpMemBlockWithReadAcquire(memBlockID)
 }
 
 func (p *MemBlockDriver) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) {

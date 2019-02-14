@@ -7,7 +7,7 @@ import (
 
 const (
 	UintptrSize = int(unsafe.Sizeof(uintptr(0)))
-	IntSize     = int(unsafe.Sizeof(int(0)))
+	Int32Size   = int(unsafe.Sizeof(int32(0)))
 
 	UUintptrSize = unsafe.Sizeof(uintptr(0))
 )

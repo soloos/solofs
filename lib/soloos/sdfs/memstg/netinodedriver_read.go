@@ -2,8 +2,8 @@ package memstg
 
 import (
 	"io"
-	"soloos/sdfs/types"
 	snettypes "soloos/common/snet/types"
+	"soloos/sdfs/types"
 )
 
 type preadArg struct {
@@ -18,8 +18,8 @@ func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
 	var (
 		uMemBlock          types.MemBlockUintptr
 		uNetBlock          types.NetBlockUintptr
-		memBlockIndex      int
-		netBlockIndex      int
+		memBlockIndex      int32
+		netBlockIndex      int32
 		memBlockStart      uint64
 		memBlockReadOffset int
 		// memBlockReadEnd     int
@@ -42,11 +42,11 @@ func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
 	readEnd = offset + uint64(arg.dataLength)
 	for ; offset < readEnd; offset, dataOffset = offset+uint64(memBlockReadLength), dataOffset+memBlockReadLength {
 		// prepare netBlock
-		netBlockIndex = int(offset / uint64(pNetINode.NetBlockCap))
+		netBlockIndex = int32(offset / uint64(pNetINode.NetBlockCap))
 		uNetBlock, err = p.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 
 		// prepare memBlock
-		memBlockIndex = int(offset / uint64(pNetINode.MemBlockCap))
+		memBlockIndex = int32(offset / uint64(pNetINode.MemBlockCap))
 		memBlockStart = uint64(memBlockIndex) * uint64(pNetINode.MemBlockCap)
 		memBlockReadOffset = int(offset - memBlockStart)
 		if memBlockStart+uint64(pNetINode.MemBlockCap) < readEnd {

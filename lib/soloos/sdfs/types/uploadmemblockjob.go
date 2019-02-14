@@ -1,7 +1,7 @@
 package types
 
 import (
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"sync"
 	"unsafe"
 )
@@ -23,7 +23,7 @@ type UploadMemBlockJob struct {
 	UNetINode              NetINodeUintptr
 	UNetBlock              NetBlockUintptr
 	UMemBlock              MemBlockUintptr
-	MemBlockIndex          int
+	MemBlockIndex          int32
 	UploadMaskWaitingIndex int
 	UploadMask             [2]offheap.ChunkMask
 	UploadMaskWaiting      offheap.ChunkMaskUintptr

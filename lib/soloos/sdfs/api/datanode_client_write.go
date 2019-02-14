@@ -1,10 +1,10 @@
 package api
 
 import (
+	snettypes "soloos/common/snet/types"
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/common/snet/types"
-	"soloos/common/util/offheap"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -57,7 +57,7 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 	for chunkMaskIndex := 0; chunkMaskIndex < pChunkMask.MaskArrayLen; chunkMaskIndex++ {
 		req.OffheapBody.CopyOffset = pChunkMask.MaskArray[chunkMaskIndex].Offset
 		req.OffheapBody.CopyEnd = pChunkMask.MaskArray[chunkMaskIndex].End
-		netINodeWriteOffset = memBlockCap*uJob.Ptr().MemBlockIndex + req.OffheapBody.CopyOffset
+		netINodeWriteOffset = memBlockCap*int(uJob.Ptr().MemBlockIndex) + req.OffheapBody.CopyOffset
 		netINodeWriteLength = req.OffheapBody.CopyEnd - req.OffheapBody.CopyOffset
 
 		if transferPeersCount > 0 {

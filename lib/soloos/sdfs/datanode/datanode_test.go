@@ -8,7 +8,7 @@ import (
 	"soloos/sdfs/types"
 	"soloos/common/snet"
 	"soloos/common/util"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"testing"
 	"time"
 

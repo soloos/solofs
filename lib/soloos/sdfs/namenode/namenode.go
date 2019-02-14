@@ -5,7 +5,7 @@ import (
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
 	snettypes "soloos/common/snet/types"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 type NameNode struct {

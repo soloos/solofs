@@ -46,7 +46,10 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(fsINodeID types.FsINodeID, xattr type
 		goto QUERY_DONE
 	}
 
-	err = p.DBConn.ReplaceInto(tx, "b_fsinode_xattr", "fsinode_ino", "xattr", fsINodeID, xattrBytes)
+	err = tx.ReplaceInto("b_fsinode_xattr").
+		PrimaryColumn("fsinode_ino").PrimaryValue(fsINodeID).
+		Columns("xattr").Values(xattrBytes).
+		Exec()
 	if err != nil {
 		goto QUERY_DONE
 	}

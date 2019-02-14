@@ -84,18 +84,11 @@ func (p *NetINodeDriver) StoreNetINodeInDB(pNetINode *types.NetINode) error {
 		goto QUERY_DONE
 	}
 
-	_, err = tx.InsertInto("b_netinode").
+	err = tx.ReplaceInto("b_netinode").
+		PrimaryColumn("netinode_id").PrimaryValue(netINodeIDStr).
 		Columns("netinode_id", "netinode_size", "netblock_cap", "memblock_cap").
 		Values(netINodeIDStr, pNetINode.Size, pNetINode.NetBlockCap, pNetINode.MemBlockCap).
 		Exec()
-	if err != nil {
-		_, err = tx.Update("b_netinode").
-			Set("netinode_size", pNetINode.Size).
-			Set("netblock_cap", pNetINode.NetBlockCap).
-			Set("memblock_cap", pNetINode.MemBlockCap).
-			Where("netinode_id=?", netINodeIDStr).
-			Exec()
-	}
 
 QUERY_DONE:
 	if err != nil {

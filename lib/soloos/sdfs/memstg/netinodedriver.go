@@ -1,10 +1,10 @@
 package memstg
 
 import (
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
-	"soloos/common/util/offheap"
 )
 
 type NetINodeDriverHelper struct {
@@ -66,9 +66,10 @@ func (p *NetINodeDriver) GetNetINodeWithReadAcquire(isForceReload bool, netINode
 	)
 	uNetINode, isLoaded = p.netINodePool.MustGetNetINodeWithReadAcquire(netINodeID)
 	pNetINode = uNetINode.Ptr()
-	if isForceReload == false && (isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited == false) {
+	if isForceReload == false &&
+		(isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited) {
 		pNetINode.DBMetaDataInitMutex.Lock()
-		if pNetINode.IsDBMetaDataInited == false {
+		if pNetINode.IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 			err = p.helper.PrepareNetINodeMetaDataOnlyLoadDB(uNetINode)
 		}
 		pNetINode.DBMetaDataInitMutex.Unlock()
@@ -93,9 +94,9 @@ func (p *NetINodeDriver) MustGetNetINodeWithReadAcquire(netINodeID types.NetINod
 	)
 	uNetINode, isLoaded = p.netINodePool.MustGetNetINodeWithReadAcquire(netINodeID)
 	pNetINode = uNetINode.Ptr()
-	if isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited == false {
+	if isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 		pNetINode.DBMetaDataInitMutex.Lock()
-		if pNetINode.IsDBMetaDataInited == false {
+		if pNetINode.IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 			err = p.helper.PrepareNetINodeMetaDataWithStorDB(uNetINode, size, netBlockCap, memBlockCap)
 		}
 		pNetINode.DBMetaDataInitMutex.Unlock()

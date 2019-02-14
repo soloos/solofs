@@ -1,16 +1,16 @@
 package api
 
 import (
+	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/common/snet/types"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
 func (p *NameNodeClient) PrepareNetBlockMetaData(netBlockInfo *protocol.NetINodeNetBlockInfoResponse,
 	uNetINode types.NetINodeUintptr,
-	netBlockIndex int,
+	netBlockIndex int32,
 	uNetBlock types.NetBlockUintptr,
 ) error {
 	var (

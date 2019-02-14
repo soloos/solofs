@@ -6,7 +6,7 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/common/sdfsapi"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 type Client struct {

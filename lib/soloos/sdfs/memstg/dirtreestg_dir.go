@@ -301,7 +301,6 @@ func (p *DirTreeStg) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEn
 	var (
 		fsINodeByIDThroughHardLink types.FsINode
 		entryOut                   *fsapitypes.EntryOut
-		off                        uint64
 		err                        error
 	)
 	err = p.ListFsINodeByIno(input.NodeId, true,
@@ -323,7 +322,7 @@ func (p *DirTreeStg) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEn
 				return false
 			}
 
-			entryOut, off = out.AddDirLookupEntry(fsapitypes.DirEntry{
+			entryOut, _ = out.AddDirLookupEntry(fsapitypes.DirEntry{
 				Mode: fsINodeByIDThroughHardLink.Mode,
 				Name: fsINode.Name,
 				Ino:  fsINodeByIDThroughHardLink.Ino,

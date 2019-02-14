@@ -1,15 +1,14 @@
 package netstg
 
 import (
+	"soloos/common/snet"
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
-	"soloos/common/snet"
-	"soloos/common/util/offheap"
-	"sync"
 )
 
 type PrepareNetBlockMetaData func(uNetBlock types.NetBlockUintptr,
-	uNetINode types.NetINodeUintptr, netblockIndex int) error
+	uNetINode types.NetINodeUintptr, netblockIndex int32) error
 
 type NetBlockDriverHelper struct {
 	*api.NameNodeClient
@@ -19,10 +18,8 @@ type NetBlockDriverHelper struct {
 type NetBlockDriver struct {
 	helper NetBlockDriverHelper
 
-	offheapDriver        *offheap.OffheapDriver
-	netBlockAllocRWMutex sync.RWMutex
-	offheapPool          offheap.RawObjectPool
-	netBlockPool         types.NetBlockPool
+	offheapDriver *offheap.OffheapDriver
+	netBlockPool  types.NetBlockPool
 
 	snetDriver       *snet.NetDriver
 	snetClientDriver *snet.ClientDriver
@@ -84,7 +81,7 @@ func (p *NetBlockDriver) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr)
 
 // MustGetNetBlock get or init a netBlock
 func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
-	netBlockIndex int) (types.NetBlockUintptr, error) {
+	netBlockIndex int32) (types.NetBlockUintptr, error) {
 	var (
 		uNetBlock types.NetBlockUintptr
 		pNetBlock *types.NetBlock
@@ -94,9 +91,9 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 
 	uNetBlock, isLoaded = p.netBlockPool.MustGetNetBlock(uNetINode, netBlockIndex)
 	pNetBlock = uNetBlock.Ptr()
-	if isLoaded == false || uNetBlock.Ptr().IsDBMetaDataInited == false {
+	if isLoaded == false || uNetBlock.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 		pNetBlock.DBMetaDataInitMutex.Lock()
-		if pNetBlock.IsDBMetaDataInited == false {
+		if pNetBlock.IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 			err = p.helper.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
 		}
 		pNetBlock.DBMetaDataInitMutex.Unlock()

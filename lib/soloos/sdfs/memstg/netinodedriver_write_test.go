@@ -1,11 +1,11 @@
 package memstg
 
 import (
-	"soloos/sdfs/netstg"
-	"soloos/sdfs/types"
 	"soloos/common/snet"
 	"soloos/common/util"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
+	"soloos/sdfs/netstg"
+	"soloos/sdfs/types"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -37,7 +37,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 
 		assert.NoError(t, netINodeDriver.PWriteWithMem(uNetINode, []byte{(byte)(i), (byte)(i * 2)}, writeOffset))
 
-		memBlockIndex := int(writeOffset / uint64(uNetINode.Ptr().MemBlockCap))
+		memBlockIndex := int32(writeOffset / uint64(uNetINode.Ptr().MemBlockCap))
 		uMemBlock, _ := memBlockDriver.MustGetMemBlockWithReadAcquire(uNetINode, memBlockIndex)
 		memBlockData := *uMemBlock.Ptr().BytesSlice()
 		assert.Equal(t, memBlockData[0], (byte)(i))
@@ -47,7 +47,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 
 	for i = 0; i <= maxBlocks; i++ {
 		writeOffset := uint64(uint64(i) * uint64(memBlockCap))
-		memBlockIndex := int(writeOffset / uint64(uNetINode.Ptr().MemBlockCap))
+		memBlockIndex := int32(writeOffset / uint64(uNetINode.Ptr().MemBlockCap))
 		uMemBlock, _ := memBlockDriver.MustGetMemBlockWithReadAcquire(uNetINode, memBlockIndex)
 		util.AssertErrIsNil(netINodeDriver.Flush(uNetINode))
 		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()

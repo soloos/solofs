@@ -5,7 +5,7 @@ import (
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	"soloos/common/util"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"sync/atomic"
 )
 

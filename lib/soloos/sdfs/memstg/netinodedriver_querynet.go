@@ -14,7 +14,7 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetIN
 
 PREPARE_DONE:
 	if err == nil {
-		uNetINode.Ptr().IsDBMetaDataInited = true
+		uNetINode.Ptr().IsDBMetaDataInited.Store(types.MetaDataStateInited)
 	}
 	return err
 }
@@ -30,7 +30,7 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetIN
 
 PREPARE_DONE:
 	if err == nil {
-		uNetINode.Ptr().IsDBMetaDataInited = true
+		uNetINode.Ptr().IsDBMetaDataInited.Store(types.MetaDataStateInited)
 	}
 	return err
 }

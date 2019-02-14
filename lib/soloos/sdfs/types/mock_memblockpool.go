@@ -1,7 +1,7 @@
 package types
 
 import (
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 type MockMemBlockPool struct {

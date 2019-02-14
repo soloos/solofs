@@ -10,7 +10,7 @@ import (
 func TestEncodeNetINodeBlockID(t *testing.T) {
 	var netINodeBlockID NetINodeBlockID
 	netINodeID := NetINodeID{1, 2, 3}
-	blockIndex := 22
+	blockIndex := int32(22)
 	EncodeNetINodeBlockID(&netINodeBlockID, netINodeID, blockIndex)
 	assert.Equal(t, uint8(1), netINodeBlockID[0])
 	assert.Equal(t, uint8(2), netINodeBlockID[1])
@@ -21,7 +21,7 @@ func TestEncodeNetINodeBlockID(t *testing.T) {
 func TestEncodePtrBindIndex(t *testing.T) {
 	var (
 		u     uintptr = 0x12
-		index int     = 3
+		index int32   = 3
 		id    PtrBindIndex
 	)
 	EncodePtrBindIndex(&id, u, index)
@@ -32,7 +32,7 @@ func TestEncodePtrBindIndex(t *testing.T) {
 func BenchmarkEncodeNetINodeBlockID(b *testing.B) {
 	var netINodeBlockID NetINodeBlockID
 	netINodeID := NetINodeID{1, 2, 3}
-	blockIndex := 22
+	blockIndex := int32(22)
 	for n := 0; n < b.N; n++ {
 		EncodeNetINodeBlockID(&netINodeBlockID, netINodeID, blockIndex)
 	}
@@ -41,7 +41,7 @@ func BenchmarkEncodeNetINodeBlockID(b *testing.B) {
 func BenchmarkEncodeBindIndex(b *testing.B) {
 	var (
 		u     uintptr = 0x12
-		index int     = 3
+		index int32   = 3
 		id    PtrBindIndex
 	)
 	for n := 0; n < b.N; n++ {

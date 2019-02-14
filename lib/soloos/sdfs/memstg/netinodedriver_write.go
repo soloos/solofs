@@ -1,8 +1,8 @@
 package memstg
 
 import (
-	"soloos/sdfs/types"
 	snettypes "soloos/common/snet/types"
+	"soloos/sdfs/types"
 )
 
 type pwriteArg struct {
@@ -18,8 +18,8 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 		isSuccess           bool
 		uMemBlock           types.MemBlockUintptr
 		uNetBlock           types.NetBlockUintptr
-		memBlockIndex       int
-		netBlockIndex       int
+		memBlockIndex       int32
+		netBlockIndex       int32
 		memBlockStart       uint64
 		memBlockWriteOffset int
 		memBlockWriteEnd    int
@@ -37,11 +37,11 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 	writeEnd = offset + uint64(arg.dataLength)
 	for ; offset < writeEnd; offset, dataOffset = offset+uint64(memBlockWriteLength), dataOffset+memBlockWriteLength {
 		// prepare netBlock
-		netBlockIndex = int(offset / uint64(pNetINode.NetBlockCap))
+		netBlockIndex = int32(offset / uint64(pNetINode.NetBlockCap))
 		uNetBlock, err = p.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 
 		// prepare memBlock
-		memBlockIndex = int(offset / uint64(pNetINode.MemBlockCap))
+		memBlockIndex = int32(offset / uint64(pNetINode.MemBlockCap))
 		memBlockStart = uint64(memBlockIndex) * uint64(pNetINode.MemBlockCap)
 		memBlockWriteOffset = int(offset - memBlockStart)
 		if memBlockStart+uint64(pNetINode.MemBlockCap) < writeEnd {

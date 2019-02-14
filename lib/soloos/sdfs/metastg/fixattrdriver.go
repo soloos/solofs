@@ -2,7 +2,7 @@ package metastg
 
 import (
 	"soloos/common/sdbapi"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 // FIXAttrDriver is FsINode XAttr driver

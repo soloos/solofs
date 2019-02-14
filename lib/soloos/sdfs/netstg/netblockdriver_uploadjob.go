@@ -1,14 +1,14 @@
 package netstg
 
 import (
-	"soloos/sdfs/types"
 	snettypes "soloos/common/snet/types"
+	"soloos/sdfs/types"
 )
 
 func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *types.UploadMemBlockJob,
 	uNetINode types.NetINodeUintptr,
-	uNetBlock types.NetBlockUintptr, netBlockIndex int,
-	uMemBlock types.MemBlockUintptr, memBlockIndex int,
+	uNetBlock types.NetBlockUintptr, netBlockIndex int32,
+	uMemBlock types.MemBlockUintptr, memBlockIndex int32,
 	backends snettypes.PeerUintptrArray8) {
 	pJob.UploadPolicyMutex.Lock()
 	if pJob.IsUploadPolicyPrepared {

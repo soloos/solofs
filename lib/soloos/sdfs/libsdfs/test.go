@@ -10,7 +10,7 @@ import (
 	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
 	"soloos/common/util"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"time"
 )
 

@@ -80,7 +80,7 @@ func (p *memBlockPoolChunk) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) 
 	}
 }
 
-func (p *memBlockPoolChunk) AllocTmpMemBlockWithWriteAcquire() types.MemBlockUintptr {
+func (p *memBlockPoolChunk) MustGetTmpMemBlockWithReadAcquire(blockID types.PtrBindIndex) types.MemBlockUintptr {
 	uMemBlock := p.allocTmpChunkFromTmpChunkPool()
 	uMemBlock.Ptr().Chunk.Ptr().WriteAcquire()
 	uMemBlock.Ptr().CompleteInit()

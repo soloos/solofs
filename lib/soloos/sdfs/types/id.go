@@ -6,24 +6,24 @@ import (
 )
 
 const (
-	NetINodeBlockIDSize int = NetINodeIDSize + IntSize
-	PtrBindIndexSize int = UintptrSize + IntSize
+	NetINodeBlockIDSize int = NetINodeIDSize + Int32Size
+	PtrBindIndexSize    int = UintptrSize + Int32Size
 )
 
 type NetINodeBlockID = [NetINodeBlockIDSize]byte
 type PtrBindIndex = [PtrBindIndexSize]byte
 
-func EncodeNetINodeBlockID(netINodeBlockID *NetINodeBlockID, netINodeID NetINodeID, blockIndex int) {
+func EncodeNetINodeBlockID(netINodeBlockID *NetINodeBlockID, netINodeID NetINodeID, blockIndex int32) {
 	bytes := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
 		uintptr(unsafe.Pointer(netINodeBlockID)),
 		NetINodeBlockIDSize,
 		NetINodeBlockIDSize,
 	}))
 	copy(bytes[:NetINodeIDSize], (*(*[NetINodeIDSize]byte)((unsafe.Pointer)(&netINodeID)))[:NetINodeIDSize])
-	copy(bytes[NetINodeIDSize:], (*(*[IntSize]byte)((unsafe.Pointer)(&blockIndex)))[:IntSize])
+	copy(bytes[NetINodeIDSize:], (*(*[Int32Size]byte)((unsafe.Pointer)(&blockIndex)))[:Int32Size])
 }
 
-func EncodePtrBindIndex(id *PtrBindIndex, u uintptr, index int) {
+func EncodePtrBindIndex(id *PtrBindIndex, u uintptr, index int32) {
 	*((*uintptr)(unsafe.Pointer(id))) = u
-	*((*int)(unsafe.Pointer(uintptr(unsafe.Pointer(id)) + UUintptrSize))) = index
+	*((*int32)(unsafe.Pointer(uintptr(unsafe.Pointer(id)) + UUintptrSize))) = index
 }

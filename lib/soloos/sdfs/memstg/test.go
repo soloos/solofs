@@ -5,7 +5,7 @@ import (
 	"soloos/sdfs/netstg"
 	"soloos/common/snet"
 	"soloos/common/util"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 func MakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, offheapDriver *offheap.OffheapDriver,

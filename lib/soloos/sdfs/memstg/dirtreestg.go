@@ -3,7 +3,7 @@ package memstg
 import (
 	"soloos/common/fsapi"
 	"soloos/sdfs/api"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"time"
 )
 

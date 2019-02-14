@@ -1,10 +1,10 @@
 package datanode
 
 import (
+	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/common/snet/types"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -38,9 +38,9 @@ func (p *DataNodeSRPCServer) NetINodePWrite(reqID uint64,
 		protocolBuilder    flatbuffers.Builder
 		netINodeID         types.NetINodeID
 		uNetINode          types.NetINodeUintptr
-		firstNetBlockIndex int
-		lastNetBlockIndex  int
-		netBlockIndex      int
+		firstNetBlockIndex int32
+		lastNetBlockIndex  int32
+		netBlockIndex      int32
 	)
 	copy(netINodeID[:], reqParam.NetINodeID())
 	uNetINode, err = p.dataNode.netINodeDriver.GetNetINodeWithReadAcquire(false, netINodeID)
@@ -66,8 +66,8 @@ func (p *DataNodeSRPCServer) NetINodePWrite(reqID uint64,
 	}
 
 	// prepare uNetBlock
-	firstNetBlockIndex = int(reqParam.Offset() / uint64(uNetINode.Ptr().NetBlockCap))
-	lastNetBlockIndex = int((reqParam.Offset() + uint64(reqParam.Length())) / uint64(uNetINode.Ptr().NetBlockCap))
+	firstNetBlockIndex = int32(reqParam.Offset() / uint64(uNetINode.Ptr().NetBlockCap))
+	lastNetBlockIndex = int32((reqParam.Offset() + uint64(reqParam.Length())) / uint64(uNetINode.Ptr().NetBlockCap))
 	for netBlockIndex = firstNetBlockIndex; netBlockIndex <= lastNetBlockIndex; netBlockIndex++ {
 		uNetBlock, err = p.dataNode.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 		if err != nil {
@@ -75,7 +75,7 @@ func (p *DataNodeSRPCServer) NetINodePWrite(reqID uint64,
 			goto SERVICE_DONE
 		}
 
-		if uNetBlock.Ptr().IsSyncDataBackendsInited == false {
+		if uNetBlock.Ptr().IsSyncDataBackendsInited.Load() == types.MetaDataStateUninited {
 			p.dataNode.metaStg.PrepareNetBlockSyncDataBackendsWithLock(uNetBlock, syncDataBackends)
 		}
 	}

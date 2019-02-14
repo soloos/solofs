@@ -2,7 +2,7 @@ package types
 
 import (
 	"soloos/common/util"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 type MockNetINodePool struct {

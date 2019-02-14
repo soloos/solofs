@@ -1,7 +1,7 @@
 package types
 
 import (
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"sync"
 )
 
@@ -39,7 +39,7 @@ func (p *NetBlockPool) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
 // return true if NetBlock stored in pool before
 //    	  false if NetBlock is alloc
 func (p *NetBlockPool) MustGetNetBlock(uNetINode NetINodeUintptr,
-	netBlockIndex int) (NetBlockUintptr, bool) {
+	netBlockIndex int32) (NetBlockUintptr, bool) {
 	var (
 		netINodeBlockID NetINodeBlockID
 		uNetBlock       NetBlockUintptr

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"soloos/common/log"
 	snettypes "soloos/common/snet/types"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"sync"
 	"sync/atomic"
 	"unsafe"
@@ -30,13 +30,14 @@ func (u MemBlockUintptr) Ptr() *MemBlock {
 }
 
 type MemBlock struct {
+	HKVTableObjectBase  offheap.HKVTableObjectByBytes12
 	ID                  PtrBindIndex
 	Status              int64 // equals 0 if could be release
 	RebaseNetBlockMutex sync.Mutex
-	Chunk               offheap.ChunkUintptr
 	Bytes               reflect.SliceHeader
 	AvailMask           offheap.ChunkMask
 	UploadJob           UploadMemBlockJob
+	Chunk               offheap.ChunkUintptr
 }
 
 func (p *MemBlock) Contains(offset, end int) bool {
@@ -89,9 +90,9 @@ func (p *MemBlock) BytesSlice() *[]byte {
 }
 
 func (p *MemBlock) Reset() {
-	atomic.StoreInt64(&p.Status, MemBlockUninited)
 	p.AvailMask.Reset()
 	p.UploadJob.Reset()
+	atomic.StoreInt64(&p.Status, MemBlockUninited)
 }
 
 func (p *MemBlock) CompleteInit() {

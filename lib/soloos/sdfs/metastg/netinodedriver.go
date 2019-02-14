@@ -1,10 +1,10 @@
 package metastg
 
 import (
+	"soloos/sdbone/offheap"
 	"soloos/common/sdbapi"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
-	"soloos/common/util/offheap"
 )
 
 type NetINodeDriverHelper struct {
@@ -44,7 +44,7 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetIN
 
 PREPARE_DONE:
 	if err == nil {
-		pNetINode.IsDBMetaDataInited = true
+		pNetINode.IsDBMetaDataInited.Store(types.MetaDataStateInited)
 	}
 	return err
 }
@@ -73,7 +73,7 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetIN
 
 PREPARE_DONE:
 	if err == nil {
-		pNetINode.IsDBMetaDataInited = true
+		pNetINode.IsDBMetaDataInited.Store(types.MetaDataStateInited)
 	}
 	return err
 }

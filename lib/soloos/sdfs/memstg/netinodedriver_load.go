@@ -1,15 +1,15 @@
 package memstg
 
 import (
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/types"
-	"soloos/common/util/offheap"
 )
 
 func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUintptr,
 	uNetBlock types.NetBlockUintptr,
-	netBlockIndex int,
+	netBlockIndex int32,
 	uMemBlock types.MemBlockUintptr,
-	memBlockIndex int) error {
+	memBlockIndex int32) error {
 	var (
 		chunkMaskEntry offheap.ChunkMaskEntry
 		pMemBlock      *types.MemBlock
@@ -24,7 +24,7 @@ func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUi
 		return nil
 	}
 
-	uTmpMemBlock = p.memBlockDriver.AllocTmpMemBlockWithWriteAcquire(uNetINode)
+	uTmpMemBlock = p.memBlockDriver.MustGetTmpMemBlockWithReadAcquire(uNetINode, pMemBlock.ID)
 	_, err = p.netBlockDriver.PReadMemBlock(uNetINode, uNetBlock, netBlockIndex, uTmpMemBlock, memBlockIndex,
 		uint64(memBlockIndex)*uint64(uNetINode.Ptr().MemBlockCap),
 		uNetINode.Ptr().MemBlockCap,

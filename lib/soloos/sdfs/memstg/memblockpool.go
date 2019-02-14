@@ -8,6 +8,7 @@ type MemBlockPool struct {
 	options MemBlockPoolOptions
 	driver  *MemBlockDriver
 	chunk   memBlockPoolChunk
+	// chunk memBlockPoolHKVTable
 }
 
 func (p *MemBlockPool) Init(
@@ -42,8 +43,8 @@ func (p *MemBlockPool) ReleaseMemBlockWithReadRelease(uMemBlock types.MemBlockUi
 	}
 }
 
-func (p *MemBlockPool) AllocTmpMemBlockWithWriteAcquire() types.MemBlockUintptr {
-	return p.chunk.AllocTmpMemBlockWithWriteAcquire()
+func (p *MemBlockPool) MustGetTmpMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {
+	return p.chunk.MustGetTmpMemBlockWithReadAcquire(memBlockID)
 }
 
 func (p *MemBlockPool) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) {

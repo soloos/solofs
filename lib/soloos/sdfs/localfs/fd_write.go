@@ -3,7 +3,7 @@ package localfs
 import (
 	"soloos/sdfs/types"
 	snettypes "soloos/common/snet/types"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 func (p *Fd) Upload(uJob types.UploadMemBlockJobUintptr) error {

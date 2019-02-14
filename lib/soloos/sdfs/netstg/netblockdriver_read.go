@@ -5,8 +5,8 @@ import (
 )
 
 func (p *NetBlockDriver) PReadMemBlock(uNetINode types.NetINodeUintptr,
-	uNetBlock types.NetBlockUintptr, netBlockIndex int,
-	uMemBlock types.MemBlockUintptr, memBlockIndex int,
+	uNetBlock types.NetBlockUintptr, netBlockIndex int32,
+	uMemBlock types.MemBlockUintptr, memBlockIndex int32,
 	offset uint64, length int) (int, error) {
 	if uNetBlock.Ptr().StorDataBackends.Len == 0 {
 		return 0, types.ErrBackendListIsEmpty

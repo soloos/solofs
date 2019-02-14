@@ -1,14 +1,14 @@
 package netstg
 
 import (
+	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/common/snet/types"
 )
 
 // TODO make this configurable
 func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr,
-	uNetINode types.NetINodeUintptr, netblockIndex int,
+	uNetINode types.NetINodeUintptr, netblockIndex int32,
 	syncDataPrimaryBackendTransferCount int,
 ) error {
 	var (
@@ -40,24 +40,24 @@ func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock types.NetBlockUintp
 }
 
 func (p *NetBlockDriver) PrepareNetBlockMetaDataWithTransfer(uNetBlock types.NetBlockUintptr,
-	uNetINode types.NetINodeUintptr, netblockIndex int) error {
+	uNetINode types.NetINodeUintptr, netblockIndex int32) error {
 	var err error
 	err = p.doPrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex,
 		uNetBlock.Ptr().SyncDataBackends.Len-1)
 	if err != nil {
 		return err
 	}
-	uNetBlock.Ptr().IsDBMetaDataInited = true
+	uNetBlock.Ptr().IsDBMetaDataInited.Store(types.MetaDataStateInited)
 	return nil
 }
 
 func (p *NetBlockDriver) PrepareNetBlockMetaDataWithFanout(uNetBlock types.NetBlockUintptr,
-	uNetINode types.NetINodeUintptr, netblockIndex int) error {
+	uNetINode types.NetINodeUintptr, netblockIndex int32) error {
 	var err error
 	err = p.doPrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex, 0)
 	if err != nil {
 		return err
 	}
-	uNetBlock.Ptr().IsDBMetaDataInited = true
+	uNetBlock.Ptr().IsDBMetaDataInited.Store(types.MetaDataStateInited)
 	return nil
 }

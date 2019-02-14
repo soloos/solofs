@@ -6,7 +6,7 @@ import (
 	"soloos/sdfs/types"
 	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 type MemStg struct {

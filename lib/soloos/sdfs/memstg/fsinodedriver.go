@@ -7,7 +7,7 @@ import (
 	"soloos/sdfs/types"
 	"soloos/common/timer"
 	"soloos/common/util"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 	"sync"
 	"time"
 )

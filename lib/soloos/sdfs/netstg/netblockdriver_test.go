@@ -1,10 +1,10 @@
 package netstg
 
 import (
+	"soloos/common/snet"
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
-	"soloos/common/snet"
-	"soloos/common/util/offheap"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -40,13 +40,13 @@ func TestNetBlockDriver(t *testing.T) {
 
 	uNetINode := mockNetINodePool.AllocNetINode(1024, 128)
 
-	netBlockIndex := 10
+	netBlockIndex := int32(10)
 	uNetBlock, err := netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 	assert.NoError(t, err)
 	uNetBlock.Ptr().StorDataBackends.Append(uPeer0)
 	uNetBlock.Ptr().StorDataBackends.Append(uPeer1)
 	uMemBlock := mockMemBlockPool.AllocMemBlock()
-	memBlockIndex := 0
+	memBlockIndex := int32(0)
 	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 0, 12))
 	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 11, 24))
 	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 30, 64))

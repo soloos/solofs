@@ -4,7 +4,7 @@ import (
 	"soloos/common/sdbapi"
 	"soloos/sdfs/memstg"
 	"soloos/common/sdfsapi"
-	"soloos/common/util/offheap"
+	"soloos/sdbone/offheap"
 )
 
 type ClientDriver struct {
