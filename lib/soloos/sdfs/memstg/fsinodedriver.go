@@ -3,11 +3,11 @@ package memstg
 import (
 	fsapitypes "soloos/common/fsapi/types"
 	"soloos/common/log"
-	"soloos/sdfs/api"
-	"soloos/sdfs/types"
 	"soloos/common/timer"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
+	"soloos/sdfs/api"
+	"soloos/sdfs/types"
 	"sync"
 	"time"
 )
@@ -153,13 +153,13 @@ func (p *FsINodeDriver) prepareBaseDir() error {
 	ino = types.RootFsINodeID
 	code = p.dirTreeStg.SimpleMkdir(&fsINode, &ino, types.RootFsINodeParentID, 0777, "", 0, 0, types.FS_RDEV)
 	if code != fsapitypes.OK {
-		log.Warn("", code)
+		log.Warn("mkdir root error ", code)
 	}
 
 	ino = p.helper.AllocFsINodeID()
 	code = p.dirTreeStg.SimpleMkdir(&fsINode, &ino, types.RootFsINodeID, 0777, "tmp", 0, 0, types.FS_RDEV)
 	if code != fsapitypes.OK {
-		log.Warn("tmp", code)
+		log.Warn("mkdir tmp error", code)
 	}
 
 	err = p.FetchFsINodeByName(types.RootFsINodeParentID, "", &p.RootFsINode)

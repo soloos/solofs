@@ -42,7 +42,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		memBlockData := *uMemBlock.Ptr().BytesSlice()
 		assert.Equal(t, memBlockData[0], (byte)(i))
 		assert.Equal(t, memBlockData[1], (byte)(i*2))
-		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
+		uMemBlock.Ptr().ReadRelease()
 	}
 
 	for i = 0; i <= maxBlocks; i++ {
@@ -50,7 +50,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		memBlockIndex := int32(writeOffset / uint64(uNetINode.Ptr().MemBlockCap))
 		uMemBlock, _ := memBlockDriver.MustGetMemBlockWithReadAcquire(uNetINode, memBlockIndex)
 		util.AssertErrIsNil(netINodeDriver.Flush(uNetINode))
-		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
+		uMemBlock.Ptr().ReadRelease()
 	}
 
 	assert.NoError(t, mockServer.Close())

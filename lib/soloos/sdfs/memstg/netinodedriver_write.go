@@ -1,6 +1,7 @@
 package memstg
 
 import (
+	"soloos/common/log"
 	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/types"
 )
@@ -53,6 +54,11 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 		}
 		memBlockWriteEnd = memBlockWriteOffset + memBlockWriteLength
 		uMemBlock, _ = p.memBlockDriver.MustGetMemBlockWithReadAcquire(uNetINode, memBlockIndex)
+		if arg.conn == nil {
+			log.Info("fuck netinodedrvier_write load block", memBlockIndex, dataOffset, memBlockWriteLength,
+				len(arg.data), dataOffset+memBlockWriteLength)
+			log.Info("fuck write ", arg.data[dataOffset:dataOffset+memBlockWriteLength])
+		}
 
 		// TODO refine me
 		// write in memblock

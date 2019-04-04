@@ -1,6 +1,7 @@
 package memstg
 
 import (
+	"soloos/common/log"
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/types"
 )
@@ -10,6 +11,7 @@ func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUi
 	netBlockIndex int32,
 	uMemBlock types.MemBlockUintptr,
 	memBlockIndex int32) error {
+	log.Info("fuck rebase")
 	var (
 		chunkMaskEntry offheap.ChunkMaskEntry
 		pMemBlock      *types.MemBlock
@@ -45,7 +47,7 @@ func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUi
 	pMemBlock.AvailMask.MergeElementRWMutex.Unlock()
 
 READ_DONE:
-	uTmpMemBlock.Ptr().Chunk.Ptr().WriteRelease()
+	uTmpMemBlock.Ptr().WriteRelease()
 	p.memBlockDriver.ReleaseTmpMemBlock(uTmpMemBlock)
 	pMemBlock.RebaseNetBlockMutex.Unlock()
 
