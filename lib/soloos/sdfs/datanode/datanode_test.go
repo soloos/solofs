@@ -1,14 +1,14 @@
 package datanode
 
 import (
+	"soloos/common/snet"
+	"soloos/common/util"
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
-	"soloos/common/snet"
-	"soloos/common/util"
-	"soloos/sdbone/offheap"
 	"testing"
 	"time"
 
@@ -55,7 +55,6 @@ func TestBase(t *testing.T) {
 
 		netBlockCap      int   = 32
 		memBlockCap      int   = 16
-		maxWriteTimes    int   = 128
 		blockChunksLimit int32 = 4
 		uNetINode        types.NetINodeUintptr
 		i                int
@@ -106,14 +105,15 @@ func TestBase(t *testing.T) {
 	assert.NoError(t, err)
 
 	writeData := make([]byte, 73)
-	writeData[3] = 12
-	writeData[7] = 12
-	writeData[8] = 12
-	writeData[33] = 12
-	writeData[60] = 12
+	writeData[3] = 1
+	writeData[7] = 2
+	writeData[8] = 3
+	writeData[33] = 4
+	writeData[60] = 5
 	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, writeData, 612))
 	assert.NoError(t, netINodeDriverClient.Flush(uNetINode))
 
+	var maxWriteTimes int = 128
 	for i = 0; i < maxWriteTimes; i++ {
 		assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, writeData, uint64(netBlockCap*600+8*i)))
 	}

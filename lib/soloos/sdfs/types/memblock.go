@@ -6,7 +6,6 @@ import (
 	snettypes "soloos/common/snet/types"
 	"soloos/sdbone/offheap"
 	"sync"
-	"sync/atomic"
 	"unsafe"
 )
 
@@ -16,13 +15,6 @@ const (
 	MemBlockRefuseReleaseForErr = -1
 )
 
-const (
-	MemBlockUninited = iota
-	MemBlockIniteded
-	MemBlockReleasable
-	MemBlockRelease
-)
-
 type MemBlockUintptr uintptr
 
 func (u MemBlockUintptr) Ptr() *MemBlock {
@@ -30,14 +22,11 @@ func (u MemBlockUintptr) Ptr() *MemBlock {
 }
 
 type MemBlock struct {
-	HKVTableObjectBase  offheap.HKVTableObjectByBytes12
-	ID                  PtrBindIndex
-	Status              int64 // equals 0 if could be release
+	offheap.HKVTableObjectWithBytes12
 	RebaseNetBlockMutex sync.Mutex
 	Bytes               reflect.SliceHeader
 	AvailMask           offheap.ChunkMask
 	UploadJob           UploadMemBlockJob
-	Chunk               offheap.ChunkUintptr
 }
 
 func (p *MemBlock) Contains(offset, end int) bool {
@@ -51,7 +40,8 @@ func (p *MemBlock) PWriteWithConn(conn *snettypes.Connection, length int, offset
 		if offset+length > p.Bytes.Cap {
 			length = p.Bytes.Cap - offset
 		}
-		err = conn.ReadAll((*(*[]byte)(unsafe.Pointer(&p.Bytes)))[offset : offset+length])
+		bytes := (*(*[]byte)(unsafe.Pointer(&p.Bytes)))
+		err = conn.ReadAll(bytes[offset : offset+length])
 		if err != nil {
 			log.Warn("PWriteWithConn error", err)
 			isSuccess = false
@@ -92,21 +82,5 @@ func (p *MemBlock) BytesSlice() *[]byte {
 func (p *MemBlock) Reset() {
 	p.AvailMask.Reset()
 	p.UploadJob.Reset()
-	atomic.StoreInt64(&p.Status, MemBlockUninited)
-}
-
-func (p *MemBlock) CompleteInit() {
-	atomic.StoreInt64(&p.Status, MemBlockIniteded)
-}
-
-func (p *MemBlock) IsInited() bool {
-	return atomic.LoadInt64(&p.Status) > MemBlockUninited
-}
-
-func (p *MemBlock) SetReleasable() {
-	atomic.StoreInt64(&p.Status, MemBlockReleasable)
-}
-
-func (p *MemBlock) EnsureRelease() bool {
-	return atomic.CompareAndSwapInt64(&p.Status, MemBlockReleasable, MemBlockRelease)
+	p.HKVTableObjectWithBytes12.Reset()
 }

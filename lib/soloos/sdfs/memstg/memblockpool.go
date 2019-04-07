@@ -1,14 +1,19 @@
 package memstg
 
 import (
+	"math"
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/types"
 )
 
 type MemBlockPool struct {
 	options MemBlockPoolOptions
 	driver  *MemBlockDriver
-	chunk   memBlockPoolChunk
-	// chunk memBlockPoolHKVTable
+
+	ichunkSize       int
+	chunkSize        uintptr
+	tmpMemBlockTable *offheap.HKVTableWithBytes12
+	memBlockTable    *offheap.HKVTableWithBytes12
 }
 
 func (p *MemBlockPool) Init(
@@ -20,7 +25,33 @@ func (p *MemBlockPool) Init(
 	p.options = options
 	p.driver = driver
 
-	err = p.chunk.Init(p, p.options.ChunkSize, p.options.ChunksLimit)
+	chunkSize := p.options.ChunkSize
+	chunksLimit := p.options.ChunksLimit
+
+	chunkPoolChunksLimit := int32(math.Ceil(float64(chunksLimit) * 0.9))
+	p.ichunkSize = chunkSize
+	p.chunkSize = uintptr(chunkSize)
+
+	p.memBlockTable, err =
+		p.driver.offheapDriver.CreateHKVTableWithBytes12("MemBlock",
+			int(types.MemBlockStructSize+p.chunkSize), chunkPoolChunksLimit, types.DefaultKVTableSharedCount,
+			p.hkvTableInvokePrepareNewBlock,
+			p.hkvTableInvokeBeforeReleaseBlock,
+		)
+	if err != nil {
+		return err
+	}
+
+	tmpChunkPoolChunksLimit := chunksLimit - chunkPoolChunksLimit
+	if tmpChunkPoolChunksLimit == 0 {
+		tmpChunkPoolChunksLimit = 1
+	}
+	p.tmpMemBlockTable, err =
+		p.driver.offheapDriver.CreateHKVTableWithBytes12("TmpMemBlock",
+			int(types.MemBlockStructSize+p.chunkSize), tmpChunkPoolChunksLimit, types.DefaultKVTableSharedCount,
+			p.hkvTableInvokePrepareNewBlock,
+			p.hkvTableInvokeBeforeReleaseTmpBlock,
+		)
 	if err != nil {
 		return err
 	}
@@ -28,25 +59,10 @@ func (p *MemBlockPool) Init(
 	return nil
 }
 
-// MustGetMemBlockWithReadAcquire get or init a netINodeblock
-func (p *MemBlockPool) MustGetMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) (types.MemBlockUintptr, bool) {
-	return p.chunk.MustGetMemBlockWithReadAcquire(memBlockID)
-}
-
-func (p *MemBlockPool) TryGetMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {
-	return p.chunk.TryGetMemBlockWithReadAcquire(memBlockID)
-}
-
-func (p *MemBlockPool) ReleaseMemBlockWithReadRelease(uMemBlock types.MemBlockUintptr) {
-	if uMemBlock != 0 {
-		uMemBlock.Ptr().Chunk.Ptr().ReadRelease()
-	}
-}
-
-func (p *MemBlockPool) MustGetTmpMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {
-	return p.chunk.MustGetTmpMemBlockWithReadAcquire(memBlockID)
-}
-
-func (p *MemBlockPool) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) {
-	p.chunk.ReleaseTmpMemBlock(uMemBlock)
+func (p *MemBlockPool) hkvTableInvokePrepareNewBlock(uMemBlock uintptr) {
+	pMemBlock := types.MemBlockUintptr(uMemBlock).Ptr()
+	pMemBlock.Reset()
+	pMemBlock.Bytes.Data = uMemBlock + types.MemBlockStructSize
+	pMemBlock.Bytes.Len = p.ichunkSize
+	pMemBlock.Bytes.Cap = pMemBlock.Bytes.Len
 }

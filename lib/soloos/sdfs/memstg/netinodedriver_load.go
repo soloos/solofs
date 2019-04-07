@@ -45,7 +45,7 @@ func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode types.NetINodeUi
 	pMemBlock.AvailMask.MergeElementRWMutex.Unlock()
 
 READ_DONE:
-	uTmpMemBlock.Ptr().Chunk.Ptr().WriteRelease()
+	uTmpMemBlock.Ptr().ReadRelease()
 	p.memBlockDriver.ReleaseTmpMemBlock(uTmpMemBlock)
 	pMemBlock.RebaseNetBlockMutex.Unlock()
 

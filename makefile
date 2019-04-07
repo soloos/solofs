@@ -8,6 +8,9 @@ SOURCES = $(shell find . -name '*.go') $(GENERATED_PROTOS)
 
 GOBUILD = $(SDFS_PREFIX) go build -i -ldflags '$(SDFS_LDFLAGS)' 
 
+clean-test-cache:
+	go clean -testcache
+
 %.fbs.go: $(SOLOOS_SDFS_PROTOS)
 	flatc -o ./lib/soloos/sdfs -g $(SOLOOS_SDFS_PROTOS)
 
