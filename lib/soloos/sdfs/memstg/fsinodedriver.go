@@ -8,6 +8,7 @@ import (
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -31,7 +32,6 @@ type FsINodeDriver struct {
 	helper     FsINodeDriverHelper
 
 	fsINodesRWMutex sync.RWMutex
-	fsINodesPool    types.FsINodePool
 	fsINodesByID    map[types.FsINodeID]types.FsINode
 	fsINodesByPath  map[string]types.FsINode
 
@@ -42,7 +42,7 @@ type FsINodeDriver struct {
 	EntryAttrValid     uint64
 	EntryAttrValidNsec uint32
 
-	INodeRWMutexPool types.INodeRWMutexPool
+	INodeRWMutexTable offheap.HKVTableWithUint64
 
 	FIXAttrDriver FIXAttrDriver
 
@@ -104,7 +104,12 @@ func (p *FsINodeDriver) Init(
 	p.EntryTtl = 3 * time.Second
 	SplitDuration(p.EntryTtl, &p.EntryAttrValid, &p.EntryAttrValidNsec)
 
-	p.INodeRWMutexPool.Init(offheapDriver)
+	err = offheapDriver.InitHKVTableWithUint64(&p.INodeRWMutexTable, "INodeRWMutex",
+		int(types.INodeRWMutexStructSize), -1, types.DefaultKVTableSharedCount,
+		nil, nil)
+	if err != nil {
+		return err
+	}
 
 	err = p.FIXAttrDriver.Init(
 		deleteFIXAttrInDB,
@@ -223,14 +228,14 @@ func (p *FsINodeDriver) SetFsINodeCache(fsINode *types.FsINode) {
 	fsINode.LoadInMemAt = p.Timer.Now().Unix()
 
 	p.fsINodesRWMutex.Lock()
-	p.fsINodesByPath[p.fsINodesPool.MakeFsINodeKey(fsINode.ParentID, fsINode.Name)] = *fsINode
+	p.fsINodesByPath[p.MakeFsINodeKey(fsINode.ParentID, fsINode.Name)] = *fsINode
 	p.fsINodesByID[fsINode.Ino] = *fsINode
 	p.fsINodesRWMutex.Unlock()
 }
 
 func (p *FsINodeDriver) DeleteFsINodeCache(parentID types.FsINodeID, fsINodeName string, fsINodeID types.FsINodeID) {
 	p.fsINodesRWMutex.Lock()
-	delete(p.fsINodesByPath, p.fsINodesPool.MakeFsINodeKey(parentID, fsINodeName))
+	delete(p.fsINodesByPath, p.MakeFsINodeKey(parentID, fsINodeName))
 	delete(p.fsINodesByID, fsINodeID)
 	p.fsINodesRWMutex.Unlock()
 }
@@ -286,7 +291,7 @@ func (p *FsINodeDriver) FetchFsINodeByName(parentID types.FsINodeID, fsINodeName
 	)
 
 	p.fsINodesRWMutex.RLock()
-	*fsINode, exists = p.fsINodesByPath[p.fsINodesPool.MakeFsINodeKey(parentID, fsINodeName)]
+	*fsINode, exists = p.fsINodesByPath[p.MakeFsINodeKey(parentID, fsINodeName)]
 	p.fsINodesRWMutex.RUnlock()
 	if exists && p.ensureFsINodeValidInCache(fsINode) == true {
 		return nil
@@ -416,4 +421,8 @@ func (p *FsINodeDriver) CreateFsINode(fsINode *types.FsINode) error {
 	}
 
 	return nil
+}
+
+func (p *FsINodeDriver) MakeFsINodeKey(parentID types.FsINodeID, fsINodeName string) string {
+	return strconv.FormatUint(parentID, 10) + fsINodeName
 }

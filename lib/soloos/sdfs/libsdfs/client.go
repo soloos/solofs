@@ -73,6 +73,6 @@ func (p *Client) Close() error {
 	return nil
 }
 
-func (p *Client) GetRawFileSystem() fsapi.RawFileSystem {
+func (p *Client) GetPosixFS() fsapi.PosixFS {
 	return &p.memDirTreeStg
 }

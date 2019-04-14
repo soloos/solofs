@@ -24,9 +24,9 @@ type INodeRWMutexMeta struct {
 }
 
 type INodeRWMutex struct {
-	SharedPointer offheap.SharedPointer `db:"-"`
-	lockSigGuard  int32
-	LockSig       sync.RWMutex
+	offheap.HKVTableObjectWithUint64 `db:"-"`
+	lockSigGuard                     int32
+	LockSig                          sync.RWMutex
 
 	ID INodeRWMutexID
 	INodeRWMutexMeta

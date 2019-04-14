@@ -27,7 +27,7 @@ func MakeClientForTest(client *Client) {
 		nameNode               namenode.NameNode
 		mockServerAddr         = "127.0.0.1:10301"
 		mockServer             netstg.MockServer
-		mockMemBlockPool       types.MockMemBlockPool
+		mockMemBlockTable       types.MockMemBlockTable
 		snetDriver             snet.NetDriver
 		snetClientDriver       snet.ClientDriver
 
@@ -41,17 +41,17 @@ func MakeClientForTest(client *Client) {
 
 		netBlockCap      int   = 1280
 		memBlockCap      int   = 128
-		blockChunksLimit int32 = 4
+		blocksLimit int32 = 4
 		peerID           snettypes.PeerID
 		i                int
 	)
 
 	memstg.MakeDriversForTest(&snetDriver, &snetClientDriver,
 		nameNodeSRPCListenAddr,
-		memBlockDriverClient, netBlockDriverClient, netINodeDriverClient, memBlockCap, blockChunksLimit)
+		memBlockDriverClient, netBlockDriverClient, netINodeDriverClient, memBlockCap, blocksLimit)
 	memstg.MakeDriversForTest(&snetDriver, &snetClientDriver,
 		nameNodeSRPCListenAddr,
-		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer, memBlockCap, blockChunksLimit)
+		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer, memBlockCap, blocksLimit)
 	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
 	namenode.MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr,
 		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer)
@@ -60,7 +60,7 @@ func MakeClientForTest(client *Client) {
 	}()
 	time.Sleep(time.Millisecond * 300)
 	netstg.MakeMockServerForTest(&snetDriver, mockServerAddr, &mockServer)
-	mockMemBlockPool.Init(offheapDriver, 1024)
+	mockMemBlockTable.Init(offheapDriver, 1024)
 
 	for i = 0; i < 6; i++ {
 		util.InitUUID64(&peerID)

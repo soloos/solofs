@@ -1,25 +1,26 @@
 package types
 
 import (
-	"errors"
 	fsapitypes "soloos/common/fsapi/types"
+
+	"golang.org/x/xerrors"
 )
 
 var (
-	ErrRemoteService      = errors.New("remote service error")
-	ErrServiceNotExists   = errors.New("service not exists")
-	ErrObjectExists       = errors.New("object exists")
-	ErrObjectHasChildren  = errors.New("object has children")
-	ErrObjectNotExists    = errors.New("object not exists")
-	ErrObjectNotPrepared  = errors.New("object not prepared")
-	ErrNetBlockPWrite     = errors.New("net block pwrite error")
-	ErrNetBlockPRead      = errors.New("net block pread error")
-	ErrBackendListIsEmpty = errors.New("backend list is empty")
-	ErrRetryTooManyTimes  = errors.New("retry too many times")
-	ErrRLockFailed        = errors.New("rlock failed")
-	ErrLockFailed         = errors.New("lock failed")
-	ErrInvalidArgs        = errors.New("invalid args")
-	ErrHasNotPermission   = errors.New("has not permission")
+	ErrRemoteService      = xerrors.New("remote service error")
+	ErrServiceNotExists   = xerrors.New("service not exists")
+	ErrObjectExists       = xerrors.New("object exists")
+	ErrObjectHasChildren  = xerrors.New("object has children")
+	ErrObjectNotExists    = xerrors.New("object not exists")
+	ErrObjectNotPrepared  = xerrors.New("object not prepared")
+	ErrNetBlockPWrite     = xerrors.New("net block pwrite error")
+	ErrNetBlockPRead      = xerrors.New("net block pread error")
+	ErrBackendListIsEmpty = xerrors.New("backend list is empty")
+	ErrRetryTooManyTimes  = xerrors.New("retry too many times")
+	ErrRLockFailed        = xerrors.New("rlock failed")
+	ErrLockFailed         = xerrors.New("lock failed")
+	ErrInvalidArgs        = xerrors.New("invalid args")
+	ErrHasNotPermission   = xerrors.New("has not permission")
 )
 
 func ErrorToFsStatus(err error) fsapitypes.Status {

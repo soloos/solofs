@@ -1,10 +1,10 @@
 package metastg
 
 import (
-	"soloos/sdfs/types"
 	snettypes "soloos/common/snet/types"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
+	"soloos/sdfs/types"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,13 +13,16 @@ import (
 func TestMetaStgNetBlock(t *testing.T) {
 	var (
 		offheapDriver = &offheap.DefaultOffheapDriver
-		peerPool      offheap.RawObjectPool
+		peerPool      offheap.LKVTableWithBytes64
+		uObject       uintptr
 		metaStg       MetaStg
 		netINode      types.NetINode
 		netBlock      types.NetBlock
 		id0           types.NetINodeID
 		id1           types.NetINodeID
 		id2           types.NetINodeID
+		peerID        snettypes.PeerID
+		err           error
 	)
 
 	util.AssertErrIsNil(metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect))
@@ -27,15 +30,21 @@ func TestMetaStgNetBlock(t *testing.T) {
 	util.InitUUID64(&id1)
 	util.InitUUID64(&id2)
 
-	util.AssertErrIsNil(offheap.DefaultOffheapDriver.InitRawObjectPool(&peerPool, int(snettypes.PeerStructSize), -1, nil, nil))
+	err = offheap.DefaultOffheapDriver.InitLKVTableWithBytes64(&peerPool, "TestMetaStgNet",
+		int(snettypes.PeerStructSize), -1, types.DefaultKVTableSharedCount, nil, nil)
+	util.AssertErrIsNil(err)
 
 	netINode.ID = id0
 	netBlock.NetINodeID = netINode.ID
 
-	uPeer0 := snettypes.PeerUintptr(peerPool.AllocRawObject())
-	util.InitUUID64(&uPeer0.Ptr().PeerID)
-	uPeer1 := snettypes.PeerUintptr(peerPool.AllocRawObject())
-	util.InitUUID64(&uPeer1.Ptr().PeerID)
+	util.InitUUID64(&peerID)
+	uObject, _ = peerPool.MustGetObjectWithAcquire(peerID)
+	uPeer0 := snettypes.PeerUintptr(uObject)
+
+	util.InitUUID64(&peerID)
+	uObject, _ = peerPool.MustGetObjectWithAcquire(peerID)
+	uPeer1 := snettypes.PeerUintptr(uObject)
+
 	netBlock.StorDataBackends.Append(uPeer0)
 	netBlock.StorDataBackends.Append(uPeer1)
 	netBlock.IndexInNetINode = 0

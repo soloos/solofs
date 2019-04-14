@@ -2,9 +2,9 @@ package libsdfs
 
 import (
 	"soloos/common/sdbapi"
-	"soloos/sdfs/memstg"
 	"soloos/common/sdfsapi"
 	"soloos/sdbone/offheap"
+	"soloos/sdfs/memstg"
 )
 
 type ClientDriver struct {
@@ -15,7 +15,6 @@ type ClientDriver struct {
 var _ = sdfsapi.ClientDriver(&ClientDriver{})
 
 func (p *ClientDriver) Init(nameNodeSRPCServerAddr string,
-	defaultMemBlockChunkSize int, defaultMemBlockChunksLimit int32,
 	dbDriver string, dsn string,
 ) error {
 	var (
@@ -23,7 +22,7 @@ func (p *ClientDriver) Init(nameNodeSRPCServerAddr string,
 		err           error
 	)
 
-	err = initMemStg(&p.memStg, offheapDriver, nameNodeSRPCServerAddr, defaultMemBlockChunkSize, defaultMemBlockChunksLimit)
+	err = initMemStg(&p.memStg, offheapDriver, nameNodeSRPCServerAddr)
 	if err != nil {
 		return err
 	}
@@ -39,21 +38,12 @@ func (p *ClientDriver) Init(nameNodeSRPCServerAddr string,
 func initMemStg(memStg *memstg.MemStg,
 	offheapDriver *offheap.OffheapDriver,
 	nameNodeSRPCServerAddr string,
-	defaultMemBlockChunkSize int, defaultMemBlockChunksLimit int32,
 ) error {
 	var (
-		memBlockDriverOptions = memstg.MemBlockDriverOptions{
-			MemBlockPoolOptionsList: []memstg.MemBlockPoolOptions{
-				memstg.MemBlockPoolOptions{
-					defaultMemBlockChunkSize,
-					defaultMemBlockChunksLimit,
-				},
-			},
-		}
 		err error
 	)
 
-	err = memStg.Init(offheapDriver, nameNodeSRPCServerAddr, memBlockDriverOptions)
+	err = memStg.Init(offheapDriver, nameNodeSRPCServerAddr, memstg.MemBlockDriverOptions{})
 	if err != nil {
 		return err
 	}
@@ -64,10 +54,26 @@ func initMemStg(memStg *memstg.MemStg,
 func (p *ClientDriver) InitClient(itClient sdfsapi.Client,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
+	defaultMemBlocksLimit int32,
 ) error {
+	var err error
 	client := itClient.(*Client)
-	return client.Init(&p.memStg, &p.dbConn,
+
+	err = p.memStg.MemBlockDriver.PrepareMemBlockTable(memstg.MemBlockTableOptions{
+		ObjectSize:   defaultMemBlockCap,
+		ObjectsLimit: defaultMemBlocksLimit,
+	})
+	if err != nil {
+		return err
+	}
+
+	err = client.Init(&p.memStg, &p.dbConn,
 		defaultNetBlockCap,
 		defaultMemBlockCap,
 	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

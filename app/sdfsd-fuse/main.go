@@ -2,9 +2,9 @@ package main
 
 import (
 	"os"
+	"soloos/common/util"
 	"soloos/sdfs/libsdfs"
 	"soloos/sdfs/sfuse"
-	"soloos/common/util"
 )
 
 func main() {
@@ -23,13 +23,13 @@ func main() {
 	}
 
 	err = clientDriver.Init(options.NameNodeSRPCServerAddr,
-		options.DefaultMemBlockCap,
-		options.DefaultMemBlocksLimit,
 		options.DBDriver, options.Dsn)
 	util.AssertErrIsNil(err)
 
 	err = sfuseServer.Init(options.SFuseOptions,
-		options.DefaultNetBlockCap, options.DefaultMemBlockCap,
+		options.DefaultNetBlockCap,
+		options.DefaultMemBlockCap,
+		options.DefaultMemBlocksLimit,
 		&clientDriver)
 	util.AssertErrIsNil(err)
 

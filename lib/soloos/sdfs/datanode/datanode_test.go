@@ -33,7 +33,7 @@ func TestBase(t *testing.T) {
 	)
 
 	var (
-		mockMemBlockPool types.MockMemBlockPool
+		mockMemBlockTable types.MockMemBlockTable
 
 		snetDriverClient       snet.NetDriver
 		snetClientDriverClient snet.ClientDriver
@@ -55,7 +55,7 @@ func TestBase(t *testing.T) {
 
 		netBlockCap      int   = 32
 		memBlockCap      int   = 16
-		blockChunksLimit int32 = 4
+		blocksLimit int32 = 4
 		uNetINode        types.NetINodeUintptr
 		i                int
 		err              error
@@ -63,15 +63,15 @@ func TestBase(t *testing.T) {
 	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
 	memstg.MakeDriversForTest(&snetDriverClient, &snetClientDriverClient,
 		nameNodeSRPCListenAddr,
-		&memBlockDriverClient, &netBlockDriverClient, &netINodeDriverClient, memBlockCap, blockChunksLimit)
+		&memBlockDriverClient, &netBlockDriverClient, &netINodeDriverClient, memBlockCap, blocksLimit)
 
 	memstg.MakeDriversForTest(&snetDriverNameNode, &snetClientDriverNameNode,
 		nameNodeSRPCListenAddr,
-		&memBlockDriverNameNode, &netBlockDriverNameNode, &netINodeDriverNameNode, memBlockCap, blockChunksLimit)
+		&memBlockDriverNameNode, &netBlockDriverNameNode, &netINodeDriverNameNode, memBlockCap, blocksLimit)
 	namenode.MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr,
 		&memBlockDriverNameNode, &netBlockDriverNameNode, &netINodeDriverNameNode)
 
-	mockMemBlockPool.Init(offheapDriver, 1024)
+	mockMemBlockTable.Init(offheapDriver, 1024)
 	go func() {
 		assert.NoError(t, nameNode.Serve())
 	}()
@@ -83,7 +83,7 @@ func TestBase(t *testing.T) {
 			&memBlockDriverDataNodes[i],
 			&netBlockDriverDataNodes[i],
 			&netINodeDriverDataNodes[i],
-			memBlockCap, blockChunksLimit)
+			memBlockCap, blocksLimit)
 
 		MakeDataNodeForTest(&snetDriverDataNodes[i], &snetClientDriverDataNodes[i],
 			&dataNodes[i], dataNodeSRPCListenAddrs[i], &metaStg,

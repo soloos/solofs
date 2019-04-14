@@ -13,8 +13,8 @@ import (
 func TestNetBlockDriver(t *testing.T) {
 	var (
 		offheapDriver    = &offheap.DefaultOffheapDriver
-		mockNetINodePool types.MockNetINodePool
-		mockMemBlockPool types.MockMemBlockPool
+		mockNetINodeTable types.MockNetINodeTable
+		mockMemBlockTable types.MockMemBlockTable
 		snetDriver       snet.NetDriver
 		snetClientDriver snet.ClientDriver
 		mockServer       MockServer
@@ -23,8 +23,8 @@ func TestNetBlockDriver(t *testing.T) {
 		netBlockDriver   NetBlockDriver
 	)
 	mockServerAddr := "127.0.0.1:10021"
-	assert.NoError(t, mockNetINodePool.Init(&offheap.DefaultOffheapDriver))
-	assert.NoError(t, mockMemBlockPool.Init(offheapDriver, 1024))
+	assert.NoError(t, mockNetINodeTable.Init(&offheap.DefaultOffheapDriver))
+	assert.NoError(t, mockMemBlockTable.Init(offheapDriver, 1024))
 	MakeDriversWithMockServerForTest(&snetDriver, &snetClientDriver,
 		mockServerAddr, &mockServer,
 		&nameNodeClient, &dataNodeClient,
@@ -38,14 +38,14 @@ func TestNetBlockDriver(t *testing.T) {
 		data[i] = 1
 	}
 
-	uNetINode := mockNetINodePool.AllocNetINode(1024, 128)
+	uNetINode := mockNetINodeTable.AllocNetINode(1024, 128)
 
 	netBlockIndex := int32(10)
 	uNetBlock, err := netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 	assert.NoError(t, err)
 	uNetBlock.Ptr().StorDataBackends.Append(uPeer0)
 	uNetBlock.Ptr().StorDataBackends.Append(uPeer1)
-	uMemBlock := mockMemBlockPool.AllocMemBlock()
+	uMemBlock := mockMemBlockTable.AllocMemBlock()
 	memBlockIndex := int32(0)
 	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 0, 12))
 	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 11, 24))

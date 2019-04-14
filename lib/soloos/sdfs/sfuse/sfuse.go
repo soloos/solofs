@@ -17,23 +17,24 @@ type Server struct {
 func (p *Server) Init(options Options,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
+	defaultMemBlocksLimit int32,
 	clientDriver *libsdfs.ClientDriver) error {
 	var err error
 	p.options = options
 
 	os.MkdirAll(options.MountPoint, 0777)
 
-	err = clientDriver.InitClient(&p.Client, defaultNetBlockCap, defaultMemBlockCap)
+	err = clientDriver.InitClient(&p.Client, defaultNetBlockCap, defaultMemBlockCap, defaultMemBlocksLimit)
 	if err != nil {
 		return err
 	}
 
 	p.MountOpts.AllowOther = true
 	// p.MountOpts.MaxWrite = 0
-	p.MountOpts.Name = p.Client.GetRawFileSystem().String() + "-fuse"
+	p.MountOpts.Name = p.Client.GetPosixFS().String() + "-fuse"
 	p.MountOpts.Options = append(p.MountOpts.Options, "default_permissions")
 
-	p.FuseServer, err = fuse.NewServer(p.Client.GetRawFileSystem(),
+	p.FuseServer, err = fuse.NewServer(p.Client.GetPosixFS(),
 		p.options.MountPoint,
 		&p.MountOpts)
 	if err != nil {

@@ -1,12 +1,12 @@
 package api
 
 import (
-	"errors"
+	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/common/snet/types"
 
 	flatbuffers "github.com/google/flatbuffers/go"
+	"golang.org/x/xerrors"
 )
 
 func SetCommonResponseCode(protocolBuilder *flatbuffers.Builder, code int) {
@@ -25,6 +25,6 @@ func CommonResponseToError(obj *protocol.CommonResponse) error {
 		return types.ErrRemoteService
 	}
 
-	return errors.New(string(obj.Error()))
+	return xerrors.New(string(obj.Error()))
 	// return types.ErrRemoteService
 }

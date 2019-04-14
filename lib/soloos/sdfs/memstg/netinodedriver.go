@@ -18,7 +18,7 @@ type NetINodeDriver struct {
 	helper NetINodeDriverHelper
 
 	offheapDriver *offheap.OffheapDriver
-	netINodePool  types.NetINodePool
+	netINodeTable offheap.LKVTableWithBytes64
 
 	memBlockDriver *MemBlockDriver
 	netBlockDriver *netstg.NetBlockDriver
@@ -33,16 +33,28 @@ func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 	prepareNetINodeMetaDataWithStorDB api.PrepareNetINodeMetaDataWithStorDB,
 	netINodeCommitSizeInDB api.NetINodeCommitSizeInDB,
 ) error {
+	var err error
+
 	p.offheapDriver = offheapDriver
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
-	p.netINodePool.Init(p.offheapDriver)
+
+	err = p.offheapDriver.InitLKVTableWithBytes64(&p.netINodeTable, "NetINode",
+		int(types.NetINodeStructSize), -1, types.DefaultKVTableSharedCount,
+		p.netINodeTablePrepareNewObjectFunc, nil)
+	if err != nil {
+		return err
+	}
 
 	p.SetHelper(nameNodeClient,
 		prepareNetINodeMetaDataOnlyLoadDB, prepareNetINodeMetaDataWithStorDB,
 		netINodeCommitSizeInDB)
 
 	return nil
+}
+
+func (p *NetINodeDriver) netINodeTablePrepareNewObjectFunc(uObject uintptr) {
+	types.NetINodeUintptr(uObject).Ptr().ID = types.NetINodeUintptr(uObject).Ptr().LKVTableObjectWithBytes64.ID
 }
 
 func (p *NetINodeDriver) SetHelper(
@@ -59,15 +71,17 @@ func (p *NetINodeDriver) SetHelper(
 
 func (p *NetINodeDriver) GetNetINodeWithReadAcquire(isForceReload bool, netINodeID types.NetINodeID) (types.NetINodeUintptr, error) {
 	var (
+		uObject   uintptr
 		uNetINode types.NetINodeUintptr
 		pNetINode *types.NetINode
-		isLoaded  bool
+		loaded    bool
 		err       error
 	)
-	uNetINode, isLoaded = p.netINodePool.MustGetNetINodeWithReadAcquire(netINodeID)
+	uObject, loaded = p.netINodeTable.MustGetObjectWithAcquire(netINodeID)
+	uNetINode = types.NetINodeUintptr(uObject)
 	pNetINode = uNetINode.Ptr()
 	if isForceReload == false &&
-		(isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited) {
+		(loaded == false || uNetINode.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited) {
 		pNetINode.DBMetaDataInitMutex.Lock()
 		if pNetINode.IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 			err = p.helper.PrepareNetINodeMetaDataOnlyLoadDB(uNetINode)
@@ -76,7 +90,6 @@ func (p *NetINodeDriver) GetNetINodeWithReadAcquire(isForceReload bool, netINode
 	}
 
 	if err != nil {
-		pNetINode.SharedPointer.SetReleasable()
 		p.ReleaseNetINodeWithReadRelease(uNetINode)
 		return 0, err
 	}
@@ -87,14 +100,16 @@ func (p *NetINodeDriver) GetNetINodeWithReadAcquire(isForceReload bool, netINode
 func (p *NetINodeDriver) MustGetNetINodeWithReadAcquire(netINodeID types.NetINodeID,
 	size uint64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
 	var (
+		uObject   uintptr
 		uNetINode types.NetINodeUintptr
 		pNetINode *types.NetINode
-		isLoaded  bool
+		loaded    bool
 		err       error
 	)
-	uNetINode, isLoaded = p.netINodePool.MustGetNetINodeWithReadAcquire(netINodeID)
+	uObject, loaded = p.netINodeTable.MustGetObjectWithAcquire(netINodeID)
+	uNetINode = types.NetINodeUintptr(uObject)
 	pNetINode = uNetINode.Ptr()
-	if isLoaded == false || uNetINode.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
+	if loaded == false || uNetINode.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 		pNetINode.DBMetaDataInitMutex.Lock()
 		if pNetINode.IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 			err = p.helper.PrepareNetINodeMetaDataWithStorDB(uNetINode, size, netBlockCap, memBlockCap)
@@ -103,7 +118,6 @@ func (p *NetINodeDriver) MustGetNetINodeWithReadAcquire(netINodeID types.NetINod
 	}
 
 	if err != nil {
-		pNetINode.SharedPointer.SetReleasable()
 		p.ReleaseNetINodeWithReadRelease(uNetINode)
 		return 0, err
 	}
@@ -112,7 +126,7 @@ func (p *NetINodeDriver) MustGetNetINodeWithReadAcquire(netINodeID types.NetINod
 }
 
 func (p *NetINodeDriver) ReleaseNetINodeWithReadRelease(uNetINode types.NetINodeUintptr) {
-	p.netINodePool.ReleaseNetINodeWithReadRelease(uNetINode)
+	p.netINodeTable.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(uNetINode))
 }
 
 func (p *NetINodeDriver) NetINodeTruncate(uNetINode types.NetINodeUintptr, size uint64) {

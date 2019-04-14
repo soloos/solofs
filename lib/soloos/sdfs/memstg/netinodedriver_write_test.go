@@ -14,7 +14,7 @@ import (
 func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 	var (
 		mockServer       netstg.MockServer
-		mockNetINodePool types.MockNetINodePool
+		mockNetINodeTable types.MockNetINodeTable
 		snetDriver       snet.NetDriver
 		netBlockDriver   netstg.NetBlockDriver
 		memBlockDriver   MemBlockDriver
@@ -23,14 +23,14 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		i                int32
 		netBlockCap      int   = 4
 		memBlockCap      int   = 4
-		blockChunksLimit int32 = 2
+		blocksLimit int32 = 2
 		uNetINode        types.NetINodeUintptr
 	)
-	assert.NoError(t, mockNetINodePool.Init(&offheap.DefaultOffheapDriver))
+	assert.NoError(t, mockNetINodeTable.Init(&offheap.DefaultOffheapDriver))
 	MakeDriversWithMockServerForTest("127.0.0.1:10023", &mockServer, &snetDriver,
 		&netBlockDriver, &memBlockDriver, &netINodeDriver,
-		memBlockCap, blockChunksLimit)
-	uNetINode = mockNetINodePool.AllocNetINode(netBlockCap, memBlockCap)
+		memBlockCap, blocksLimit)
+	uNetINode = mockNetINodeTable.AllocNetINode(netBlockCap, memBlockCap)
 
 	for i = 0; i <= maxBlocks; i++ {
 		writeOffset := uint64(uint64(i) * uint64(memBlockCap))

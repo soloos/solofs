@@ -5,20 +5,20 @@ import (
 	"sync/atomic"
 )
 
-type MockMemBlockPool struct {
+type MockMemBlockTable struct {
 	offheapDriver *offheap.OffheapDriver
 	ichunkSize    int
 	mockID        int32
-	hkvTable      *offheap.HKVTableWithBytes12
+	hkvTable      offheap.HKVTableWithBytes12
 }
 
-func (p *MockMemBlockPool) Init(offheapDriver *offheap.OffheapDriver, ichunkSize int) error {
+func (p *MockMemBlockTable) Init(offheapDriver *offheap.OffheapDriver, ichunkSize int) error {
 	var err error
 	p.offheapDriver = offheapDriver
 	p.ichunkSize = ichunkSize
-	p.hkvTable, err = p.offheapDriver.CreateHKVTableWithBytes12("mock",
+	err = p.offheapDriver.InitHKVTableWithBytes12(&p.hkvTable, "mock",
 		int(MemBlockStructSize+uintptr(p.ichunkSize)), -1, DefaultKVTableSharedCount,
-		p.ChunkPoolInvokePrepareNewChunk, nil)
+		p.HKVTableInvokePrepareNewObject, nil)
 	if err != nil {
 		return err
 	}
@@ -26,15 +26,16 @@ func (p *MockMemBlockPool) Init(offheapDriver *offheap.OffheapDriver, ichunkSize
 	return nil
 }
 
-func (p *MockMemBlockPool) ChunkPoolInvokePrepareNewChunk(uObject uintptr) {
+func (p *MockMemBlockTable) HKVTableInvokePrepareNewObject(uObject uintptr) {
 	uMemBlock := MemBlockUintptr(uObject)
 	uMemBlock.Ptr().Reset()
 	uMemBlock.Ptr().Bytes.Data = uObject + MemBlockStructSize
 	uMemBlock.Ptr().Bytes.Len = p.ichunkSize
 	uMemBlock.Ptr().Bytes.Cap = uMemBlock.Ptr().Bytes.Len
+	uMemBlock.Ptr().CompleteInit()
 }
 
-func (p *MockMemBlockPool) AllocMemBlock() MemBlockUintptr {
+func (p *MockMemBlockTable) AllocMemBlock() MemBlockUintptr {
 	var memBlockID PtrBindIndex
 	id := atomic.AddInt32(&p.mockID, 1)
 	EncodePtrBindIndex(&memBlockID, uintptr(id), id)

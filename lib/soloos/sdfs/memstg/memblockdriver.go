@@ -7,29 +7,38 @@ import (
 
 type MemBlockDriver struct {
 	offheapDriver *offheap.OffheapDriver
-	pools         map[int]*MemBlockPool
+	tables        map[int]*MemBlockTable
 }
 
 func (p *MemBlockDriver) Init(
 	offheapDriver *offheap.OffheapDriver,
-	options MemBlockDriverOptions,
+	memBlockDriverOptions MemBlockDriverOptions,
 ) error {
-	var err error
-
 	p.offheapDriver = offheapDriver
+	p.tables = make(map[int]*MemBlockTable)
+	for _, memBlockTableOptions := range memBlockDriverOptions.MemBlockTableOptionsList {
+		p.PrepareMemBlockTable(memBlockTableOptions)
+	}
+	return nil
+}
 
-	var memblockPool *MemBlockPool
-	p.pools = make(map[int]*MemBlockPool)
-	for _, memblockPoolOptions := range options.MemBlockPoolOptionsList {
-		memblockPool = new(MemBlockPool)
-		err = memblockPool.Init(memblockPoolOptions, p)
-		if err != nil {
-			return err
-		}
-
-		p.pools[memblockPool.options.ChunkSize] = memblockPool
+func (p *MemBlockDriver) PrepareMemBlockTable(memBlockTableOptions MemBlockTableOptions) error {
+	if _, exists := p.tables[memBlockTableOptions.ObjectSize]; exists {
+		return nil
 	}
 
+	var (
+		memBlockTable *MemBlockTable
+		err           error
+	)
+
+	memBlockTable = new(MemBlockTable)
+	err = memBlockTable.Init(memBlockTableOptions, p)
+	if err != nil {
+		return err
+	}
+
+	p.tables[memBlockTable.options.ObjectSize] = memBlockTable
 	return nil
 }
 
@@ -38,26 +47,26 @@ func (p *MemBlockDriver) MustGetMemBlockWithReadAcquire(uNetINode types.NetINode
 	memBlockIndex int32) (types.MemBlockUintptr, bool) {
 	var memBlockID types.PtrBindIndex
 	types.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
-	return p.pools[uNetINode.Ptr().MemBlockCap].MustGetMemBlockWithReadAcquire(memBlockID)
+	return p.tables[uNetINode.Ptr().MemBlockCap].MustGetMemBlockWithReadAcquire(memBlockID)
 }
 
 func (p *MemBlockDriver) TryGetMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
 	memBlockIndex int32) types.MemBlockUintptr {
 	var memBlockID types.PtrBindIndex
 	types.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
-	return p.pools[uNetINode.Ptr().MemBlockCap].TryGetMemBlockWithReadAcquire(memBlockID)
+	return p.tables[uNetINode.Ptr().MemBlockCap].TryGetMemBlockWithReadAcquire(memBlockID)
 }
 
 func (p *MemBlockDriver) ReleaseMemBlockWithReadRelease(uMemBlock types.MemBlockUintptr) {
 	if uMemBlock != 0 {
-		p.pools[uMemBlock.Ptr().Bytes.Cap].ReleaseMemBlockWithReadRelease(uMemBlock)
+		p.tables[uMemBlock.Ptr().Bytes.Cap].ReleaseMemBlockWithReadRelease(uMemBlock)
 	}
 }
 
 func (p *MemBlockDriver) MustGetTmpMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr, memBlockID types.PtrBindIndex) types.MemBlockUintptr {
-	return p.pools[uNetINode.Ptr().MemBlockCap].MustGetTmpMemBlockWithReadAcquire(memBlockID)
+	return p.tables[uNetINode.Ptr().MemBlockCap].MustGetTmpMemBlockWithReadAcquire(memBlockID)
 }
 
 func (p *MemBlockDriver) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) {
-	p.pools[uMemBlock.Ptr().Bytes.Cap].ReleaseTmpMemBlock(uMemBlock)
+	p.tables[uMemBlock.Ptr().Bytes.Cap].ReleaseTmpMemBlock(uMemBlock)
 }

@@ -5,8 +5,8 @@ import (
 	"io"
 	"reflect"
 	"soloos/common/log"
-	"soloos/sdfs/types"
 	"soloos/common/sdfsapi"
+	"soloos/sdfs/types"
 	"unsafe"
 )
 
@@ -14,11 +14,11 @@ import (
 func GoSdfsPappend(fdID uint64, buffer unsafe.Pointer, bufferLen, offset int32) (int32, C.int) {
 	var (
 		fsINode types.FsINode
-		fd      = env.RawFS.FdTableGetFd(fdID)
+		fd      = env.PosixFS.FdTableGetFd(fdID)
 		err     error
 	)
 
-	err = env.RawFS.FetchFsINodeByID(fd.FsINodeID, &fsINode)
+	err = env.PosixFS.FetchFsINodeByID(fd.FsINodeID, &fsINode)
 	if err != nil {
 		return 0, sdfsapi.CODE_ERR
 	}
@@ -29,7 +29,7 @@ func GoSdfsPappend(fdID uint64, buffer unsafe.Pointer, bufferLen, offset int32) 
 		Cap:  int(bufferLen),
 	}))
 
-	err = env.RawFS.SimpleWriteWithMem(fsINode.UNetINode, data, uint64(offset))
+	err = env.PosixFS.SimpleWriteWithMem(fsINode.UNetINode, data, uint64(offset))
 	if err != nil {
 		return 0, sdfsapi.CODE_ERR
 	}
@@ -41,11 +41,11 @@ func GoSdfsPappend(fdID uint64, buffer unsafe.Pointer, bufferLen, offset int32) 
 func GoSdfsAppend(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C.int) {
 	var (
 		fsINode types.FsINode
-		fd      = env.RawFS.FdTableGetFd(fdID)
+		fd      = env.PosixFS.FdTableGetFd(fdID)
 		err     error
 	)
 
-	err = env.RawFS.FetchFsINodeByID(fd.FsINodeID, &fsINode)
+	err = env.PosixFS.FetchFsINodeByID(fd.FsINodeID, &fsINode)
 	if err != nil {
 		return 0, sdfsapi.CODE_ERR
 	}
@@ -55,13 +55,13 @@ func GoSdfsAppend(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C
 		Len:  int(bufferLen),
 		Cap:  int(bufferLen),
 	}))
-	err = env.RawFS.SimpleWriteWithMem(fsINode.UNetINode, data, fd.AppendPosition)
+	err = env.PosixFS.SimpleWriteWithMem(fsINode.UNetINode, data, fd.AppendPosition)
 	if err != nil {
 		log.Warn(err)
 		return 0, sdfsapi.CODE_ERR
 	}
 
-	env.RawFS.FdTableFdAddAppendPosition(fdID, uint64(bufferLen))
+	env.PosixFS.FdTableFdAddAppendPosition(fdID, uint64(bufferLen))
 
 	return bufferLen, sdfsapi.CODE_OK
 }
@@ -70,12 +70,12 @@ func GoSdfsAppend(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C
 func GoSdfsRead(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C.int) {
 	var (
 		fsINode        types.FsINode
-		fd             = env.RawFS.FdTableGetFd(fdID)
+		fd             = env.PosixFS.FdTableGetFd(fdID)
 		readDataLength int
 		err            error
 	)
 
-	err = env.RawFS.FetchFsINodeByID(fd.FsINodeID, &fsINode)
+	err = env.PosixFS.FetchFsINodeByID(fd.FsINodeID, &fsINode)
 	if err != nil {
 		return 0, sdfsapi.CODE_ERR
 	}
@@ -85,13 +85,13 @@ func GoSdfsRead(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C.i
 		Len:  int(bufferLen),
 		Cap:  int(bufferLen),
 	}))
-	readDataLength, err = env.RawFS.SimpleReadWithMem(fsINode.UNetINode, data, fd.ReadPosition)
+	readDataLength, err = env.PosixFS.SimpleReadWithMem(fsINode.UNetINode, data, fd.ReadPosition)
 	if err != nil && err != io.EOF {
 		log.Warn(err, readDataLength)
 		return int32(readDataLength), sdfsapi.CODE_ERR
 	}
 
-	env.RawFS.FdTableFdAddReadPosition(fdID, uint64(bufferLen))
+	env.PosixFS.FdTableFdAddReadPosition(fdID, uint64(bufferLen))
 
 	return int32(readDataLength), sdfsapi.CODE_OK
 }
@@ -100,7 +100,7 @@ func GoSdfsRead(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C.i
 func GoSdfsPread(fdID uint64, buffer unsafe.Pointer, bufferLen int32, position uint64) (int32, C.int) {
 	var (
 		fsINode        types.FsINode
-		fd             = env.RawFS.FdTableGetFd(fdID)
+		fd             = env.PosixFS.FdTableGetFd(fdID)
 		readDataLength int
 		err            error
 	)
@@ -110,13 +110,13 @@ func GoSdfsPread(fdID uint64, buffer unsafe.Pointer, bufferLen int32, position u
 		Len:  int(bufferLen),
 		Cap:  int(bufferLen),
 	}))
-	err = env.RawFS.FetchFsINodeByID(fd.FsINodeID, &fsINode)
+	err = env.PosixFS.FetchFsINodeByID(fd.FsINodeID, &fsINode)
 	if err != nil {
 		log.Warn(err)
 		return 0, sdfsapi.CODE_ERR
 	}
 
-	readDataLength, err = env.RawFS.SimpleReadWithMem(fsINode.UNetINode, data, position)
+	readDataLength, err = env.PosixFS.SimpleReadWithMem(fsINode.UNetINode, data, position)
 	if err != nil {
 		return int32(readDataLength), sdfsapi.CODE_ERR
 	}
@@ -127,7 +127,7 @@ func GoSdfsPread(fdID uint64, buffer unsafe.Pointer, bufferLen int32, position u
 //export GoSdfsCloseFile
 func GoSdfsCloseFile(fdID uint64) C.int {
 	ret := doFlushINode(fdID)
-	// env.RawFS.FdTableReleaseFd(fdID)
+	// env.PosixFS.FdTableReleaseFd(fdID)
 	return ret
 }
 
@@ -149,17 +149,17 @@ func GoSdfsHSyncINode(fdID uint64) C.int {
 func doFlushINode(fdID uint64) C.int {
 	var (
 		fsINode types.FsINode
-		fd      = env.RawFS.FdTableGetFd(fdID)
+		fd      = env.PosixFS.FdTableGetFd(fdID)
 		err     error
 	)
 
-	err = env.RawFS.FetchFsINodeByID(fd.FsINodeID, &fsINode)
+	err = env.PosixFS.FetchFsINodeByID(fd.FsINodeID, &fsINode)
 	if err != nil {
 		return sdfsapi.CODE_ERR
 	}
 
 	if fsINode.UNetINode != 0 {
-		env.RawFS.SimpleFlush(fsINode.UNetINode)
+		env.PosixFS.SimpleFlush(fsINode.UNetINode)
 	}
 
 	return sdfsapi.CODE_OK

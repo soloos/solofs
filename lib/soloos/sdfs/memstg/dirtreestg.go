@@ -17,7 +17,7 @@ type DirTreeStg struct {
 	EntryAttrValidNsec uint32
 }
 
-var _ = fsapi.RawFileSystem(&DirTreeStg{})
+var _ = fsapi.PosixFS(&DirTreeStg{})
 
 func (p *DirTreeStg) Init(
 	memStg *MemStg,

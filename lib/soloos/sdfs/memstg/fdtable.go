@@ -1,12 +1,13 @@
 package memstg
 
 import (
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/types"
 	"sync"
 )
 
 type FdTable struct {
-	fdIDsPool  sync.NoGCUintptrPool
+	fdIDsPool  offheap.NoGCUintptrPool
 	FdsRWMutex sync.RWMutex
 	Fds        []types.FsINodeFileHandler
 }

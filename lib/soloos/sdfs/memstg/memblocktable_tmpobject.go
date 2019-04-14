@@ -2,13 +2,13 @@ package memstg
 
 import "soloos/sdfs/types"
 
-func (p *MemBlockPool) hkvTableInvokeBeforeReleaseTmpBlock(uMemBlock uintptr) {
+func (p *MemBlockTable) hkvTableInvokeBeforeReleaseTmpBlock(uMemBlock uintptr) {
 	pMemBlock := types.MemBlockUintptr(uMemBlock).Ptr()
 	pMemBlock.Reset()
 	pMemBlock.SetReleasable()
 }
 
-func (p *MemBlockPool) MustGetTmpMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {
+func (p *MemBlockTable) MustGetTmpMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {
 	var (
 		uObject types.MemBlockUintptr
 		u       uintptr
@@ -19,6 +19,6 @@ func (p *MemBlockPool) MustGetTmpMemBlockWithReadAcquire(memBlockID types.PtrBin
 
 }
 
-func (p *MemBlockPool) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) {
+func (p *MemBlockTable) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) {
 	p.tmpMemBlockTable.DeleteObject(uMemBlock.Ptr().ID)
 }

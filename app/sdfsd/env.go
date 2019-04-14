@@ -39,8 +39,8 @@ func (p *Env) Init(options Options) {
 
 	{
 		var memBlockDriverOptions = memstg.MemBlockDriverOptions{
-			[]memstg.MemBlockPoolOptions{
-				memstg.MemBlockPoolOptions{
+			[]memstg.MemBlockTableOptions{
+				memstg.MemBlockTableOptions{
 					p.options.DefaultMemBlockCap,
 					p.options.DefaultMemBlocksLimit,
 				},

@@ -19,7 +19,7 @@ type NetBlockDriver struct {
 	helper NetBlockDriverHelper
 
 	offheapDriver *offheap.OffheapDriver
-	netBlockPool  types.NetBlockPool
+	netBlockTable offheap.LKVTableWithBytes68
 
 	snetDriver       *snet.NetDriver
 	snetClientDriver *snet.ClientDriver
@@ -37,7 +37,9 @@ func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
 ) error {
 	var err error
 	p.offheapDriver = offheapDriver
-	err = p.netBlockPool.Init(p.offheapDriver)
+	err = p.offheapDriver.InitLKVTableWithBytes68(&p.netBlockTable, "NetBlock",
+		int(types.NetBlockStructSize), -1, types.DefaultKVTableSharedCount,
+		p.netBlockTablePrepareNewObjectFunc, nil)
 	if err != nil {
 		return err
 	}
@@ -56,6 +58,10 @@ func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
 	return nil
 }
 
+func (p *NetBlockDriver) netBlockTablePrepareNewObjectFunc(uObject uintptr) {
+	types.NetBlockUintptr(uObject).Ptr().ID = types.NetBlockUintptr(uObject).Ptr().LKVTableObjectWithBytes68.ID
+}
+
 func (p *NetBlockDriver) SetHelper(
 	nameNodeClient *api.NameNodeClient,
 	prepareNetBlockMetaData PrepareNetBlockMetaData,
@@ -72,24 +78,21 @@ func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk api.Up
 	p.dataNodeClient.SetUploadMemBlockWithDisk(uploadMemBlockWithDisk)
 }
 
-func (p *NetBlockDriver) RawChunkPoolInvokeReleaseRawChunk() {
-	panic("not support")
-}
-
-func (p *NetBlockDriver) RawChunkPoolInvokePrepareNewRawChunk(uRawChunk uintptr) {
-}
-
 // MustGetNetBlock get or init a netBlock
 func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	netBlockIndex int32) (types.NetBlockUintptr, error) {
 	var (
-		uNetBlock types.NetBlockUintptr
-		pNetBlock *types.NetBlock
-		isLoaded  bool
-		err       error
+		uNetBlock       types.NetBlockUintptr
+		pNetBlock       *types.NetBlock
+		uObject         uintptr
+		netINodeBlockID types.NetINodeBlockID
+		isLoaded        bool
+		err             error
 	)
 
-	uNetBlock, isLoaded = p.netBlockPool.MustGetNetBlock(uNetINode, netBlockIndex)
+	types.EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
+	uObject, isLoaded = p.netBlockTable.MustGetObjectWithAcquire(netINodeBlockID)
+	uNetBlock = types.NetBlockUintptr(uObject)
 	pNetBlock = uNetBlock.Ptr()
 	if isLoaded == false || uNetBlock.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 		pNetBlock.DBMetaDataInitMutex.Lock()
@@ -100,8 +103,7 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	}
 
 	if err != nil {
-		pNetBlock.SharedPointer.SetReleasable()
-		p.netBlockPool.ReleaseNetBlock(uNetBlock)
+		p.netBlockTable.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes68(uNetBlock))
 		return 0, err
 	}
 

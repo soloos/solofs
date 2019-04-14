@@ -9,11 +9,11 @@ import (
 )
 
 func MakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, offheapDriver *offheap.OffheapDriver,
-	blockChunkSize int, blockChunksLimit int32) {
+	blockSize int, blocksLimit int32) {
 	memBlockDriverOptions := MemBlockDriverOptions{
-		[]MemBlockPoolOptions{
-			MemBlockPoolOptions{
-				blockChunkSize, blockChunksLimit,
+		[]MemBlockTableOptions{
+			MemBlockTableOptions{
+				blockSize, blocksLimit,
 			},
 		},
 	}
@@ -25,7 +25,7 @@ func MakeDriversForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.Clien
 	memBlockDriver *MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
 	netINodeDriver *NetINodeDriver,
-	blockChunkSize int, blockChunksLimit int32) {
+	blockSize int, blocksLimit int32) {
 	var (
 		offheapDriver  = &offheap.DefaultOffheapDriver
 		nameNodeClient api.NameNodeClient
@@ -38,7 +38,7 @@ func MakeDriversForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.Clien
 		netBlockDriver,
 	)
 
-	MakeMemBlockDriversForTest(memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
+	MakeMemBlockDriversForTest(memBlockDriver, offheapDriver, blockSize, blocksLimit)
 
 	util.AssertErrIsNil(netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient,
 		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
@@ -53,7 +53,7 @@ func MakeDriversWithMockServerForTest(mockServerAddr string,
 	netBlockDriver *netstg.NetBlockDriver,
 	memBlockDriver *MemBlockDriver,
 	netINodeDriver *NetINodeDriver,
-	blockChunkSize int, blockChunksLimit int32) {
+	blockSize int, blocksLimit int32) {
 	var (
 		offheapDriver    = &offheap.DefaultOffheapDriver
 		snetClientDriver snet.ClientDriver
@@ -67,7 +67,7 @@ func MakeDriversWithMockServerForTest(mockServerAddr string,
 		netBlockDriver,
 	)
 
-	MakeMemBlockDriversForTest(memBlockDriver, offheapDriver, blockChunkSize, blockChunksLimit)
+	MakeMemBlockDriversForTest(memBlockDriver, offheapDriver, blockSize, blocksLimit)
 
 	util.AssertErrIsNil(netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient,
 		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,

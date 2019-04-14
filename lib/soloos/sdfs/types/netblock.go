@@ -17,7 +17,7 @@ type NetBlockUintptr uintptr
 func (u NetBlockUintptr) Ptr() *NetBlock { return (*NetBlock)(unsafe.Pointer(u)) }
 
 type NetBlock struct {
-	SharedPointer offheap.SharedPointer `db:"-"`
+	offheap.LKVTableObjectWithBytes68 `db:"-"`
 
 	NetINodeID      NetINodeID `db:"netinode_id"`
 	IndexInNetINode int32      `db:"index_in_netinode"`

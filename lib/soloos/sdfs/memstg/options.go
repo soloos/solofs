@@ -1,10 +1,10 @@
 package memstg
 
 type MemBlockDriverOptions struct {
-	MemBlockPoolOptionsList []MemBlockPoolOptions
+	MemBlockTableOptionsList []MemBlockTableOptions
 }
 
-type MemBlockPoolOptions struct {
-	ChunkSize   int
-	ChunksLimit int32
+type MemBlockTableOptions struct {
+	ObjectSize   int
+	ObjectsLimit int32
 }

@@ -1,6 +1,7 @@
 package memstg
 
 import (
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/types"
 	"sync/atomic"
 )
@@ -11,24 +12,28 @@ import (
 // GetLk returns existing lock information for file
 func (p *FsINodeDriver) GetLk(fsINodeID types.FsINodeID, iNodeRWMutexMeta *types.INodeRWMutexMeta) error {
 	var (
+		uObject       uintptr
 		uINodeRWMutex types.INodeRWMutexUintptr
 	)
 
-	uINodeRWMutex, _ = p.INodeRWMutexPool.MustGetINodeRWMutexWithReadAcquire(fsINodeID)
-	defer p.INodeRWMutexPool.ReleaseINodeRWMutexWithReadRelease(uINodeRWMutex)
+	uObject, _ = p.INodeRWMutexTable.MustGetObjectWithReadAcquire(fsINodeID)
+	uINodeRWMutex = types.INodeRWMutexUintptr(uObject)
+	defer p.INodeRWMutexTable.ReadReleaseObject(offheap.HKVTableObjectUPtrWithUint64(uINodeRWMutex))
 	*iNodeRWMutexMeta = uINodeRWMutex.Ptr().INodeRWMutexMeta
 	return nil
 }
 
 func (p *FsINodeDriver) doSetLk(fsINodeID types.FsINodeID, setFlag *types.INodeRWMutexMeta, isShouldBlock bool) error {
 	var (
+		uObject       uintptr
 		uINodeRWMutex types.INodeRWMutexUintptr
 		pINodeRWMutex *types.INodeRWMutex
 		err           error
 	)
 
-	uINodeRWMutex, _ = p.INodeRWMutexPool.MustGetINodeRWMutexWithReadAcquire(fsINodeID)
-	defer p.INodeRWMutexPool.ReleaseINodeRWMutexWithReadRelease(uINodeRWMutex)
+	uObject, _ = p.INodeRWMutexTable.MustGetObjectWithReadAcquire(fsINodeID)
+	uINodeRWMutex = types.INodeRWMutexUintptr(uObject)
+	defer p.INodeRWMutexTable.ReadReleaseObject(offheap.HKVTableObjectUPtrWithUint64(uINodeRWMutex))
 
 	pINodeRWMutex = uINodeRWMutex.Ptr()
 
