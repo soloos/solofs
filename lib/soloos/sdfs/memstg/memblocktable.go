@@ -33,7 +33,7 @@ func (p *MemBlockTable) Init(
 	err = p.driver.offheapDriver.InitHKVTableWithBytes12(&p.memBlockTable, "MemBlock",
 		int(types.MemBlockStructSize+uintptr(p.objectSize)),
 		memBlockTableObjectsLimit,
-		types.DefaultKVTableSharedCount,
+		offheap.DefaultKVTableSharedCount,
 		p.hkvTableInvokePrepareNewBlock,
 		p.hkvTableInvokeBeforeReleaseBlock,
 	)
@@ -48,7 +48,7 @@ func (p *MemBlockTable) Init(
 	err = p.driver.offheapDriver.InitHKVTableWithBytes12(&p.tmpMemBlockTable, "TmpMemBlock",
 		int(types.MemBlockStructSize+uintptr(p.objectSize)),
 		tmpMemBlockTableObjectsLimit,
-		types.DefaultKVTableSharedCount,
+		offheap.DefaultKVTableSharedCount,
 		p.hkvTableInvokePrepareNewBlock,
 		p.hkvTableInvokeBeforeReleaseTmpBlock,
 	)

@@ -10,12 +10,17 @@ func (p *DataNodeDriver) ChooseDataNodesForNewNetBlock(uNetINode types.NetINodeU
 	var (
 		backends      snettypes.PeerUintptrArray8
 		dataNodeIndex uint32
+		uDataNode     snettypes.PeerUintptr
 	)
 	dataNodeIndex = atomic.AddUint32(&p.chooseDataNodeIndex, 1)
 
 	backends.Reset()
+	p.dataNodesForBlockRWMutex.RLock()
 	for i := uint32(0); i < 3; i++ {
-		backends.Append(p.dataNodes[int((dataNodeIndex+i)%uint32(len(p.dataNodes)))])
+		dataNodeIndex = (dataNodeIndex + uint32(i)) % uint32(len(p.dataNodesForBlock))
+		uDataNode = p.dataNodesForBlock[dataNodeIndex]
+		backends.Append(uDataNode)
 	}
+	p.dataNodesForBlockRWMutex.RLock()
 	return backends, nil
 }

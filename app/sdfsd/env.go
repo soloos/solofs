@@ -29,7 +29,7 @@ func (p *Env) Init(options Options) {
 	p.options = options
 	p.offheapDriver = &offheap.DefaultOffheapDriver
 
-	util.AssertErrIsNil(p.SNetDriver.Init(p.offheapDriver))
+	util.AssertErrIsNil(p.SNetDriver.Init(p.offheapDriver, "EnvNetDriver"))
 	util.AssertErrIsNil(p.SNetClientDriver.Init(p.offheapDriver))
 
 	util.AssertErrIsNil(p.MetaStg.Init(p.offheapDriver,

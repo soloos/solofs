@@ -1,14 +1,14 @@
 package namenode
 
 import (
-	"soloos/sdfs/memstg"
-	"soloos/sdfs/metastg"
-	"soloos/sdfs/netstg"
-	"soloos/sdfs/types"
 	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
+	"soloos/sdfs/memstg"
+	"soloos/sdfs/metastg"
+	"soloos/sdfs/netstg"
+	"soloos/sdfs/types"
 	"testing"
 	"time"
 
@@ -23,7 +23,7 @@ func TestBase(t *testing.T) {
 		nameNode               NameNode
 		mockServerAddr         = "127.0.0.1:10301"
 		mockServer             netstg.MockServer
-		mockMemBlockTable       types.MockMemBlockTable
+		mockMemBlockTable      types.MockMemBlockTable
 		snetDriver             snet.NetDriver
 		snetClientDriver       snet.ClientDriver
 
@@ -35,13 +35,13 @@ func TestBase(t *testing.T) {
 		netBlockDriverServer netstg.NetBlockDriver
 		netINodeDriverServer memstg.NetINodeDriver
 
-		netBlockCap      int   = 1024
-		memBlockCap      int   = 128
+		netBlockCap int   = 1024
+		memBlockCap int   = 128
 		blocksLimit int32 = 4
-		uNetINode        types.NetINodeUintptr
-		peerID           snettypes.PeerID
-		i                int
-		err              error
+		uNetINode   types.NetINodeUintptr
+		peerID      snettypes.PeerID
+		i           int
+		err         error
 	)
 	memstg.MakeDriversForTest(&snetDriver, &snetClientDriver,
 		nameNodeSRPCListenAddr,
@@ -61,7 +61,7 @@ func TestBase(t *testing.T) {
 
 	for i = 0; i < 6; i++ {
 		util.InitUUID64(&peerID)
-		nameNode.RegisterDataNode(&peerID, mockServerAddr)
+		nameNode.RegisterDataNode(peerID, mockServerAddr)
 	}
 
 	var netINodeID types.NetINodeID

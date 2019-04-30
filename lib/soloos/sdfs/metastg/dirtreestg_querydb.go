@@ -16,7 +16,7 @@ func (p *DirTreeStg) installSchema() error {
 		err  error
 	)
 
-	sqls = prepareDirTreeSqls()
+	sqls = p.prepareDirTreeSqls()
 	for _, sql := range sqls {
 		_, err = p.dbConn.Exec(sql)
 		if err != nil {
@@ -27,7 +27,7 @@ func (p *DirTreeStg) installSchema() error {
 	return nil
 }
 
-func prepareDirTreeSqls() []string {
+func (p *DirTreeStg) prepareDirTreeSqls() []string {
 	var sql []string
 
 	// sql = append(sql, `

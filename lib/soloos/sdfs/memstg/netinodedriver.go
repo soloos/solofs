@@ -40,8 +40,7 @@ func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 	p.memBlockDriver = memBlockDriver
 
 	err = p.offheapDriver.InitLKVTableWithBytes64(&p.netINodeTable, "NetINode",
-		int(types.NetINodeStructSize), -1, types.DefaultKVTableSharedCount,
-		p.netINodeTablePrepareNewObjectFunc, nil)
+		int(types.NetINodeStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	if err != nil {
 		return err
 	}
@@ -53,8 +52,17 @@ func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 	return nil
 }
 
-func (p *NetINodeDriver) netINodeTablePrepareNewObjectFunc(uObject uintptr) {
+func (p *NetINodeDriver) netINodeTablePrepareNewObjectFunc(uObject uintptr,
+	afterSetNewObj offheap.KVTableAfterSetNewObj) bool {
+	var isNewObjectSetted bool
 	types.NetINodeUintptr(uObject).Ptr().ID = types.NetINodeUintptr(uObject).Ptr().LKVTableObjectWithBytes64.ID
+	if afterSetNewObj != nil {
+		afterSetNewObj()
+		isNewObjectSetted = true
+	} else {
+		isNewObjectSetted = false
+	}
+	return isNewObjectSetted
 }
 
 func (p *NetINodeDriver) SetHelper(
@@ -71,17 +79,19 @@ func (p *NetINodeDriver) SetHelper(
 
 func (p *NetINodeDriver) GetNetINodeWithReadAcquire(isForceReload bool, netINodeID types.NetINodeID) (types.NetINodeUintptr, error) {
 	var (
-		uObject   uintptr
-		uNetINode types.NetINodeUintptr
-		pNetINode *types.NetINode
-		loaded    bool
-		err       error
+		uObject           uintptr
+		uNetINode         types.NetINodeUintptr
+		pNetINode         *types.NetINode
+		afterSetNewObj    offheap.KVTableAfterSetNewObj
+		isNewObjectSetted bool
+		err               error
 	)
-	uObject, loaded = p.netINodeTable.MustGetObjectWithAcquire(netINodeID)
+	uObject, afterSetNewObj = p.netINodeTable.MustGetObjectWithAcquire(netINodeID)
+	isNewObjectSetted = p.netINodeTablePrepareNewObjectFunc(uObject, afterSetNewObj)
 	uNetINode = types.NetINodeUintptr(uObject)
 	pNetINode = uNetINode.Ptr()
 	if isForceReload == false &&
-		(loaded == false || uNetINode.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited) {
+		(isNewObjectSetted || uNetINode.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited) {
 		pNetINode.DBMetaDataInitMutex.Lock()
 		if pNetINode.IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 			err = p.helper.PrepareNetINodeMetaDataOnlyLoadDB(uNetINode)
@@ -100,16 +110,18 @@ func (p *NetINodeDriver) GetNetINodeWithReadAcquire(isForceReload bool, netINode
 func (p *NetINodeDriver) MustGetNetINodeWithReadAcquire(netINodeID types.NetINodeID,
 	size uint64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
 	var (
-		uObject   uintptr
-		uNetINode types.NetINodeUintptr
-		pNetINode *types.NetINode
-		loaded    bool
-		err       error
+		uObject           uintptr
+		uNetINode         types.NetINodeUintptr
+		pNetINode         *types.NetINode
+		afterSetNewObj    offheap.KVTableAfterSetNewObj
+		isNewObjectSetted bool
+		err               error
 	)
-	uObject, loaded = p.netINodeTable.MustGetObjectWithAcquire(netINodeID)
+	uObject, afterSetNewObj = p.netINodeTable.MustGetObjectWithAcquire(netINodeID)
+	isNewObjectSetted = p.netINodeTablePrepareNewObjectFunc(uObject, afterSetNewObj)
 	uNetINode = types.NetINodeUintptr(uObject)
 	pNetINode = uNetINode.Ptr()
-	if loaded == false || uNetINode.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
+	if isNewObjectSetted || uNetINode.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 		pNetINode.DBMetaDataInitMutex.Lock()
 		if pNetINode.IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 			err = p.helper.PrepareNetINodeMetaDataWithStorDB(uNetINode, size, netBlockCap, memBlockCap)

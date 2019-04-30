@@ -17,7 +17,7 @@ func (p *MockMemBlockTable) Init(offheapDriver *offheap.OffheapDriver, ichunkSiz
 	p.offheapDriver = offheapDriver
 	p.ichunkSize = ichunkSize
 	err = p.offheapDriver.InitHKVTableWithBytes12(&p.hkvTable, "mock",
-		int(MemBlockStructSize+uintptr(p.ichunkSize)), -1, DefaultKVTableSharedCount,
+		int(MemBlockStructSize+uintptr(p.ichunkSize)), -1, offheap.DefaultKVTableSharedCount,
 		p.HKVTableInvokePrepareNewObject, nil)
 	if err != nil {
 		return err

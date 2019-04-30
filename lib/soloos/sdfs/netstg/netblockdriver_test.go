@@ -12,15 +12,15 @@ import (
 
 func TestNetBlockDriver(t *testing.T) {
 	var (
-		offheapDriver    = &offheap.DefaultOffheapDriver
+		offheapDriver     = &offheap.DefaultOffheapDriver
 		mockNetINodeTable types.MockNetINodeTable
 		mockMemBlockTable types.MockMemBlockTable
-		snetDriver       snet.NetDriver
-		snetClientDriver snet.ClientDriver
-		mockServer       MockServer
-		nameNodeClient   api.NameNodeClient
-		dataNodeClient   api.DataNodeClient
-		netBlockDriver   NetBlockDriver
+		snetDriver        snet.NetDriver
+		snetClientDriver  snet.ClientDriver
+		mockServer        MockServer
+		nameNodeClient    api.NameNodeClient
+		dataNodeClient    api.DataNodeClient
+		netBlockDriver    NetBlockDriver
 	)
 	mockServerAddr := "127.0.0.1:10021"
 	assert.NoError(t, mockNetINodeTable.Init(&offheap.DefaultOffheapDriver))
@@ -30,8 +30,8 @@ func TestNetBlockDriver(t *testing.T) {
 		&nameNodeClient, &dataNodeClient,
 		&netBlockDriver)
 
-	var uPeer0, _ = snetDriver.MustGetPeer(nil, mockServerAddr, types.DefaultSDFSRPCProtocol)
-	var uPeer1, _ = snetDriver.MustGetPeer(nil, mockServerAddr, types.DefaultSDFSRPCProtocol)
+	var uPeer0 = snetDriver.AllocPeer(mockServerAddr, types.DefaultSDFSRPCProtocol)
+	var uPeer1 = snetDriver.AllocPeer(mockServerAddr, types.DefaultSDFSRPCProtocol)
 
 	data := make([]byte, 8)
 	for i := 0; i < len(data); i++ {

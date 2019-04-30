@@ -12,7 +12,7 @@ func (p *MetaStg) installSchema() error {
 		err  error
 	)
 
-	sqls = prepareNetINodesSqls()
+	sqls = p.prepareNetINodesSqls()
 	for _, sql := range sqls {
 		_, err = p.dbConn.Exec(sql)
 		if err != nil {

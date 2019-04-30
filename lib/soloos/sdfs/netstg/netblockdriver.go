@@ -38,8 +38,7 @@ func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
 	var err error
 	p.offheapDriver = offheapDriver
 	err = p.offheapDriver.InitLKVTableWithBytes68(&p.netBlockTable, "NetBlock",
-		int(types.NetBlockStructSize), -1, types.DefaultKVTableSharedCount,
-		p.netBlockTablePrepareNewObjectFunc, nil)
+		int(types.NetBlockStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	if err != nil {
 		return err
 	}
@@ -58,8 +57,18 @@ func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
 	return nil
 }
 
-func (p *NetBlockDriver) netBlockTablePrepareNewObjectFunc(uObject uintptr) {
+func (p *NetBlockDriver) netBlockTablePrepareNewObjectFunc(uObject uintptr,
+	afterSetNewObj offheap.KVTableAfterSetNewObj) bool {
+	var isNewObjectSetted bool
 	types.NetBlockUintptr(uObject).Ptr().ID = types.NetBlockUintptr(uObject).Ptr().LKVTableObjectWithBytes68.ID
+	if afterSetNewObj != nil {
+		afterSetNewObj()
+		isNewObjectSetted = true
+	} else {
+		isNewObjectSetted = false
+	}
+	return isNewObjectSetted
+
 }
 
 func (p *NetBlockDriver) SetHelper(
@@ -82,19 +91,21 @@ func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk api.Up
 func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	netBlockIndex int32) (types.NetBlockUintptr, error) {
 	var (
-		uNetBlock       types.NetBlockUintptr
-		pNetBlock       *types.NetBlock
-		uObject         uintptr
-		netINodeBlockID types.NetINodeBlockID
-		isLoaded        bool
-		err             error
+		uNetBlock         types.NetBlockUintptr
+		pNetBlock         *types.NetBlock
+		uObject           uintptr
+		netINodeBlockID   types.NetINodeBlockID
+		afterSetNewObj    offheap.KVTableAfterSetNewObj
+		isNewObjectSetted bool
+		err               error
 	)
 
 	types.EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
-	uObject, isLoaded = p.netBlockTable.MustGetObjectWithAcquire(netINodeBlockID)
+	uObject, afterSetNewObj = p.netBlockTable.MustGetObjectWithAcquire(netINodeBlockID)
+	isNewObjectSetted = p.netBlockTablePrepareNewObjectFunc(uObject, afterSetNewObj)
 	uNetBlock = types.NetBlockUintptr(uObject)
 	pNetBlock = uNetBlock.Ptr()
-	if isLoaded == false || uNetBlock.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
+	if isNewObjectSetted || uNetBlock.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 		pNetBlock.DBMetaDataInitMutex.Lock()
 		if pNetBlock.IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 			err = p.helper.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)

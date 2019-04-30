@@ -2,12 +2,14 @@ package metastg
 
 import (
 	"soloos/common/sdbapi"
+	"soloos/common/snet"
 	"soloos/sdbone/offheap"
 )
 
 type MetaStg struct {
 	offheapDriver *offheap.OffheapDriver
 	dbConn        sdbapi.Connection
+	SnetDriver    snet.NetDriver
 	DataNodeDriver
 	NetINodeDriver
 	NetBlockDriver
@@ -29,7 +31,12 @@ func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
 		return err
 	}
 
-	err = p.DataNodeDriver.Init(p)
+	err = p.SnetDriver.Init(p.offheapDriver, "MetaStgNetDriver")
+	if err != nil {
+		return err
+	}
+
+	err = p.DataNodeDriver.Init(p, &p.SnetDriver)
 	if err != nil {
 		return err
 	}

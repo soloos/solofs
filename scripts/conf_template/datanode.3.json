@@ -1,6 +1,4 @@
 {
-    "DBDriver":"mysql",
-    "Dsn":"root:hello@/sdfs_test",
     "DefaultMemBlockCap":2097152,
     "DefaultMemBlocksLimit":256,
 	"Mode":"datanode",

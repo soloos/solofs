@@ -2,15 +2,15 @@ package libsdfs
 
 import (
 	"soloos/common/sdbapi"
+	"soloos/common/snet"
+	snettypes "soloos/common/snet/types"
+	"soloos/common/util"
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
-	"soloos/common/snet"
-	snettypes "soloos/common/snet/types"
-	"soloos/common/util"
-	"soloos/sdbone/offheap"
 	"time"
 )
 
@@ -27,7 +27,7 @@ func MakeClientForTest(client *Client) {
 		nameNode               namenode.NameNode
 		mockServerAddr         = "127.0.0.1:10301"
 		mockServer             netstg.MockServer
-		mockMemBlockTable       types.MockMemBlockTable
+		mockMemBlockTable      types.MockMemBlockTable
 		snetDriver             snet.NetDriver
 		snetClientDriver       snet.ClientDriver
 
@@ -39,11 +39,11 @@ func MakeClientForTest(client *Client) {
 		netBlockDriverServer netstg.NetBlockDriver
 		netINodeDriverServer memstg.NetINodeDriver
 
-		netBlockCap      int   = 1280
-		memBlockCap      int   = 128
+		netBlockCap int   = 1280
+		memBlockCap int   = 128
 		blocksLimit int32 = 4
-		peerID           snettypes.PeerID
-		i                int
+		peerID      snettypes.PeerID
+		i           int
 	)
 
 	memstg.MakeDriversForTest(&snetDriver, &snetClientDriver,
@@ -64,7 +64,7 @@ func MakeClientForTest(client *Client) {
 
 	for i = 0; i < 6; i++ {
 		util.InitUUID64(&peerID)
-		nameNode.RegisterDataNode(&peerID, mockServerAddr)
+		nameNode.RegisterDataNode(peerID, mockServerAddr)
 	}
 
 	var (

@@ -1,12 +1,12 @@
 package memstg
 
 import (
-	"soloos/sdfs/api"
-	"soloos/sdfs/netstg"
-	"soloos/sdfs/types"
 	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
 	"soloos/sdbone/offheap"
+	"soloos/sdfs/api"
+	"soloos/sdfs/netstg"
+	"soloos/sdfs/types"
 )
 
 type MemStg struct {
@@ -31,12 +31,12 @@ func (p *MemStg) Init(offheapDriver *offheap.OffheapDriver,
 
 	p.offheapDriver = offheapDriver
 
-	err = p.SnetDriver.Init(p.offheapDriver)
+	err = p.SnetDriver.Init(p.offheapDriver, "MemStgNetDriver")
 	if err != nil {
 		return err
 	}
 
-	nameNodePeer, _ = p.SnetDriver.MustGetPeer(nil, nameNodeSRPCServerAddr, types.DefaultSDFSRPCProtocol)
+	nameNodePeer = p.SnetDriver.AllocPeer(nameNodeSRPCServerAddr, types.DefaultSDFSRPCProtocol)
 	err = p.NameNodeClient.Init(&p.SnetClientDriver, nameNodePeer)
 	if err != nil {
 		return err

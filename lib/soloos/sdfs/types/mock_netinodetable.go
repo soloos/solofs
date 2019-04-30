@@ -15,8 +15,7 @@ func (p *MockNetINodeTable) Init(offheapDriver *offheap.OffheapDriver) error {
 	p.offheapDriver = offheapDriver
 
 	err = p.offheapDriver.InitLKVTableWithBytes64(&p.table, "MockNetINode",
-		int(NetINodeStructSize), -1, DefaultKVTableSharedCount,
-		nil, nil)
+		int(NetINodeStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	if err != nil {
 		return err
 	}
@@ -25,7 +24,11 @@ func (p *MockNetINodeTable) Init(offheapDriver *offheap.OffheapDriver) error {
 }
 
 func (p *MockNetINodeTable) MustGetNetINode(netINodeID NetINodeID) (NetINodeUintptr, bool) {
-	u, loaded := p.table.MustGetObjectWithAcquire(netINodeID)
+	u, afterSetNewObj := p.table.MustGetObjectWithAcquire(netINodeID)
+	var loaded = afterSetNewObj == nil
+	if afterSetNewObj != nil {
+		afterSetNewObj()
+	}
 	uNetINode := (NetINodeUintptr)(u)
 	return uNetINode, loaded
 }

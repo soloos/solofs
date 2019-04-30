@@ -1,8 +1,8 @@
 package api
 
 import (
-	"soloos/sdfs/protocol"
 	snettypes "soloos/common/snet/types"
+	"soloos/sdfs/protocol"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -41,7 +41,7 @@ func SetNetINodeNetBlockInfoResponse(protocolBuilder *flatbuffers.Builder,
 	commonResponseOff = protocol.CommonResponseEnd(protocolBuilder)
 
 	for i = 0; i < len(backends); i++ {
-		peerOff = protocolBuilder.CreateByteVector(backends[i].Ptr().PeerID[:])
+		peerOff = protocolBuilder.CreateByteVector(backends[i].Ptr().ID[:])
 		addrOff = protocolBuilder.CreateString(backends[i].Ptr().AddressStr())
 		protocol.SNetPeerStart(protocolBuilder)
 		protocol.SNetPeerAddPeerID(protocolBuilder, peerOff)

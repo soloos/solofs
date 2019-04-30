@@ -31,7 +31,7 @@ func TestMetaStgNetBlock(t *testing.T) {
 	util.InitUUID64(&id2)
 
 	err = offheap.DefaultOffheapDriver.InitLKVTableWithBytes64(&peerPool, "TestMetaStgNet",
-		int(snettypes.PeerStructSize), -1, types.DefaultKVTableSharedCount, nil, nil)
+		int(snettypes.PeerStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	util.AssertErrIsNil(err)
 
 	netINode.ID = id0

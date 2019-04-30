@@ -1,11 +1,11 @@
 package namenode
 
 import (
+	snettypes "soloos/common/snet/types"
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
-	snettypes "soloos/common/snet/types"
-	"soloos/sdbone/offheap"
 )
 
 type NameNode struct {
@@ -42,8 +42,8 @@ func (p *NameNode) Init(offheapDriver *offheap.OffheapDriver,
 	return nil
 }
 
-func (p *NameNode) RegisterDataNode(peerID *snettypes.PeerID, serveAddr string) (snettypes.PeerUintptr, error) {
-	return p.metaStg.MustGetDataNode(peerID, serveAddr)
+func (p *NameNode) RegisterDataNode(peerID snettypes.PeerID, serveAddr string) error {
+	return p.metaStg.RegisterDataNode(peerID, serveAddr)
 }
 
 func (p *NameNode) Serve() error {

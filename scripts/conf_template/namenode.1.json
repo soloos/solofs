@@ -1,8 +1,4 @@
 {
-    "DBDriver":"mysql",
-    "Dsn":"root:hello@/sdfs_test",
-    "#DBDriver":"sqlite3",
-    "#Dsn":"/tmp/sdfs.db",
     "DefaultMemBlockCap":2097152,
     "DefaultMemBlocksLimit":256,
 	"Mode":"namenode",

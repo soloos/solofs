@@ -105,7 +105,7 @@ func (p *FsINodeDriver) Init(
 	SplitDuration(p.EntryTtl, &p.EntryAttrValid, &p.EntryAttrValidNsec)
 
 	err = offheapDriver.InitHKVTableWithUint64(&p.INodeRWMutexTable, "INodeRWMutex",
-		int(types.INodeRWMutexStructSize), -1, types.DefaultKVTableSharedCount,
+		int(types.INodeRWMutexStructSize), -1, offheap.DefaultKVTableSharedCount,
 		nil, nil)
 	if err != nil {
 		return err

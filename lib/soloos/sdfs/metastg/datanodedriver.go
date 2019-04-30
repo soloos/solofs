@@ -3,43 +3,46 @@ package metastg
 import (
 	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/types"
 	"sync"
 )
 
 type DataNodeDriver struct {
-	metaStg             *MetaStg
-	snetDriver          snet.NetDriver
-	chooseDataNodeIndex uint32
-	dataNodeRWMutex     sync.RWMutex
-	dataNodes           []snettypes.PeerUintptr
+	offheapDriver *offheap.OffheapDriver
+	metaStg       *MetaStg
+	snetDriver    *snet.NetDriver
+
+	chooseDataNodeIndex         uint32
+	dataNodesForBlockRegistered map[snettypes.PeerID]snettypes.PeerUintptr
+	dataNodesForBlock           []snettypes.PeerUintptr
+	dataNodesForBlockRWMutex    sync.RWMutex
 }
 
-func (p *DataNodeDriver) Init(metaStg *MetaStg) error {
+func (p *DataNodeDriver) Init(metaStg *MetaStg, snetDriver *snet.NetDriver) error {
+	p.offheapDriver = metaStg.offheapDriver
 	p.metaStg = metaStg
-	p.snetDriver.Init(p.metaStg.offheapDriver)
+	p.snetDriver = snetDriver
+	p.dataNodesForBlockRegistered = make(map[snettypes.PeerID]snettypes.PeerUintptr)
 	return nil
 }
 
-func (p *DataNodeDriver) MustGetDataNode(peerID *snettypes.PeerID, serveAddr string) (snettypes.PeerUintptr, error) {
+func (p *DataNodeDriver) RegisterDataNode(peerID snettypes.PeerID, addr string) error {
 	var (
-		uDataNode snettypes.PeerUintptr
-		exists    bool
+		uDataNode  snettypes.PeerUintptr
+		registered bool
 	)
 
-	uDataNode, exists = p.metaStg.snetDriver.MustGetPeer(peerID, serveAddr, types.DefaultSDFSRPCProtocol)
-	if exists == false || uDataNode.Ptr().IsMetaDataInited == false {
-		pDataNode := uDataNode.Ptr()
-		pDataNode.MetaDataMutex.Lock()
-
-		p.dataNodeRWMutex.Lock()
-		p.dataNodes = append(p.dataNodes, uDataNode)
-		p.dataNodeRWMutex.Unlock()
-
-		pDataNode.MetaDataMutex.Unlock()
+	p.dataNodesForBlockRWMutex.Lock()
+	_, registered = p.dataNodesForBlockRegistered[peerID]
+	if registered == false {
+		uDataNode, _ = p.snetDriver.MustGetPeer(&peerID, addr, types.DefaultSDFSRPCProtocol)
+		p.dataNodesForBlockRegistered[peerID] = uDataNode
+		p.dataNodesForBlock = append(p.dataNodesForBlock, uDataNode)
 	}
+	p.dataNodesForBlockRWMutex.Unlock()
 
-	return uDataNode, nil
+	return nil
 }
 
 func (p *DataNodeDriver) GetDataNode(peerID snettypes.PeerID) snettypes.PeerUintptr {

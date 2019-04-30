@@ -1,6 +1,4 @@
 {
-    "DBDriver":"mysql",
-    "Dsn":"root:hello@/sdfs_test",
     "NameNodeSRPCServerAddr":"192.168.56.100:11701",
     "DefaultNetBlockCap":8388608,
     "DefaultMemBlockCap":2097152,
