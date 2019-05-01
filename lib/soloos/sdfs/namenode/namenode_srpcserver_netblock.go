@@ -9,11 +9,9 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
+func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(serviceReq snettypes.ServiceRequest) error {
 	var (
-		param           = make([]byte, reqBodySize)
+		param           = make([]byte, serviceReq.ReqBodySize)
 		req             protocol.NetINodeNetBlockInfoRequest
 		uNetINode       types.NetINodeUintptr
 		netINodeID      types.NetINodeID
@@ -22,7 +20,7 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(reqID uint64,
 		err             error
 	)
 
-	err = conn.ReadAll(param)
+	err = serviceReq.Conn.ReadAll(param)
 	if err != nil {
 		return err
 	}
@@ -39,7 +37,7 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(reqID uint64,
 		} else {
 			api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
 		}
-		conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
 	}
 
@@ -47,13 +45,13 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(reqID uint64,
 	uNetBlock, err = p.nameNode.netBlockDriver.MustGetNetBlock(uNetINode, req.NetBlockIndex())
 	if err != nil {
 		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
 	}
 
 	api.SetNetINodeNetBlockInfoResponse(&protocolBuilder,
 		uNetBlock.Ptr().StorDataBackends.Slice(), req.Cap(), req.Cap())
-	err = conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+	err = serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 
 SERVICE_DONE:
 	return err

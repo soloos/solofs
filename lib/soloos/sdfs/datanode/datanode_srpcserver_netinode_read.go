@@ -9,22 +9,21 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *DataNodeSRPCServer) NetINodePRead(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
+func (p *DataNodeSRPCServer) NetINodePRead(serviceReq snettypes.ServiceRequest) error {
 	var (
-		reqParamData = make([]byte, reqParamSize)
+		reqParamData = make([]byte, serviceReq.ReqParamSize)
 		reqParam     protocol.NetINodePWriteRequest
 		uNetBlock    types.NetBlockUintptr
 		err          error
 	)
 
 	// request param
-	err = conn.ReadAll(reqParamData)
+	err = serviceReq.Conn.ReadAll(reqParamData)
 	if err != nil {
 		return err
 	}
-	reqParam.Init(reqParamData[:reqParamSize], flatbuffers.GetUOffsetT(reqParamData[:reqParamSize]))
+	reqParam.Init(reqParamData[:serviceReq.ReqParamSize],
+		flatbuffers.GetUOffsetT(reqParamData[:serviceReq.ReqParamSize]))
 
 	// response
 
@@ -76,7 +75,7 @@ func (p *DataNodeSRPCServer) NetINodePRead(reqID uint64,
 
 SERVICE_REQUEST_DONE:
 	if err != nil {
-		conn.SkipReadRemaining()
+		serviceReq.Conn.SkipReadRemaining()
 		return nil
 	}
 
@@ -84,13 +83,13 @@ SERVICE_REQUEST_DONE:
 	api.SetNetINodePReadResponse(&protocolBuilder, int32(readDataSize))
 	respBody = protocolBuilder.Bytes[protocolBuilder.Head():]
 	// TODO set write length
-	err = conn.ResponseHeaderParam(reqID, respBody, int(readDataSize))
+	err = serviceReq.Conn.ResponseHeaderParam(serviceReq.ReqID, respBody, int(readDataSize))
 	if err != nil {
 		goto SERVICE_RESPONSE_DONE
 	}
 
 	// TODO get readedDataLength
-	_, err = p.dataNode.netINodeDriver.PReadWithConn(uNetINode, conn,
+	_, err = p.dataNode.netINodeDriver.PReadWithConn(uNetINode, serviceReq.Conn,
 		int(readDataSize), reqParam.Offset())
 	if err != nil {
 		goto SERVICE_RESPONSE_DONE

@@ -1,29 +1,28 @@
 package datanode
 
 import (
+	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/common/snet/types"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *DataNodeSRPCServer) NetINodeFlush(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
+func (p *DataNodeSRPCServer) NetINodeFlush(serviceReq snettypes.ServiceRequest) error {
 	var (
-		reqParamData = make([]byte, reqParamSize)
+		reqParamData = make([]byte, serviceReq.ReqParamSize)
 		reqParam     protocol.NetINodePWriteRequest
 		err          error
 	)
 
 	// request param
-	err = conn.ReadAll(reqParamData)
+	err = serviceReq.Conn.ReadAll(reqParamData)
 	if err != nil {
 		return err
 	}
-	reqParam.Init(reqParamData[:reqParamSize], flatbuffers.GetUOffsetT(reqParamData[:reqParamSize]))
+	reqParam.Init(reqParamData[:serviceReq.ReqParamSize],
+		flatbuffers.GetUOffsetT(reqParamData[:serviceReq.ReqParamSize]))
 
 	// response
 
@@ -54,7 +53,7 @@ func (p *DataNodeSRPCServer) NetINodeFlush(reqID uint64,
 
 SERVICE_DONE:
 	if err != nil {
-		conn.SkipReadRemaining()
+		serviceReq.Conn.SkipReadRemaining()
 		return nil
 	}
 
@@ -63,7 +62,7 @@ SERVICE_DONE:
 	}
 
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
-	err = conn.SimpleResponse(reqID, respBody)
+	err = serviceReq.Conn.SimpleResponse(serviceReq.ReqID, respBody)
 	if err != nil {
 		return err
 	}

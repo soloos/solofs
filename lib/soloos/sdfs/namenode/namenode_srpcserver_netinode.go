@@ -2,20 +2,17 @@ package namenode
 
 import (
 	"soloos/common/log"
+	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/common/snet/types"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool,
-	reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
+func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool, serviceReq snettypes.ServiceRequest) error {
 	var (
-		param           = make([]byte, reqBodySize)
+		param           = make([]byte, serviceReq.ReqBodySize)
 		req             protocol.NetINodeInfoRequest
 		uNetINode       types.NetINodeUintptr
 		netINodeID      types.NetINodeID
@@ -23,7 +20,7 @@ func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool,
 		err             error
 	)
 
-	err = conn.ReadAll(param)
+	err = serviceReq.Conn.ReadAll(param)
 	if err != nil {
 		return err
 	}
@@ -42,44 +39,38 @@ func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool,
 	if err != nil {
 		if err == types.ErrObjectNotExists {
 			api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
-			conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+			serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 			err = nil
 			goto SERVICE_DONE
 		}
 
 		log.Info("get netinode from db error:", err, string(netINodeID[:]))
 		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
 	}
 
 	// response
 	api.SetNetINodeInfoResponse(&protocolBuilder,
 		uNetINode.Ptr().Size, int32(uNetINode.Ptr().NetBlockCap), int32(uNetINode.Ptr().MemBlockCap))
-	conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+	serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 	err = nil
 
 SERVICE_DONE:
 	return err
 }
 
-func (p *NameNodeSRPCServer) NetINodeGet(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
-	return p.doNetINodeGet(false, reqID, reqBodySize, reqParamSize, conn)
+func (p *NameNodeSRPCServer) NetINodeGet(serviceReq snettypes.ServiceRequest) error {
+	return p.doNetINodeGet(false, serviceReq)
 }
 
-func (p *NameNodeSRPCServer) NetINodeMustGet(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
-	return p.doNetINodeGet(true, reqID, reqBodySize, reqParamSize, conn)
+func (p *NameNodeSRPCServer) NetINodeMustGet(serviceReq snettypes.ServiceRequest) error {
+	return p.doNetINodeGet(true, serviceReq)
 }
 
-func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
+func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(serviceReq snettypes.ServiceRequest) error {
 	var (
-		param           = make([]byte, reqBodySize)
+		param           = make([]byte, serviceReq.ReqBodySize)
 		req             protocol.NetINodeCommitSizeInDBRequest
 		uNetINode       types.NetINodeUintptr
 		netINodeID      types.NetINodeID
@@ -87,7 +78,7 @@ func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(reqID uint64,
 		err             error
 	)
 
-	err = conn.ReadAll(param)
+	err = serviceReq.Conn.ReadAll(param)
 	if err != nil {
 		return err
 	}
@@ -99,7 +90,7 @@ func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(reqID uint64,
 	uNetINode, err = p.nameNode.netINodeDriver.GetNetINodeWithReadAcquire(false, netINodeID)
 	if err != nil {
 		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		err = nil
 		goto SERVICE_DONE
 	}
@@ -107,14 +98,14 @@ func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(reqID uint64,
 	err = p.nameNode.metaStg.NetINodeDriver.NetINodeTruncate(uNetINode, req.Size())
 	if err != nil {
 		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		err = nil
 		goto SERVICE_DONE
 	}
 
 	// response
 	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
-	conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+	serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 
 SERVICE_DONE:
 	return err

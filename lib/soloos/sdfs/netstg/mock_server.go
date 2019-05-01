@@ -53,48 +53,44 @@ func (p *MockServer) Init(snetDriver *snet.NetDriver, network string, addr strin
 	return nil
 }
 
-func (p *MockServer) DataNodeRegister(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
+func (p *MockServer) DataNodeRegister(serviceReq snettypes.ServiceRequest) error {
 
-	var param = make([]byte, reqBodySize)
-	util.AssertErrIsNil(conn.ReadAll(param))
+	var param = make([]byte, serviceReq.ReqBodySize)
+	util.AssertErrIsNil(serviceReq.Conn.ReadAll(param))
 
 	var protocolBuilder flatbuffers.Builder
 	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
-	util.AssertErrIsNil(conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
+	util.AssertErrIsNil(
+		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
 	return nil
 }
 
-func (p *MockServer) NetINodeMustGet(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
+func (p *MockServer) NetINodeMustGet(serviceReq snettypes.ServiceRequest) error {
 
-	var blockData = make([]byte, reqBodySize)
-	util.AssertErrIsNil(conn.ReadAll(blockData))
+	var blockData = make([]byte, serviceReq.ReqBodySize)
+	util.AssertErrIsNil(serviceReq.Conn.ReadAll(blockData))
 
 	// request
 	var req protocol.NetINodeInfoRequest
-	req.Init(blockData[:reqParamSize], flatbuffers.GetUOffsetT(blockData[:reqParamSize]))
+	req.Init(blockData[:serviceReq.ReqParamSize], flatbuffers.GetUOffsetT(blockData[:serviceReq.ReqParamSize]))
 
 	// response
 	var protocolBuilder flatbuffers.Builder
 	api.SetNetINodeInfoResponse(&protocolBuilder, req.Size(), req.NetBlockCap(), req.MemBlockCap())
-	util.AssertErrIsNil(conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
+	util.AssertErrIsNil(
+		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
 	return nil
 }
 
-func (p *MockServer) NetINodePWrite(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
+func (p *MockServer) NetINodePWrite(serviceReq snettypes.ServiceRequest) error {
 
-	var reqBody = make([]byte, reqBodySize)
-	util.AssertErrIsNil(conn.ReadAll(reqBody))
+	var reqBody = make([]byte, serviceReq.ReqBodySize)
+	util.AssertErrIsNil(serviceReq.Conn.ReadAll(reqBody))
 
 	var req protocol.NetINodePWriteRequest
-	req.Init(reqBody[:reqParamSize], flatbuffers.GetUOffsetT(reqBody[:reqParamSize]))
+	req.Init(reqBody[:serviceReq.ReqParamSize], flatbuffers.GetUOffsetT(reqBody[:serviceReq.ReqParamSize]))
 	var backends = make([]protocol.SNetPeer, req.TransferBackendsLength())
 	for i := 0; i < len(backends); i++ {
 		req.TransferBackends(&backends[i], i)
@@ -103,59 +99,53 @@ func (p *MockServer) NetINodePWrite(reqID uint64,
 	var protocolBuilder flatbuffers.Builder
 	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
-	util.AssertErrIsNil(conn.SimpleResponse(reqID, respBody))
+	util.AssertErrIsNil(serviceReq.Conn.SimpleResponse(serviceReq.ReqID, respBody))
 
 	return nil
 }
 
-func (p *MockServer) NetINodePRead(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
+func (p *MockServer) NetINodePRead(serviceReq snettypes.ServiceRequest) error {
 
-	var reqData = make([]byte, reqBodySize)
-	util.AssertErrIsNil(conn.ReadAll(reqData))
+	var reqData = make([]byte, serviceReq.ReqBodySize)
+	util.AssertErrIsNil(serviceReq.Conn.ReadAll(reqData))
 
 	var req protocol.NetINodePReadRequest
-	req.Init(reqData[:reqParamSize], flatbuffers.GetUOffsetT(reqData[:reqParamSize]))
+	req.Init(reqData[:serviceReq.ReqParamSize], flatbuffers.GetUOffsetT(reqData[:serviceReq.ReqParamSize]))
 
 	var protocolBuilder flatbuffers.Builder
 	api.SetNetINodePReadResponse(&protocolBuilder, req.Length())
 
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
-	util.AssertErrIsNil(conn.Response(reqID, respBody, make([]byte, req.Length())))
+	util.AssertErrIsNil(serviceReq.Conn.Response(serviceReq.ReqID, respBody, make([]byte, req.Length())))
 	return nil
 }
 
-func (p *MockServer) NetINodeCommitSizeInDB(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
+func (p *MockServer) NetINodeCommitSizeInDB(serviceReq snettypes.ServiceRequest) error {
 
-	var reqData = make([]byte, reqBodySize)
-	util.AssertErrIsNil(conn.ReadAll(reqData))
+	var reqData = make([]byte, serviceReq.ReqBodySize)
+	util.AssertErrIsNil(serviceReq.Conn.ReadAll(reqData))
 
 	// response
 	var protocolBuilder flatbuffers.Builder
 	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
-	conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+	serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 
 	return nil
 }
 
-func (p *MockServer) NetBlockPrepareMetaData(reqID uint64,
-	reqBodySize, reqParamSize uint32,
-	conn *snettypes.Connection) error {
+func (p *MockServer) NetBlockPrepareMetaData(serviceReq snettypes.ServiceRequest) error {
 
-	var blockData = make([]byte, reqBodySize)
-	util.AssertErrIsNil(conn.ReadAll(blockData))
+	var blockData = make([]byte, serviceReq.ReqBodySize)
+	util.AssertErrIsNil(serviceReq.Conn.ReadAll(blockData))
 
 	// request
 	var req protocol.NetINodeNetBlockInfoRequest
-	req.Init(blockData[:reqParamSize], flatbuffers.GetUOffsetT(blockData[:reqParamSize]))
+	req.Init(blockData[:serviceReq.ReqParamSize], flatbuffers.GetUOffsetT(blockData[:serviceReq.ReqParamSize]))
 
 	// response
 	var protocolBuilder flatbuffers.Builder
 	api.SetNetINodeNetBlockInfoResponse(&protocolBuilder, p.dataNodePeers[:], req.Cap(), req.Cap())
-	util.AssertErrIsNil(conn.SimpleResponse(reqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
+	util.AssertErrIsNil(serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
 	return nil
 }
