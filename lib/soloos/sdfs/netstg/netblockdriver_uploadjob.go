@@ -9,7 +9,7 @@ func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *types.UploadMemB
 	uNetINode types.NetINodeUintptr,
 	uNetBlock types.NetBlockUintptr, netBlockIndex int32,
 	uMemBlock types.MemBlockUintptr, memBlockIndex int32,
-	backends snettypes.PeerUintptrArray8) {
+	backends snettypes.PeerGroup) {
 	pJob.UploadPolicyMutex.Lock()
 	if pJob.IsUploadPolicyPrepared {
 		pJob.UploadPolicyMutex.Unlock()

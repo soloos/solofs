@@ -5,6 +5,6 @@ import (
 	"soloos/sdfs/types"
 )
 
-func (p *NetINodeDriver) ChooseDataNodesForNewNetBlock(uNetINode types.NetINodeUintptr) (snettypes.PeerUintptrArray8, error) {
+func (p *NetINodeDriver) ChooseDataNodesForNewNetBlock(uNetINode types.NetINodeUintptr) (snettypes.PeerGroup, error) {
 	return p.helper.ChooseDataNodesForNewNetBlock(uNetINode)
 }

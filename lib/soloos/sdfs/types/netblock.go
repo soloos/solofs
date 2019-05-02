@@ -24,11 +24,11 @@ type NetBlock struct {
 	Len             int        `db:"netblock_len"`
 	Cap             int        `db:"netblock_cap"`
 
-	StorDataBackends    snettypes.PeerUintptrArray8 `db:"-"`
+	StorDataBackends    snettypes.PeerGroup `db:"-"`
 	IsDBMetaDataInited  MetaDataState               `db:"-"`
 	DBMetaDataInitMutex sync.Mutex                  `db:"-"`
 
-	SyncDataBackends                    snettypes.PeerUintptrArray8 `db:"-"`
+	SyncDataBackends                    snettypes.PeerGroup `db:"-"`
 	SyncDataPrimaryBackendTransferCount int                         `db:"-"`
 	IsSyncDataBackendsInited            MetaDataState               `db:"-"`
 	LocalDataBackend                    snettypes.PeerUintptr       `db:"-"`

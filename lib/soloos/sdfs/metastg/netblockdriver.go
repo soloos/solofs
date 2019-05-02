@@ -88,7 +88,7 @@ PREPARE_DONE:
 }
 
 func (p *NetBlockDriver) PrepareNetBlockSyncDataBackendsWithLock(uNetBlock types.NetBlockUintptr,
-	backends snettypes.PeerUintptrArray8,
+	backends snettypes.PeerGroup,
 ) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()

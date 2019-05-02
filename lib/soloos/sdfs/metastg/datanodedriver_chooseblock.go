@@ -6,9 +6,9 @@ import (
 	"sync/atomic"
 )
 
-func (p *DataNodeDriver) ChooseDataNodesForNewNetBlock(uNetINode types.NetINodeUintptr) (snettypes.PeerUintptrArray8, error) {
+func (p *DataNodeDriver) ChooseDataNodesForNewNetBlock(uNetINode types.NetINodeUintptr) (snettypes.PeerGroup, error) {
 	var (
-		backends      snettypes.PeerUintptrArray8
+		backends      snettypes.PeerGroup
 		dataNodeIndex uint32
 		uDataNode     snettypes.PeerUintptr
 	)

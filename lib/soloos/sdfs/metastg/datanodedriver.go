@@ -36,7 +36,7 @@ func (p *DataNodeDriver) RegisterDataNode(peerID snettypes.PeerID, addr string) 
 	p.dataNodesForBlockRWMutex.Lock()
 	_, registered = p.dataNodesForBlockRegistered[peerID]
 	if registered == false {
-		uDataNode, _ = p.snetDriver.MustGetPeer(&peerID, addr, types.DefaultSDFSRPCProtocol)
+		uDataNode, _ = p.snetDriver.RegisterPeer(&peerID, addr, types.DefaultSDFSRPCProtocol)
 		p.dataNodesForBlockRegistered[peerID] = uDataNode
 		p.dataNodesForBlock = append(p.dataNodesForBlock, uDataNode)
 	}

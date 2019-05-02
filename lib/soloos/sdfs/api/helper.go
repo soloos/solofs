@@ -7,7 +7,7 @@ import (
 
 // DataNode
 type GetDataNode func(peerID snettypes.PeerID) snettypes.PeerUintptr
-type ChooseDataNodesForNewNetBlock func(uNetINode types.NetINodeUintptr) (snettypes.PeerUintptrArray8, error)
+type ChooseDataNodesForNewNetBlock func(uNetINode types.NetINodeUintptr) (snettypes.PeerGroup, error)
 
 // NetINode
 type GetNetINodeWithReadAcquire func(isForceReload bool, netINodeID types.NetINodeID) (types.NetINodeUintptr, error)
