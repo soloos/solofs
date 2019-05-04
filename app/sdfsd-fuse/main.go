@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
 	"soloos/sdfs/libsdfs"
 	"soloos/sdfs/sfuse"
@@ -14,15 +15,19 @@ func main() {
 	util.AssertErrIsNil(err)
 
 	var (
+		soloOSEnv    soloosbase.SoloOSEnv
 		clientDriver libsdfs.ClientDriver
 		sfuseServer  sfuse.Server
 	)
+
+	err = soloOSEnv.Init()
+	util.AssertErrIsNil(err)
 
 	if options.PProfListenAddr != "" {
 		go util.PProfServe(options.PProfListenAddr)
 	}
 
-	err = clientDriver.Init(options.NameNodeSRPCServerAddr,
+	err = clientDriver.Init(&soloOSEnv, options.NameNodeSRPCServerAddr,
 		options.DBDriver, options.Dsn)
 	util.AssertErrIsNil(err)
 

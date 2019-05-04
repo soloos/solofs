@@ -1,12 +1,12 @@
 package types
 
 import (
-	sdfsapitypes "soloos/common/sdfsapi/types"
+	sdbapitypes "soloos/common/sdbapi/types"
 )
 
-type MetaDataState = sdfsapitypes.MetaDataState
+type MetaDataState = sdbapitypes.MetaDataState
 
 const (
-	MetaDataStateUninited = sdfsapitypes.MetaDataStateUninited
-	MetaDataStateInited   = sdfsapitypes.MetaDataStateInited
+	MetaDataStateUninited = sdbapitypes.MetaDataStateUninited
+	MetaDataStateInited   = sdbapitypes.MetaDataStateInited
 )
