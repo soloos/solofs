@@ -2,22 +2,20 @@ package namenode
 
 import (
 	snettypes "soloos/common/snet/types"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
-	"soloos/sdbone/offheap"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
 )
 
-func MakeNameNodeForTest(nameNode *NameNode, metaStg *metastg.MetaStg, nameNodeSRPCServerAddr string,
+func MakeNameNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
+	nameNode *NameNode, metaStg *metastg.MetaStg, nameNodeSRPCServerAddr string,
 	memBlockDriver *memstg.MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
 	netINodeDriver *memstg.NetINodeDriver,
 ) {
-	var (
-		offheapDriver *offheap.OffheapDriver = &offheap.DefaultOffheapDriver
-		err           error
-	)
+	var err error
 
 	netBlockDriver.SetHelper(nil, metaStg.PrepareNetBlockMetaData)
 	netINodeDriver.SetHelper(nil,
@@ -27,7 +25,7 @@ func MakeNameNodeForTest(nameNode *NameNode, metaStg *metastg.MetaStg, nameNodeS
 	)
 	var nameNodePeerID snettypes.PeerID
 	snettypes.InitTmpPeerID(&nameNodePeerID)
-	err = nameNode.Init(offheapDriver, nameNodeSRPCServerAddr, nameNodePeerID, metaStg,
+	err = nameNode.Init(soloOSEnv, nameNodeSRPCServerAddr, nameNodePeerID, metaStg,
 		memBlockDriver,
 		netBlockDriver,
 		netINodeDriver,

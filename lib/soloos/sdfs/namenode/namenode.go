@@ -2,16 +2,16 @@ package namenode
 
 import (
 	snettypes "soloos/common/snet/types"
-	"soloos/sdbone/offheap"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
 )
 
 type NameNode struct {
-	offheapDriver *offheap.OffheapDriver
-	peerID        snettypes.PeerID
-	metaStg       *metastg.MetaStg
+	*soloosbase.SoloOSEnv
+	peerID  snettypes.PeerID
+	metaStg *metastg.MetaStg
 
 	memBlockDriver *memstg.MemBlockDriver
 	netBlockDriver *netstg.NetBlockDriver
@@ -20,7 +20,7 @@ type NameNode struct {
 	SRPCServer NameNodeSRPCServer
 }
 
-func (p *NameNode) Init(offheapDriver *offheap.OffheapDriver,
+func (p *NameNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	srpcServerListenAddr string,
 	peerID snettypes.PeerID,
 	metaStg *metastg.MetaStg,
@@ -30,7 +30,7 @@ func (p *NameNode) Init(offheapDriver *offheap.OffheapDriver,
 ) error {
 	var err error
 
-	p.offheapDriver = offheapDriver
+	p.SoloOSEnv = soloOSEnv
 	p.peerID = peerID
 
 	err = p.SRPCServer.Init(p, srpcServerListenAddr)

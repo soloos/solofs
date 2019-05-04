@@ -2,12 +2,13 @@ package memstg
 
 import (
 	"soloos/common/fsapi"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/api"
-	"soloos/sdbone/offheap"
 	"time"
 )
 
 type DirTreeStg struct {
+	*soloosbase.SoloOSEnv
 	MemStg        *MemStg
 	FsINodeDriver FsINodeDriver
 	FdTable       FdTable
@@ -20,8 +21,8 @@ type DirTreeStg struct {
 var _ = fsapi.PosixFS(&DirTreeStg{})
 
 func (p *DirTreeStg) Init(
+	soloOSEnv *soloosbase.SoloOSEnv,
 	memStg *MemStg,
-	offheapDriver *offheap.OffheapDriver,
 	// FsINodeDriver
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
@@ -41,10 +42,10 @@ func (p *DirTreeStg) Init(
 ) error {
 	var err error
 
+	p.SoloOSEnv = soloOSEnv
 	p.MemStg = memStg
 
-	err = p.FsINodeDriver.Init(
-		offheapDriver,
+	err = p.FsINodeDriver.Init(p.SoloOSEnv,
 		p,
 		defaultNetBlockCap,
 		defaultMemBlockCap,

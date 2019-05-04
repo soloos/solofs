@@ -1,8 +1,8 @@
 package api
 
 import (
-	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/types"
 )
 
@@ -15,13 +15,13 @@ type UploadMemBlockWithDisk func(uJob types.UploadMemBlockJobUintptr,
 	uploadPeerIndex int, transferPeersCount int) error
 
 type DataNodeClient struct {
-	snetClientDriver       *snet.ClientDriver
+	*soloosbase.SoloOSEnv
 	preadMemBlockWithDisk  PReadMemBlockWithDisk
 	uploadMemBlockWithDisk UploadMemBlockWithDisk
 }
 
-func (p *DataNodeClient) Init(snetClientDriver *snet.ClientDriver) error {
-	p.snetClientDriver = snetClientDriver
+func (p *DataNodeClient) Init(soloOSEnv *soloosbase.SoloOSEnv) error {
+	p.SoloOSEnv = soloOSEnv
 	return nil
 }
 

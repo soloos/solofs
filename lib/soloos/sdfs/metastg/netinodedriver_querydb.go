@@ -12,7 +12,7 @@ func (p *NetINodeDriver) NetINodeCommitSizeInDB(uNetINode types.NetINodeUintptr,
 		err  error
 	)
 
-	err = p.helper.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (p *NetINodeDriver) FetchNetINodeFromDB(pNetINode *types.NetINode) error {
 		err     error
 	)
 
-	err = p.helper.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -74,7 +74,7 @@ func (p *NetINodeDriver) StoreNetINodeInDB(pNetINode *types.NetINode) error {
 		err           error
 	)
 
-	err = p.helper.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		goto QUERY_DONE
 	}

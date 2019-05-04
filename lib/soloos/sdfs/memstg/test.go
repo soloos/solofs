@@ -1,14 +1,13 @@
 package memstg
 
 import (
+	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/util"
 	"soloos/sdfs/api"
 	"soloos/sdfs/netstg"
-	"soloos/common/snet"
-	"soloos/common/util"
-	"soloos/sdbone/offheap"
 )
 
-func MakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, offheapDriver *offheap.OffheapDriver,
+func MakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, soloOSEnv *soloosbase.SoloOSEnv,
 	blockSize int, blocksLimit int32) {
 	memBlockDriverOptions := MemBlockDriverOptions{
 		[]MemBlockTableOptions{
@@ -17,59 +16,56 @@ func MakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, offheapDriver *o
 			},
 		},
 	}
-	util.AssertErrIsNil(memBlockDriver.Init(offheapDriver, memBlockDriverOptions))
+	util.AssertErrIsNil(memBlockDriver.Init(soloOSEnv, memBlockDriverOptions))
 }
 
-func MakeDriversForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.ClientDriver,
+func MakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	nameNodeSRPCServerAddr string,
 	memBlockDriver *MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
 	netINodeDriver *NetINodeDriver,
 	blockSize int, blocksLimit int32) {
 	var (
-		offheapDriver  = &offheap.DefaultOffheapDriver
 		nameNodeClient api.NameNodeClient
 		dataNodeClient api.DataNodeClient
 	)
 
-	netstg.MakeDriversForTest(snetDriver, snetClientDriver,
+	netstg.MakeDriversForTest(soloOSEnv,
 		nameNodeSRPCServerAddr,
 		&nameNodeClient, &dataNodeClient,
 		netBlockDriver,
 	)
 
-	MakeMemBlockDriversForTest(memBlockDriver, offheapDriver, blockSize, blocksLimit)
+	MakeMemBlockDriversForTest(memBlockDriver, soloOSEnv, blockSize, blocksLimit)
 
-	util.AssertErrIsNil(netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient,
+	util.AssertErrIsNil(netINodeDriver.Init(soloOSEnv, netBlockDriver, memBlockDriver, &nameNodeClient,
 		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
 		netINodeDriver.PrepareNetINodeMetaDataWithStorDB,
 		netINodeDriver.NetINodeCommitSizeInDB,
 	))
 }
 
-func MakeDriversWithMockServerForTest(mockServerAddr string,
+func MakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
+	mockServerAddr string,
 	mockServer *netstg.MockServer,
-	snetDriver *snet.NetDriver,
 	netBlockDriver *netstg.NetBlockDriver,
 	memBlockDriver *MemBlockDriver,
 	netINodeDriver *NetINodeDriver,
 	blockSize int, blocksLimit int32) {
 	var (
-		offheapDriver    = &offheap.DefaultOffheapDriver
-		snetClientDriver snet.ClientDriver
-		nameNodeClient   api.NameNodeClient
-		dataNodeClient   api.DataNodeClient
+		nameNodeClient api.NameNodeClient
+		dataNodeClient api.DataNodeClient
 	)
 
-	netstg.MakeDriversWithMockServerForTest(snetDriver, &snetClientDriver,
+	netstg.MakeDriversWithMockServerForTest(soloOSEnv,
 		mockServerAddr, mockServer,
 		&nameNodeClient, &dataNodeClient,
 		netBlockDriver,
 	)
 
-	MakeMemBlockDriversForTest(memBlockDriver, offheapDriver, blockSize, blocksLimit)
+	MakeMemBlockDriversForTest(memBlockDriver, soloOSEnv, blockSize, blocksLimit)
 
-	util.AssertErrIsNil(netINodeDriver.Init(offheapDriver, netBlockDriver, memBlockDriver, &nameNodeClient,
+	util.AssertErrIsNil(netINodeDriver.Init(soloOSEnv, netBlockDriver, memBlockDriver, &nameNodeClient,
 		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
 		netINodeDriver.PrepareNetINodeMetaDataWithStorDB,
 		netINodeDriver.NetINodeCommitSizeInDB,

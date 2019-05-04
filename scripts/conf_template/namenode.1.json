@@ -2,6 +2,7 @@
     "DefaultMemBlockCap":2097152,
     "DefaultMemBlocksLimit":256,
 	"Mode":"namenode",
+	"NameNodePeerIDStr":"NAME_NODE_100000000000000000000000000000000000000000000000000000",
 	"ListenAddr":"192.168.56.100:11701",
     "PProfListenAddr":"192.168.56.100:11702"
 }

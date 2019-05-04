@@ -1,26 +1,24 @@
 package memstg
 
 import (
-	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
-	"soloos/sdbone/offheap"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/api"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
 )
 
 type MemStg struct {
-	offheapDriver    *offheap.OffheapDriver
-	SnetDriver       snet.NetDriver
-	SnetClientDriver snet.ClientDriver
-	NameNodeClient   api.NameNodeClient
-	DataNodeClient   api.DataNodeClient
+	*soloosbase.SoloOSEnv
+
+	NameNodeClient api.NameNodeClient
+	DataNodeClient api.DataNodeClient
 	netstg.NetBlockDriver
 	MemBlockDriver
 	NetINodeDriver
 }
 
-func (p *MemStg) Init(offheapDriver *offheap.OffheapDriver,
+func (p *MemStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	nameNodeSRPCServerAddr string,
 	memBlockDriverOptions MemBlockDriverOptions,
 ) error {
@@ -29,31 +27,20 @@ func (p *MemStg) Init(offheapDriver *offheap.OffheapDriver,
 		err          error
 	)
 
-	p.offheapDriver = offheapDriver
+	p.SoloOSEnv = soloOSEnv
 
-	err = p.SnetDriver.Init(p.offheapDriver, "MemStgNetDriver")
+	nameNodePeer = p.SNetDriver.AllocPeer(nameNodeSRPCServerAddr, types.DefaultSDFSRPCProtocol)
+	err = p.NameNodeClient.Init(p.SoloOSEnv, nameNodePeer)
 	if err != nil {
 		return err
 	}
 
-	nameNodePeer = p.SnetDriver.AllocPeer(nameNodeSRPCServerAddr, types.DefaultSDFSRPCProtocol)
-	err = p.NameNodeClient.Init(&p.SnetClientDriver, nameNodePeer)
+	err = p.DataNodeClient.Init(p.SoloOSEnv)
 	if err != nil {
 		return err
 	}
 
-	err = p.SnetClientDriver.Init(p.offheapDriver)
-	if err != nil {
-		return err
-	}
-
-	err = p.DataNodeClient.Init(&p.SnetClientDriver)
-	if err != nil {
-		return err
-	}
-
-	err = p.NetBlockDriver.Init(p.offheapDriver,
-		&p.SnetDriver, &p.SnetClientDriver,
+	err = p.NetBlockDriver.Init(p.SoloOSEnv,
 		&p.NameNodeClient, &p.DataNodeClient,
 		p.NetBlockDriver.PrepareNetBlockMetaDataWithFanout,
 	)
@@ -61,12 +48,12 @@ func (p *MemStg) Init(offheapDriver *offheap.OffheapDriver,
 		return err
 	}
 
-	err = p.MemBlockDriver.Init(p.offheapDriver, memBlockDriverOptions)
+	err = p.MemBlockDriver.Init(p.SoloOSEnv, memBlockDriverOptions)
 	if err != nil {
 		return err
 	}
 
-	err = p.NetINodeDriver.Init(p.offheapDriver, &p.NetBlockDriver, &p.MemBlockDriver,
+	err = p.NetINodeDriver.Init(p.SoloOSEnv, &p.NetBlockDriver, &p.MemBlockDriver,
 		&p.NameNodeClient,
 		p.NetINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
 		p.NetINodeDriver.PrepareNetINodeMetaDataWithStorDB,

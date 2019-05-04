@@ -3,26 +3,27 @@ package libsdfs
 import (
 	"soloos/common/sdbapi"
 	"soloos/common/sdfsapi"
-	"soloos/sdbone/offheap"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/memstg"
 )
 
 type ClientDriver struct {
+	*soloosbase.SoloOSEnv
+
 	memStg memstg.MemStg
 	dbConn sdbapi.Connection
 }
 
 var _ = sdfsapi.ClientDriver(&ClientDriver{})
 
-func (p *ClientDriver) Init(nameNodeSRPCServerAddr string,
+func (p *ClientDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
+	nameNodeSRPCServerAddr string,
 	dbDriver string, dsn string,
 ) error {
-	var (
-		offheapDriver = &offheap.DefaultOffheapDriver
-		err           error
-	)
+	var err error
+	p.SoloOSEnv = soloOSEnv
 
-	err = initMemStg(&p.memStg, offheapDriver, nameNodeSRPCServerAddr)
+	err = p.initMemStg(nameNodeSRPCServerAddr)
 	if err != nil {
 		return err
 	}
@@ -35,15 +36,12 @@ func (p *ClientDriver) Init(nameNodeSRPCServerAddr string,
 	return nil
 }
 
-func initMemStg(memStg *memstg.MemStg,
-	offheapDriver *offheap.OffheapDriver,
-	nameNodeSRPCServerAddr string,
-) error {
+func (p *ClientDriver) initMemStg(nameNodeSRPCServerAddr string) error {
 	var (
 		err error
 	)
 
-	err = memStg.Init(offheapDriver, nameNodeSRPCServerAddr, memstg.MemBlockDriverOptions{})
+	err = p.memStg.Init(p.SoloOSEnv, nameNodeSRPCServerAddr, memstg.MemBlockDriverOptions{})
 	if err != nil {
 		return err
 	}
@@ -67,7 +65,7 @@ func (p *ClientDriver) InitClient(itClient sdfsapi.Client,
 		return err
 	}
 
-	err = client.Init(&p.memStg, &p.dbConn,
+	err = client.Init(p.SoloOSEnv, &p.memStg, &p.dbConn,
 		defaultNetBlockCap,
 		defaultMemBlockCap,
 	)

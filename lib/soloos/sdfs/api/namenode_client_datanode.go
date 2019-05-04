@@ -25,10 +25,10 @@ func (p *NameNodeClient) RegisterDataNode(peerID snettypes.PeerID, serveAddr str
 	protocolBuilder.Finish(protocol.SNetPeerEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
-	err = p.snetClientDriver.Call(p.nameNodePeer,
+	err = p.SNetClientDriver.Call(p.nameNodePeer,
 		"/DataNode/Register", &req, &resp)
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	p.snetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
+	p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
 	if err != nil {
 		return err
 	}

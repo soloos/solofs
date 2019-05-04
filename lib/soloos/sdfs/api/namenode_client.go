@@ -1,18 +1,18 @@
 package api
 
 import (
-	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
+	soloosbase "soloos/common/soloosapi/base"
 )
 
 type NameNodeClient struct {
-	snetClientDriver *snet.ClientDriver
-	nameNodePeer     snettypes.PeerUintptr
+	*soloosbase.SoloOSEnv
+	nameNodePeer snettypes.PeerUintptr
 }
 
-func (p *NameNodeClient) Init(snetClientDriver *snet.ClientDriver,
+func (p *NameNodeClient) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	nameNodePeer snettypes.PeerUintptr) error {
-	p.snetClientDriver = snetClientDriver
+	p.SoloOSEnv = soloOSEnv
 	p.nameNodePeer = nameNodePeer
 	return nil
 }

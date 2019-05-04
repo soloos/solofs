@@ -1,20 +1,19 @@
 package memstg
 
 import (
-	"soloos/sdbone/offheap"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/types"
 )
 
 type MemBlockDriver struct {
-	offheapDriver *offheap.OffheapDriver
-	tables        map[int]*MemBlockTable
+	*soloosbase.SoloOSEnv
+	tables map[int]*MemBlockTable
 }
 
-func (p *MemBlockDriver) Init(
-	offheapDriver *offheap.OffheapDriver,
+func (p *MemBlockDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	memBlockDriverOptions MemBlockDriverOptions,
 ) error {
-	p.offheapDriver = offheapDriver
+	p.SoloOSEnv = soloOSEnv
 	p.tables = make(map[int]*MemBlockTable)
 	for _, memBlockTableOptions := range memBlockDriverOptions.MemBlockTableOptionsList {
 		p.PrepareMemBlockTable(memBlockTableOptions)

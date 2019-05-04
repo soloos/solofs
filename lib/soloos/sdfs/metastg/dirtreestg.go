@@ -3,23 +3,25 @@ package metastg
 import "C"
 import (
 	"soloos/common/sdbapi"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/api"
-	"soloos/sdbone/offheap"
 )
 
 type DirTreeStg struct {
+	*soloosbase.SoloOSEnv
 	dbConn        *sdbapi.Connection
 	FsINodeDriver FsINodeDriver
 	FIXAttrDriver FIXAttrDriver
 }
 
-func (p *DirTreeStg) Init(offheapDriver *offheap.OffheapDriver,
+func (p *DirTreeStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	dbConn *sdbapi.Connection,
 	getNetINodeWithReadAcquire api.GetNetINodeWithReadAcquire,
 	mustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire,
 ) error {
 	var err error
 
+	p.SoloOSEnv = soloOSEnv
 	p.dbConn = dbConn
 
 	err = p.installSchema()
@@ -27,14 +29,14 @@ func (p *DirTreeStg) Init(offheapDriver *offheap.OffheapDriver,
 		return err
 	}
 
-	err = p.FsINodeDriver.Init(offheapDriver, dbConn,
+	err = p.FsINodeDriver.Init(p.SoloOSEnv, dbConn,
 		getNetINodeWithReadAcquire,
 		mustGetNetINodeWithReadAcquire)
 	if err != nil {
 		return err
 	}
 
-	err = p.FIXAttrDriver.Init(offheapDriver, dbConn)
+	err = p.FIXAttrDriver.Init(p.SoloOSEnv, dbConn)
 	if err != nil {
 		return err
 	}

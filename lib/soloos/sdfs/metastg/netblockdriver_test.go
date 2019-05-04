@@ -1,7 +1,9 @@
 package metastg
 
 import (
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/types"
@@ -12,29 +14,30 @@ import (
 
 func TestMetaStgNetBlock(t *testing.T) {
 	var (
-		offheapDriver = &offheap.DefaultOffheapDriver
-		peerPool      offheap.LKVTableWithBytes64
-		uObject       uintptr
-		metaStg       MetaStg
-		netINode      types.NetINode
-		netBlock      types.NetBlock
-		peerID0       types.NetINodeID
-		peerID1       types.NetINodeID
-		peerID2       types.NetINodeID
-		peerID        snettypes.PeerID
-		err           error
+		soloOSEnv   soloosbase.SoloOSEnv
+		peerPool    offheap.LKVTableWithBytes64
+		uObject     uintptr
+		metaStg     MetaStg
+		netINode    types.NetINode
+		netBlock    types.NetBlock
+		netINodeID0 types.NetINodeID
+		netINodeID1 types.NetINodeID
+		netINodeID2 types.NetINodeID
+		peerID      snettypes.PeerID
+		err         error
 	)
+	util.AssertErrIsNil(soloOSEnv.Init())
 
-	util.AssertErrIsNil(metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect))
-	snettypes.InitTmpPeerID(&peerID0)
-	snettypes.InitTmpPeerID(&peerID1)
-	snettypes.InitTmpPeerID(&peerID2)
+	util.AssertErrIsNil(metaStg.Init(&soloOSEnv, TestMetaStgDBDriver, TestMetaStgDBConnect))
+	sdfsapitypes.InitTmpNetINodeID(&netINodeID0)
+	sdfsapitypes.InitTmpNetINodeID(&netINodeID1)
+	sdfsapitypes.InitTmpNetINodeID(&netINodeID2)
 
-	err = offheap.DefaultOffheapDriver.InitLKVTableWithBytes64(&peerPool, "TestMetaStgNet",
+	err = soloOSEnv.OffheapDriver.InitLKVTableWithBytes64(&peerPool, "TestMetaStgNet",
 		int(snettypes.PeerStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	util.AssertErrIsNil(err)
 
-	netINode.ID = peerID0
+	netINode.ID = netINodeID0
 	netBlock.NetINodeID = netINode.ID
 
 	snettypes.InitTmpPeerID(&peerID)

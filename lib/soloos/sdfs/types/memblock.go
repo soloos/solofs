@@ -11,8 +11,6 @@ import (
 
 const (
 	MemBlockStructSize = unsafe.Sizeof(MemBlock{})
-
-	MemBlockRefuseReleaseForErr = -1
 )
 
 type MemBlockUintptr uintptr

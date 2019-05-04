@@ -2,10 +2,9 @@ package libsdfs
 
 import (
 	"soloos/common/sdbapi"
-	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
-	"soloos/sdbone/offheap"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
@@ -15,29 +14,28 @@ import (
 )
 
 func MakeClientForTest(client *Client) {
-	client.offheapDriver = &offheap.DefaultOffheapDriver
 	var (
-		memStg  memstg.MemStg
-		metaStg metastg.MetaStg
+		memStg    memstg.MemStg
+		metaStg   metastg.MetaStg
+		soloOSEnv soloosbase.SoloOSEnv
 	)
 
+	util.AssertErrIsNil(soloOSEnv.Init())
+
 	var (
-		offheapDriver          = &offheap.DefaultOffheapDriver
 		nameNodeSRPCListenAddr = "127.0.0.1:10300"
 		nameNode               namenode.NameNode
 		mockServerAddr         = "127.0.0.1:10301"
 		mockServer             netstg.MockServer
 		mockMemBlockTable      types.MockMemBlockTable
-		snetDriver             snet.NetDriver
-		snetClientDriver       snet.ClientDriver
 
-		memBlockDriverClient *memstg.MemBlockDriver = &memStg.MemBlockDriver
-		netBlockDriverClient *netstg.NetBlockDriver = &memStg.NetBlockDriver
-		netINodeDriverClient *memstg.NetINodeDriver = &memStg.NetINodeDriver
+		memBlockDriverForClient *memstg.MemBlockDriver = &memStg.MemBlockDriver
+		netBlockDriverForClient *netstg.NetBlockDriver = &memStg.NetBlockDriver
+		netINodeDriverForClient *memstg.NetINodeDriver = &memStg.NetINodeDriver
 
-		memBlockDriverServer memstg.MemBlockDriver
-		netBlockDriverServer netstg.NetBlockDriver
-		netINodeDriverServer memstg.NetINodeDriver
+		memBlockDriverForServer memstg.MemBlockDriver
+		netBlockDriverForServer netstg.NetBlockDriver
+		netINodeDriverForServer memstg.NetINodeDriver
 
 		netBlockCap int   = 1280
 		memBlockCap int   = 128
@@ -46,21 +44,24 @@ func MakeClientForTest(client *Client) {
 		i           int
 	)
 
-	memstg.MakeDriversForTest(&snetDriver, &snetClientDriver,
+	memstg.MakeDriversForTest(&soloOSEnv,
 		nameNodeSRPCListenAddr,
-		memBlockDriverClient, netBlockDriverClient, netINodeDriverClient, memBlockCap, blocksLimit)
-	memstg.MakeDriversForTest(&snetDriver, &snetClientDriver,
+		memBlockDriverForClient, netBlockDriverForClient, netINodeDriverForClient, memBlockCap, blocksLimit)
+
+	memstg.MakeDriversForTest(&soloOSEnv,
 		nameNodeSRPCListenAddr,
-		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer, memBlockCap, blocksLimit)
-	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
-	namenode.MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr,
-		&memBlockDriverServer, &netBlockDriverServer, &netINodeDriverServer)
+		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer, memBlockCap, blocksLimit)
+
+	metastg.MakeMetaStgForTest(&soloOSEnv, &metaStg)
+	namenode.MakeNameNodeForTest(&soloOSEnv, &nameNode, &metaStg, nameNodeSRPCListenAddr,
+		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer)
+
 	go func() {
 		util.AssertErrIsNil(nameNode.Serve())
 	}()
 	time.Sleep(time.Millisecond * 300)
-	netstg.MakeMockServerForTest(&snetDriver, mockServerAddr, &mockServer)
-	mockMemBlockTable.Init(offheapDriver, 1024)
+	netstg.MakeMockServerForTest(&soloOSEnv, mockServerAddr, &mockServer)
+	mockMemBlockTable.Init(&soloOSEnv, 1024)
 
 	for i = 0; i < 6; i++ {
 		snettypes.InitTmpPeerID(&peerID)
@@ -73,5 +74,5 @@ func MakeClientForTest(client *Client) {
 	)
 	err = dbConn.Init(metastg.TestMetaStgDBDriver, metastg.TestMetaStgDBConnect)
 	util.AssertErrIsNil(err)
-	util.AssertErrIsNil(client.Init(&memStg, &dbConn, netBlockCap, memBlockCap))
+	util.AssertErrIsNil(client.Init(&soloOSEnv, &memStg, &dbConn, netBlockCap, memBlockCap))
 }

@@ -3,7 +3,8 @@ package memstg
 import (
 	fsapitypes "soloos/common/fsapi/types"
 	"soloos/common/log"
-	snettypes "soloos/common/snet/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/timer"
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
@@ -26,10 +27,11 @@ type FsINodeDriverHelper struct {
 }
 
 type FsINodeDriver struct {
-	Timer timer.Timer
-
+	*soloosbase.SoloOSEnv
 	dirTreeStg *DirTreeStg
 	helper     FsINodeDriverHelper
+
+	Timer timer.Timer
 
 	fsINodesRWMutex sync.RWMutex
 	fsINodesByID    map[types.FsINodeID]types.FsINode
@@ -51,7 +53,7 @@ type FsINodeDriver struct {
 }
 
 func (p *FsINodeDriver) Init(
-	offheapDriver *offheap.OffheapDriver,
+	soloOSEnv *soloosbase.SoloOSEnv,
 	dirTreeStg *DirTreeStg,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
@@ -71,15 +73,13 @@ func (p *FsINodeDriver) Init(
 ) error {
 	var err error
 
+	p.SoloOSEnv = soloOSEnv
+	p.dirTreeStg = dirTreeStg
+
 	err = p.Timer.Init()
 	if err != nil {
 		return err
 	}
-
-	p.dirTreeStg = dirTreeStg
-
-	p.DefaultNetBlockCap = defaultNetBlockCap
-	p.DefaultMemBlockCap = defaultMemBlockCap
 
 	p.SetHelper(
 		allocFsINodeID,
@@ -93,6 +93,9 @@ func (p *FsINodeDriver) Init(
 		getFsINodeByNameFromDB,
 	)
 
+	p.DefaultNetBlockCap = defaultNetBlockCap
+	p.DefaultMemBlockCap = defaultMemBlockCap
+
 	p.fsINodesByID = make(map[types.FsINodeID]types.FsINode)
 	p.fsINodesByPath = make(map[string]types.FsINode)
 
@@ -104,7 +107,7 @@ func (p *FsINodeDriver) Init(
 	p.EntryTtl = 3 * time.Second
 	SplitDuration(p.EntryTtl, &p.EntryAttrValid, &p.EntryAttrValidNsec)
 
-	err = offheapDriver.InitHKVTableWithUint64(&p.INodeRWMutexTable, "INodeRWMutex",
+	err = p.SoloOSEnv.OffheapDriver.InitHKVTableWithUint64(&p.INodeRWMutexTable, "INodeRWMutex",
 		int(types.INodeRWMutexStructSize), -1, offheap.DefaultKVTableSharedCount,
 		nil, nil)
 	if err != nil {
@@ -361,7 +364,7 @@ func (p *FsINodeDriver) RefreshFsINodeACMtimeByIno(fsINodeID types.FsINodeID) er
 func (p *FsINodeDriver) AllocNetINodeID(fsINode *types.FsINode) error {
 	var err error
 	//TODO improve alloc NetInodeID
-	snettypes.InitTmpPeerID(&fsINode.NetINodeID)
+	sdfsapitypes.InitTmpNetINodeID(&fsINode.NetINodeID)
 	//TODO config memBlockSize netBlockSize
 	fsINode.UNetINode, err = p.helper.MustGetNetINodeWithReadAcquire(fsINode.NetINodeID,
 		0, p.DefaultNetBlockCap, p.DefaultMemBlockCap)

@@ -30,7 +30,7 @@ func (p *MemBlockTable) Init(
 	memBlockTableObjectsLimit := int32(math.Ceil(float64(objectsLimit) * 0.9))
 	p.objectSize = objectSize
 
-	err = p.driver.offheapDriver.InitHKVTableWithBytes12(&p.memBlockTable, "MemBlock",
+	err = p.driver.OffheapDriver.InitHKVTableWithBytes12(&p.memBlockTable, "MemBlock",
 		int(types.MemBlockStructSize+uintptr(p.objectSize)),
 		memBlockTableObjectsLimit,
 		offheap.DefaultKVTableSharedCount,
@@ -45,7 +45,7 @@ func (p *MemBlockTable) Init(
 	if tmpMemBlockTableObjectsLimit == 0 {
 		tmpMemBlockTableObjectsLimit = 1
 	}
-	err = p.driver.offheapDriver.InitHKVTableWithBytes12(&p.tmpMemBlockTable, "TmpMemBlock",
+	err = p.driver.OffheapDriver.InitHKVTableWithBytes12(&p.tmpMemBlockTable, "TmpMemBlock",
 		int(types.MemBlockStructSize+uintptr(p.objectSize)),
 		tmpMemBlockTableObjectsLimit,
 		offheap.DefaultKVTableSharedCount,

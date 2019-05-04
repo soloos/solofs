@@ -1,8 +1,7 @@
 package netstg
 
 import (
-	"soloos/common/snet"
-	"soloos/sdbone/offheap"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	"testing"
@@ -12,26 +11,25 @@ import (
 
 func TestNetBlockDriver(t *testing.T) {
 	var (
-		offheapDriver     = &offheap.DefaultOffheapDriver
+		soloOSEnv         soloosbase.SoloOSEnv
 		mockNetINodeTable types.MockNetINodeTable
 		mockMemBlockTable types.MockMemBlockTable
-		snetDriver        snet.NetDriver
-		snetClientDriver  snet.ClientDriver
 		mockServer        MockServer
 		nameNodeClient    api.NameNodeClient
 		dataNodeClient    api.DataNodeClient
 		netBlockDriver    NetBlockDriver
 	)
+	assert.NoError(t, soloOSEnv.Init())
 	mockServerAddr := "127.0.0.1:10021"
-	assert.NoError(t, mockNetINodeTable.Init(&offheap.DefaultOffheapDriver))
-	assert.NoError(t, mockMemBlockTable.Init(offheapDriver, 1024))
-	MakeDriversWithMockServerForTest(&snetDriver, &snetClientDriver,
+	assert.NoError(t, mockNetINodeTable.Init(&soloOSEnv))
+	assert.NoError(t, mockMemBlockTable.Init(&soloOSEnv, 1024))
+	MakeDriversWithMockServerForTest(&soloOSEnv,
 		mockServerAddr, &mockServer,
 		&nameNodeClient, &dataNodeClient,
 		&netBlockDriver)
 
-	var uPeer0 = snetDriver.AllocPeer(mockServerAddr, types.DefaultSDFSRPCProtocol)
-	var uPeer1 = snetDriver.AllocPeer(mockServerAddr, types.DefaultSDFSRPCProtocol)
+	var uPeer0 = soloOSEnv.SNetDriver.AllocPeer(mockServerAddr, types.DefaultSDFSRPCProtocol)
+	var uPeer1 = soloOSEnv.SNetDriver.AllocPeer(mockServerAddr, types.DefaultSDFSRPCProtocol)
 
 	data := make([]byte, 8)
 	for i := 0; i < len(data); i++ {

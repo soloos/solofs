@@ -2,25 +2,24 @@ package metastg
 
 import (
 	"soloos/common/sdbapi"
-	"soloos/common/snet"
-	"soloos/sdbone/offheap"
+	soloosbase "soloos/common/soloosapi/base"
 )
 
 type MetaStg struct {
-	offheapDriver *offheap.OffheapDriver
-	dbConn        sdbapi.Connection
-	SnetDriver    snet.NetDriver
+	*soloosbase.SoloOSEnv
+	dbConn sdbapi.Connection
+
 	DataNodeDriver
 	NetINodeDriver
 	NetBlockDriver
 }
 
-func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
+func (p *MetaStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	dbDriver, dsn string,
 ) error {
 	var err error
 
-	p.offheapDriver = offheapDriver
+	p.SoloOSEnv = soloOSEnv
 	err = p.dbConn.Init(dbDriver, dsn)
 	if err != nil {
 		return err
@@ -31,24 +30,19 @@ func (p *MetaStg) Init(offheapDriver *offheap.OffheapDriver,
 		return err
 	}
 
-	err = p.SnetDriver.Init(p.offheapDriver, "MetaStgNetDriver")
+	err = p.DataNodeDriver.Init(p)
 	if err != nil {
 		return err
 	}
 
-	err = p.DataNodeDriver.Init(p, &p.SnetDriver)
-	if err != nil {
-		return err
-	}
-
-	err = p.NetINodeDriver.Init(p.offheapDriver,
+	err = p.NetINodeDriver.Init(p.SoloOSEnv,
 		&p.dbConn,
 		p.DataNodeDriver.ChooseDataNodesForNewNetBlock)
 	if err != nil {
 		return err
 	}
 
-	err = p.NetBlockDriver.Init(p.offheapDriver,
+	err = p.NetBlockDriver.Init(p.SoloOSEnv,
 		&p.dbConn,
 		p.DataNodeDriver.GetDataNode,
 		p.NetINodeDriver.ChooseDataNodesForNewNetBlock)

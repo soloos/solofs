@@ -30,15 +30,15 @@ func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	if isMustGet {
-		err = p.snetClientDriver.Call(p.nameNodePeer,
+		err = p.SNetClientDriver.Call(p.nameNodePeer,
 			"/NetINode/MustGet", &req, &resp)
 	} else {
-		err = p.snetClientDriver.Call(p.nameNodePeer,
+		err = p.SNetClientDriver.Call(p.nameNodePeer,
 			"/NetINode/Get", &req, &resp)
 	}
 
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	p.snetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
+	p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
 	if err != nil {
 		return err
 	}
@@ -89,11 +89,11 @@ func (p *NameNodeClient) NetINodeCommitSizeInDB(uNetINode types.NetINodeUintptr,
 	protocolBuilder.Finish(protocol.NetINodeCommitSizeInDBRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
-	err = p.snetClientDriver.Call(p.nameNodePeer,
+	err = p.SNetClientDriver.Call(p.nameNodePeer,
 		"/NetINode/CommitSizeInDB", &req, &resp)
 
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	p.snetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
+	p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
 	if err != nil {
 		return err
 	}

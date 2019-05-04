@@ -3,6 +3,7 @@ package main
 import (
 	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
@@ -15,6 +16,7 @@ import (
 
 type Env struct {
 	options          Options
+	SoloOSEnv        soloosbase.SoloOSEnv
 	offheapDriver    *offheap.OffheapDriver
 	SNetDriver       snet.NetDriver
 	SNetClientDriver snet.ClientDriver
@@ -27,15 +29,12 @@ type Env struct {
 
 func (p *Env) Init(options Options) {
 	p.options = options
-	p.offheapDriver = &offheap.DefaultOffheapDriver
+	util.AssertErrIsNil(p.SoloOSEnv.Init())
 
-	util.AssertErrIsNil(p.SNetDriver.Init(p.offheapDriver, "EnvNetDriver"))
-	util.AssertErrIsNil(p.SNetClientDriver.Init(p.offheapDriver))
-
-	util.AssertErrIsNil(p.MetaStg.Init(p.offheapDriver,
+	util.AssertErrIsNil(p.MetaStg.Init(&p.SoloOSEnv,
 		options.DBDriver, options.Dsn))
 
-	p.DataNodeClient.Init(&p.SNetClientDriver)
+	p.DataNodeClient.Init(&p.SoloOSEnv)
 
 	{
 		var memBlockDriverOptions = memstg.MemBlockDriverOptions{
@@ -46,7 +45,7 @@ func (p *Env) Init(options Options) {
 				},
 			},
 		}
-		util.AssertErrIsNil(p.MemBlockDriver.Init(p.offheapDriver, memBlockDriverOptions))
+		util.AssertErrIsNil(p.MemBlockDriver.Init(&p.SoloOSEnv, memBlockDriverOptions))
 	}
 }
 
@@ -63,11 +62,10 @@ func (p *Env) startNameNode() {
 	)
 	copy(nameNodePeerID[:], []byte(p.options.NameNodePeerIDStr))
 
-	util.AssertErrIsNil(p.NetBlockDriver.Init(p.offheapDriver,
-		&p.SNetDriver, &p.SNetClientDriver,
+	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloOSEnv,
 		nil, &p.DataNodeClient, p.MetaStg.PrepareNetBlockMetaData))
 
-	util.AssertErrIsNil(p.NetINodeDriver.Init(p.offheapDriver,
+	util.AssertErrIsNil(p.NetINodeDriver.Init(&p.SoloOSEnv,
 		&p.NetBlockDriver,
 		&p.MemBlockDriver,
 		nil,
@@ -76,7 +74,7 @@ func (p *Env) startNameNode() {
 		p.MetaStg.NetINodeCommitSizeInDB,
 	))
 
-	util.AssertErrIsNil(nameNode.Init(p.offheapDriver,
+	util.AssertErrIsNil(nameNode.Init(&p.SoloOSEnv,
 		p.options.ListenAddr,
 		nameNodePeerID,
 		&p.MetaStg,
@@ -109,11 +107,10 @@ func (p *Env) startDataNode() {
 		NameNodeSRPCServer:   p.options.NameNodeAddr,
 	}
 
-	util.AssertErrIsNil(p.NetBlockDriver.Init(p.offheapDriver,
-		&p.SNetDriver, &p.SNetClientDriver,
+	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloOSEnv,
 		nil, &p.DataNodeClient, p.MetaStg.PrepareNetBlockMetaData))
 
-	util.AssertErrIsNil(p.NetINodeDriver.Init(p.offheapDriver,
+	util.AssertErrIsNil(p.NetINodeDriver.Init(&p.SoloOSEnv,
 		&p.NetBlockDriver,
 		&p.MemBlockDriver,
 		nil,
@@ -122,8 +119,7 @@ func (p *Env) startDataNode() {
 		p.MetaStg.NetINodeCommitSizeInDB,
 	))
 
-	util.AssertErrIsNil(dataNode.Init(p.offheapDriver, dataNodeOptions,
-		&p.SNetDriver, &p.SNetClientDriver,
+	util.AssertErrIsNil(dataNode.Init(&p.SoloOSEnv, dataNodeOptions,
 		&p.MetaStg,
 		&p.MemBlockDriver,
 		&p.NetBlockDriver,

@@ -23,11 +23,11 @@ func (p *DataNodeClient) GetNetINodeMetaData(uDataNode snettypes.PeerUintptr, uN
 	protocolBuilder.Finish(protocol.NetINodeFlushRequestEnd(&protocolBuilder))
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
-	err = p.snetClientDriver.Call(uDataNode,
+	err = p.SNetClientDriver.Call(uDataNode,
 		"/NetINode/Flush", &req, &resp)
 
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	p.snetClientDriver.ReadResponse(uDataNode, &req, &resp, body)
+	p.SNetClientDriver.ReadResponse(uDataNode, &req, &resp, body)
 	if err != nil {
 		return err
 	}

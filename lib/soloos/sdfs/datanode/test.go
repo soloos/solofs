@@ -2,16 +2,15 @@ package datanode
 
 import (
 	"path/filepath"
-	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
-	"soloos/sdbone/offheap"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
 )
 
-func MakeDataNodeForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.ClientDriver,
+func MakeDataNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	dataNode *DataNode,
 	dataNodeSRPCServerAddr string,
 	metaStg *metastg.MetaStg,
@@ -21,8 +20,7 @@ func MakeDataNodeForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.Clie
 	netINodeDriver *memstg.NetINodeDriver,
 ) {
 	var (
-		offheapDriver *offheap.OffheapDriver = &offheap.DefaultOffheapDriver
-		err           error
+		err error
 	)
 
 	var peerID snettypes.PeerID
@@ -37,8 +35,9 @@ func MakeDataNodeForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.Clie
 		NameNodeSRPCServer:   nameNodeSRPCServerAddr,
 	}
 
-	err = dataNode.Init(offheapDriver, options,
-		snetDriver, snetClientDriver, metaStg,
+	err = dataNode.Init(soloOSEnv,
+		options,
+		metaStg,
 		memBlockDriver, netBlockDriver, netINodeDriver)
 	util.AssertErrIsNil(err)
 }

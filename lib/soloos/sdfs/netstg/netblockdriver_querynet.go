@@ -30,7 +30,7 @@ func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock types.NetBlockUintp
 	for i = 0; i < netBlockInfo.BackendsLength(); i++ {
 		netBlockInfo.Backends(&backend, i)
 		copy(peerID[:], backend.PeerID())
-		uPeer, _ = p.snetDriver.MustGetPeer(&peerID, string(backend.Address()), types.DefaultSDFSRPCProtocol)
+		uPeer, _ = p.SNetDriver.MustGetPeer(&peerID, string(backend.Address()), types.DefaultSDFSRPCProtocol)
 		pNetBlock.StorDataBackends.Append(uPeer)
 	}
 

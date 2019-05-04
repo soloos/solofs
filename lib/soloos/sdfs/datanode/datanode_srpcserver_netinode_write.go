@@ -58,7 +58,7 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq snettypes.ServiceRequest)
 	for i = 0; i < reqParam.TransferBackendsLength(); i++ {
 		reqParam.TransferBackends(&syncDataProtoBackend, i)
 		copy(peerID[:], syncDataProtoBackend.PeerID())
-		uPeer, _ = p.dataNode.snetDriver.MustGetPeer(&peerID,
+		uPeer, _ = p.dataNode.SNetDriver.MustGetPeer(&peerID,
 			string(syncDataProtoBackend.Address()), types.DefaultSDFSRPCProtocol)
 		syncDataBackends.Append(uPeer)
 	}

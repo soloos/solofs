@@ -12,7 +12,7 @@ func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
 		err  error
 	)
 
-	err = p.helper.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		return err
 	}
@@ -39,7 +39,7 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 		err             error
 	)
 
-	err = p.helper.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -139,7 +139,7 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
 		err  error
 	)
 
-	err = p.helper.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -189,7 +189,7 @@ func (p *FsINodeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
 		err  error
 	)
 
-	err = p.helper.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -243,7 +243,7 @@ func (p *FsINodeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.F
 		err           error
 	)
 
-	err = p.helper.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -302,7 +302,7 @@ func (p *FsINodeDriver) GetFsINodeByNameFromDB(parentID types.FsINodeID, fsINode
 		err           error
 	)
 
-	err = p.helper.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		goto QUERY_DONE
 	}

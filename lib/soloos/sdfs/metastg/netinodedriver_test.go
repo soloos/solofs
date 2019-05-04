@@ -1,8 +1,9 @@
 package metastg
 
 import (
-	snettypes "soloos/common/snet/types"
-	"soloos/sdbone/offheap"
+	sdfsapitypes "soloos/common/sdfsapi/types"
+	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/util"
 	"soloos/sdfs/types"
 	"testing"
 
@@ -11,18 +12,19 @@ import (
 
 func TestMetaStgNetINode(t *testing.T) {
 	var (
-		offheapDriver = &offheap.DefaultOffheapDriver
-		metaStg       MetaStg
-		netINode      types.NetINode
-		peerID0       types.NetINodeID
-		peerID1       types.NetINodeID
+		soloOSEnv   soloosbase.SoloOSEnv
+		metaStg     MetaStg
+		netINode    types.NetINode
+		netINodeID0 types.NetINodeID
+		netINodeID1 types.NetINodeID
 	)
+	util.AssertErrIsNil(soloOSEnv.Init())
 
-	assert.NoError(t, metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect))
-	snettypes.InitTmpPeerID(&peerID0)
-	snettypes.InitTmpPeerID(&peerID1)
+	assert.NoError(t, metaStg.Init(&soloOSEnv, TestMetaStgDBDriver, TestMetaStgDBConnect))
+	sdfsapitypes.InitTmpNetINodeID(&netINodeID0)
+	sdfsapitypes.InitTmpNetINodeID(&netINodeID1)
 
-	netINode.ID = peerID0
+	netINode.ID = netINodeID0
 	assert.NoError(t, metaStg.StoreNetINodeInDB(&netINode))
 	assert.NoError(t, metaStg.StoreNetINodeInDB(&netINode))
 
@@ -31,12 +33,12 @@ func TestMetaStgNetINode(t *testing.T) {
 		assert.Equal(t, err, nil)
 	}
 	{
-		netINode.ID = peerID1
+		netINode.ID = netINodeID1
 		err := metaStg.FetchNetINodeFromDB(&netINode)
 		assert.Equal(t, err, types.ErrObjectNotExists)
 	}
 	{
-		netINode.ID = peerID0
+		netINode.ID = netINodeID0
 		err := metaStg.FetchNetINodeFromDB(&netINode)
 		assert.NoError(t, err)
 	}

@@ -1,16 +1,16 @@
 package libsdfs
 
 import (
-	"soloos/common/sdbapi"
 	"soloos/common/fsapi"
+	"soloos/common/sdbapi"
+	"soloos/common/sdfsapi"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
-	"soloos/common/sdfsapi"
-	"soloos/sdbone/offheap"
 )
 
 type Client struct {
-	offheapDriver *offheap.OffheapDriver
+	*soloosbase.SoloOSEnv
 
 	memStg         *memstg.MemStg
 	metaDirTreeStg metastg.DirTreeStg
@@ -19,17 +19,18 @@ type Client struct {
 
 var _ = sdfsapi.Client(&Client{})
 
-func (p *Client) Init(memStg *memstg.MemStg,
+func (p *Client) Init(soloOSEnv *soloosbase.SoloOSEnv,
+	memStg *memstg.MemStg,
 	dbConn *sdbapi.Connection,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
 ) error {
 	var err error
-	p.offheapDriver = &offheap.DefaultOffheapDriver
 
+	p.SoloOSEnv = soloOSEnv
 	p.memStg = memStg
 
-	err = p.metaDirTreeStg.Init(p.offheapDriver,
+	err = p.metaDirTreeStg.Init(p.SoloOSEnv,
 		dbConn,
 		p.memStg.GetNetINodeWithReadAcquire,
 		p.memStg.MustGetNetINodeWithReadAcquire,
@@ -38,9 +39,8 @@ func (p *Client) Init(memStg *memstg.MemStg,
 		return err
 	}
 
-	err = p.memDirTreeStg.Init(
+	err = p.memDirTreeStg.Init(p.SoloOSEnv,
 		p.memStg,
-		p.offheapDriver,
 		defaultNetBlockCap,
 		defaultMemBlockCap,
 		p.metaDirTreeStg.FsINodeDriver.AllocFsINodeID,

@@ -2,17 +2,17 @@ package minicluster
 
 import (
 	"fmt"
+	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/util"
 	"soloos/sdfs/datanode"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
 	"soloos/sdfs/netstg"
-	"soloos/common/util"
-	"soloos/sdbone/offheap"
 )
 
 type MiniCluster struct {
-	offheapDriver *offheap.OffheapDriver
+	*soloosbase.SoloOSEnv
 
 	NameNodes               []namenode.NameNode
 	NameNodeMetaStgs        []metastg.MetaStg
@@ -27,17 +27,17 @@ type MiniCluster struct {
 	DataNodeNetINodeDrivers []memstg.NetINodeDriver
 }
 
-func (p *MiniCluster) Init(nameNodePorts []int, dataNodePorts []int) {
-	p.offheapDriver = &offheap.DefaultOffheapDriver
+func (p *MiniCluster) Init(soloOSEnv *soloosbase.SoloOSEnv, nameNodePorts []int, dataNodePorts []int) {
+	p.SoloOSEnv = soloOSEnv
 	p.NameNodes = make([]namenode.NameNode, len(nameNodePorts))
 	p.NameNodeMetaStgs = make([]metastg.MetaStg, len(nameNodePorts))
 	p.NameNodeMemBlockDrivers = make([]memstg.MemBlockDriver, len(nameNodePorts))
 	p.NameNodeNetBlockDrivers = make([]netstg.NetBlockDriver, len(nameNodePorts))
 	p.NameNodeNetINodeDrivers = make([]memstg.NetINodeDriver, len(nameNodePorts))
 	for i := 0; i < len(nameNodePorts); i++ {
-		metastg.MakeMetaStgForTest(p.offheapDriver, &p.NameNodeMetaStgs[i])
+		metastg.MakeMetaStgForTest(p.SoloOSEnv, &p.NameNodeMetaStgs[i])
 
-		namenode.MakeNameNodeForTest(&p.NameNodes[i], &p.NameNodeMetaStgs[i],
+		namenode.MakeNameNodeForTest(p.SoloOSEnv, &p.NameNodes[i], &p.NameNodeMetaStgs[i],
 			fmt.Sprintf("127.0.0.1:%d", nameNodePorts[i]),
 			&p.NameNodeMemBlockDrivers[i],
 			&p.NameNodeNetBlockDrivers[i],
@@ -54,11 +54,11 @@ func (p *MiniCluster) Init(nameNodePorts []int, dataNodePorts []int) {
 	p.DataNodeNetBlockDrivers = make([]netstg.NetBlockDriver, len(dataNodePorts))
 	p.DataNodeNetINodeDrivers = make([]memstg.NetINodeDriver, len(dataNodePorts))
 	for i := 0; i < len(dataNodePorts); i++ {
-		metastg.MakeMetaStgForTest(p.offheapDriver, &p.NameNodeMetaStgs[i])
+		metastg.MakeMetaStgForTest(p.SoloOSEnv, &p.NameNodeMetaStgs[i])
 
 		// namenode.MakeNameNodeForTest(&p.DataNodes[i], &p.DataNodeMetaStgs[i],
 		// fmt.Sprintf("127.0.0.1:%d", dataNodePorts[i]))
-		// util.AssertErrIsNil(p.DataNodes[i].Init(options, p.offheapDriver))
+		// util.AssertErrIsNil(p.DataNodes[i].Init(options, p.OffheapDriver))
 		// go func() {
 		// util.AssertErrIsNil(p.DataNodes[i].Serve())
 		// }()

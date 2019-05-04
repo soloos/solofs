@@ -1,9 +1,9 @@
 package netstg
 
 import (
-	"soloos/common/snet"
 	"soloos/common/snet/srpc"
 	snettypes "soloos/common/snet/types"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
 	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
@@ -18,7 +18,7 @@ const (
 )
 
 type MockServer struct {
-	snetDriver    *snet.NetDriver
+	*soloosbase.SoloOSEnv
 	network       string
 	addr          string
 	srpcServer    srpc.Server
@@ -29,9 +29,9 @@ func (p *MockServer) SetDataNodePeers(dataNodePeers []snettypes.PeerUintptr) {
 	p.dataNodePeers = dataNodePeers
 }
 
-func (p *MockServer) Init(snetDriver *snet.NetDriver, network string, addr string) error {
+func (p *MockServer) Init(soloOSEnv *soloosbase.SoloOSEnv, network string, addr string) error {
 	var err error
-	p.snetDriver = snetDriver
+	p.SoloOSEnv = soloOSEnv
 	p.network = network
 	p.addr = addr
 	err = p.srpcServer.Init(p.network, p.addr)
@@ -47,7 +47,7 @@ func (p *MockServer) Init(snetDriver *snet.NetDriver, network string, addr strin
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
 	p.dataNodePeers = make([]snettypes.PeerUintptr, 3)
 	for i := 0; i < len(p.dataNodePeers); i++ {
-		p.dataNodePeers[i] = p.snetDriver.AllocPeer(p.addr, types.DefaultSDFSRPCProtocol)
+		p.dataNodePeers[i] = p.SNetDriver.AllocPeer(p.addr, types.DefaultSDFSRPCProtocol)
 	}
 
 	return nil

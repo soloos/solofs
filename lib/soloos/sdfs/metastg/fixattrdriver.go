@@ -2,19 +2,19 @@ package metastg
 
 import (
 	"soloos/common/sdbapi"
-	"soloos/sdbone/offheap"
+	soloosbase "soloos/common/soloosapi/base"
 )
 
 // FIXAttrDriver is FsINode XAttr driver
 type FIXAttrDriver struct {
-	DBConn        *sdbapi.Connection
-	OffheapDriver *offheap.OffheapDriver
+	*soloosbase.SoloOSEnv
+	dbConn *sdbapi.Connection
 }
 
-func (p *FIXAttrDriver) Init(offheapDriver *offheap.OffheapDriver,
+func (p *FIXAttrDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	dbConn *sdbapi.Connection,
 ) error {
-	p.OffheapDriver = offheapDriver
-	p.DBConn = dbConn
+	p.SoloOSEnv = soloOSEnv
+	p.dbConn = dbConn
 	return nil
 }

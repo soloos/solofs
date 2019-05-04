@@ -1,9 +1,8 @@
 package memstg
 
 import (
-	"soloos/common/snet"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
-	"soloos/sdbone/offheap"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
 	"testing"
@@ -13,21 +12,23 @@ import (
 
 func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 	var (
-		mockServer       netstg.MockServer
+		soloOSEnv         soloosbase.SoloOSEnv
+		mockServer        netstg.MockServer
 		mockNetINodeTable types.MockNetINodeTable
-		snetDriver       snet.NetDriver
-		netBlockDriver   netstg.NetBlockDriver
-		memBlockDriver   MemBlockDriver
-		netINodeDriver   NetINodeDriver
-		maxBlocks        int32 = 16
-		i                int32
-		netBlockCap      int   = 4
-		memBlockCap      int   = 4
-		blocksLimit int32 = 2
-		uNetINode        types.NetINodeUintptr
+		netBlockDriver    netstg.NetBlockDriver
+		memBlockDriver    MemBlockDriver
+		netINodeDriver    NetINodeDriver
+		maxBlocks         int32 = 16
+		i                 int32
+		netBlockCap       int   = 4
+		memBlockCap       int   = 4
+		blocksLimit       int32 = 2
+		uNetINode         types.NetINodeUintptr
 	)
-	assert.NoError(t, mockNetINodeTable.Init(&offheap.DefaultOffheapDriver))
-	MakeDriversWithMockServerForTest("127.0.0.1:10023", &mockServer, &snetDriver,
+	util.AssertErrIsNil(soloOSEnv.Init())
+
+	assert.NoError(t, mockNetINodeTable.Init(&soloOSEnv))
+	MakeDriversWithMockServerForTest(&soloOSEnv, "127.0.0.1:10023", &mockServer,
 		&netBlockDriver, &memBlockDriver, &netINodeDriver,
 		memBlockCap, blocksLimit)
 	uNetINode = mockNetINodeTable.AllocNetINode(netBlockCap, memBlockCap)

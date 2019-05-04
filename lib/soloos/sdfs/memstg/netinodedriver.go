@@ -1,6 +1,7 @@
 package memstg
 
 import (
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
 	"soloos/sdfs/netstg"
@@ -15,16 +16,16 @@ type NetINodeDriverHelper struct {
 }
 
 type NetINodeDriver struct {
+	*soloosbase.SoloOSEnv
 	helper NetINodeDriverHelper
 
-	offheapDriver *offheap.OffheapDriver
 	netINodeTable offheap.LKVTableWithBytes64
 
 	memBlockDriver *MemBlockDriver
 	netBlockDriver *netstg.NetBlockDriver
 }
 
-func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
+func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	netBlockDriver *netstg.NetBlockDriver,
 	memBlockDriver *MemBlockDriver,
 	// for NetINodeDriverHelper
@@ -35,19 +36,19 @@ func (p *NetINodeDriver) Init(offheapDriver *offheap.OffheapDriver,
 ) error {
 	var err error
 
-	p.offheapDriver = offheapDriver
+	p.SoloOSEnv = soloOSEnv
+	p.SetHelper(nameNodeClient,
+		prepareNetINodeMetaDataOnlyLoadDB, prepareNetINodeMetaDataWithStorDB,
+		netINodeCommitSizeInDB)
+
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
 
-	err = p.offheapDriver.InitLKVTableWithBytes64(&p.netINodeTable, "NetINode",
+	err = p.OffheapDriver.InitLKVTableWithBytes64(&p.netINodeTable, "NetINode",
 		int(types.NetINodeStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	if err != nil {
 		return err
 	}
-
-	p.SetHelper(nameNodeClient,
-		prepareNetINodeMetaDataOnlyLoadDB, prepareNetINodeMetaDataWithStorDB,
-		netINodeCommitSizeInDB)
 
 	return nil
 }

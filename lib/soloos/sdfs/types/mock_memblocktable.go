@@ -1,22 +1,23 @@
 package types
 
 import (
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdbone/offheap"
 	"sync/atomic"
 )
 
 type MockMemBlockTable struct {
-	offheapDriver *offheap.OffheapDriver
-	ichunkSize    int
-	mockID        int32
-	hkvTable      offheap.HKVTableWithBytes12
+	*soloosbase.SoloOSEnv
+	ichunkSize int
+	mockID     int32
+	hkvTable   offheap.HKVTableWithBytes12
 }
 
-func (p *MockMemBlockTable) Init(offheapDriver *offheap.OffheapDriver, ichunkSize int) error {
+func (p *MockMemBlockTable) Init(soloOSEnv *soloosbase.SoloOSEnv, ichunkSize int) error {
 	var err error
-	p.offheapDriver = offheapDriver
+	p.SoloOSEnv = soloOSEnv
 	p.ichunkSize = ichunkSize
-	err = p.offheapDriver.InitHKVTableWithBytes12(&p.hkvTable, "mock",
+	err = p.OffheapDriver.InitHKVTableWithBytes12(&p.hkvTable, "mock",
 		int(MemBlockStructSize+uintptr(p.ichunkSize)), -1, offheap.DefaultKVTableSharedCount,
 		p.HKVTableInvokePrepareNewObject, nil)
 	if err != nil {

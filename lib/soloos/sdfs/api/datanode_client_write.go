@@ -94,14 +94,14 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 		req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 		uPeer = uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex]
-		err = p.snetClientDriver.Call(uPeer,
+		err = p.SNetClientDriver.Call(uPeer,
 			"/NetINode/PWrite", &req, &resp)
 		if err != nil {
 			goto PWRITE_DONE
 		}
 
 		respBody = make([]byte, resp.ParamSize)
-		err = p.snetClientDriver.ReadResponse(uPeer, &req, &resp, respBody)
+		err = p.SNetClientDriver.ReadResponse(uPeer, &req, &resp, respBody)
 		if err != nil {
 			goto PWRITE_DONE
 		}

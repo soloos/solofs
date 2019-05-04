@@ -15,7 +15,7 @@ func (p *NetBlockDriver) FetchNetBlockFromDB(pNetINode *types.NetINode,
 		sqlRows *sql.Rows
 	)
 
-	err = p.helper.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -58,7 +58,7 @@ func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *types.NetINode, pNetBlock 
 		err                 error
 	)
 
-	err = p.helper.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		goto QUERY_DONE
 	}

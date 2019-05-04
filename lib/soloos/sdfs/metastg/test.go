@@ -1,12 +1,12 @@
 package metastg
 
 import (
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
-	"soloos/sdbone/offheap"
 )
 
-func MakeMetaStgForTest(offheapDriver *offheap.OffheapDriver, metaStg *MetaStg) {
+func MakeMetaStgForTest(soloOSEnv *soloosbase.SoloOSEnv, metaStg *MetaStg) {
 	var err error
-	err = metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect)
+	err = metaStg.Init(soloOSEnv, TestMetaStgDBDriver, TestMetaStgDBConnect)
 	util.AssertErrIsNil(err)
 }

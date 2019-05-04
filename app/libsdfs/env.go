@@ -2,6 +2,7 @@ package main
 
 import (
 	"soloos/common/fsapi"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
 	"soloos/sdfs/libsdfs"
 )
@@ -12,6 +13,7 @@ var (
 
 type Env struct {
 	Options      Options
+	SoloOSEnv    soloosbase.SoloOSEnv
 	ClientDriver libsdfs.ClientDriver
 	Client       libsdfs.Client
 	PosixFS      fsapi.PosixFS
@@ -25,11 +27,15 @@ func (p *Env) Init(optionsFile string) {
 	p.Options, err = LoadOptionsFile(optionsFile)
 	util.AssertErrIsNil(err)
 
+	err = p.SoloOSEnv.Init()
+	util.AssertErrIsNil(err)
+
 	go func() {
 		util.PProfServe(p.Options.PProfListenAddr)
 	}()
 
-	util.AssertErrIsNil(p.ClientDriver.Init(p.Options.NameNodeSRPCServerAddr,
+	util.AssertErrIsNil(p.ClientDriver.Init(&p.SoloOSEnv,
+		p.Options.NameNodeSRPCServerAddr,
 		p.Options.DBDriver, p.Options.Dsn,
 	))
 

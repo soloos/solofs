@@ -1,9 +1,8 @@
 package datanode
 
 import (
-	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
-	"soloos/sdbone/offheap"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/api"
 	"soloos/sdfs/localfs"
 	"soloos/sdfs/memstg"
@@ -13,11 +12,9 @@ import (
 )
 
 type DataNode struct {
-	offheapDriver    *offheap.OffheapDriver
-	snetDriver       *snet.NetDriver
-	snetClientDriver *snet.ClientDriver
-	peerID           snettypes.PeerID
-	metaStg          *metastg.MetaStg
+	*soloosbase.SoloOSEnv
+	peerID  snettypes.PeerID
+	metaStg *metastg.MetaStg
 
 	memBlockDriver *memstg.MemBlockDriver
 	netBlockDriver *netstg.NetBlockDriver
@@ -32,10 +29,8 @@ type DataNode struct {
 	SRPCServer           DataNodeSRPCServer
 }
 
-func (p *DataNode) Init(offheapDriver *offheap.OffheapDriver,
+func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	options DataNodeOptions,
-	snetDriver *snet.NetDriver,
-	snetClientDriver *snet.ClientDriver,
 	metaStg *metastg.MetaStg,
 	memBlockDriver *memstg.MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
@@ -46,9 +41,7 @@ func (p *DataNode) Init(offheapDriver *offheap.OffheapDriver,
 		err           error
 	)
 
-	p.offheapDriver = offheapDriver
-	p.snetDriver = snetDriver
-	p.snetClientDriver = snetClientDriver
+	p.SoloOSEnv = soloOSEnv
 	p.peerID = options.PeerID
 
 	p.metaStg = metaStg
@@ -56,9 +49,9 @@ func (p *DataNode) Init(offheapDriver *offheap.OffheapDriver,
 	p.memBlockDriver = memBlockDriver
 	p.netINodeDriver = netINodeDriver
 
-	uNameNodePeer, _ = p.snetDriver.MustGetPeer(&options.NameNodePeerID, options.NameNodeSRPCServer,
+	uNameNodePeer, _ = p.SNetDriver.MustGetPeer(&options.NameNodePeerID, options.NameNodeSRPCServer,
 		types.DefaultSDFSRPCProtocol)
-	err = p.nameNodeClient.Init(p.snetClientDriver, uNameNodePeer)
+	err = p.nameNodeClient.Init(p.SoloOSEnv, uNameNodePeer)
 	if err != nil {
 		return err
 	}
@@ -74,7 +67,7 @@ func (p *DataNode) Init(offheapDriver *offheap.OffheapDriver,
 	if err != nil {
 		return err
 	}
-	p.uLocalDiskPeer, _ = p.snetDriver.MustGetPeer(&p.peerID, "", snettypes.ProtocolDisk)
+	p.uLocalDiskPeer, _ = p.SNetDriver.MustGetPeer(&p.peerID, "", snettypes.ProtocolDisk)
 
 	p.netBlockDriver.SetPReadMemBlockWithDisk(p.localFs.PReadMemBlockWithDisk)
 	p.netBlockDriver.SetUploadMemBlockWithDisk(p.localFs.UploadMemBlockWithDisk)

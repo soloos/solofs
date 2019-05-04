@@ -12,7 +12,7 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(fsINodeID types.FsINodeID) error {
 		err  error
 	)
 
-	err = p.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(fsINodeID types.FsINodeID, xattr type
 		err        error
 	)
 
-	err = p.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -72,7 +72,7 @@ func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(fsINodeID types.FsINodeID) (types.
 		err     error
 	)
 
-	err = p.DBConn.InitSession(&sess)
+	err = p.dbConn.InitSession(&sess)
 	if err != nil {
 		goto QUERY_DONE
 	}

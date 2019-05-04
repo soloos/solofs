@@ -1,7 +1,7 @@
 package netstg
 
 import (
-	"soloos/common/snet"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
@@ -16,38 +16,31 @@ type NetBlockDriverHelper struct {
 }
 
 type NetBlockDriver struct {
+	*soloosbase.SoloOSEnv
 	helper NetBlockDriverHelper
 
-	offheapDriver *offheap.OffheapDriver
-	netBlockTable offheap.LKVTableWithBytes68
-
-	snetDriver       *snet.NetDriver
-	snetClientDriver *snet.ClientDriver
-	dataNodeClient   *api.DataNodeClient
-
+	netBlockTable          offheap.LKVTableWithBytes68
+	dataNodeClient         *api.DataNodeClient
 	netBlockDriverUploader netBlockDriverUploader
 }
 
-func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
-	snetDriver *snet.NetDriver,
-	snetClientDriver *snet.ClientDriver,
+func (p *NetBlockDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	nameNodeClient *api.NameNodeClient,
 	dataNodeClient *api.DataNodeClient,
 	prepareNetBlockMetaData PrepareNetBlockMetaData,
 ) error {
 	var err error
-	p.offheapDriver = offheapDriver
-	err = p.offheapDriver.InitLKVTableWithBytes68(&p.netBlockTable, "NetBlock",
+
+	p.SoloOSEnv = soloOSEnv
+	p.SetHelper(nameNodeClient, prepareNetBlockMetaData)
+
+	err = p.OffheapDriver.InitLKVTableWithBytes68(&p.netBlockTable, "NetBlock",
 		int(types.NetBlockStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	if err != nil {
 		return err
 	}
 
-	p.snetDriver = snetDriver
-	p.snetClientDriver = snetClientDriver
 	p.dataNodeClient = dataNodeClient
-
-	p.SetHelper(nameNodeClient, prepareNetBlockMetaData)
 
 	err = p.netBlockDriverUploader.Init(p)
 	if err != nil {

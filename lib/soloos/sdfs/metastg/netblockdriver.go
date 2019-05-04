@@ -3,36 +3,36 @@ package metastg
 import (
 	"soloos/common/sdbapi"
 	snettypes "soloos/common/snet/types"
-	"soloos/sdbone/offheap"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	"strings"
 )
 
 type NetBlockDriverHelper struct {
-	DBConn                        *sdbapi.Connection
 	ChooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock
 	GetDataNode                   api.GetDataNode
 }
 
 type NetBlockDriver struct {
+	dbConn *sdbapi.Connection
 	helper NetBlockDriverHelper
 }
 
-func (p *NetBlockDriver) Init(offheapDriver *offheap.OffheapDriver,
+func (p *NetBlockDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	dbConn *sdbapi.Connection,
 	getDataNode api.GetDataNode,
 	chooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock,
 ) error {
-	p.SetHelper(dbConn, getDataNode, chooseDataNodesForNewNetBlock)
+	p.dbConn = dbConn
+	p.SetHelper(getDataNode, chooseDataNodesForNewNetBlock)
 	return nil
 }
 
-func (p *NetBlockDriver) SetHelper(dbConn *sdbapi.Connection,
+func (p *NetBlockDriver) SetHelper(
 	getDataNode api.GetDataNode,
 	chooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock,
 ) {
-	p.helper.DBConn = dbConn
 	p.helper.GetDataNode = getDataNode
 	p.helper.ChooseDataNodesForNewNetBlock = chooseDataNodesForNewNetBlock
 }

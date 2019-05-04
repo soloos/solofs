@@ -1,68 +1,59 @@
 package netstg
 
 import (
-	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
-	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	"time"
 )
 
-func MakeNetBlockDriversForTest(netBlockDriver *NetBlockDriver,
-	offheapDriver *offheap.OffheapDriver,
-	snetDriver *snet.NetDriver,
-	snetClientDriver *snet.ClientDriver,
+func MakeNetBlockDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
+	netBlockDriver *NetBlockDriver,
 	nameNodeClient *api.NameNodeClient,
 	dataNodeClient *api.DataNodeClient,
 ) {
-	util.AssertErrIsNil(netBlockDriver.Init(offheapDriver,
-		snetDriver, snetClientDriver,
+	util.AssertErrIsNil(netBlockDriver.Init(soloOSEnv,
 		nameNodeClient, dataNodeClient,
 		netBlockDriver.PrepareNetBlockMetaDataWithTransfer,
 	))
 }
 
-func MakeDriversForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.ClientDriver,
+func MakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	nameNodeSRPCServerAddr string,
 	nameNodeClient *api.NameNodeClient,
 	dataNodeClient *api.DataNodeClient,
 	netBlockDriver *NetBlockDriver,
 ) {
 	var (
-		offheapDriver = &offheap.DefaultOffheapDriver
-		nameNodePeer  snettypes.PeerUintptr
+		nameNodePeer snettypes.PeerUintptr
 	)
 
-	util.AssertErrIsNil(snetDriver.Init(offheapDriver, "TestNetDriver"))
-	util.AssertErrIsNil(snetClientDriver.Init(offheapDriver))
-
-	nameNodePeer = snetDriver.AllocPeer(nameNodeSRPCServerAddr, types.DefaultSDFSRPCProtocol)
-	util.AssertErrIsNil(nameNodeClient.Init(snetClientDriver, nameNodePeer))
-	util.AssertErrIsNil(dataNodeClient.Init(snetClientDriver))
-	MakeNetBlockDriversForTest(netBlockDriver, offheapDriver,
-		snetDriver, snetClientDriver,
-		nameNodeClient, dataNodeClient,
+	nameNodePeer = soloOSEnv.SNetDriver.AllocPeer(nameNodeSRPCServerAddr, types.DefaultSDFSRPCProtocol)
+	util.AssertErrIsNil(nameNodeClient.Init(soloOSEnv, nameNodePeer))
+	util.AssertErrIsNil(dataNodeClient.Init(soloOSEnv))
+	MakeNetBlockDriversForTest(soloOSEnv,
+		netBlockDriver, nameNodeClient, dataNodeClient,
 	)
 }
 
-func MakeMockServerForTest(snetDriver *snet.NetDriver,
+func MakeMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	mockServerAddr string, mockServer *MockServer) {
-	util.AssertErrIsNil(mockServer.Init(snetDriver, "tcp", mockServerAddr))
+	util.AssertErrIsNil(mockServer.Init(soloOSEnv, "tcp", mockServerAddr))
 	go func() {
 		util.AssertErrIsNil(mockServer.Serve())
 	}()
 	time.Sleep(time.Millisecond * 300)
 }
 
-func MakeDriversWithMockServerForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.ClientDriver,
+func MakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	mockServerAddr string,
 	mockServer *MockServer,
 	nameNodeClient *api.NameNodeClient,
 	dataNodeClient *api.DataNodeClient,
 	netBlockDriver *NetBlockDriver,
 ) {
-	MakeDriversForTest(snetDriver, snetClientDriver, mockServerAddr, nameNodeClient, dataNodeClient, netBlockDriver)
-	MakeMockServerForTest(snetDriver, mockServerAddr, mockServer)
+	MakeDriversForTest(soloOSEnv, mockServerAddr, nameNodeClient, dataNodeClient, netBlockDriver)
+	MakeMockServerForTest(soloOSEnv, mockServerAddr, mockServer)
 }

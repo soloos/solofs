@@ -53,7 +53,7 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr
 	req.Param = protocolBuilder.Bytes[protocolBuilder.Head():]
 
 	// TODO choose datanode
-	err = p.snetClientDriver.Call(uPeer,
+	err = p.SNetClientDriver.Call(uPeer,
 		"/NetINode/PRead", &req, &resp)
 	if err != nil {
 		return 0, err
@@ -65,7 +65,7 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr
 		param                       = make([]byte, resp.ParamSize)
 		offsetInMemBlock, readedLen int
 	)
-	err = p.snetClientDriver.ReadResponse(uPeer, &req, &resp, param)
+	err = p.SNetClientDriver.ReadResponse(uPeer, &req, &resp, param)
 	if err != nil {
 		return 0, err
 	}
@@ -78,7 +78,7 @@ func (p *DataNodeClient) doPReadMemBlockWithSRPC(uNetINode types.NetINodeUintptr
 
 	offsetInMemBlock = int(offset - uint64(uMemBlock.Ptr().Bytes.Cap)*uint64(memBlockIndex))
 	readedLen = int(resp.BodySize - resp.ParamSize)
-	err = p.snetClientDriver.ReadResponse(uPeer, &req, &resp,
+	err = p.SNetClientDriver.ReadResponse(uPeer, &req, &resp,
 		(*uMemBlock.Ptr().BytesSlice())[offsetInMemBlock:readedLen])
 	if err != nil {
 		return 0, err

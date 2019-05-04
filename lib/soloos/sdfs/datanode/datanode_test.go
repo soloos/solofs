@@ -1,9 +1,8 @@
 package datanode
 
 import (
-	"soloos/common/snet"
-	snettypes "soloos/common/snet/types"
-	"soloos/sdbone/offheap"
+	sdfsapitypes "soloos/common/sdfsapi/types"
+	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
@@ -17,7 +16,7 @@ import (
 
 func TestBase(t *testing.T) {
 	var (
-		offheapDriver           = &offheap.DefaultOffheapDriver
+		soloOSEnvForMetaStg     soloosbase.SoloOSEnv
 		metaStg                 metastg.MetaStg
 		nameNodeSRPCListenAddr  = "127.0.0.1:10401"
 		nameNode                namenode.NameNode
@@ -33,25 +32,20 @@ func TestBase(t *testing.T) {
 	)
 
 	var (
-		mockMemBlockTable types.MockMemBlockTable
+		soloOSEnvForClient      soloosbase.SoloOSEnv
+		memBlockDriverForClient memstg.MemBlockDriver
+		netBlockDriverForClient netstg.NetBlockDriver
+		netINodeDriverForClient memstg.NetINodeDriver
 
-		snetDriverClient       snet.NetDriver
-		snetClientDriverClient snet.ClientDriver
-		memBlockDriverClient   memstg.MemBlockDriver
-		netBlockDriverClient   netstg.NetBlockDriver
-		netINodeDriverClient   memstg.NetINodeDriver
+		soloOSEnvForNameNode      soloosbase.SoloOSEnv
+		memBlockDriverForNameNode memstg.MemBlockDriver
+		netBlockDriverForNameNode netstg.NetBlockDriver
+		netINodeDriverForNameNode memstg.NetINodeDriver
 
-		snetDriverNameNode       snet.NetDriver
-		snetClientDriverNameNode snet.ClientDriver
-		memBlockDriverNameNode   memstg.MemBlockDriver
-		netBlockDriverNameNode   netstg.NetBlockDriver
-		netINodeDriverNameNode   memstg.NetINodeDriver
-
-		snetDriverDataNodes       [6]snet.NetDriver
-		snetClientDriverDataNodes [6]snet.ClientDriver
-		memBlockDriverDataNodes   [6]memstg.MemBlockDriver
-		netBlockDriverDataNodes   [6]netstg.NetBlockDriver
-		netINodeDriverDataNodes   [6]memstg.NetINodeDriver
+		soloOSEnvForDataNodes      [6]soloosbase.SoloOSEnv
+		memBlockDriverForDataNodes [6]memstg.MemBlockDriver
+		netBlockDriverForDataNodes [6]netstg.NetBlockDriver
+		netINodeDriverForDataNodes [6]memstg.NetINodeDriver
 
 		netBlockCap int   = 32
 		memBlockCap int   = 16
@@ -60,37 +54,44 @@ func TestBase(t *testing.T) {
 		i           int
 		err         error
 	)
-	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
-	memstg.MakeDriversForTest(&snetDriverClient, &snetClientDriverClient,
-		nameNodeSRPCListenAddr,
-		&memBlockDriverClient, &netBlockDriverClient, &netINodeDriverClient, memBlockCap, blocksLimit)
 
-	memstg.MakeDriversForTest(&snetDriverNameNode, &snetClientDriverNameNode,
-		nameNodeSRPCListenAddr,
-		&memBlockDriverNameNode, &netBlockDriverNameNode, &netINodeDriverNameNode, memBlockCap, blocksLimit)
-	namenode.MakeNameNodeForTest(&nameNode, &metaStg, nameNodeSRPCListenAddr,
-		&memBlockDriverNameNode, &netBlockDriverNameNode, &netINodeDriverNameNode)
+	assert.NoError(t, soloOSEnvForMetaStg.Init())
+	metastg.MakeMetaStgForTest(&soloOSEnvForMetaStg, &metaStg)
 
-	mockMemBlockTable.Init(offheapDriver, 1024)
+	assert.NoError(t, soloOSEnvForClient.Init())
+	assert.NoError(t, soloOSEnvForNameNode.Init())
+
+	memstg.MakeDriversForTest(&soloOSEnvForClient,
+		nameNodeSRPCListenAddr,
+		&memBlockDriverForClient, &netBlockDriverForClient, &netINodeDriverForClient, memBlockCap, blocksLimit)
+
+	memstg.MakeDriversForTest(&soloOSEnvForNameNode,
+		nameNodeSRPCListenAddr,
+		&memBlockDriverForNameNode, &netBlockDriverForNameNode, &netINodeDriverForNameNode, memBlockCap, blocksLimit)
+	namenode.MakeNameNodeForTest(&soloOSEnvForNameNode, &nameNode, &metaStg, nameNodeSRPCListenAddr,
+		&memBlockDriverForNameNode, &netBlockDriverForNameNode, &netINodeDriverForNameNode)
+
 	go func() {
 		assert.NoError(t, nameNode.Serve())
 	}()
 	time.Sleep(time.Millisecond * 300)
 
 	for i = 0; i < len(dataNodeSRPCListenAddrs); i++ {
-		memstg.MakeDriversForTest(&snetDriverDataNodes[i], &snetClientDriverDataNodes[i],
+		assert.NoError(t, soloOSEnvForDataNodes[i].Init())
+
+		memstg.MakeDriversForTest(&soloOSEnvForDataNodes[i],
 			nameNodeSRPCListenAddr,
-			&memBlockDriverDataNodes[i],
-			&netBlockDriverDataNodes[i],
-			&netINodeDriverDataNodes[i],
+			&memBlockDriverForDataNodes[i],
+			&netBlockDriverForDataNodes[i],
+			&netINodeDriverForDataNodes[i],
 			memBlockCap, blocksLimit)
 
-		MakeDataNodeForTest(&snetDriverDataNodes[i], &snetClientDriverDataNodes[i],
+		MakeDataNodeForTest(&soloOSEnvForDataNodes[i],
 			&dataNodes[i], dataNodeSRPCListenAddrs[i], &metaStg,
 			nameNodeSRPCListenAddr,
-			&memBlockDriverDataNodes[i],
-			&netBlockDriverDataNodes[i],
-			&netINodeDriverDataNodes[i])
+			&memBlockDriverForDataNodes[i],
+			&netBlockDriverForDataNodes[i],
+			&netINodeDriverForDataNodes[i])
 		go func(localI int) {
 			assert.NoError(t, dataNodes[localI].Serve())
 		}(i)
@@ -100,8 +101,8 @@ func TestBase(t *testing.T) {
 	var (
 		netINodeID types.NetINodeID
 	)
-	snettypes.InitTmpPeerID(&netINodeID)
-	uNetINode, err = netINodeDriverClient.MustGetNetINodeWithReadAcquire(netINodeID, 0, netBlockCap, memBlockCap)
+	sdfsapitypes.InitTmpNetINodeID(&netINodeID)
+	uNetINode, err = netINodeDriverForClient.MustGetNetINodeWithReadAcquire(netINodeID, 0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 
 	writeData := make([]byte, 73)
@@ -110,16 +111,16 @@ func TestBase(t *testing.T) {
 	writeData[8] = 3
 	writeData[33] = 4
 	writeData[60] = 5
-	assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, writeData, 612))
-	assert.NoError(t, netINodeDriverClient.Flush(uNetINode))
+	assert.NoError(t, netINodeDriverForClient.PWriteWithMem(uNetINode, writeData, 612))
+	assert.NoError(t, netINodeDriverForClient.Flush(uNetINode))
 
 	var maxWriteTimes int = 128
 	for i = 0; i < maxWriteTimes; i++ {
-		assert.NoError(t, netINodeDriverClient.PWriteWithMem(uNetINode, writeData, uint64(netBlockCap*600+8*i)))
+		assert.NoError(t, netINodeDriverForClient.PWriteWithMem(uNetINode, writeData, uint64(netBlockCap*600+8*i)))
 	}
 
 	readData := make([]byte, 73)
-	_, err = netINodeDriverClient.PReadWithMem(uNetINode, readData, 612)
+	_, err = netINodeDriverForClient.PReadWithMem(uNetINode, readData, 612)
 	assert.NoError(t, err)
 	assert.Equal(t, writeData, readData)
 
