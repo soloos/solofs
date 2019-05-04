@@ -15,16 +15,16 @@ func (p *netBlockDriverUploader) PWrite(uNetINode types.NetINodeUintptr,
 		pMemBlock                    = uMemBlock.Ptr()
 	)
 
-	for isMergeWriteMaskSuccess == false {
-		if pMemBlock.UploadJob.IsUploadPolicyPrepared == false {
-			p.PrepareUploadMemBlockJob(&pMemBlock.UploadJob,
-				uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, uNetBlock.Ptr().StorDataBackends)
-		}
+	if pMemBlock.UploadJob.MetaDataState.Load() == types.MetaDataStateUninited {
+		p.PrepareUploadMemBlockJob(&pMemBlock.UploadJob,
+			uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, uNetBlock.Ptr().StorDataBackends)
+	}
 
-		pMemBlock.UploadJob.UploadPolicyMutex.Lock()
+	for isMergeWriteMaskSuccess == false {
+		pMemBlock.UploadJob.MetaDataStateMutex.Lock()
 		isMergeEventHappened, isMergeWriteMaskSuccess =
 			pMemBlock.UploadJob.UploadMaskWaiting.Ptr().MergeIncludeNeighbour(offset, end)
-		pMemBlock.UploadJob.UploadPolicyMutex.Unlock()
+		pMemBlock.UploadJob.MetaDataStateMutex.Unlock()
 
 		if isMergeWriteMaskSuccess {
 			if isMergeEventHappened == false {

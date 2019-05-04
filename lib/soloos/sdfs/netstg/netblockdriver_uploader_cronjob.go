@@ -1,8 +1,8 @@
 package netstg
 
 import (
-	"soloos/sdfs/types"
 	"soloos/common/util"
+	"soloos/sdfs/types"
 )
 
 func (p *netBlockDriverUploader) cronUpload() error {
@@ -27,14 +27,16 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		pNetBlock = pJob.UNetBlock.Ptr()
 
 		// prepare upload job
-		pJob.UploadPolicyMutex.Lock()
+		pJob.MetaDataStateMutex.Lock()
 		if pJob.UploadMaskWaiting.Ptr().MaskArrayLen == 0 {
 			// upload done and continue
-			pJob.UploadPolicyMutex.Unlock()
+			pJob.MetaDataStateMutex.Unlock()
 			goto ONE_RUN_DONE
+		} else {
+			// upload job exists
+			pJob.UploadMaskSwap()
+			pJob.MetaDataStateMutex.Unlock()
 		}
-		pJob.UploadMaskSwap()
-		pJob.UploadPolicyMutex.Unlock()
 
 		util.AssertTrue(pNetBlock.SyncDataBackends.Len > 0)
 

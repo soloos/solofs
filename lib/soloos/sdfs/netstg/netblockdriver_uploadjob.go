@@ -10,9 +10,9 @@ func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *types.UploadMemB
 	uNetBlock types.NetBlockUintptr, netBlockIndex int32,
 	uMemBlock types.MemBlockUintptr, memBlockIndex int32,
 	backends snettypes.PeerGroup) {
-	pJob.UploadPolicyMutex.Lock()
-	if pJob.IsUploadPolicyPrepared {
-		pJob.UploadPolicyMutex.Unlock()
+	pJob.MetaDataStateMutex.Lock()
+	if pJob.MetaDataState.Load() == types.MetaDataStateInited {
+		pJob.MetaDataStateMutex.Unlock()
 		return
 	}
 	pJob.UNetINode = uNetINode
@@ -23,6 +23,6 @@ func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *types.UploadMemB
 	pJob.UploadMaskWaitingIndex = 1
 	pJob.UploadMaskSwap()
 
-	pJob.IsUploadPolicyPrepared = true
-	pJob.UploadPolicyMutex.Unlock()
+	pJob.MetaDataState.Store(types.MetaDataStateInited)
+	pJob.MetaDataStateMutex.Unlock()
 }

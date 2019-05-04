@@ -17,9 +17,9 @@ func (u UploadMemBlockJobUintptr) Ptr() *UploadMemBlockJob {
 }
 
 type UploadMemBlockJob struct {
+	MetaDataStateMutex     sync.Mutex
+	MetaDataState          MetaDataState
 	SyncDataSig            sync.WaitGroup
-	UploadPolicyMutex      sync.Mutex
-	IsUploadPolicyPrepared bool
 	UNetINode              NetINodeUintptr
 	UNetBlock              NetBlockUintptr
 	UMemBlock              MemBlockUintptr
@@ -31,7 +31,7 @@ type UploadMemBlockJob struct {
 }
 
 func (p *UploadMemBlockJob) Reset() {
-	p.IsUploadPolicyPrepared = false
+	p.MetaDataState.Store(MetaDataStateUninited)
 }
 
 func (p *UploadMemBlockJob) UploadMaskSwap() {
