@@ -18,30 +18,30 @@ func TestMetaStgNetBlock(t *testing.T) {
 		metaStg       MetaStg
 		netINode      types.NetINode
 		netBlock      types.NetBlock
-		id0           types.NetINodeID
-		id1           types.NetINodeID
-		id2           types.NetINodeID
+		peerID0       types.NetINodeID
+		peerID1       types.NetINodeID
+		peerID2       types.NetINodeID
 		peerID        snettypes.PeerID
 		err           error
 	)
 
 	util.AssertErrIsNil(metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect))
-	util.InitUUID64(&id0)
-	util.InitUUID64(&id1)
-	util.InitUUID64(&id2)
+	snettypes.InitTmpPeerID(&peerID0)
+	snettypes.InitTmpPeerID(&peerID1)
+	snettypes.InitTmpPeerID(&peerID2)
 
 	err = offheap.DefaultOffheapDriver.InitLKVTableWithBytes64(&peerPool, "TestMetaStgNet",
 		int(snettypes.PeerStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	util.AssertErrIsNil(err)
 
-	netINode.ID = id0
+	netINode.ID = peerID0
 	netBlock.NetINodeID = netINode.ID
 
-	util.InitUUID64(&peerID)
+	snettypes.InitTmpPeerID(&peerID)
 	uObject, _ = peerPool.MustGetObjectWithAcquire(peerID)
 	uPeer0 := snettypes.PeerUintptr(uObject)
 
-	util.InitUUID64(&peerID)
+	snettypes.InitTmpPeerID(&peerID)
 	uObject, _ = peerPool.MustGetObjectWithAcquire(peerID)
 	uPeer1 := snettypes.PeerUintptr(uObject)
 

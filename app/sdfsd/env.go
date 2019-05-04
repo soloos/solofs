@@ -58,8 +58,10 @@ func (p *Env) startCommon() {
 
 func (p *Env) startNameNode() {
 	var (
-		nameNode namenode.NameNode
+		nameNode       namenode.NameNode
+		nameNodePeerID snettypes.PeerID
 	)
+	copy(nameNodePeerID[:], []byte(p.options.NameNodePeerIDStr))
 
 	util.AssertErrIsNil(p.NetBlockDriver.Init(p.offheapDriver,
 		&p.SNetDriver, &p.SNetClientDriver,
@@ -76,6 +78,7 @@ func (p *Env) startNameNode() {
 
 	util.AssertErrIsNil(nameNode.Init(p.offheapDriver,
 		p.options.ListenAddr,
+		nameNodePeerID,
 		&p.MetaStg,
 		&p.MemBlockDriver,
 		&p.NetBlockDriver,

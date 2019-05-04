@@ -1,7 +1,7 @@
 package types
 
 import (
-	"soloos/common/util"
+	snettypes "soloos/common/snet/types"
 	"soloos/sdbone/offheap"
 )
 
@@ -35,7 +35,7 @@ func (p *MockNetINodeTable) MustGetNetINode(netINodeID NetINodeID) (NetINodeUint
 
 func (p *MockNetINodeTable) AllocNetINode(netBlockCap, memBlockCap int) NetINodeUintptr {
 	var netINodeID NetINodeID
-	util.InitUUID64(&netINodeID)
+	snettypes.InitTmpPeerID(&netINodeID)
 	uNetINode, _ := p.MustGetNetINode(netINodeID)
 	uNetINode.Ptr().ID = netINodeID
 	uNetINode.Ptr().NetBlockCap = netBlockCap

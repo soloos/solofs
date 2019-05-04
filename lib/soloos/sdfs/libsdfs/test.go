@@ -63,7 +63,7 @@ func MakeClientForTest(client *Client) {
 	mockMemBlockTable.Init(offheapDriver, 1024)
 
 	for i = 0; i < 6; i++ {
-		util.InitUUID64(&peerID)
+		snettypes.InitTmpPeerID(&peerID)
 		nameNode.RegisterDataNode(peerID, mockServerAddr)
 	}
 

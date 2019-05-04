@@ -1,9 +1,9 @@
 package metastg
 
 import (
-	"soloos/sdfs/types"
-	"soloos/common/util"
+	snettypes "soloos/common/snet/types"
 	"soloos/sdbone/offheap"
+	"soloos/sdfs/types"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,15 +14,15 @@ func TestMetaStgNetINode(t *testing.T) {
 		offheapDriver = &offheap.DefaultOffheapDriver
 		metaStg       MetaStg
 		netINode      types.NetINode
-		id0           types.NetINodeID
-		id1           types.NetINodeID
+		peerID0       types.NetINodeID
+		peerID1       types.NetINodeID
 	)
 
 	assert.NoError(t, metaStg.Init(offheapDriver, TestMetaStgDBDriver, TestMetaStgDBConnect))
-	util.InitUUID64(&id0)
-	util.InitUUID64(&id1)
+	snettypes.InitTmpPeerID(&peerID0)
+	snettypes.InitTmpPeerID(&peerID1)
 
-	netINode.ID = id0
+	netINode.ID = peerID0
 	assert.NoError(t, metaStg.StoreNetINodeInDB(&netINode))
 	assert.NoError(t, metaStg.StoreNetINodeInDB(&netINode))
 
@@ -31,12 +31,12 @@ func TestMetaStgNetINode(t *testing.T) {
 		assert.Equal(t, err, nil)
 	}
 	{
-		netINode.ID = id1
+		netINode.ID = peerID1
 		err := metaStg.FetchNetINodeFromDB(&netINode)
 		assert.Equal(t, err, types.ErrObjectNotExists)
 	}
 	{
-		netINode.ID = id0
+		netINode.ID = peerID0
 		err := metaStg.FetchNetINodeFromDB(&netINode)
 		assert.NoError(t, err)
 	}

@@ -2,13 +2,13 @@ package datanode
 
 import (
 	"path/filepath"
-	"soloos/sdfs/memstg"
-	"soloos/sdfs/metastg"
-	"soloos/sdfs/netstg"
 	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
+	"soloos/sdfs/memstg"
+	"soloos/sdfs/metastg"
+	"soloos/sdfs/netstg"
 )
 
 func MakeDataNodeForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.ClientDriver,
@@ -26,7 +26,7 @@ func MakeDataNodeForTest(snetDriver *snet.NetDriver, snetClientDriver *snet.Clie
 	)
 
 	var peerID snettypes.PeerID
-	util.InitUUID64(&peerID)
+	snettypes.InitTmpPeerID(&peerID)
 	var localFsRoot = filepath.Join("/tmp/sdfs_test.data", string(peerID[:3]))
 
 	var options = DataNodeOptions{

@@ -3,8 +3,8 @@ package memstg
 import (
 	fsapitypes "soloos/common/fsapi/types"
 	"soloos/common/log"
+	snettypes "soloos/common/snet/types"
 	"soloos/common/timer"
-	"soloos/common/util"
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
@@ -361,7 +361,7 @@ func (p *FsINodeDriver) RefreshFsINodeACMtimeByIno(fsINodeID types.FsINodeID) er
 func (p *FsINodeDriver) AllocNetINodeID(fsINode *types.FsINode) error {
 	var err error
 	//TODO improve alloc NetInodeID
-	util.InitUUID64(&fsINode.NetINodeID)
+	snettypes.InitTmpPeerID(&fsINode.NetINodeID)
 	//TODO config memBlockSize netBlockSize
 	fsINode.UNetINode, err = p.helper.MustGetNetINodeWithReadAcquire(fsINode.NetINodeID,
 		0, p.DefaultNetBlockCap, p.DefaultMemBlockCap)

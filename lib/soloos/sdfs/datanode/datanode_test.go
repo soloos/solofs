@@ -2,7 +2,7 @@ package datanode
 
 import (
 	"soloos/common/snet"
-	"soloos/common/util"
+	snettypes "soloos/common/snet/types"
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
@@ -53,12 +53,12 @@ func TestBase(t *testing.T) {
 		netBlockDriverDataNodes   [6]netstg.NetBlockDriver
 		netINodeDriverDataNodes   [6]memstg.NetINodeDriver
 
-		netBlockCap      int   = 32
-		memBlockCap      int   = 16
+		netBlockCap int   = 32
+		memBlockCap int   = 16
 		blocksLimit int32 = 4
-		uNetINode        types.NetINodeUintptr
-		i                int
-		err              error
+		uNetINode   types.NetINodeUintptr
+		i           int
+		err         error
 	)
 	metastg.MakeMetaStgForTest(offheapDriver, &metaStg)
 	memstg.MakeDriversForTest(&snetDriverClient, &snetClientDriverClient,
@@ -100,7 +100,7 @@ func TestBase(t *testing.T) {
 	var (
 		netINodeID types.NetINodeID
 	)
-	util.InitUUID64(&netINodeID)
+	snettypes.InitTmpPeerID(&netINodeID)
 	uNetINode, err = netINodeDriverClient.MustGetNetINodeWithReadAcquire(netINodeID, 0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 

@@ -1,21 +1,22 @@
 package datanode
 
 import (
+	"soloos/common/snet"
+	snettypes "soloos/common/snet/types"
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
 	"soloos/sdfs/localfs"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
-	"soloos/common/snet"
-	snettypes "soloos/common/snet/types"
-	"soloos/sdbone/offheap"
 )
 
 type DataNode struct {
 	offheapDriver    *offheap.OffheapDriver
 	snetDriver       *snet.NetDriver
 	snetClientDriver *snet.ClientDriver
+	peerID           snettypes.PeerID
 	metaStg          *metastg.MetaStg
 
 	memBlockDriver *memstg.MemBlockDriver
@@ -23,7 +24,6 @@ type DataNode struct {
 	netINodeDriver *memstg.NetINodeDriver
 	nameNodeClient api.NameNodeClient
 
-	peerID         snettypes.PeerID
 	localFs        localfs.LocalFs
 	uLocalDiskPeer snettypes.PeerUintptr
 
@@ -49,6 +49,8 @@ func (p *DataNode) Init(offheapDriver *offheap.OffheapDriver,
 	p.offheapDriver = offheapDriver
 	p.snetDriver = snetDriver
 	p.snetClientDriver = snetClientDriver
+	p.peerID = options.PeerID
+
 	p.metaStg = metaStg
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
@@ -68,7 +70,6 @@ func (p *DataNode) Init(offheapDriver *offheap.OffheapDriver,
 		return err
 	}
 
-	p.peerID = options.PeerID
 	err = p.localFs.Init(options.LocalFsRoot)
 	if err != nil {
 		return err

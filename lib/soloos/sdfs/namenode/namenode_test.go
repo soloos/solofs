@@ -3,7 +3,6 @@ package namenode
 import (
 	"soloos/common/snet"
 	snettypes "soloos/common/snet/types"
-	"soloos/common/util"
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
@@ -60,12 +59,12 @@ func TestBase(t *testing.T) {
 	mockMemBlockTable.Init(offheapDriver, 1024)
 
 	for i = 0; i < 6; i++ {
-		util.InitUUID64(&peerID)
+		snettypes.InitTmpPeerID(&peerID)
 		nameNode.RegisterDataNode(peerID, mockServerAddr)
 	}
 
 	var netINodeID types.NetINodeID
-	util.InitUUID64(&netINodeID)
+	snettypes.InitTmpPeerID(&netINodeID)
 	uNetINode, err = netINodeDriverClient.MustGetNetINodeWithReadAcquire(netINodeID, 0, netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 

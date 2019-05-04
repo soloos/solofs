@@ -10,6 +10,7 @@ import (
 
 type NameNode struct {
 	offheapDriver *offheap.OffheapDriver
+	peerID        snettypes.PeerID
 	metaStg       *metastg.MetaStg
 
 	memBlockDriver *memstg.MemBlockDriver
@@ -21,6 +22,7 @@ type NameNode struct {
 
 func (p *NameNode) Init(offheapDriver *offheap.OffheapDriver,
 	srpcServerListenAddr string,
+	peerID snettypes.PeerID,
 	metaStg *metastg.MetaStg,
 	memBlockDriver *memstg.MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
@@ -29,15 +31,17 @@ func (p *NameNode) Init(offheapDriver *offheap.OffheapDriver,
 	var err error
 
 	p.offheapDriver = offheapDriver
-	p.metaStg = metaStg
-	p.memBlockDriver = memBlockDriver
-	p.netBlockDriver = netBlockDriver
-	p.netINodeDriver = netINodeDriver
+	p.peerID = peerID
 
 	err = p.SRPCServer.Init(p, srpcServerListenAddr)
 	if err != nil {
 		return err
 	}
+
+	p.metaStg = metaStg
+	p.memBlockDriver = memBlockDriver
+	p.netBlockDriver = netBlockDriver
+	p.netINodeDriver = netINodeDriver
 
 	return nil
 }

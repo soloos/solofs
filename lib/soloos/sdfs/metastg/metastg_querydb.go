@@ -2,8 +2,6 @@ package metastg
 
 import (
 	"soloos/common/log"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func (p *MetaStg) installSchema() error {

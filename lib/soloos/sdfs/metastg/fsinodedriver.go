@@ -2,10 +2,10 @@ package metastg
 
 import (
 	"soloos/common/sdbapi"
-	"soloos/sdfs/api"
-	"soloos/sdfs/types"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
+	"soloos/sdfs/api"
+	"soloos/sdfs/types"
 	"sync/atomic"
 )
 
@@ -78,10 +78,4 @@ func (p *FsINodeDriver) AllocFsINodeID() types.FsINodeID {
 		p.lastFsINodeIDInDB += p.allocINodeIDDalta
 	}
 	return ret
-}
-
-func (p *FsINodeDriver) AllocNetINodeWithReadAcquire(netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
-	var netINodeID types.NetINodeID
-	util.InitUUID64(&netINodeID)
-	return p.helper.MustGetNetINodeWithReadAcquire(netINodeID, 0, netBlockCap, memBlockCap)
 }

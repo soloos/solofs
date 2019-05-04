@@ -1,11 +1,12 @@
 package namenode
 
 import (
+	snettypes "soloos/common/snet/types"
+	"soloos/common/util"
+	"soloos/sdbone/offheap"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
-	"soloos/common/util"
-	"soloos/sdbone/offheap"
 )
 
 func MakeNameNodeForTest(nameNode *NameNode, metaStg *metastg.MetaStg, nameNodeSRPCServerAddr string,
@@ -24,7 +25,9 @@ func MakeNameNodeForTest(nameNode *NameNode, metaStg *metastg.MetaStg, nameNodeS
 		metaStg.PrepareNetINodeMetaDataWithStorDB,
 		metaStg.NetINodeCommitSizeInDB,
 	)
-	err = nameNode.Init(offheapDriver, nameNodeSRPCServerAddr, metaStg,
+	var nameNodePeerID snettypes.PeerID
+	snettypes.InitTmpPeerID(&nameNodePeerID)
+	err = nameNode.Init(offheapDriver, nameNodeSRPCServerAddr, nameNodePeerID, metaStg,
 		memBlockDriver,
 		netBlockDriver,
 		netINodeDriver,
