@@ -1,6 +1,6 @@
 {
-    "#DBDriver":"mysql",
-    "#Dsn":"root:hello@/sdfs_test",
-    "DBDriver":"sqlite3",
-    "Dsn":"/tmp/sdfs.db"
+    "DBDriver":"mysql",
+    "Dsn":"root:hello@/sdfs_test",
+    "#DBDriver":"sqlite3",
+    "#Dsn":"/tmp/sdfs.db"
 }

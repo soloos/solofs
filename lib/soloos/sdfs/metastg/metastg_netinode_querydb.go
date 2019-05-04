@@ -25,7 +25,7 @@ func (p *MetaStg) prepareNetINodesSqls() []string {
 	index_in_netinode int,
 	netblock_len int,
 	netblock_cap int,
-	backend_peer_id_arr char(1024),
+	backend_peer_id_arr varchar(1024),
 	primary key(netinode_id, index_in_netinode)
 	);
 `)
