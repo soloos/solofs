@@ -126,7 +126,7 @@ func (p *NetINodeDriver) PWriteWithMem(uNetINode types.NetINodeUintptr,
 	})
 }
 
-func (p *NetINodeDriver) Flush(uNetINode types.NetINodeUintptr) error {
+func (p *NetINodeDriver) Sync(uNetINode types.NetINodeUintptr) error {
 	// TODO commit offset in metadb
 	var (
 		pNetINode = uNetINode.Ptr()

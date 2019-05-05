@@ -48,7 +48,7 @@ func TestNetBlockDriver(t *testing.T) {
 	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 0, 12))
 	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 11, 24))
 	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 30, 64))
-	assert.NoError(t, netBlockDriver.FlushMemBlock(uNetINode, uNetBlock, uMemBlock))
+	assert.NoError(t, netBlockDriver.SyncMemBlock(uNetINode, uNetBlock, uMemBlock))
 
 	assert.NoError(t, mockServer.Close())
 }

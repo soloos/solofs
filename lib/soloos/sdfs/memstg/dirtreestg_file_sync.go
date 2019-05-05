@@ -6,7 +6,7 @@ import (
 )
 
 func (p *DirTreeStg) SimpleFlush(uNetINode types.NetINodeUintptr) error {
-	return p.MemStg.NetINodeDriver.Flush(uNetINode)
+	return p.MemStg.NetINodeDriver.Sync(uNetINode)
 }
 
 func (p *DirTreeStg) Flush(input *fsapitypes.FlushIn) fsapitypes.Status {

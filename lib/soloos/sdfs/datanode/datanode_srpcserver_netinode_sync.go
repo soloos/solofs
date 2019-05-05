@@ -9,7 +9,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *DataNodeSRPCServer) NetINodeFlush(serviceReq snettypes.ServiceRequest) error {
+func (p *DataNodeSRPCServer) NetINodeSync(serviceReq snettypes.ServiceRequest) error {
 	var (
 		reqParamData = make([]byte, serviceReq.ReqParamSize)
 		reqParam     protocol.NetINodePWriteRequest
@@ -45,7 +45,7 @@ func (p *DataNodeSRPCServer) NetINodeFlush(serviceReq snettypes.ServiceRequest) 
 		}
 	}
 
-	err = p.dataNode.netINodeDriver.Flush(uNetINode)
+	err = p.dataNode.netINodeDriver.Sync(uNetINode)
 	if err != nil {
 		api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_502)
 		goto SERVICE_DONE

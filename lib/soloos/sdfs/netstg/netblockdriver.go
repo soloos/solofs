@@ -114,7 +114,7 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	return uNetBlock, nil
 }
 
-func (p *NetBlockDriver) FlushMemBlock(uNetINode types.NetINodeUintptr,
+func (p *NetBlockDriver) SyncMemBlock(uNetINode types.NetINodeUintptr,
 	uNetBlock types.NetBlockUintptr,
 	uMemBlock types.MemBlockUintptr) error {
 	uMemBlock.Ptr().UploadJob.SyncDataSig.Wait()

@@ -112,7 +112,7 @@ func TestBase(t *testing.T) {
 	writeData[33] = 4
 	writeData[60] = 5
 	assert.NoError(t, netINodeDriverForClient.PWriteWithMem(uNetINode, writeData, 612))
-	assert.NoError(t, netINodeDriverForClient.Flush(uNetINode))
+	assert.NoError(t, netINodeDriverForClient.Sync(uNetINode))
 
 	var maxWriteTimes int = 128
 	for i = 0; i < maxWriteTimes; i++ {

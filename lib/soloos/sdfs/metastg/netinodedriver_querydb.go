@@ -69,32 +69,23 @@ QUERY_DONE:
 func (p *NetINodeDriver) StoreNetINodeInDB(pNetINode *types.NetINode) error {
 	var (
 		sess          sdbapi.Session
-		tx            *sdbapi.Tx
 		netINodeIDStr = pNetINode.IDStr()
 		err           error
 	)
 
 	err = p.dbConn.InitSession(&sess)
 	if err != nil {
-		goto QUERY_DONE
+		return err
 	}
 
-	tx, err = sess.Begin()
-	if err != nil {
-		goto QUERY_DONE
-	}
-
-	err = tx.ReplaceInto("b_netinode").
-		PrimaryColumn("netinode_id").PrimaryValue(netINodeIDStr).
+	err = sess.ReplaceInto("b_netinode").
+		PrimaryColumns("netinode_id").PrimaryValues(netINodeIDStr).
 		Columns("netinode_size", "netblock_cap", "memblock_cap").
 		Values(pNetINode.Size, pNetINode.NetBlockCap, pNetINode.MemBlockCap).
 		Exec()
-
-QUERY_DONE:
 	if err != nil {
-		tx.RollbackUnlessCommitted()
-	} else {
-		err = tx.Commit()
+		return err
 	}
-	return err
+
+	return nil
 }

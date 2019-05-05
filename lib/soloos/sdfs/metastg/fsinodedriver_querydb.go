@@ -20,7 +20,11 @@ func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
 	_, err = sess.DeleteFrom("b_fsinode").
 		Where("fsinode_ino=?", fsINodeID).
 		Exec()
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
@@ -135,21 +139,15 @@ QUERY_DONE:
 func (p *FsINodeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
 	var (
 		sess sdbapi.Session
-		tx   *sdbapi.Tx
 		err  error
 	)
 
 	err = p.dbConn.InitSession(&sess)
 	if err != nil {
-		goto QUERY_DONE
+		return err
 	}
 
-	tx, err = sess.Begin()
-	if err != nil {
-		goto QUERY_DONE
-	}
-
-	_, err = tx.Update("b_fsinode").
+	_, err = sess.Update("b_fsinode").
 		Set("fsinode_ino", fsINode.Ino).
 		Set("hardlink_ino", fsINode.HardLinkIno).
 		Set("netinode_id", string(fsINode.NetINodeID[:])).
@@ -170,36 +168,24 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
 		Where("fsinode_ino=?", fsINode.Ino).
 		Exec()
 	if err != nil {
-		goto QUERY_DONE
+		return err
 	}
 
-QUERY_DONE:
-	if err != nil {
-		tx.RollbackUnlessCommitted()
-	} else {
-		err = tx.Commit()
-	}
-	return err
+	return nil
 }
 
 func (p *FsINodeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
 	var (
 		sess sdbapi.Session
-		tx   *sdbapi.Tx
 		err  error
 	)
 
 	err = p.dbConn.InitSession(&sess)
 	if err != nil {
-		goto QUERY_DONE
+		return err
 	}
 
-	tx, err = sess.Begin()
-	if err != nil {
-		goto QUERY_DONE
-	}
-
-	_, err = tx.InsertInto("b_fsinode").
+	_, err = sess.InsertInto("b_fsinode").
 		Columns(schemaDirTreeFsINodeAttr...).
 		Values(
 			fsINode.Ino,
@@ -222,16 +208,10 @@ func (p *FsINodeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
 		).
 		Exec()
 	if err != nil {
-		goto QUERY_DONE
+		return err
 	}
 
-QUERY_DONE:
-	if err != nil {
-		tx.RollbackUnlessCommitted()
-	} else {
-		err = tx.Commit()
-	}
-	return err
+	return nil
 }
 
 func (p *FsINodeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.FsINode, error) {

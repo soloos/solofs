@@ -82,7 +82,7 @@ func TestBase(t *testing.T) {
 	assert.NoError(t, netINodeDriverForClient.PWriteWithMem(uNetINode, testData[0:12], 0))
 	assert.NoError(t, netINodeDriverForClient.PWriteWithMem(uNetINode, testData[11:24], 24))
 	assert.NoError(t, netINodeDriverForClient.PWriteWithMem(uNetINode, testData[30:64], 64))
-	assert.NoError(t, netINodeDriverForClient.Flush(uNetINode))
+	assert.NoError(t, netINodeDriverForClient.Sync(uNetINode))
 	_, err = netINodeDriverForClient.PReadWithMem(uNetINode, testData, 73)
 	assert.NoError(t, err)
 

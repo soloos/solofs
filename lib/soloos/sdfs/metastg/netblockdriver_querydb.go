@@ -51,7 +51,6 @@ QUERY_DONE:
 func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *types.NetINode, pNetBlock *types.NetBlock) error {
 	var (
 		sess                sdbapi.Session
-		tx                  *sdbapi.Tx
 		netINodeIDStr       = pNetINode.IDStr()
 		backendPeerIDArrStr bytes.Buffer
 		i                   int
@@ -60,12 +59,7 @@ func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *types.NetINode, pNetBlock 
 
 	err = p.dbConn.InitSession(&sess)
 	if err != nil {
-		goto QUERY_DONE
-	}
-
-	tx, err = sess.Begin()
-	if err != nil {
-		goto QUERY_DONE
+		return err
 	}
 
 	if pNetBlock.StorDataBackends.Len > 0 {
@@ -78,25 +72,14 @@ func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *types.NetINode, pNetBlock 
 		backendPeerIDArrStr.WriteString("")
 	}
 
-	_, err = tx.InsertInto("b_netblock").
-		Columns("netinode_id", "index_in_netinode", "netblock_len", "netblock_cap", "backend_peer_id_arr").
-		Values(netINodeIDStr, pNetBlock.IndexInNetINode, pNetBlock.Len, pNetBlock.Cap,
-			backendPeerIDArrStr.String()).
+	err = sess.ReplaceInto("b_netblock").
+		PrimaryColumns("netinode_id", "index_in_netinode").PrimaryValues(netINodeIDStr, pNetBlock.IndexInNetINode).
+		Columns("netblock_len", "netblock_cap", "backend_peer_id_arr").
+		Values(pNetBlock.Len, pNetBlock.Cap, backendPeerIDArrStr.String()).
 		Exec()
 	if err != nil {
-		_, err = tx.Update("b_netblock").
-			Set("netblock_len", pNetBlock.Len).
-			Set("netblock_cap", pNetBlock.Cap).
-			Set("backend_peer_id_arr", backendPeerIDArrStr.String()).
-			Where("netinode_id=? and index_in_netinode=?", netINodeIDStr, pNetBlock.IndexInNetINode).
-			Exec()
+		return err
 	}
 
-QUERY_DONE:
-	if err != nil {
-		tx.RollbackUnlessCommitted()
-	} else {
-		err = tx.Commit()
-	}
-	return err
+	return nil
 }

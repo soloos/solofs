@@ -20,47 +20,39 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(fsINodeID types.FsINodeID) error {
 	_, err = sess.DeleteFrom("b_fsinode_xattr").
 		Where("fsinode_ino=?", fsINodeID).
 		Exec()
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *FIXAttrDriver) ReplaceFIXAttrInDB(fsINodeID types.FsINodeID, xattr types.FsINodeXAttr) error {
 	var (
 		sess       sdbapi.Session
-		tx         *sdbapi.Tx
 		xattrBytes []byte
 		err        error
 	)
 
 	err = p.dbConn.InitSession(&sess)
 	if err != nil {
-		goto QUERY_DONE
-	}
-
-	tx, err = sess.Begin()
-	if err != nil {
-		goto QUERY_DONE
+		return err
 	}
 
 	xattrBytes, err = types.SerializeFIXAttr(xattr)
 	if err != nil {
-		goto QUERY_DONE
+		return err
 	}
 
-	err = tx.ReplaceInto("b_fsinode_xattr").
-		PrimaryColumn("fsinode_ino").PrimaryValue(fsINodeID).
+	err = sess.ReplaceInto("b_fsinode_xattr").
+		PrimaryColumns("fsinode_ino").PrimaryValues(fsINodeID).
 		Columns("xattr").Values(xattrBytes).
 		Exec()
 	if err != nil {
-		goto QUERY_DONE
+		return err
 	}
 
-QUERY_DONE:
-	if err != nil {
-		tx.RollbackUnlessCommitted()
-	} else {
-		err = tx.Commit()
-	}
-	return err
+	return nil
 }
 
 func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(fsINodeID types.FsINodeID) (types.FsINodeXAttr, error) {
