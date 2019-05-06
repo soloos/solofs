@@ -21,10 +21,10 @@ func (p *netBlockDriverUploader) PWrite(uNetINode types.NetINodeUintptr,
 	}
 
 	for isMergeWriteMaskSuccess == false {
-		pMemBlock.UploadJob.MetaDataStateMutex.Lock()
+		pMemBlock.UploadJob.UploadMaskMutex.Lock()
 		isMergeEventHappened, isMergeWriteMaskSuccess =
 			pMemBlock.UploadJob.UploadMaskWaiting.Ptr().MergeIncludeNeighbour(offset, end)
-		pMemBlock.UploadJob.MetaDataStateMutex.Unlock()
+		pMemBlock.UploadJob.UploadMaskMutex.Unlock()
 
 		if isMergeWriteMaskSuccess {
 			if isMergeEventHappened == false {

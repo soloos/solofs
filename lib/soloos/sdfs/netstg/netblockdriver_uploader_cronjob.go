@@ -27,15 +27,15 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		pNetBlock = pJob.UNetBlock.Ptr()
 
 		// prepare upload job
-		pJob.MetaDataStateMutex.Lock()
+		pJob.UploadMaskMutex.Lock()
 		if pJob.UploadMaskWaiting.Ptr().MaskArrayLen == 0 {
 			// upload done and continue
-			pJob.MetaDataStateMutex.Unlock()
+			pJob.UploadMaskMutex.Unlock()
 			goto ONE_RUN_DONE
 		} else {
 			// upload job exists
 			pJob.UploadMaskSwap()
-			pJob.MetaDataStateMutex.Unlock()
+			pJob.UploadMaskMutex.Unlock()
 		}
 
 		util.AssertTrue(pNetBlock.SyncDataBackends.Len > 0)

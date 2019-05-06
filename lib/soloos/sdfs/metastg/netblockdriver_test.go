@@ -16,7 +16,7 @@ func TestMetaStgNetBlock(t *testing.T) {
 	var (
 		soloOSEnv   soloosbase.SoloOSEnv
 		peerPool    offheap.LKVTableWithBytes64
-		uObject     uintptr
+		uObject     offheap.LKVTableObjectUPtrWithBytes64
 		metaStg     MetaStg
 		netINode    types.NetINode
 		netBlock    types.NetBlock

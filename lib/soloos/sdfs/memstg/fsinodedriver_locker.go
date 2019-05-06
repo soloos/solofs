@@ -12,7 +12,7 @@ import (
 // GetLk returns existing lock information for file
 func (p *FsINodeDriver) GetLk(fsINodeID types.FsINodeID, iNodeRWMutexMeta *types.INodeRWMutexMeta) error {
 	var (
-		uObject       uintptr
+		uObject       offheap.HKVTableObjectUPtrWithUint64
 		uINodeRWMutex types.INodeRWMutexUintptr
 	)
 
@@ -25,7 +25,7 @@ func (p *FsINodeDriver) GetLk(fsINodeID types.FsINodeID, iNodeRWMutexMeta *types
 
 func (p *FsINodeDriver) doSetLk(fsINodeID types.FsINodeID, setFlag *types.INodeRWMutexMeta, isShouldBlock bool) error {
 	var (
-		uObject       uintptr
+		uObject       offheap.HKVTableObjectUPtrWithUint64
 		uINodeRWMutex types.INodeRWMutexUintptr
 		pINodeRWMutex *types.INodeRWMutex
 		err           error

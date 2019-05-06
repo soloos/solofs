@@ -1,6 +1,9 @@
 package memstg
 
-import "soloos/sdfs/types"
+import (
+	"soloos/sdbone/offheap"
+	"soloos/sdfs/types"
+)
 
 func (p *MemBlockTable) hkvTableInvokeBeforeReleaseTmpBlock(uMemBlock uintptr) {
 	pMemBlock := types.MemBlockUintptr(uMemBlock).Ptr()
@@ -10,12 +13,12 @@ func (p *MemBlockTable) hkvTableInvokeBeforeReleaseTmpBlock(uMemBlock uintptr) {
 
 func (p *MemBlockTable) MustGetTmpMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {
 	var (
-		uObject types.MemBlockUintptr
-		u       uintptr
+		uMemBlock types.MemBlockUintptr
+		uObject   offheap.HKVTableObjectUPtrWithBytes12
 	)
-	u, _ = p.tmpMemBlockTable.MustGetObjectWithReadAcquire(memBlockID)
-	uObject = types.MemBlockUintptr(u)
-	return uObject
+	uObject, _ = p.tmpMemBlockTable.MustGetObjectWithReadAcquire(memBlockID)
+	uMemBlock = types.MemBlockUintptr(uObject)
+	return uMemBlock
 
 }
 

@@ -15,13 +15,13 @@ func (p *MemBlockTable) hkvTableInvokeBeforeReleaseBlock(uMemBlock uintptr) {
 // MustGetMemBlockWithReadAcquire get or init a netINodeblock
 func (p *MemBlockTable) MustGetMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) (types.MemBlockUintptr, bool) {
 	var (
-		uObject types.MemBlockUintptr
-		u       uintptr
-		loaded  bool
+		uMemBlock types.MemBlockUintptr
+		uObject   offheap.HKVTableObjectUPtrWithBytes12
+		loaded    bool
 	)
-	u, loaded = p.memBlockTable.MustGetObjectWithReadAcquire(memBlockID)
-	uObject = types.MemBlockUintptr(u)
-	return uObject, loaded
+	uObject, loaded = p.memBlockTable.MustGetObjectWithReadAcquire(memBlockID)
+	uMemBlock = types.MemBlockUintptr(uObject)
+	return uMemBlock, loaded
 }
 
 func (p *MemBlockTable) TryGetMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {

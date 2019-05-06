@@ -95,7 +95,7 @@ func (p *NetBlockDriver) PrepareNetBlockSyncDataBackendsWithLock(uNetBlock types
 		err       error
 	)
 
-	pNetBlock.MemMetaDataInitMutex.Lock()
+	pNetBlock.IsSyncDataBackendsInited.LockContext()
 	if pNetBlock.IsSyncDataBackendsInited.Load() == types.MetaDataStateInited {
 		goto PREPARE_DONE
 	}
@@ -105,7 +105,7 @@ func (p *NetBlockDriver) PrepareNetBlockSyncDataBackendsWithLock(uNetBlock types
 	pNetBlock.IsSyncDataBackendsInited.Store(types.MetaDataStateInited)
 
 PREPARE_DONE:
-	pNetBlock.MemMetaDataInitMutex.Unlock()
+	pNetBlock.IsSyncDataBackendsInited.UnlockContext()
 	return err
 }
 
@@ -117,7 +117,7 @@ func (p *NetBlockDriver) PrepareNetBlockLocalDataBackendWithLock(uNetBlock types
 		err       error
 	)
 
-	pNetBlock.MemMetaDataInitMutex.Lock()
+	pNetBlock.IsLocalDataBackendInited.LockContext()
 	if pNetBlock.IsLocalDataBackendInited.Load() == types.MetaDataStateInited {
 		goto PREPARE_DONE
 	}
@@ -126,6 +126,6 @@ func (p *NetBlockDriver) PrepareNetBlockLocalDataBackendWithLock(uNetBlock types
 	pNetBlock.IsLocalDataBackendInited.Store(types.MetaDataStateInited)
 
 PREPARE_DONE:
-	pNetBlock.MemMetaDataInitMutex.Unlock()
+	pNetBlock.IsLocalDataBackendInited.UnlockContext()
 	return err
 }

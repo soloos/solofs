@@ -50,10 +50,9 @@ func (p *NetBlockDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	return nil
 }
 
-func (p *NetBlockDriver) netBlockTablePrepareNewObjectFunc(uObject uintptr,
+func (p *NetBlockDriver) netBlockTablePrepareNewObjectFunc(uNetBlock types.NetBlockUintptr,
 	afterSetNewObj offheap.KVTableAfterSetNewObj) bool {
 	var isNewObjectSetted bool
-	types.NetBlockUintptr(uObject).Ptr().ID = types.NetBlockUintptr(uObject).Ptr().LKVTableObjectWithBytes68.ID
 	if afterSetNewObj != nil {
 		afterSetNewObj()
 		isNewObjectSetted = true
@@ -86,7 +85,7 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	var (
 		uNetBlock         types.NetBlockUintptr
 		pNetBlock         *types.NetBlock
-		uObject           uintptr
+		uObject           offheap.LKVTableObjectUPtrWithBytes68
 		netINodeBlockID   types.NetINodeBlockID
 		afterSetNewObj    offheap.KVTableAfterSetNewObj
 		isNewObjectSetted bool
@@ -95,15 +94,15 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 
 	types.EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
 	uObject, afterSetNewObj = p.netBlockTable.MustGetObjectWithAcquire(netINodeBlockID)
-	isNewObjectSetted = p.netBlockTablePrepareNewObjectFunc(uObject, afterSetNewObj)
+	isNewObjectSetted = p.netBlockTablePrepareNewObjectFunc(types.NetBlockUintptr(uObject), afterSetNewObj)
 	uNetBlock = types.NetBlockUintptr(uObject)
 	pNetBlock = uNetBlock.Ptr()
 	if isNewObjectSetted || uNetBlock.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
-		pNetBlock.DBMetaDataInitMutex.Lock()
+		pNetBlock.IsDBMetaDataInited.LockContext()
 		if pNetBlock.IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
 			err = p.helper.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
 		}
-		pNetBlock.DBMetaDataInitMutex.Unlock()
+		pNetBlock.IsDBMetaDataInited.UnlockContext()
 	}
 
 	if err != nil {
