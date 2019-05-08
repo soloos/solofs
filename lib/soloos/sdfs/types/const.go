@@ -2,6 +2,7 @@ package types
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"syscall"
 )
 
@@ -26,8 +27,8 @@ const (
 )
 
 const (
-	FS_MAX_PATH_LENGTH = 2048
-	FS_MAX_NAME_LENGTH = 128
+	FS_MAX_PATH_LENGTH = sdfsapitypes.FS_MAX_PATH_LENGTH
+	FS_MAX_NAME_LENGTH = sdfsapitypes.FS_MAX_NAME_LENGTH
 	FS_RDEV            = 0
 
 	FS_EEXIST       = fsapitypes.Status(syscall.EEXIST)

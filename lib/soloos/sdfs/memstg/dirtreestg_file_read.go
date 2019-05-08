@@ -2,6 +2,7 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
@@ -22,23 +23,32 @@ func (p ReadResult) Size() int {
 func (p ReadResult) Done() {
 }
 
-func (p *DirTreeStg) SimpleReadWithMem(uNetINode types.NetINodeUintptr,
+func (p *DirTreeStg) SimpleReadWithMem(fsINodeID sdfsapitypes.FsINodeID,
 	data []byte, offset uint64) (int, error) {
-	return p.MemStg.NetINodeDriver.PReadWithMem(uNetINode, data, offset)
+	var (
+		uFsINode sdfsapitypes.FsINodeUintptr
+		err      error
+	)
+	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeID)
+	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
+	if err != nil {
+		return -1, err
+	}
+
+	if uFsINode.Ptr().UNetINode == 0 {
+		return -1, types.ErrObjectNotExists
+	}
+
+	return p.MemStg.NetINodeDriver.PReadWithMem(uFsINode.Ptr().UNetINode, data, offset)
 }
 
 func (p *DirTreeStg) Read(input *fsapitypes.ReadIn, buf []byte) (fsapitypes.ReadResult, fsapitypes.Status) {
 	var (
-		ret     ReadResult
-		fsINode types.FsINode
-		err     error
+		ret ReadResult
+		err error
 	)
-	err = p.FetchFsINodeByIDThroughHardLink(input.NodeId, &fsINode)
-	if err != nil {
-		return ret, types.ErrorToFsStatus(err)
-	}
 
-	ret.dataLen, err = p.SimpleReadWithMem(fsINode.UNetINode, buf[:input.Size], input.Offset)
+	ret.dataLen, err = p.SimpleReadWithMem(input.NodeId, buf[:input.Size], input.Offset)
 	if err != nil {
 		return ret, types.ErrorToFsStatus(err)
 	}

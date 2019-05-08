@@ -10,8 +10,9 @@ import (
 )
 
 type FsINodeDriverHelper struct {
-	GetNetINodeWithReadAcquire     api.GetNetINodeWithReadAcquire
-	MustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire
+	GetNetINode     api.GetNetINode
+	MustGetNetINode api.MustGetNetINode
+	ReleaseNetINode api.ReleaseNetINode
 }
 
 type FsINodeDriver struct {
@@ -26,16 +27,18 @@ type FsINodeDriver struct {
 
 func (p *FsINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	dbConn *sdbapi.Connection,
-	getNetINodeWithReadAcquire api.GetNetINodeWithReadAcquire,
-	mustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire,
+	getNetINode api.GetNetINode,
+	mustGetNetINode api.MustGetNetINode,
+	releaseNetINode api.ReleaseNetINode,
 ) error {
 	var err error
 
 	p.SoloOSEnv = soloOSEnv
 	p.dbConn = dbConn
 	p.SetHelper(
-		getNetINodeWithReadAcquire,
-		mustGetNetINodeWithReadAcquire,
+		getNetINode,
+		mustGetNetINode,
+		releaseNetINode,
 	)
 
 	err = p.prepareINodes()
@@ -47,11 +50,13 @@ func (p *FsINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 }
 
 func (p *FsINodeDriver) SetHelper(
-	getNetINodeWithReadAcquire api.GetNetINodeWithReadAcquire,
-	mustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire,
+	getNetINode api.GetNetINode,
+	mustGetNetINode api.MustGetNetINode,
+	ReleaseNetINode api.ReleaseNetINode,
 ) {
-	p.helper.GetNetINodeWithReadAcquire = getNetINodeWithReadAcquire
-	p.helper.MustGetNetINodeWithReadAcquire = mustGetNetINodeWithReadAcquire
+	p.helper.GetNetINode = getNetINode
+	p.helper.MustGetNetINode = mustGetNetINode
+	p.helper.ReleaseNetINode = ReleaseNetINode
 }
 
 func (p *FsINodeDriver) prepareINodes() error {

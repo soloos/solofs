@@ -2,47 +2,48 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
 func (p *DirTreeStg) Link(input *fsapitypes.LinkIn, filename string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	var (
-		srcFsINode types.FsINode
-		fsINode    types.FsINode
-		err        error
+		srcFsINodeMeta sdfsapitypes.FsINodeMeta
+		newFsINodeMeta sdfsapitypes.FsINodeMeta
+		err            error
 	)
 
-	err = p.FetchFsINodeByID(input.Oldnodeid, &srcFsINode)
+	err = p.FetchFsINodeByID(&srcFsINodeMeta, input.Oldnodeid)
 	if err != nil {
 		return types.ErrorToFsStatus(err)
 	}
 
-	err = p.FsINodeDriver.Link(&srcFsINode, input.NodeId, filename, &fsINode)
+	err = p.FsINodeDriver.Link(&srcFsINodeMeta, input.NodeId, filename, &newFsINodeMeta)
 	if err != nil {
 		return types.ErrorToFsStatus(err)
 	}
 
-	err = p.FetchFsINodeByIDThroughHardLink(fsINode.Ino, &fsINode)
+	err = p.FetchFsINodeByIDThroughHardLink(&newFsINodeMeta, newFsINodeMeta.Ino)
 	if err != nil {
 		return types.ErrorToFsStatus(err)
 	}
 
-	err = p.RefreshFsINodeACMtimeByIno(srcFsINode.ParentID)
+	err = p.RefreshFsINodeACMtimeByIno(srcFsINodeMeta.ParentID)
 	if err != nil {
 		return types.ErrorToFsStatus(err)
 	}
 
-	p.SetFsEntryOutByFsINode(out, &fsINode)
+	p.SetFsEntryOutByFsINode(out, &newFsINodeMeta)
 
 	return fsapitypes.OK
 }
 
 func (p *DirTreeStg) Symlink(header *fsapitypes.InHeader, pointedTo string, linkName string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	var (
-		fsINode types.FsINode
-		err     error
+		fsINodeMeta sdfsapitypes.FsINodeMeta
+		err         error
 	)
-	err = p.FsINodeDriver.Symlink(header.NodeId, pointedTo, linkName, &fsINode)
+	err = p.FsINodeDriver.Symlink(header.NodeId, pointedTo, linkName, &fsINodeMeta)
 	if err != nil {
 		return types.ErrorToFsStatus(err)
 	}
@@ -52,7 +53,7 @@ func (p *DirTreeStg) Symlink(header *fsapitypes.InHeader, pointedTo string, link
 		return types.ErrorToFsStatus(err)
 	}
 
-	p.SetFsEntryOutByFsINode(out, &fsINode)
+	p.SetFsEntryOutByFsINode(out, &fsINodeMeta)
 
 	return fsapitypes.OK
 }

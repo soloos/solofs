@@ -2,30 +2,35 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
-func (p *DirTreeStg) SimpleFlush(uNetINode types.NetINodeUintptr) error {
-	return p.MemStg.NetINodeDriver.Sync(uNetINode)
-}
-
-func (p *DirTreeStg) Flush(input *fsapitypes.FlushIn) fsapitypes.Status {
+func (p *DirTreeStg) SimpleFlush(fsINodeID sdfsapitypes.FsINodeID) error {
 	var (
-		fsINode types.FsINode
-		err     error
+		uFsINode sdfsapitypes.FsINodeUintptr
+		pFsINode *sdfsapitypes.FsINode
+		err      error
 	)
 
-	err = p.FetchFsINodeByIDThroughHardLink(input.NodeId, &fsINode)
+	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeID)
+	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
+	pFsINode = uFsINode.Ptr()
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return err
 	}
 
-	if fsINode.UNetINode != 0 {
-		err = p.SimpleFlush(fsINode.UNetINode)
+	if pFsINode.UNetINode != 0 {
+		err = p.MemStg.NetINodeDriver.Sync(pFsINode.UNetINode)
 		if err != nil {
-			return types.ErrorToFsStatus(err)
+			return err
 		}
 	}
 
-	return fsapitypes.OK
+	return nil
+}
+
+func (p *DirTreeStg) Flush(input *fsapitypes.FlushIn) fsapitypes.Status {
+	var err = p.SimpleFlush(input.NodeId)
+	return types.ErrorToFsStatus(err)
 }

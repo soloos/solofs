@@ -4,6 +4,7 @@ import "C"
 import (
 	fsapitypes "soloos/common/fsapi/types"
 	"soloos/common/sdfsapi"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 	"unsafe"
 )
@@ -13,28 +14,28 @@ func GoSdfsOpenFile(cInodePath *C.char, flags,
 	bufferSize C.int, replication C.short, blocksize C.long) (uint64, C.int) {
 	var (
 		fsINodePath = C.GoString(cInodePath)
-		fsINode     types.FsINode
+		fsINodeMeta sdfsapitypes.FsINodeMeta
 		err         error
 	)
 
-	fsINode, err = env.PosixFS.SimpleOpenFile(fsINodePath,
+	fsINodeMeta, err = env.PosixFS.SimpleOpenFile(fsINodePath,
 		types.DefaultNetBlockCap,
 		env.Options.DefaultMemBlockCap)
 	if err != nil {
 		return 0, sdfsapi.CODE_ERR
 	}
 
-	return env.PosixFS.FdTableAllocFd(fsINode.Ino), sdfsapi.CODE_OK
+	return env.PosixFS.FdTableAllocFd(fsINodeMeta.Ino), sdfsapi.CODE_OK
 }
 
 //export GoSdfsExists
 func GoSdfsExists(cInodePath *C.char) C.int {
 	var (
 		fsINodePath = C.GoString(cInodePath)
-		fsINode     types.FsINode
+		fsINodeMeta sdfsapitypes.FsINodeMeta
 		err         error
 	)
-	err = env.PosixFS.FetchFsINodeByPath(fsINodePath, &fsINode)
+	err = env.PosixFS.FetchFsINodeByPath(&fsINodeMeta, fsINodePath)
 	if err != nil {
 		// contains err == types.ErrObjectNotExists
 		return sdfsapi.CODE_ERR
@@ -59,8 +60,8 @@ func GoSdfsListDirectory(cInodePath *C.char, ret *unsafe.Pointer, num *C.int) {
 			index = 0
 			return uint64(resultCount), 0
 		},
-		func(fsINode types.FsINode) bool {
-			arr[index] = C.CString(fsINode.Name)
+		func(fsINodeMeta sdfsapitypes.FsINodeMeta) bool {
+			arr[index] = C.CString(fsINodeMeta.Name())
 			index += 1
 			return true
 		},
@@ -114,12 +115,12 @@ func GoSdfsRename(oldINodePath, newINodePath *C.char) C.int {
 //export GoSdfsGetPathInfo
 func GoSdfsGetPathInfo(cInodePath *C.char) (inodeID uint64, size uint64, mTime uint64, code C.int) {
 	var (
-		fsINode types.FsINode
-		err     error
-		status  fsapitypes.Status
+		fsINodeMeta sdfsapitypes.FsINodeMeta
+		err         error
+		status      fsapitypes.Status
 	)
 
-	err = env.PosixFS.FetchFsINodeByPath(C.GoString(cInodePath), &fsINode)
+	err = env.PosixFS.FetchFsINodeByPath(&fsINodeMeta, C.GoString(cInodePath))
 	if err != nil {
 		return 0, 0, 0, sdfsapi.CODE_ERR
 	}

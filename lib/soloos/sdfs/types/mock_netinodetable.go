@@ -25,12 +25,12 @@ func (p *MockNetINodeTable) Init(soloOSEnv *soloosbase.SoloOSEnv) error {
 }
 
 func (p *MockNetINodeTable) MustGetNetINode(netINodeID NetINodeID) (NetINodeUintptr, bool) {
-	u, afterSetNewObj := p.table.MustGetObjectWithAcquire(netINodeID)
+	uObject, afterSetNewObj := p.table.MustGetObject(netINodeID)
 	var loaded = afterSetNewObj == nil
 	if afterSetNewObj != nil {
 		afterSetNewObj()
 	}
-	uNetINode := (NetINodeUintptr)(u)
+	uNetINode := (NetINodeUintptr)(uObject)
 	return uNetINode, loaded
 }
 
@@ -42,4 +42,8 @@ func (p *MockNetINodeTable) AllocNetINode(netBlockCap, memBlockCap int) NetINode
 	uNetINode.Ptr().NetBlockCap = netBlockCap
 	uNetINode.Ptr().MemBlockCap = memBlockCap
 	return uNetINode
+}
+
+func (p *MockNetINodeTable) ReleaseNetINode(uNetINode sdfsapitypes.NetINodeUintptr) {
+	p.table.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(uNetINode))
 }

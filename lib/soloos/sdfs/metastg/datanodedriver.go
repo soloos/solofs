@@ -1,9 +1,9 @@
 package metastg
 
 import (
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
 	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/types"
 	"sync"
 )
 
@@ -33,7 +33,7 @@ func (p *DataNodeDriver) RegisterDataNode(peerID snettypes.PeerID, addr string) 
 	p.dataNodesForBlockRWMutex.Lock()
 	_, registered = p.dataNodesForBlockRegistered[peerID]
 	if registered == false {
-		uDataNode, _ = p.SNetDriver.RegisterPeer(&peerID, addr, types.DefaultSDFSRPCProtocol)
+		uDataNode, _ = p.SNetDriver.RegisterPeer(&peerID, addr, sdfsapitypes.DefaultSDFSRPCProtocol)
 		p.dataNodesForBlockRegistered[peerID] = uDataNode
 		p.dataNodesForBlock = append(p.dataNodesForBlock, uDataNode)
 	}

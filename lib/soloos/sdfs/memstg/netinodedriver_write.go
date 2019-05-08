@@ -39,6 +39,7 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 		// prepare netBlock
 		netBlockIndex = int32(offset / uint64(pNetINode.NetBlockCap))
 		uNetBlock, err = p.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
+		defer p.netBlockDriver.ReleaseNetBlock(uNetBlock)
 
 		// prepare memBlock
 		memBlockIndex = int32(offset / uint64(pNetINode.MemBlockCap))

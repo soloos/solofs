@@ -3,6 +3,7 @@ package libsdfs
 import (
 	"soloos/common/fsapi"
 	fsapitypes "soloos/common/fsapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/common/util"
 	"soloos/sdfs/types"
 	"testing"
@@ -13,7 +14,7 @@ import (
 func TestMetaStgDirTreeStgBase(t *testing.T) {
 	var (
 		client      Client
-		fsINode     types.FsINode
+		fsINodeMeta sdfsapitypes.FsINodeMeta
 		netBlockCap = types.DefaultNetBlockCap
 		memBlockCap = types.DefaultMemBlockCap
 		posixFS     fsapi.PosixFS
@@ -23,21 +24,21 @@ func TestMetaStgDirTreeStgBase(t *testing.T) {
 	MakeClientForTest(&client)
 	posixFS = client.GetPosixFS()
 
-	code = posixFS.SimpleMkdir(&fsINode, nil, types.RootFsINodeID, 0777, "test", 0, 0, types.FS_RDEV)
+	code = posixFS.SimpleMkdir(&fsINodeMeta, nil, types.RootFsINodeID, 0777, "test", 0, 0, types.FS_RDEV)
 	if code != fsapitypes.OK {
 		assert.Equal(t, code, types.FS_EEXIST)
 	}
 
-	util.Ignore(fsINode)
-	fsINode, err = posixFS.SimpleOpenFile("/test/hi", netBlockCap, memBlockCap)
+	util.Ignore(fsINodeMeta)
+	fsINodeMeta, err = posixFS.SimpleOpenFile("/test/hi", netBlockCap, memBlockCap)
 	assert.NoError(t, err)
-	fsINode, err = posixFS.SimpleOpenFile("/test/hi2", netBlockCap, memBlockCap)
+	fsINodeMeta, err = posixFS.SimpleOpenFile("/test/hi2", netBlockCap, memBlockCap)
 	assert.NoError(t, err)
-	fsINode, err = posixFS.SimpleOpenFile("/test/hi3", netBlockCap, memBlockCap)
+	fsINodeMeta, err = posixFS.SimpleOpenFile("/test/hi3", netBlockCap, memBlockCap)
 	assert.NoError(t, err)
-	fsINode, err = posixFS.SimpleOpenFile("/test/hi4", netBlockCap, memBlockCap)
+	fsINodeMeta, err = posixFS.SimpleOpenFile("/test/hi4", netBlockCap, memBlockCap)
 	assert.NoError(t, err)
-	fsINode, err = posixFS.SimpleOpenFile("/test/hi5", netBlockCap, memBlockCap)
+	fsINodeMeta, err = posixFS.SimpleOpenFile("/test/hi5", netBlockCap, memBlockCap)
 	assert.NoError(t, err)
 	err = posixFS.DeleteFsINodeByPath("/test/hi4")
 	assert.NoError(t, err)
@@ -51,7 +52,7 @@ func TestMetaStgDirTreeStgBase(t *testing.T) {
 		func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
 			return uint64(resultCount), uint64(0)
 		},
-		func(fsINode types.FsINode) bool {
+		func(fsINodeMeta sdfsapitypes.FsINodeMeta) bool {
 			return true
 		})
 	assert.NoError(t, err)

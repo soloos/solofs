@@ -2,21 +2,22 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
 func (p *DirTreeStg) SimpleGetXAttrSize(fsINodeID types.FsINodeID, attr string) (int, fsapitypes.Status) {
 	var (
-		fsINode types.FsINode
-		sz      int
-		err     error
+		fsINodeMeta sdfsapitypes.FsINodeMeta
+		sz          int
+		err         error
 	)
-	err = p.FetchFsINodeByIDThroughHardLink(fsINodeID, &fsINode)
+	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
 	if err != nil {
 		return 0, types.ErrorToFsStatus(err)
 	}
 
-	sz, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrSize(fsINode.Ino, attr)
+	sz, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrSize(fsINodeMeta.Ino, attr)
 	if err != nil {
 		return 0, types.ErrorToFsStatus(err)
 	}
@@ -25,16 +26,16 @@ func (p *DirTreeStg) SimpleGetXAttrSize(fsINodeID types.FsINodeID, attr string) 
 
 func (p *DirTreeStg) SimpleGetXAttrData(fsINodeID types.FsINodeID, attr string) ([]byte, fsapitypes.Status) {
 	var (
-		fsINode types.FsINode
-		data    []byte
-		err     error
+		fsINodeMeta sdfsapitypes.FsINodeMeta
+		data        []byte
+		err         error
 	)
-	err = p.FetchFsINodeByIDThroughHardLink(fsINodeID, &fsINode)
+	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
 	if err != nil {
 		return nil, types.ErrorToFsStatus(err)
 	}
 
-	data, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrData(fsINode.Ino, attr)
+	data, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrData(fsINodeMeta.Ino, attr)
 	if err != nil {
 		return nil, types.ErrorToFsStatus(err)
 	}
@@ -43,16 +44,16 @@ func (p *DirTreeStg) SimpleGetXAttrData(fsINodeID types.FsINodeID, attr string) 
 
 func (p *DirTreeStg) SimpleListXAttr(fsINodeID types.FsINodeID) ([]byte, fsapitypes.Status) {
 	var (
-		fsINode types.FsINode
-		data    []byte
-		err     error
+		fsINodeMeta sdfsapitypes.FsINodeMeta
+		data        []byte
+		err         error
 	)
-	err = p.FetchFsINodeByIDThroughHardLink(fsINodeID, &fsINode)
+	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
 	if err != nil {
 		return nil, types.ErrorToFsStatus(err)
 	}
 
-	data, err = p.FsINodeDriver.FIXAttrDriver.ListXAttr(fsINode.Ino)
+	data, err = p.FsINodeDriver.FIXAttrDriver.ListXAttr(fsINodeMeta.Ino)
 	if err != nil {
 		return nil, types.ErrorToFsStatus(err)
 	}

@@ -2,17 +2,18 @@ package memstg
 
 import (
 	"path/filepath"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 	"strings"
 )
 
 func (p *DirTreeStg) DeleteFsINodeByPath(fsINodePath string) error {
 	var (
-		fsINode types.FsINode
-		err     error
+		fsINodeMeta sdfsapitypes.FsINodeMeta
+		err         error
 	)
 
-	err = p.FetchFsINodeByPath(fsINodePath, &fsINode)
+	err = p.FetchFsINodeByPath(&fsINodeMeta, fsINodePath)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
 			return nil
@@ -21,70 +22,70 @@ func (p *DirTreeStg) DeleteFsINodeByPath(fsINodePath string) error {
 		}
 	}
 
-	err = p.SimpleUnlink(&fsINode)
+	err = p.FsINodeDriver.UnlinkFsINode(fsINodeMeta.Ino)
 
 	return err
 }
 
 func (p *DirTreeStg) RenameWithFullPath(oldFsINodeName, newFsINodePath string) error {
 	var (
-		fsINode                       types.FsINode
-		oldFsINode                    types.FsINode
-		parentFsINode                 types.FsINode
-		tmpFsINode                    types.FsINode
+		fsINodeMeta                   sdfsapitypes.FsINodeMeta
+		oldFsINodeMeta                sdfsapitypes.FsINodeMeta
+		parentFsINodeMeta             sdfsapitypes.FsINodeMeta
+		tmpFsINodeMeta                sdfsapitypes.FsINodeMeta
 		tmpParentDirPath, tmpFileName string
 		err                           error
 	)
 
-	err = p.FetchFsINodeByPath(oldFsINodeName, &oldFsINode)
+	err = p.FetchFsINodeByPath(&oldFsINodeMeta, oldFsINodeName)
 	if err != nil {
 		return err
 	}
-	fsINode = oldFsINode
+	fsINodeMeta = oldFsINodeMeta
 
 	tmpParentDirPath, tmpFileName = filepath.Split(newFsINodePath)
-	err = p.FetchFsINodeByPath(tmpParentDirPath, &parentFsINode)
+	err = p.FetchFsINodeByPath(&parentFsINodeMeta, tmpParentDirPath)
 	if err != nil {
 		return err
 	}
 
-	if parentFsINode.Type != types.FSINODE_TYPE_DIR {
+	if parentFsINodeMeta.Type != types.FSINODE_TYPE_DIR {
 		return types.ErrObjectNotExists
 	}
 
 	if tmpFileName == "" {
-		fsINode.ParentID = parentFsINode.Ino
-		// keep fsINode.Name
+		fsINodeMeta.ParentID = parentFsINodeMeta.Ino
+		// keep fsINodeMeta.Name
 		goto PREPARE_PARENT_FSINODE_DONE
 	}
 
-	err = p.FetchFsINodeByPath(newFsINodePath, &tmpFsINode)
+	err = p.FetchFsINodeByPath(&tmpFsINodeMeta, newFsINodePath)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
-			fsINode.ParentID = parentFsINode.Ino
-			fsINode.Name = tmpFileName
+			fsINodeMeta.ParentID = parentFsINodeMeta.Ino
+			fsINodeMeta.SetName(tmpFileName)
 			goto PREPARE_PARENT_FSINODE_DONE
 		} else {
 			return types.ErrObjectNotExists
 		}
 	}
 
-	if tmpFsINode.Type == types.FSINODE_TYPE_DIR {
-		parentFsINode = tmpFsINode
-		fsINode.ParentID = parentFsINode.Ino
-		// keep fsINode.Name
+	if tmpFsINodeMeta.Type == types.FSINODE_TYPE_DIR {
+		parentFsINodeMeta = tmpFsINodeMeta
+		fsINodeMeta.ParentID = parentFsINodeMeta.Ino
+		// keep fsINodeMeta.Name
 		goto PREPARE_PARENT_FSINODE_DONE
 	} else {
 		return types.ErrObjectNotExists
 	}
 PREPARE_PARENT_FSINODE_DONE:
 
-	p.FsINodeDriver.DeleteFsINodeCache(oldFsINode.ParentID, oldFsINode.Name, oldFsINode.Ino)
-
-	err = p.UpdateFsINodeInDB(&fsINode)
+	err = p.FsINodeDriver.UpdateFsINodeInDB(&fsINodeMeta)
 	if err != nil {
 		return err
 	}
+
+	p.FsINodeDriver.CleanFsINodeAssitCache(oldFsINodeMeta.ParentID, oldFsINodeMeta.Name())
 
 	return nil
 }
@@ -92,19 +93,20 @@ PREPARE_PARENT_FSINODE_DONE:
 func (p *DirTreeStg) ListFsINodeByParentPath(parentPath string,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(types.FsINode) bool,
+	literalFunc func(sdfsapitypes.FsINodeMeta) bool,
 ) error {
 	var (
-		fsINode types.FsINode
-		err     error
+		fsINodeMeta sdfsapitypes.FsINodeMeta
+		err         error
 	)
 
-	err = p.FetchFsINodeByPath(parentPath, &fsINode)
+	err = p.FetchFsINodeByPath(&fsINodeMeta, parentPath)
 	if err != nil {
 		return err
 	}
 
-	err = p.FsINodeDriver.helper.ListFsINodeByParentIDFromDB(fsINode.Ino, isFetchAllCols, beforeLiteralFunc, literalFunc)
+	err = p.FsINodeDriver.helper.ListFsINodeByParentIDFromDB(fsINodeMeta.Ino,
+		isFetchAllCols, beforeLiteralFunc, literalFunc)
 	if err != nil {
 		return err
 	}
@@ -112,7 +114,7 @@ func (p *DirTreeStg) ListFsINodeByParentPath(parentPath string,
 	return nil
 }
 
-func (p *DirTreeStg) FetchFsINodeByPath(fsINodePath string, fsINode *types.FsINode) error {
+func (p *DirTreeStg) FetchFsINodeByPath(fsINodeMeta *sdfsapitypes.FsINodeMeta, fsINodePath string) error {
 	var (
 		paths    []string
 		i        int
@@ -127,7 +129,7 @@ func (p *DirTreeStg) FetchFsINodeByPath(fsINodePath string, fsINode *types.FsINo
 	}
 
 	if len(paths) <= 1 {
-		*fsINode = p.FsINodeDriver.RootFsINode
+		*fsINodeMeta = p.FsINodeDriver.RootFsINode.Ptr().Meta
 		return nil
 	}
 
@@ -135,11 +137,11 @@ func (p *DirTreeStg) FetchFsINodeByPath(fsINodePath string, fsINode *types.FsINo
 		if paths[i] == "" {
 			continue
 		}
-		err = p.FetchFsINodeByName(parentID, paths[i], fsINode)
+		err = p.FetchFsINodeByName(fsINodeMeta, parentID, paths[i])
 		if err != nil {
 			return err
 		}
-		parentID = fsINode.Ino
+		parentID = fsINodeMeta.Ino
 	}
 
 	return err

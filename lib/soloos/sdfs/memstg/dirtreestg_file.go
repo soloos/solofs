@@ -3,17 +3,30 @@ package memstg
 import (
 	"os"
 	fsapitypes "soloos/common/fsapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 	"strings"
 )
 
-func (p *DirTreeStg) SimpleOpenFile(fsINodePath string, netBlockCap int, memBlockCap int) (types.FsINode, error) {
+func (p *DirTreeStg) initNetINode(fsINodeMeta *sdfsapitypes.FsINodeMeta, netBlockCap, memBlockCap int) error {
 	var (
-		paths    []string
-		i        int
-		parentID types.FsINodeID = types.RootFsINodeID
-		fsINode  types.FsINode
-		err      error
+		uNetINode types.NetINodeUintptr
+		err       error
+	)
+	uNetINode, err = p.FsINodeDriver.helper.MustGetNetINode(fsINodeMeta.NetINodeID,
+		0, netBlockCap, memBlockCap)
+	p.FsINodeDriver.helper.ReleaseNetINode(uNetINode)
+	return err
+}
+
+func (p *DirTreeStg) SimpleOpenFile(fsINodePath string,
+	netBlockCap int, memBlockCap int) (sdfsapitypes.FsINodeMeta, error) {
+	var (
+		paths       []string
+		i           int
+		parentID    sdfsapitypes.FsINodeID = sdfsapitypes.RootFsINodeID
+		fsINodeMeta sdfsapitypes.FsINodeMeta
+		err         error
 	)
 
 	paths = strings.Split(fsINodePath, "/")
@@ -26,20 +39,20 @@ func (p *DirTreeStg) SimpleOpenFile(fsINodePath string, netBlockCap int, memBloc
 		if paths[i] == "" {
 			continue
 		}
-		err = p.FsINodeDriver.FetchFsINodeByName(parentID, paths[i], &fsINode)
+		err = p.FetchFsINodeByName(&fsINodeMeta, parentID, paths[i])
 		if err != nil {
 			goto OPEN_FILE_DONE
 		}
-		parentID = fsINode.Ino
+		parentID = fsINodeMeta.Ino
 	}
 
-	err = p.FsINodeDriver.FetchFsINodeByName(parentID, paths[i], &fsINode)
+	err = p.FetchFsINodeByName(&fsINodeMeta, parentID, paths[i])
 	if err == nil {
 		goto OPEN_FILE_DONE
 	}
 
 	if err == types.ErrObjectNotExists {
-		err = p.CreateFsINode(&fsINode,
+		err = p.createFsINode(&fsINodeMeta,
 			nil, nil, parentID,
 			paths[i], types.FSINODE_TYPE_FILE, fsapitypes.S_IFREG|0777,
 			0, 0, types.FS_RDEV)
@@ -47,31 +60,27 @@ func (p *DirTreeStg) SimpleOpenFile(fsINodePath string, netBlockCap int, memBloc
 			goto OPEN_FILE_DONE
 		}
 
-		_, err = p.FsINodeDriver.helper.MustGetNetINodeWithReadAcquire(fsINode.NetINodeID,
-			0, netBlockCap, memBlockCap)
+		err = p.initNetINode(&fsINodeMeta, netBlockCap, memBlockCap)
 		if err != nil {
 			goto OPEN_FILE_DONE
 		}
 	}
 
 OPEN_FILE_DONE:
-	if err == nil {
-		err = p.FsINodeDriver.PrepareAndSetFsINodeCache(&fsINode)
-	}
-	return fsINode, err
+	return fsINodeMeta, err
 }
 
 func (p *DirTreeStg) Create(input *fsapitypes.CreateIn, name string, out *fsapitypes.CreateOut) fsapitypes.Status {
 	var (
-		fsINode types.FsINode
-		err     error
+		fsINodeMeta sdfsapitypes.FsINodeMeta
+		err         error
 	)
 
 	if len([]byte(name)) > types.FS_MAX_NAME_LENGTH {
 		return types.FS_ENAMETOOLONG
 	}
 
-	err = p.CreateFsINode(&fsINode,
+	err = p.createFsINode(&fsINodeMeta,
 		nil, nil, input.NodeId,
 		name, types.FSINODE_TYPE_FILE,
 		uint32(0777)&input.Mode|uint32(fsapitypes.S_IFREG),
@@ -80,33 +89,34 @@ func (p *DirTreeStg) Create(input *fsapitypes.CreateIn, name string, out *fsapit
 		return types.ErrorToFsStatus(err)
 	}
 
-	err = p.SimpleOpen(&fsINode, input.Flags, &out.OpenOut)
+	err = p.SimpleOpen(&fsINodeMeta, input.Flags, &out.OpenOut)
 	if err != nil {
 		return types.ErrorToFsStatus(err)
 	}
 
-	err = p.RefreshFsINodeACMtimeByIno(fsINode.ParentID)
+	err = p.RefreshFsINodeACMtimeByIno(fsINodeMeta.ParentID)
 	if err != nil {
 		return types.ErrorToFsStatus(err)
 	}
 
-	p.SetFsEntryOutByFsINode(&out.EntryOut, &fsINode)
+	p.SetFsEntryOutByFsINode(&out.EntryOut, &fsINodeMeta)
 
 	return fsapitypes.OK
 }
 
 func (p *DirTreeStg) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapitypes.Status {
 	var (
-		fsINode types.FsINode
-		err     error
+		uFsINode sdfsapitypes.FsINodeUintptr
+		err      error
 	)
 
-	err = p.FetchFsINodeByIDThroughHardLink(input.NodeId, &fsINode)
+	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(input.NodeId)
+	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
 	if err != nil {
 		return types.ErrorToFsStatus(err)
 	}
 
-	err = p.SimpleOpen(&fsINode, input.Flags, out)
+	err = p.SimpleOpen(&uFsINode.Ptr().Meta, input.Flags, out)
 	if err != nil {
 		return types.ErrorToFsStatus(err)
 	}
@@ -115,7 +125,7 @@ func (p *DirTreeStg) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsa
 	if (openFlags&os.O_TRUNC != 0) ||
 		(openFlags&os.O_WRONLY != 0) ||
 		(openFlags&os.O_APPEND != 0) {
-		err = p.RefreshFsINodeACMtime(&fsINode)
+		err = p.FsINodeDriver.RefreshFsINodeACMtime(uFsINode)
 		if err != nil {
 			return types.ErrorToFsStatus(err)
 		}

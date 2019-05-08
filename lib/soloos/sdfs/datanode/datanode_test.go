@@ -102,7 +102,8 @@ func TestBase(t *testing.T) {
 		netINodeID types.NetINodeID
 	)
 	sdfsapitypes.InitTmpNetINodeID(&netINodeID)
-	uNetINode, err = netINodeDriverForClient.MustGetNetINodeWithReadAcquire(netINodeID, 0, netBlockCap, memBlockCap)
+	uNetINode, err = netINodeDriverForClient.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
+	defer netINodeDriverForClient.ReleaseNetINode(uNetINode)
 	assert.NoError(t, err)
 
 	writeData := make([]byte, 73)

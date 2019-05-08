@@ -2,7 +2,7 @@ package datanode
 
 import (
 	"soloos/common/log"
-	"soloos/sdfs/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/common/snet/srpc"
 )
 
@@ -17,7 +17,7 @@ func (p *DataNodeSRPCServer) Init(dataNode *DataNode, srpcServerListenAddr strin
 
 	p.dataNode = dataNode
 	p.srpcServerListenAddr = srpcServerListenAddr
-	err = p.srpcServer.Init(types.DefaultSDFSRPCNetwork, p.srpcServerListenAddr)
+	err = p.srpcServer.Init(sdfsapitypes.DefaultSDFSRPCNetwork, p.srpcServerListenAddr)
 	if err != nil {
 		return err
 	}

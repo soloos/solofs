@@ -33,8 +33,8 @@ func (p *DataNodeSRPCServer) NetINodeSync(serviceReq snettypes.ServiceRequest) e
 		uNetINode       types.NetINodeUintptr
 	)
 	copy(netINodeID[:], reqParam.NetINodeID())
-	uNetINode, err = p.dataNode.netINodeDriver.GetNetINodeWithReadAcquire(false, netINodeID)
-	defer p.dataNode.netINodeDriver.ReleaseNetINodeWithReadRelease(uNetINode)
+	uNetINode, err = p.dataNode.netINodeDriver.GetNetINode(netINodeID)
+	defer p.dataNode.netINodeDriver.ReleaseNetINode(uNetINode)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
 			api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_404)

@@ -2,6 +2,7 @@ package metastg
 
 import (
 	"soloos/common/sdbapi"
+	sdbapitypes "soloos/common/sdbapi/types"
 	snettypes "soloos/common/snet/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/api"
@@ -82,7 +83,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 
 PREPARE_DONE:
 	if err == nil {
-		pNetBlock.IsDBMetaDataInited.Store(types.MetaDataStateInited)
+		pNetBlock.IsDBMetaDataInited.Store(sdbapitypes.MetaDataStateInited)
 	}
 	return err
 }
@@ -96,13 +97,13 @@ func (p *NetBlockDriver) PrepareNetBlockSyncDataBackendsWithLock(uNetBlock types
 	)
 
 	pNetBlock.IsSyncDataBackendsInited.LockContext()
-	if pNetBlock.IsSyncDataBackendsInited.Load() == types.MetaDataStateInited {
+	if pNetBlock.IsSyncDataBackendsInited.Load() == sdbapitypes.MetaDataStateInited {
 		goto PREPARE_DONE
 	}
 
 	pNetBlock.SyncDataBackends = backends
 	pNetBlock.SyncDataPrimaryBackendTransferCount = 0
-	pNetBlock.IsSyncDataBackendsInited.Store(types.MetaDataStateInited)
+	pNetBlock.IsSyncDataBackendsInited.Store(sdbapitypes.MetaDataStateInited)
 
 PREPARE_DONE:
 	pNetBlock.IsSyncDataBackendsInited.UnlockContext()
@@ -118,12 +119,12 @@ func (p *NetBlockDriver) PrepareNetBlockLocalDataBackendWithLock(uNetBlock types
 	)
 
 	pNetBlock.IsLocalDataBackendInited.LockContext()
-	if pNetBlock.IsLocalDataBackendInited.Load() == types.MetaDataStateInited {
+	if pNetBlock.IsLocalDataBackendInited.Load() == sdbapitypes.MetaDataStateInited {
 		goto PREPARE_DONE
 	}
 
 	pNetBlock.LocalDataBackend = backend
-	pNetBlock.IsLocalDataBackendInited.Store(types.MetaDataStateInited)
+	pNetBlock.IsLocalDataBackendInited.Store(sdbapitypes.MetaDataStateInited)
 
 PREPARE_DONE:
 	pNetBlock.IsLocalDataBackendInited.UnlockContext()

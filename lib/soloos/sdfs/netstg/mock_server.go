@@ -1,13 +1,13 @@
 package netstg
 
 import (
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/common/snet/srpc"
 	snettypes "soloos/common/snet/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
 	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
 	"time"
 
 	flatbuffers "github.com/google/flatbuffers/go"
@@ -47,7 +47,7 @@ func (p *MockServer) Init(soloOSEnv *soloosbase.SoloOSEnv, network string, addr 
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
 	p.dataNodePeers = make([]snettypes.PeerUintptr, 3)
 	for i := 0; i < len(p.dataNodePeers); i++ {
-		p.dataNodePeers[i] = p.SNetDriver.AllocPeer(p.addr, types.DefaultSDFSRPCProtocol)
+		p.dataNodePeers[i] = p.SNetDriver.AllocPeer(p.addr, sdfsapitypes.DefaultSDFSRPCProtocol)
 	}
 
 	return nil

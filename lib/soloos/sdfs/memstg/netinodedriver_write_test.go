@@ -32,6 +32,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		&netBlockDriver, &memBlockDriver, &netINodeDriver,
 		memBlockCap, blocksLimit)
 	uNetINode = mockNetINodeTable.AllocNetINode(netBlockCap, memBlockCap)
+	defer mockNetINodeTable.ReleaseNetINode(uNetINode)
 
 	for i = 0; i <= maxBlocks; i++ {
 		writeOffset := uint64(uint64(i) * uint64(memBlockCap))

@@ -1,8 +1,9 @@
 package api
 
 import (
-	"soloos/sdfs/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
+	"soloos/sdfs/types"
 )
 
 // DataNode
@@ -10,9 +11,10 @@ type GetDataNode func(peerID snettypes.PeerID) snettypes.PeerUintptr
 type ChooseDataNodesForNewNetBlock func(uNetINode types.NetINodeUintptr) (snettypes.PeerGroup, error)
 
 // NetINode
-type GetNetINodeWithReadAcquire func(isForceReload bool, netINodeID types.NetINodeID) (types.NetINodeUintptr, error)
-type MustGetNetINodeWithReadAcquire func(netINodeID types.NetINodeID,
+type GetNetINode func(netINodeID types.NetINodeID) (types.NetINodeUintptr, error)
+type MustGetNetINode func(netINodeID types.NetINodeID,
 	size uint64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error)
+type ReleaseNetINode func(uNetINode types.NetINodeUintptr)
 type PrepareNetINodeMetaDataOnlyLoadDB func(uNetINode types.NetINodeUintptr) error
 type PrepareNetINodeMetaDataWithStorDB func(uNetINode types.NetINodeUintptr,
 	size uint64, netBlockCap int, memBlockCap int) error
@@ -24,12 +26,12 @@ type DeleteFsINodeByIDInDB func(fsINodeID types.FsINodeID) error
 type ListFsINodeByParentIDFromDB func(parentID types.FsINodeID,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(types.FsINode) bool,
+	literalFunc func(sdfsapitypes.FsINodeMeta) bool,
 ) error
-type UpdateFsINodeInDB func(fsINode types.FsINode) error
-type InsertFsINodeInDB func(fsINode types.FsINode) error
-type GetFsINodeByIDFromDB func(fsINodeID types.FsINodeID) (types.FsINode, error)
-type GetFsINodeByNameFromDB func(parentID types.FsINodeID, fsINodeName string) (types.FsINode, error)
+type UpdateFsINodeInDB func(fsINodeMeta *sdfsapitypes.FsINodeMeta) error
+type InsertFsINodeInDB func(fsINodeMeta *sdfsapitypes.FsINodeMeta) error
+type FetchFsINodeByIDFromDB func(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error
+type FetchFsINodeByNameFromDB func(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error
 
 // FsINodeXAttr
 type DeleteFIXAttrInDB func(fsINodeID types.FsINodeID) error

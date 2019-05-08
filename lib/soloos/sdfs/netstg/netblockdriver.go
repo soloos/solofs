@@ -1,6 +1,7 @@
 package netstg
 
 import (
+	sdbapitypes "soloos/common/sdbapi/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
@@ -79,6 +80,17 @@ func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk api.Up
 	p.dataNodeClient.SetUploadMemBlockWithDisk(uploadMemBlockWithDisk)
 }
 
+func (p *NetBlockDriver) SyncMemBlock(uNetINode types.NetINodeUintptr,
+	uNetBlock types.NetBlockUintptr,
+	uMemBlock types.MemBlockUintptr) error {
+	uMemBlock.Ptr().UploadJob.SyncDataSig.Wait()
+	return nil
+}
+
+func (p *NetBlockDriver) GetDataNodeClient() *api.DataNodeClient {
+	return p.dataNodeClient
+}
+
 // MustGetNetBlock get or init a netBlock
 func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	netBlockIndex int32) (types.NetBlockUintptr, error) {
@@ -93,33 +105,26 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	)
 
 	types.EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
-	uObject, afterSetNewObj = p.netBlockTable.MustGetObjectWithAcquire(netINodeBlockID)
+	uObject, afterSetNewObj = p.netBlockTable.MustGetObject(netINodeBlockID)
 	isNewObjectSetted = p.netBlockTablePrepareNewObjectFunc(types.NetBlockUintptr(uObject), afterSetNewObj)
 	uNetBlock = types.NetBlockUintptr(uObject)
 	pNetBlock = uNetBlock.Ptr()
-	if isNewObjectSetted || uNetBlock.Ptr().IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
+	if isNewObjectSetted || uNetBlock.Ptr().IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
 		pNetBlock.IsDBMetaDataInited.LockContext()
-		if pNetBlock.IsDBMetaDataInited.Load() == types.MetaDataStateUninited {
+		if pNetBlock.IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
 			err = p.helper.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
 		}
 		pNetBlock.IsDBMetaDataInited.UnlockContext()
 	}
 
 	if err != nil {
-		p.netBlockTable.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes68(uNetBlock))
+		p.netBlockTable.ForceDeleteAfterReleaseDone(offheap.LKVTableObjectUPtrWithBytes68(uNetBlock))
 		return 0, err
 	}
 
 	return uNetBlock, nil
 }
 
-func (p *NetBlockDriver) SyncMemBlock(uNetINode types.NetINodeUintptr,
-	uNetBlock types.NetBlockUintptr,
-	uMemBlock types.MemBlockUintptr) error {
-	uMemBlock.Ptr().UploadJob.SyncDataSig.Wait()
-	return nil
-}
-
-func (p *NetBlockDriver) GetDataNodeClient() *api.DataNodeClient {
-	return p.dataNodeClient
+func (p *NetBlockDriver) ReleaseNetBlock(uNetBlock types.NetBlockUintptr) {
+	p.netBlockTable.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes68(uNetBlock))
 }

@@ -1,6 +1,7 @@
 package netstg
 
 import (
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/api"
 	"soloos/sdfs/types"
@@ -28,8 +29,8 @@ func TestNetBlockDriver(t *testing.T) {
 		&nameNodeClient, &dataNodeClient,
 		&netBlockDriver)
 
-	var uPeer0 = soloOSEnv.SNetDriver.AllocPeer(mockServerAddr, types.DefaultSDFSRPCProtocol)
-	var uPeer1 = soloOSEnv.SNetDriver.AllocPeer(mockServerAddr, types.DefaultSDFSRPCProtocol)
+	var uPeer0 = soloOSEnv.SNetDriver.AllocPeer(mockServerAddr, sdfsapitypes.DefaultSDFSRPCProtocol)
+	var uPeer1 = soloOSEnv.SNetDriver.AllocPeer(mockServerAddr, sdfsapitypes.DefaultSDFSRPCProtocol)
 
 	data := make([]byte, 8)
 	for i := 0; i < len(data); i++ {
@@ -37,9 +38,11 @@ func TestNetBlockDriver(t *testing.T) {
 	}
 
 	uNetINode := mockNetINodeTable.AllocNetINode(1024, 128)
+	defer mockNetINodeTable.ReleaseNetINode(uNetINode)
 
 	netBlockIndex := int32(10)
 	uNetBlock, err := netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
+	defer netBlockDriver.ReleaseNetBlock(uNetBlock)
 	assert.NoError(t, err)
 	uNetBlock.Ptr().StorDataBackends.Append(uPeer0)
 	uNetBlock.Ptr().StorDataBackends.Append(uPeer1)

@@ -2,31 +2,33 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 	"sync/atomic"
 )
 
-func (p *FsINodeDriver) Link(srcFsINode *types.FsINode,
-	parentID types.FsINodeID, filename string, retFsINode *types.FsINode) error {
+func (p *FsINodeDriver) Link(srcFsINodeMeta *sdfsapitypes.FsINodeMeta,
+	parentID types.FsINodeID, filename string,
+	retFsINode *sdfsapitypes.FsINodeMeta) error {
 	var (
 		err error
 	)
 
 	err = p.PrepareFsINodeForCreate(retFsINode,
 		nil, nil, parentID,
-		filename, types.FSINODE_TYPE_HARD_LINK, srcFsINode.Mode,
+		filename, types.FSINODE_TYPE_HARD_LINK, srcFsINodeMeta.Mode,
 		0, 0, types.FS_RDEV)
 	if err != nil {
 		return err
 	}
-	retFsINode.HardLinkIno = srcFsINode.Ino
+	retFsINode.HardLinkIno = srcFsINodeMeta.Ino
 	err = p.CreateFsINode(retFsINode)
 	if err != nil {
 		return err
 	}
 
-	srcFsINode.Nlink += 1
-	err = p.UpdateFsINodeInDB(srcFsINode)
+	srcFsINodeMeta.Nlink += 1
+	err = p.UpdateFsINodeInDB(srcFsINodeMeta)
 	if err != nil {
 		return err
 	}
@@ -35,24 +37,24 @@ func (p *FsINodeDriver) Link(srcFsINode *types.FsINode,
 }
 
 func (p *FsINodeDriver) Symlink(parentID types.FsINodeID, pointedTo string, linkName string,
-	retFsINode *types.FsINode) error {
+	retFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var (
 		err error
 	)
 
-	err = p.PrepareFsINodeForCreate(retFsINode,
+	err = p.PrepareFsINodeForCreate(retFsINodeMeta,
 		nil, nil, parentID,
 		linkName, types.FSINODE_TYPE_SOFT_LINK, fsapitypes.S_IFLNK|0777,
 		0, 0, types.FS_RDEV)
 	if err != nil {
 		return err
 	}
-	err = p.CreateFsINode(retFsINode)
+	err = p.CreateFsINode(retFsINodeMeta)
 	if err != nil {
 		return err
 	}
 
-	err = p.FIXAttrDriver.SetXAttr(retFsINode.Ino, types.FS_XATTR_SOFT_LNKMETA_KEY, []byte(pointedTo))
+	err = p.FIXAttrDriver.SetXAttr(retFsINodeMeta.Ino, types.FS_XATTR_SOFT_LNKMETA_KEY, []byte(pointedTo))
 	if err != nil {
 		return err
 	}
@@ -61,66 +63,71 @@ func (p *FsINodeDriver) Symlink(parentID types.FsINodeID, pointedTo string, link
 }
 
 func (p *FsINodeDriver) Readlink(fsINodeID types.FsINodeID) ([]byte, error) {
-	var (
-		fsINode types.FsINode
-		err     error
-	)
-	err = p.FetchFsINodeByID(fsINodeID, &fsINode)
-	if err != nil {
-		return nil, err
-	}
-
 	return p.FIXAttrDriver.GetXAttrData(fsINodeID, types.FS_XATTR_SOFT_LNKMETA_KEY)
 }
 
-func (p *FsINodeDriver) decreaseFsINodeNLink(fsINode *types.FsINode) error {
+// decreaseFsINodeNLink return isFsINodeDeleted, decreaseError
+// if FsINodeMeta.Nlink == 0 then delete FsINode else decrease(FsINode.Nlink)
+func (p *FsINodeDriver) decreaseFsINodeNLink(uFsINode sdfsapitypes.FsINodeUintptr) (bool, error) {
 	var (
-		err error
+		pFsINode = uFsINode.Ptr()
+		err      error
 	)
 
-	if atomic.AddInt32(&fsINode.Nlink, -1) > 0 {
-		err = p.UpdateFsINodeInDB(fsINode)
+	if atomic.AddInt32(&pFsINode.Meta.Nlink, -1) > 0 {
+		err = p.UpdateFsINodeInDB(&pFsINode.Meta)
 		if err != nil {
-			return err
+			return false, err
 		}
-		return nil
+		return false, nil
 	}
 
 	// assert fsINode.Nlink == 0
-	if fsINode.Type == types.FSINODE_TYPE_HARD_LINK {
-		var fsINodeHardLink types.FsINode
-		err = p.FetchFsINodeByID(fsINode.HardLinkIno, &fsINodeHardLink)
+	if pFsINode.Meta.Type == types.FSINODE_TYPE_HARD_LINK {
+		var uFsINodeHardLink types.FsINodeUintptr
+		uFsINodeHardLink, err = p.GetFsINodeByID(pFsINode.Meta.HardLinkIno)
+		defer p.ReleaseFsINode(uFsINodeHardLink)
 		if err != nil {
 			if err != types.ErrObjectNotExists {
-				return err
+				return false, err
 			}
 		} else {
-			err = p.decreaseFsINodeNLink(&fsINodeHardLink)
+			_, err = p.decreaseFsINodeNLink(uFsINodeHardLink)
 			if err != nil {
-				return err
+				return false, err
 			}
 		}
 	}
 
-	err = p.helper.DeleteFsINodeByIDInDB(fsINode.Ino)
+	err = p.helper.DeleteFsINodeByIDInDB(pFsINode.Meta.Ino)
 	if err != nil {
-		return err
+		return false, err
 	}
-	p.DeleteFsINodeCache(fsINode.ParentID, fsINode.Name, fsINode.Ino)
-	return nil
+
+	p.DeleteFsINodeCache(uFsINode, pFsINode.Meta.ParentID, pFsINode.Meta.Name())
+
+	return true, nil
 }
 
-func (p *FsINodeDriver) UnlinkFsINode(fsINode *types.FsINode) error {
+func (p *FsINodeDriver) UnlinkFsINode(fsINodeID sdfsapitypes.FsINodeID) error {
 	var (
-		err error
+		uFsINode               sdfsapitypes.FsINodeUintptr
+		pFsINode               *sdfsapitypes.FsINode
+		isFsINodeDeleted       bool
+		isShouldDeleteUFsINode bool
+		err                    error
 	)
 
-	err = p.decreaseFsINodeNLink(fsINode)
-	if err != nil {
-		return err
-	}
+	uFsINode, err = p.GetFsINodeByID(fsINodeID)
+	pFsINode = uFsINode.Ptr()
+	defer func(uFsINode sdfsapitypes.FsINodeUintptr, parentID sdfsapitypes.FsINodeID) {
+		if isShouldDeleteUFsINode {
+			p.DeleteFsINodeCache(uFsINode, pFsINode.Meta.ParentID, pFsINode.Meta.Name())
+		} else {
+			p.ReleaseFsINode(uFsINode)
+		}
+	}(uFsINode, pFsINode.Meta.ParentID)
 
-	err = p.FetchFsINodeByID(fsINode.Ino, fsINode)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
 			return nil
@@ -129,13 +136,19 @@ func (p *FsINodeDriver) UnlinkFsINode(fsINode *types.FsINode) error {
 		}
 	}
 
-	var parentID = fsINode.ParentID
-	fsINode.ParentID = types.ZombieFsINodeParentID
-	err = p.UpdateFsINodeInDB(fsINode)
+	isFsINodeDeleted, err = p.decreaseFsINodeNLink(uFsINode)
 	if err != nil {
 		return err
 	}
-	p.DeleteFsINodeCache(parentID, fsINode.Name, fsINode.Ino)
+
+	if isFsINodeDeleted == false {
+		pFsINode.Meta.ParentID = sdfsapitypes.ZombieFsINodeParentID
+		err = p.UpdateFsINodeInDB(&pFsINode.Meta)
+		if err != nil {
+			return err
+		}
+		isShouldDeleteUFsINode = true
+	}
 
 	return nil
 }

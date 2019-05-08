@@ -1,6 +1,7 @@
 package datanode
 
 import (
+	sdbapitypes "soloos/common/sdbapi/types"
 	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
@@ -39,8 +40,8 @@ func (p *DataNodeSRPCServer) NetINodePRead(serviceReq snettypes.ServiceRequest) 
 		readDataSize       int
 	)
 	copy(netINodeID[:], reqParam.NetINodeID())
-	uNetINode, err = p.dataNode.netINodeDriver.GetNetINodeWithReadAcquire(false, netINodeID)
-	defer p.dataNode.netINodeDriver.ReleaseNetINodeWithReadRelease(uNetINode)
+	uNetINode, err = p.dataNode.netINodeDriver.GetNetINode(netINodeID)
+	defer p.dataNode.netINodeDriver.ReleaseNetINode(uNetINode)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
 			api.SetNetINodePReadResponseError(&protocolBuilder, snettypes.CODE_404, "")
@@ -63,12 +64,13 @@ func (p *DataNodeSRPCServer) NetINodePRead(serviceReq snettypes.ServiceRequest) 
 	lastNetBlockIndex = int32((reqParam.Offset() + uint64(readDataSize)) / uint64(uNetINode.Ptr().NetBlockCap))
 	for netBlockIndex = firstNetBlockIndex; netBlockIndex <= lastNetBlockIndex; netBlockIndex++ {
 		uNetBlock, err = p.dataNode.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
+		defer p.dataNode.netBlockDriver.ReleaseNetBlock(uNetBlock)
 		if err != nil {
 			api.SetNetINodePReadResponseError(&protocolBuilder, snettypes.CODE_502, "")
 			goto SERVICE_REQUEST_DONE
 		}
 
-		if uNetBlock.Ptr().IsLocalDataBackendInited.Load() == types.MetaDataStateUninited {
+		if uNetBlock.Ptr().IsLocalDataBackendInited.Load() == sdbapitypes.MetaDataStateUninited {
 			p.dataNode.metaStg.PrepareNetBlockLocalDataBackendWithLock(uNetBlock, p.dataNode.uLocalDiskPeer)
 		}
 	}

@@ -30,11 +30,12 @@ func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool, serviceReq snettypes.
 
 	copy(netINodeID[:], req.NetINodeID())
 	if isMustGet {
-		uNetINode, err = p.nameNode.netINodeDriver.MustGetNetINodeWithReadAcquire(netINodeID,
+		uNetINode, err = p.nameNode.netINodeDriver.MustGetNetINode(netINodeID,
 			req.Size(), int(req.NetBlockCap()), int(req.MemBlockCap()))
 	} else {
-		uNetINode, err = p.nameNode.netINodeDriver.GetNetINodeWithReadAcquire(false, netINodeID)
+		uNetINode, err = p.nameNode.netINodeDriver.GetNetINode(netINodeID)
 	}
+	defer p.nameNode.netINodeDriver.ReleaseNetINode(uNetINode)
 
 	if err != nil {
 		if err == types.ErrObjectNotExists {
@@ -87,7 +88,9 @@ func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(serviceReq snettypes.Service
 	req.Init(param, flatbuffers.GetUOffsetT(param))
 
 	copy(netINodeID[:], req.NetINodeID())
-	uNetINode, err = p.nameNode.netINodeDriver.GetNetINodeWithReadAcquire(false, netINodeID)
+	uNetINode, err = p.nameNode.netINodeDriver.GetNetINode(netINodeID)
+	defer p.nameNode.netINodeDriver.ReleaseNetINode(uNetINode)
+
 	if err != nil {
 		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
 		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])

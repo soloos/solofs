@@ -1,6 +1,7 @@
 package datanode
 
 import (
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/api"
@@ -8,7 +9,6 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
-	"soloos/sdfs/types"
 )
 
 type DataNode struct {
@@ -50,7 +50,7 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	p.netINodeDriver = netINodeDriver
 
 	uNameNodePeer, _ = p.SNetDriver.MustGetPeer(&options.NameNodePeerID, options.NameNodeSRPCServer,
-		types.DefaultSDFSRPCProtocol)
+		sdfsapitypes.DefaultSDFSRPCProtocol)
 	err = p.nameNodeClient.Init(p.SoloOSEnv, uNameNodePeer)
 	if err != nil {
 		return err

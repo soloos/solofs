@@ -1,11 +1,11 @@
 package memstg
 
 import (
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdfs/api"
 	"soloos/sdfs/netstg"
-	"soloos/sdfs/types"
 )
 
 type MemStg struct {
@@ -29,7 +29,7 @@ func (p *MemStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 
 	p.SoloOSEnv = soloOSEnv
 
-	nameNodePeer = p.SNetDriver.AllocPeer(nameNodeSRPCServerAddr, types.DefaultSDFSRPCProtocol)
+	nameNodePeer = p.SNetDriver.AllocPeer(nameNodeSRPCServerAddr, sdfsapitypes.DefaultSDFSRPCProtocol)
 	err = p.NameNodeClient.Init(p.SoloOSEnv, nameNodePeer)
 	if err != nil {
 		return err

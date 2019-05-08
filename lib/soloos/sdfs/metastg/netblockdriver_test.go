@@ -41,11 +41,13 @@ func TestMetaStgNetBlock(t *testing.T) {
 	netBlock.NetINodeID = netINode.ID
 
 	snettypes.InitTmpPeerID(&peerID)
-	uObject, _ = peerPool.MustGetObjectWithAcquire(peerID)
+	uObject, _ = peerPool.MustGetObject(peerID)
+	defer peerPool.ReleaseObject(uObject)
 	uPeer0 := snettypes.PeerUintptr(uObject)
 
 	snettypes.InitTmpPeerID(&peerID)
-	uObject, _ = peerPool.MustGetObjectWithAcquire(peerID)
+	uObject, _ = peerPool.MustGetObject(peerID)
+	defer peerPool.ReleaseObject(uObject)
 	uPeer1 := snettypes.PeerUintptr(uObject)
 
 	netBlock.StorDataBackends.Append(uPeer0)

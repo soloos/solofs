@@ -10,11 +10,10 @@ type DirTreeTime = sdfsapitypes.DirTreeTime
 type DirTreeTimeNsec = sdfsapitypes.DirTreeTimeNsec
 
 const (
-	ZombieFsINodeParentID = sdfsapitypes.ZombieFsINodeParentID
-	RootFsINodeParentID   = sdfsapitypes.RootFsINodeParentID
-	RootFsINodeID         = sdfsapitypes.RootFsINodeID
-	FsINodeStructSize     = sdfsapitypes.FsINodeStructSize
-	MaxFsINodeID          = sdfsapitypes.MaxFsINodeID
+	RootFsINodeParentID = sdfsapitypes.RootFsINodeParentID
+	RootFsINodeID       = sdfsapitypes.RootFsINodeID
+	FsINodeStructSize   = sdfsapitypes.FsINodeStructSize
+	MaxFsINodeID        = sdfsapitypes.MaxFsINodeID
 )
 
 type FsINodeUintptr = sdfsapitypes.FsINodeUintptr

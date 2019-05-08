@@ -16,8 +16,9 @@ type DirTreeStg struct {
 
 func (p *DirTreeStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	dbConn *sdbapi.Connection,
-	getNetINodeWithReadAcquire api.GetNetINodeWithReadAcquire,
-	mustGetNetINodeWithReadAcquire api.MustGetNetINodeWithReadAcquire,
+	getNetINode api.GetNetINode,
+	mustGetNetINode api.MustGetNetINode,
+	releaseNetINode api.ReleaseNetINode,
 ) error {
 	var err error
 
@@ -30,8 +31,10 @@ func (p *DirTreeStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	}
 
 	err = p.FsINodeDriver.Init(p.SoloOSEnv, dbConn,
-		getNetINodeWithReadAcquire,
-		mustGetNetINodeWithReadAcquire)
+		getNetINode,
+		mustGetNetINode,
+		releaseNetINode,
+	)
 	if err != nil {
 		return err
 	}

@@ -10,9 +10,7 @@ const (
 	NetINodeStructSize = sdfsapitypes.NetINodeStructSize
 )
 
-var (
-	ZeroNetINodeID = sdfsapitypes.ZeroNetINodeID
-)
+var ()
 
 type NetINodeID = sdfsapitypes.NetINodeID
 type NetINodeUintptr = sdfsapitypes.NetINodeUintptr

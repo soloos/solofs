@@ -1,6 +1,7 @@
 package netstg
 
 import (
+	sdbapitypes "soloos/common/sdbapi/types"
 	"soloos/sdfs/types"
 )
 
@@ -15,7 +16,8 @@ func (p *netBlockDriverUploader) PWrite(uNetINode types.NetINodeUintptr,
 		pMemBlock                    = uMemBlock.Ptr()
 	)
 
-	if pMemBlock.UploadJob.MetaDataState.Load() == types.MetaDataStateUninited {
+	if pMemBlock.UploadJob.MetaDataState.Load() == sdbapitypes.MetaDataStateUninited {
+		// TODO: refine me
 		p.PrepareUploadMemBlockJob(&pMemBlock.UploadJob,
 			uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, uNetBlock.Ptr().StorDataBackends)
 	}

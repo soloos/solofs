@@ -1,6 +1,7 @@
 package memstg
 
 import (
+	sdbapitypes "soloos/common/sdbapi/types"
 	"soloos/sdfs/types"
 )
 
@@ -14,7 +15,7 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetIN
 
 PREPARE_DONE:
 	if err == nil {
-		uNetINode.Ptr().IsDBMetaDataInited.Store(types.MetaDataStateInited)
+		uNetINode.Ptr().IsDBMetaDataInited.Store(sdbapitypes.MetaDataStateInited)
 	}
 	return err
 }
@@ -30,7 +31,7 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetIN
 
 PREPARE_DONE:
 	if err == nil {
-		uNetINode.Ptr().IsDBMetaDataInited.Store(types.MetaDataStateInited)
+		uNetINode.Ptr().IsDBMetaDataInited.Store(sdbapitypes.MetaDataStateInited)
 	}
 	return err
 }

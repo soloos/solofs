@@ -1,6 +1,8 @@
 package datanode
 
 import (
+	sdbapitypes "soloos/common/sdbapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/api"
 	"soloos/sdfs/protocol"
@@ -41,8 +43,8 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq snettypes.ServiceRequest)
 		netBlockIndex      int32
 	)
 	copy(netINodeID[:], reqParam.NetINodeID())
-	uNetINode, err = p.dataNode.netINodeDriver.GetNetINodeWithReadAcquire(false, netINodeID)
-	defer p.dataNode.netINodeDriver.ReleaseNetINodeWithReadRelease(uNetINode)
+	uNetINode, err = p.dataNode.netINodeDriver.GetNetINode(netINodeID)
+	defer p.dataNode.netINodeDriver.ReleaseNetINode(uNetINode)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
 			api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_404)
@@ -59,7 +61,7 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq snettypes.ServiceRequest)
 		reqParam.TransferBackends(&syncDataProtoBackend, i)
 		copy(peerID[:], syncDataProtoBackend.PeerID())
 		uPeer, _ = p.dataNode.SNetDriver.MustGetPeer(&peerID,
-			string(syncDataProtoBackend.Address()), types.DefaultSDFSRPCProtocol)
+			string(syncDataProtoBackend.Address()), sdfsapitypes.DefaultSDFSRPCProtocol)
 		syncDataBackends.Append(uPeer)
 	}
 
@@ -68,12 +70,13 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq snettypes.ServiceRequest)
 	lastNetBlockIndex = int32((reqParam.Offset() + uint64(reqParam.Length())) / uint64(uNetINode.Ptr().NetBlockCap))
 	for netBlockIndex = firstNetBlockIndex; netBlockIndex <= lastNetBlockIndex; netBlockIndex++ {
 		uNetBlock, err = p.dataNode.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
+		defer p.dataNode.netBlockDriver.ReleaseNetBlock(uNetBlock)
 		if err != nil {
 			api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_502)
 			goto SERVICE_DONE
 		}
 
-		if uNetBlock.Ptr().IsSyncDataBackendsInited.Load() == types.MetaDataStateUninited {
+		if uNetBlock.Ptr().IsSyncDataBackendsInited.Load() == sdbapitypes.MetaDataStateUninited {
 			p.dataNode.metaStg.PrepareNetBlockSyncDataBackendsWithLock(uNetBlock, syncDataBackends)
 		}
 	}

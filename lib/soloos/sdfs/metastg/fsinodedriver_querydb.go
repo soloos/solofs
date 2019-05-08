@@ -3,6 +3,7 @@ package metastg
 import (
 	"database/sql"
 	"soloos/common/sdbapi"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
@@ -30,16 +31,17 @@ func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
 func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(types.FsINode) bool,
+	literalFunc func(sdfsapitypes.FsINodeMeta) bool,
 ) error {
 	var (
 		sess            sdbapi.Session
 		sqlRows         *sql.Rows
-		ret             types.FsINode
+		ret             sdfsapitypes.FsINodeMeta
 		fetchRowsLimit  uint64
 		fetchRowsOffset uint64
 		netINodeIDStr   string
 		resultCount     int
+		fsINodeName     string
 		err             error
 	)
 
@@ -95,7 +97,7 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 				&ret.HardLinkIno,
 				&netINodeIDStr,
 				&ret.ParentID,
-				&ret.Name,
+				&fsINodeName,
 				&ret.Type,
 				&ret.Mode,
 			)
@@ -105,7 +107,7 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 				&ret.HardLinkIno,
 				&netINodeIDStr,
 				&ret.ParentID,
-				&ret.Name,
+				&fsINodeName,
 				&ret.Type,
 				&ret.Atime,
 				&ret.Ctime,
@@ -120,6 +122,8 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 				&ret.Rdev,
 			)
 		}
+		ret.SetName(fsINodeName)
+
 		if err != nil {
 			goto QUERY_DONE
 		}
@@ -136,7 +140,7 @@ QUERY_DONE:
 	return err
 }
 
-func (p *FsINodeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
+func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -148,24 +152,24 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
 	}
 
 	_, err = sess.Update("b_fsinode").
-		Set("fsinode_ino", fsINode.Ino).
-		Set("hardlink_ino", fsINode.HardLinkIno).
-		Set("netinode_id", string(fsINode.NetINodeID[:])).
-		Set("parent_fsinode_ino", fsINode.ParentID).
-		Set("fsinode_name", fsINode.Name).
-		Set("fsinode_type", fsINode.Type).
-		Set("atime", fsINode.Atime).
-		Set("ctime", fsINode.Ctime).
-		Set("mtime", fsINode.Mtime).
-		Set("atimensec", fsINode.Atimensec).
-		Set("ctimensec", fsINode.Ctimensec).
-		Set("mtimensec", fsINode.Mtimensec).
-		Set("mode", fsINode.Mode).
-		Set("nlink", fsINode.Nlink).
-		Set("uid", fsINode.Uid).
-		Set("gid", fsINode.Gid).
-		Set("rdev", fsINode.Rdev).
-		Where("fsinode_ino=?", fsINode.Ino).
+		Set("fsinode_ino", pFsINodeMeta.Ino).
+		Set("hardlink_ino", pFsINodeMeta.HardLinkIno).
+		Set("netinode_id", string(pFsINodeMeta.NetINodeID[:])).
+		Set("parent_fsinode_ino", pFsINodeMeta.ParentID).
+		Set("fsinode_name", pFsINodeMeta.Name()).
+		Set("fsinode_type", pFsINodeMeta.Type).
+		Set("atime", pFsINodeMeta.Atime).
+		Set("ctime", pFsINodeMeta.Ctime).
+		Set("mtime", pFsINodeMeta.Mtime).
+		Set("atimensec", pFsINodeMeta.Atimensec).
+		Set("ctimensec", pFsINodeMeta.Ctimensec).
+		Set("mtimensec", pFsINodeMeta.Mtimensec).
+		Set("mode", pFsINodeMeta.Mode).
+		Set("nlink", pFsINodeMeta.Nlink).
+		Set("uid", pFsINodeMeta.Uid).
+		Set("gid", pFsINodeMeta.Gid).
+		Set("rdev", pFsINodeMeta.Rdev).
+		Where("fsinode_ino=?", pFsINodeMeta.Ino).
 		Exec()
 	if err != nil {
 		return err
@@ -174,7 +178,7 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(fsINode types.FsINode) error {
 	return nil
 }
 
-func (p *FsINodeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
+func (p *FsINodeDriver) InsertFsINodeInDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -188,23 +192,23 @@ func (p *FsINodeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
 	_, err = sess.InsertInto("b_fsinode").
 		Columns(schemaDirTreeFsINodeAttr...).
 		Values(
-			fsINode.Ino,
-			fsINode.HardLinkIno,
-			string(fsINode.NetINodeID[:]),
-			fsINode.ParentID,
-			fsINode.Name,
-			fsINode.Type,
-			fsINode.Atime,
-			fsINode.Ctime,
-			fsINode.Mtime,
-			fsINode.Atimensec,
-			fsINode.Ctimensec,
-			fsINode.Mtimensec,
-			fsINode.Mode,
-			fsINode.Nlink,
-			fsINode.Uid,
-			fsINode.Gid,
-			fsINode.Rdev,
+			pFsINodeMeta.Ino,
+			pFsINodeMeta.HardLinkIno,
+			string(pFsINodeMeta.NetINodeID[:]),
+			pFsINodeMeta.ParentID,
+			pFsINodeMeta.Name(),
+			pFsINodeMeta.Type,
+			pFsINodeMeta.Atime,
+			pFsINodeMeta.Ctime,
+			pFsINodeMeta.Mtime,
+			pFsINodeMeta.Atimensec,
+			pFsINodeMeta.Ctimensec,
+			pFsINodeMeta.Mtimensec,
+			pFsINodeMeta.Mode,
+			pFsINodeMeta.Nlink,
+			pFsINodeMeta.Uid,
+			pFsINodeMeta.Gid,
+			pFsINodeMeta.Rdev,
 		).
 		Exec()
 	if err != nil {
@@ -214,11 +218,11 @@ func (p *FsINodeDriver) InsertFsINodeInDB(fsINode types.FsINode) error {
 	return nil
 }
 
-func (p *FsINodeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.FsINode, error) {
+func (p *FsINodeDriver) FetchFsINodeByIDFromDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var (
+		fsINodeName   string
 		sess          sdbapi.Session
 		sqlRows       *sql.Rows
-		ret           types.FsINode
 		netINodeIDStr string
 		err           error
 	)
@@ -231,7 +235,7 @@ func (p *FsINodeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.F
 	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
 		From("b_fsinode").
 		Where("fsinode_ino=?",
-			fsINodeID,
+			pFsINodeMeta.Ino,
 		).Limit(1).Rows()
 	if err != nil {
 		goto QUERY_DONE
@@ -243,41 +247,43 @@ func (p *FsINodeDriver) GetFsINodeByIDFromDB(fsINodeID types.FsINodeID) (types.F
 	}
 
 	err = sqlRows.Scan(
-		&ret.Ino,
-		&ret.HardLinkIno,
+		&pFsINodeMeta.Ino,
+		&pFsINodeMeta.HardLinkIno,
 		&netINodeIDStr,
-		&ret.ParentID,
-		&ret.Name,
-		&ret.Type,
-		&ret.Atime,
-		&ret.Ctime,
-		&ret.Mtime,
-		&ret.Atimensec,
-		&ret.Ctimensec,
-		&ret.Mtimensec,
-		&ret.Mode,
-		&ret.Nlink,
-		&ret.Uid,
-		&ret.Gid,
-		&ret.Rdev,
+		&pFsINodeMeta.ParentID,
+		&fsINodeName,
+		&pFsINodeMeta.Type,
+		&pFsINodeMeta.Atime,
+		&pFsINodeMeta.Ctime,
+		&pFsINodeMeta.Mtime,
+		&pFsINodeMeta.Atimensec,
+		&pFsINodeMeta.Ctimensec,
+		&pFsINodeMeta.Mtimensec,
+		&pFsINodeMeta.Mode,
+		&pFsINodeMeta.Nlink,
+		&pFsINodeMeta.Uid,
+		&pFsINodeMeta.Gid,
+		&pFsINodeMeta.Rdev,
 	)
+	pFsINodeMeta.SetName(fsINodeName)
+
 	if err != nil {
 		goto QUERY_DONE
 	}
-	copy(ret.NetINodeID[:], []byte(netINodeIDStr))
+	copy(pFsINodeMeta.NetINodeID[:], []byte(netINodeIDStr))
 
 QUERY_DONE:
 	if sqlRows != nil {
 		sqlRows.Close()
 	}
-	return ret, err
+	return err
 }
 
-func (p *FsINodeDriver) GetFsINodeByNameFromDB(parentID types.FsINodeID, fsINodeName string) (types.FsINode, error) {
+func (p *FsINodeDriver) FetchFsINodeByNameFromDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var (
+		fsINodeName   string
 		sess          sdbapi.Session
 		sqlRows       *sql.Rows
-		ret           types.FsINode
 		netINodeIDStr string
 		err           error
 	)
@@ -290,7 +296,7 @@ func (p *FsINodeDriver) GetFsINodeByNameFromDB(parentID types.FsINodeID, fsINode
 	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
 		From("b_fsinode").
 		Where("parent_fsinode_ino=? and fsinode_name=?",
-			parentID, fsINodeName,
+			pFsINodeMeta.ParentID, pFsINodeMeta.Name(),
 		).Limit(1).Rows()
 	if err != nil {
 		goto QUERY_DONE
@@ -302,32 +308,34 @@ func (p *FsINodeDriver) GetFsINodeByNameFromDB(parentID types.FsINodeID, fsINode
 	}
 
 	err = sqlRows.Scan(
-		&ret.Ino,
-		&ret.HardLinkIno,
+		&pFsINodeMeta.Ino,
+		&pFsINodeMeta.HardLinkIno,
 		&netINodeIDStr,
-		&ret.ParentID,
-		&ret.Name,
-		&ret.Type,
-		&ret.Atime,
-		&ret.Ctime,
-		&ret.Mtime,
-		&ret.Atimensec,
-		&ret.Ctimensec,
-		&ret.Mtimensec,
-		&ret.Mode,
-		&ret.Nlink,
-		&ret.Uid,
-		&ret.Gid,
-		&ret.Rdev,
+		&pFsINodeMeta.ParentID,
+		&fsINodeName,
+		&pFsINodeMeta.Type,
+		&pFsINodeMeta.Atime,
+		&pFsINodeMeta.Ctime,
+		&pFsINodeMeta.Mtime,
+		&pFsINodeMeta.Atimensec,
+		&pFsINodeMeta.Ctimensec,
+		&pFsINodeMeta.Mtimensec,
+		&pFsINodeMeta.Mode,
+		&pFsINodeMeta.Nlink,
+		&pFsINodeMeta.Uid,
+		&pFsINodeMeta.Gid,
+		&pFsINodeMeta.Rdev,
 	)
+	pFsINodeMeta.SetName(fsINodeName)
+
 	if err != nil {
 		goto QUERY_DONE
 	}
-	copy(ret.NetINodeID[:], []byte(netINodeIDStr))
+	copy(pFsINodeMeta.NetINodeID[:], []byte(netINodeIDStr))
 
 QUERY_DONE:
 	if sqlRows != nil {
 		sqlRows.Close()
 	}
-	return ret, err
+	return err
 }

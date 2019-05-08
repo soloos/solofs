@@ -29,7 +29,8 @@ func TestNetINodeDriverNetINodeRead(t *testing.T) {
 		&netBlockDriver, &memBlockDriver, &netINodeDriver, memBlockCap, blocksLimit)
 	var netINodeID types.NetINodeID
 	sdfsapitypes.InitTmpNetINodeID(&netINodeID)
-	uNetINode, err = netINodeDriver.MustGetNetINodeWithReadAcquire(netINodeID, 0, netBlockCap, memBlockCap)
+	uNetINode, err = netINodeDriver.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
+	defer netINodeDriver.ReleaseNetINode(uNetINode)
 	assert.NoError(t, err)
 
 	var (
