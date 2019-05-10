@@ -6,7 +6,7 @@ import (
 	"soloos/sdfs/types"
 )
 
-func (p *DirTreeStg) SetFsAttrByFsINode(fsAttr *fsapitypes.Attr, pFsINodeMeta *sdfsapitypes.FsINodeMeta) {
+func (p *DirTreeStg) SetFsAttrByFsINode(fsAttr *fsapitypes.Attr, pFsINodeMeta *types.FsINodeMeta) {
 	fsAttr.Ino = pFsINodeMeta.Ino
 
 	if pFsINodeMeta.NetINodeID != sdfsapitypes.ZeroNetINodeID ||
@@ -36,7 +36,7 @@ func (p *DirTreeStg) SetFsAttrByFsINode(fsAttr *fsapitypes.Attr, pFsINodeMeta *s
 }
 
 func (p *DirTreeStg) SetFsEntryOutByFsINode(fsEntryOut *fsapitypes.EntryOut,
-	pFsINodeMeta *sdfsapitypes.FsINodeMeta) {
+	pFsINodeMeta *types.FsINodeMeta) {
 
 	fsEntryOut.NodeId = pFsINodeMeta.Ino
 	fsEntryOut.EntryValid = p.EntryAttrValid
@@ -46,7 +46,7 @@ func (p *DirTreeStg) SetFsEntryOutByFsINode(fsEntryOut *fsapitypes.EntryOut,
 	p.SetFsAttrByFsINode(&fsEntryOut.Attr, pFsINodeMeta)
 }
 
-func (p *DirTreeStg) SetFsINodeByFsAttr(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
+func (p *DirTreeStg) SetFsINodeByFsAttr(pFsINodeMeta *types.FsINodeMeta,
 	input *fsapitypes.SetAttrIn) fsapitypes.Status {
 
 	if input.Valid&fsapitypes.FATTR_MODE != 0 {
@@ -104,7 +104,7 @@ func (p *DirTreeStg) SetFsINodeByFsAttr(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
 }
 
 func (p *DirTreeStg) SetFsAttrOutByFsINode(fsAttrOut *fsapitypes.AttrOut,
-	pFsINodeMeta *sdfsapitypes.FsINodeMeta) {
+	pFsINodeMeta *types.FsINodeMeta) {
 
 	fsAttrOut.AttrValid = p.EntryAttrValid
 	fsAttrOut.AttrValidNsec = p.EntryAttrValidNsec
@@ -113,7 +113,7 @@ func (p *DirTreeStg) SetFsAttrOutByFsINode(fsAttrOut *fsapitypes.AttrOut,
 
 func (p *DirTreeStg) GetAttr(input *fsapitypes.GetAttrIn, out *fsapitypes.AttrOut) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		err         error
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, input.NodeId)
@@ -128,7 +128,7 @@ func (p *DirTreeStg) GetAttr(input *fsapitypes.GetAttrIn, out *fsapitypes.AttrOu
 
 func (p *DirTreeStg) SetAttr(input *fsapitypes.SetAttrIn, out *fsapitypes.AttrOut) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		code        fsapitypes.Status
 		err         error
 	)

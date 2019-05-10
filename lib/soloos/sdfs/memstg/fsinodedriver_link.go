@@ -7,9 +7,9 @@ import (
 	"sync/atomic"
 )
 
-func (p *FsINodeDriver) Link(srcFsINodeMeta *sdfsapitypes.FsINodeMeta,
+func (p *FsINodeDriver) Link(srcFsINodeMeta *types.FsINodeMeta,
 	parentID types.FsINodeID, filename string,
-	retFsINode *sdfsapitypes.FsINodeMeta) error {
+	retFsINode *types.FsINodeMeta) error {
 	var (
 		err error
 	)
@@ -37,7 +37,7 @@ func (p *FsINodeDriver) Link(srcFsINodeMeta *sdfsapitypes.FsINodeMeta,
 }
 
 func (p *FsINodeDriver) Symlink(parentID types.FsINodeID, pointedTo string, linkName string,
-	retFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
+	retFsINodeMeta *types.FsINodeMeta) error {
 	var (
 		err error
 	)
@@ -68,7 +68,7 @@ func (p *FsINodeDriver) Readlink(fsINodeID types.FsINodeID) ([]byte, error) {
 
 // decreaseFsINodeNLink return isFsINodeDeleted, decreaseError
 // if FsINodeMeta.Nlink == 0 then delete FsINode else decrease(FsINode.Nlink)
-func (p *FsINodeDriver) decreaseFsINodeNLink(uFsINode sdfsapitypes.FsINodeUintptr) (bool, error) {
+func (p *FsINodeDriver) decreaseFsINodeNLink(uFsINode types.FsINodeUintptr) (bool, error) {
 	var (
 		pFsINode = uFsINode.Ptr()
 		err      error
@@ -109,10 +109,10 @@ func (p *FsINodeDriver) decreaseFsINodeNLink(uFsINode sdfsapitypes.FsINodeUintpt
 	return true, nil
 }
 
-func (p *FsINodeDriver) UnlinkFsINode(fsINodeID sdfsapitypes.FsINodeID) error {
+func (p *FsINodeDriver) UnlinkFsINode(fsINodeID types.FsINodeID) error {
 	var (
-		uFsINode               sdfsapitypes.FsINodeUintptr
-		pFsINode               *sdfsapitypes.FsINode
+		uFsINode               types.FsINodeUintptr
+		pFsINode               *types.FsINode
 		isFsINodeDeleted       bool
 		isShouldDeleteUFsINode bool
 		err                    error
@@ -120,7 +120,7 @@ func (p *FsINodeDriver) UnlinkFsINode(fsINodeID sdfsapitypes.FsINodeID) error {
 
 	uFsINode, err = p.GetFsINodeByID(fsINodeID)
 	pFsINode = uFsINode.Ptr()
-	defer func(uFsINode sdfsapitypes.FsINodeUintptr, parentID sdfsapitypes.FsINodeID) {
+	defer func(uFsINode types.FsINodeUintptr, parentID types.FsINodeID) {
 		if isShouldDeleteUFsINode {
 			p.DeleteFsINodeCache(uFsINode, pFsINode.Meta.ParentID, pFsINode.Meta.Name())
 		} else {

@@ -2,14 +2,13 @@ package memstg
 
 import (
 	"path/filepath"
-	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 	"strings"
 )
 
 func (p *DirTreeStg) DeleteFsINodeByPath(fsINodePath string) error {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		err         error
 	)
 
@@ -29,10 +28,10 @@ func (p *DirTreeStg) DeleteFsINodeByPath(fsINodePath string) error {
 
 func (p *DirTreeStg) RenameWithFullPath(oldFsINodeName, newFsINodePath string) error {
 	var (
-		fsINodeMeta                   sdfsapitypes.FsINodeMeta
-		oldFsINodeMeta                sdfsapitypes.FsINodeMeta
-		parentFsINodeMeta             sdfsapitypes.FsINodeMeta
-		tmpFsINodeMeta                sdfsapitypes.FsINodeMeta
+		fsINodeMeta                   types.FsINodeMeta
+		oldFsINodeMeta                types.FsINodeMeta
+		parentFsINodeMeta             types.FsINodeMeta
+		tmpFsINodeMeta                types.FsINodeMeta
 		tmpParentDirPath, tmpFileName string
 		err                           error
 	)
@@ -93,10 +92,10 @@ PREPARE_PARENT_FSINODE_DONE:
 func (p *DirTreeStg) ListFsINodeByParentPath(parentPath string,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(sdfsapitypes.FsINodeMeta) bool,
+	literalFunc func(types.FsINodeMeta) bool,
 ) error {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		err         error
 	)
 
@@ -114,7 +113,7 @@ func (p *DirTreeStg) ListFsINodeByParentPath(parentPath string,
 	return nil
 }
 
-func (p *DirTreeStg) FetchFsINodeByPath(fsINodeMeta *sdfsapitypes.FsINodeMeta, fsINodePath string) error {
+func (p *DirTreeStg) FetchFsINodeByPath(fsINodeMeta *types.FsINodeMeta, fsINodePath string) error {
 	var (
 		paths    []string
 		i        int

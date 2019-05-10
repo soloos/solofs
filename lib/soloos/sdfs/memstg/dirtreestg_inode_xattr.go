@@ -2,13 +2,12 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
 func (p *DirTreeStg) SimpleGetXAttrSize(fsINodeID types.FsINodeID, attr string) (int, fsapitypes.Status) {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		sz          int
 		err         error
 	)
@@ -26,7 +25,7 @@ func (p *DirTreeStg) SimpleGetXAttrSize(fsINodeID types.FsINodeID, attr string) 
 
 func (p *DirTreeStg) SimpleGetXAttrData(fsINodeID types.FsINodeID, attr string) ([]byte, fsapitypes.Status) {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		data        []byte
 		err         error
 	)
@@ -44,7 +43,7 @@ func (p *DirTreeStg) SimpleGetXAttrData(fsINodeID types.FsINodeID, attr string) 
 
 func (p *DirTreeStg) SimpleListXAttr(fsINodeID types.FsINodeID) ([]byte, fsapitypes.Status) {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		data        []byte
 		err         error
 	)

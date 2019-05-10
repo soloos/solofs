@@ -2,18 +2,17 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 	"strings"
 )
 
-func (p *DirTreeStg) ListFsINodeByIno(ino sdfsapitypes.FsINodeID,
+func (p *DirTreeStg) ListFsINodeByIno(ino types.FsINodeID,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(sdfsapitypes.FsINodeMeta) bool,
+	literalFunc func(types.FsINodeMeta) bool,
 ) error {
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
+		uFsINode types.FsINodeUintptr
 		err      error
 	)
 
@@ -106,7 +105,7 @@ func (p *DirTreeStg) SimpleMkdirAll(perms uint32, fsINodePath string, uid uint32
 		paths       []string
 		i           int
 		parentID    types.FsINodeID = types.RootFsINodeID
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		code        fsapitypes.Status
 	)
 
@@ -134,7 +133,7 @@ DONE:
 
 func (p *DirTreeStg) Mkdir(input *fsapitypes.MkdirIn, name string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		code        fsapitypes.Status
 		err         error
 	)
@@ -154,7 +153,7 @@ func (p *DirTreeStg) Mkdir(input *fsapitypes.MkdirIn, name string, out *fsapityp
 	return fsapitypes.OK
 }
 
-func (p *DirTreeStg) SimpleMkdir(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
+func (p *DirTreeStg) SimpleMkdir(pFsINodeMeta *types.FsINodeMeta,
 	fsINodeID *types.FsINodeID, parentID types.FsINodeID,
 	perms uint32, name string,
 	uid uint32, gid uint32, rdev uint32) fsapitypes.Status {
@@ -163,7 +162,7 @@ func (p *DirTreeStg) SimpleMkdir(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
 	}
 
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
+		uFsINode types.FsINodeUintptr
 		err      error
 	)
 
@@ -188,7 +187,7 @@ func (p *DirTreeStg) SimpleMkdir(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
 	return fsapitypes.OK
 }
 
-func (p *DirTreeStg) checkIsDirEmpty(pFsINodeMeta *sdfsapitypes.FsINodeMeta) (bool, error) {
+func (p *DirTreeStg) checkIsDirEmpty(pFsINodeMeta *types.FsINodeMeta) (bool, error) {
 	var (
 		isDirEmpty bool
 		err        error
@@ -199,7 +198,7 @@ func (p *DirTreeStg) checkIsDirEmpty(pFsINodeMeta *sdfsapitypes.FsINodeMeta) (bo
 			isDirEmpty = (resultCount == 0)
 			return 0, 0
 		},
-		func(sdfsapitypes.FsINodeMeta) bool {
+		func(types.FsINodeMeta) bool {
 			return false
 		},
 	)
@@ -212,7 +211,7 @@ func (p *DirTreeStg) checkIsDirEmpty(pFsINodeMeta *sdfsapitypes.FsINodeMeta) (bo
 
 func (p *DirTreeStg) Rmdir(header *fsapitypes.InHeader, name string) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		isDirEmpty  bool
 		err         error
 	)
@@ -250,7 +249,7 @@ func (p *DirTreeStg) Rmdir(header *fsapitypes.InHeader, name string) fsapitypes.
 
 func (p *DirTreeStg) OpenDir(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		err         error
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, input.NodeId)
@@ -267,7 +266,7 @@ func (p *DirTreeStg) OpenDir(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) 
 
 func (p *DirTreeStg) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList) fsapitypes.Status {
 	var (
-		fsINodeMetaByIDThroughHardLink sdfsapitypes.FsINodeMeta
+		fsINodeMetaByIDThroughHardLink types.FsINodeMeta
 		isAddDirEntrySuccess           bool
 		err                            error
 	)
@@ -275,7 +274,7 @@ func (p *DirTreeStg) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryL
 		func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
 			return uint64(resultCount) - input.Offset, input.Offset
 		},
-		func(fsINodeMeta sdfsapitypes.FsINodeMeta) bool {
+		func(fsINodeMeta types.FsINodeMeta) bool {
 			if fsINodeMeta.Type == types.FSINODE_TYPE_HARD_LINK {
 				err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMetaByIDThroughHardLink, fsINodeMeta.Ino)
 				if err != nil {
@@ -306,7 +305,7 @@ func (p *DirTreeStg) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryL
 
 func (p *DirTreeStg) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList) fsapitypes.Status {
 	var (
-		fsINodeMetaByIDThroughHardLink sdfsapitypes.FsINodeMeta
+		fsINodeMetaByIDThroughHardLink types.FsINodeMeta
 		entryOut                       *fsapitypes.EntryOut
 		err                            error
 	)
@@ -323,7 +322,7 @@ func (p *DirTreeStg) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEn
 			}
 			return fetchRowsLimit, input.Offset
 		},
-		func(fsINodeMeta sdfsapitypes.FsINodeMeta) bool {
+		func(fsINodeMeta types.FsINodeMeta) bool {
 			err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMetaByIDThroughHardLink, fsINodeMeta.Ino)
 			if err != nil {
 				return false

@@ -3,7 +3,6 @@ package metastg
 import (
 	"database/sql"
 	"soloos/common/sdbapi"
-	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
@@ -31,12 +30,12 @@ func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
 func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(sdfsapitypes.FsINodeMeta) bool,
+	literalFunc func(types.FsINodeMeta) bool,
 ) error {
 	var (
 		sess            sdbapi.Session
 		sqlRows         *sql.Rows
-		ret             sdfsapitypes.FsINodeMeta
+		ret             types.FsINodeMeta
 		fetchRowsLimit  uint64
 		fetchRowsOffset uint64
 		netINodeIDStr   string
@@ -140,7 +139,7 @@ QUERY_DONE:
 	return err
 }
 
-func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINodeMeta *types.FsINodeMeta) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -178,7 +177,7 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta
 	return nil
 }
 
-func (p *FsINodeDriver) InsertFsINodeInDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) InsertFsINodeInDB(pFsINodeMeta *types.FsINodeMeta) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -218,7 +217,7 @@ func (p *FsINodeDriver) InsertFsINodeInDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta
 	return nil
 }
 
-func (p *FsINodeDriver) FetchFsINodeByIDFromDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) FetchFsINodeByIDFromDB(pFsINodeMeta *types.FsINodeMeta) error {
 	var (
 		fsINodeName   string
 		sess          sdbapi.Session
@@ -279,7 +278,7 @@ QUERY_DONE:
 	return err
 }
 
-func (p *FsINodeDriver) FetchFsINodeByNameFromDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) FetchFsINodeByNameFromDB(pFsINodeMeta *types.FsINodeMeta) error {
 	var (
 		fsINodeName   string
 		sess          sdbapi.Session

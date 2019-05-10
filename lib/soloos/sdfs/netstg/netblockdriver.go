@@ -2,6 +2,7 @@ package netstg
 
 import (
 	sdbapitypes "soloos/common/sdbapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdbone/offheap"
 	"soloos/sdfs/api"
@@ -87,29 +88,24 @@ func (p *NetBlockDriver) SyncMemBlock(uNetINode types.NetINodeUintptr,
 	return nil
 }
 
-func (p *NetBlockDriver) GetDataNodeClient() *api.DataNodeClient {
-	return p.dataNodeClient
-}
-
 // MustGetNetBlock get or init a netBlock
 func (p *NetBlockDriver) MustGetNetBlock(uNetINode types.NetINodeUintptr,
 	netBlockIndex int32) (types.NetBlockUintptr, error) {
 	var (
-		uNetBlock         types.NetBlockUintptr
-		pNetBlock         *types.NetBlock
-		uObject           offheap.LKVTableObjectUPtrWithBytes68
-		netINodeBlockID   types.NetINodeBlockID
-		afterSetNewObj    offheap.KVTableAfterSetNewObj
-		isNewObjectSetted bool
-		err               error
+		uNetBlock       types.NetBlockUintptr
+		pNetBlock       *types.NetBlock
+		uObject         offheap.LKVTableObjectUPtrWithBytes68
+		netINodeBlockID types.NetINodeBlockID
+		afterSetNewObj  offheap.KVTableAfterSetNewObj
+		err             error
 	)
 
-	types.EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
+	sdfsapitypes.EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
 	uObject, afterSetNewObj = p.netBlockTable.MustGetObject(netINodeBlockID)
-	isNewObjectSetted = p.netBlockTablePrepareNewObjectFunc(types.NetBlockUintptr(uObject), afterSetNewObj)
+	p.netBlockTablePrepareNewObjectFunc(types.NetBlockUintptr(uObject), afterSetNewObj)
 	uNetBlock = types.NetBlockUintptr(uObject)
 	pNetBlock = uNetBlock.Ptr()
-	if isNewObjectSetted || uNetBlock.Ptr().IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
+	if uNetBlock.Ptr().IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
 		pNetBlock.IsDBMetaDataInited.LockContext()
 		if pNetBlock.IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
 			err = p.helper.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)

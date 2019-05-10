@@ -85,18 +85,17 @@ func (p *NetINodeDriver) NetINodeTruncate(uNetINode types.NetINodeUintptr, size 
 
 func (p *NetINodeDriver) GetNetINode(netINodeID types.NetINodeID) (types.NetINodeUintptr, error) {
 	var (
-		uObject           offheap.LKVTableObjectUPtrWithBytes64
-		uNetINode         types.NetINodeUintptr
-		pNetINode         *types.NetINode
-		afterSetNewObj    offheap.KVTableAfterSetNewObj
-		isNewObjectSetted bool
-		err               error
+		uObject        offheap.LKVTableObjectUPtrWithBytes64
+		uNetINode      types.NetINodeUintptr
+		pNetINode      *types.NetINode
+		afterSetNewObj offheap.KVTableAfterSetNewObj
+		err            error
 	)
 	uObject, afterSetNewObj = p.netINodeTable.MustGetObject(netINodeID)
-	isNewObjectSetted = p.netINodeTablePrepareNewObjectFunc(types.NetINodeUintptr(uObject), afterSetNewObj)
+	p.netINodeTablePrepareNewObjectFunc(types.NetINodeUintptr(uObject), afterSetNewObj)
 	uNetINode = types.NetINodeUintptr(uObject)
 	pNetINode = uNetINode.Ptr()
-	if isNewObjectSetted || uNetINode.Ptr().IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
+	if uNetINode.Ptr().IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
 		pNetINode.IsDBMetaDataInited.LockContext()
 		if pNetINode.IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
 			err = p.helper.PrepareNetINodeMetaDataOnlyLoadDB(uNetINode)
@@ -115,18 +114,17 @@ func (p *NetINodeDriver) GetNetINode(netINodeID types.NetINodeID) (types.NetINod
 func (p *NetINodeDriver) MustGetNetINode(netINodeID types.NetINodeID,
 	size uint64, netBlockCap int, memBlockCap int) (types.NetINodeUintptr, error) {
 	var (
-		uObject           offheap.LKVTableObjectUPtrWithBytes64
-		uNetINode         types.NetINodeUintptr
-		pNetINode         *types.NetINode
-		afterSetNewObj    offheap.KVTableAfterSetNewObj
-		isNewObjectSetted bool
-		err               error
+		uObject        offheap.LKVTableObjectUPtrWithBytes64
+		uNetINode      types.NetINodeUintptr
+		pNetINode      *types.NetINode
+		afterSetNewObj offheap.KVTableAfterSetNewObj
+		err            error
 	)
 	uObject, afterSetNewObj = p.netINodeTable.MustGetObject(netINodeID)
-	isNewObjectSetted = p.netINodeTablePrepareNewObjectFunc(types.NetINodeUintptr(uObject), afterSetNewObj)
+	p.netINodeTablePrepareNewObjectFunc(types.NetINodeUintptr(uObject), afterSetNewObj)
 	uNetINode = types.NetINodeUintptr(uObject)
 	pNetINode = uNetINode.Ptr()
-	if isNewObjectSetted || uNetINode.Ptr().IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
+	if uNetINode.Ptr().IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
 		pNetINode.IsDBMetaDataInited.LockContext()
 		if pNetINode.IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
 			err = p.helper.PrepareNetINodeMetaDataWithStorDB(uNetINode, size, netBlockCap, memBlockCap)

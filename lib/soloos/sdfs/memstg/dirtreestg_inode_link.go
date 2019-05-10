@@ -2,14 +2,13 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
 func (p *DirTreeStg) Link(input *fsapitypes.LinkIn, filename string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	var (
-		srcFsINodeMeta sdfsapitypes.FsINodeMeta
-		newFsINodeMeta sdfsapitypes.FsINodeMeta
+		srcFsINodeMeta types.FsINodeMeta
+		newFsINodeMeta types.FsINodeMeta
 		err            error
 	)
 
@@ -40,7 +39,7 @@ func (p *DirTreeStg) Link(input *fsapitypes.LinkIn, filename string, out *fsapit
 
 func (p *DirTreeStg) Symlink(header *fsapitypes.InHeader, pointedTo string, linkName string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		err         error
 	)
 	err = p.FsINodeDriver.Symlink(header.NodeId, pointedTo, linkName, &fsINodeMeta)

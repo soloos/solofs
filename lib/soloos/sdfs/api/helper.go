@@ -1,7 +1,6 @@
 package api
 
 import (
-	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/types"
 )
@@ -26,12 +25,12 @@ type DeleteFsINodeByIDInDB func(fsINodeID types.FsINodeID) error
 type ListFsINodeByParentIDFromDB func(parentID types.FsINodeID,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(sdfsapitypes.FsINodeMeta) bool,
+	literalFunc func(types.FsINodeMeta) bool,
 ) error
-type UpdateFsINodeInDB func(fsINodeMeta *sdfsapitypes.FsINodeMeta) error
-type InsertFsINodeInDB func(fsINodeMeta *sdfsapitypes.FsINodeMeta) error
-type FetchFsINodeByIDFromDB func(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error
-type FetchFsINodeByNameFromDB func(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error
+type UpdateFsINodeInDB func(fsINodeMeta *types.FsINodeMeta) error
+type InsertFsINodeInDB func(fsINodeMeta *types.FsINodeMeta) error
+type FetchFsINodeByIDFromDB func(pFsINodeMeta *types.FsINodeMeta) error
+type FetchFsINodeByNameFromDB func(pFsINodeMeta *types.FsINodeMeta) error
 
 // FsINodeXAttr
 type DeleteFIXAttrInDB func(fsINodeID types.FsINodeID) error

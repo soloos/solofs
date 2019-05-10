@@ -3,7 +3,6 @@ package libsdfs
 import (
 	"soloos/common/fsapi"
 	fsapitypes "soloos/common/fsapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/common/util"
 	"soloos/sdfs/types"
 	"testing"
@@ -14,7 +13,7 @@ import (
 func TestMetaStgDirTreeStgBase(t *testing.T) {
 	var (
 		client      Client
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		netBlockCap = types.DefaultNetBlockCap
 		memBlockCap = types.DefaultMemBlockCap
 		posixFS     fsapi.PosixFS
@@ -52,7 +51,7 @@ func TestMetaStgDirTreeStgBase(t *testing.T) {
 		func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
 			return uint64(resultCount), uint64(0)
 		},
-		func(fsINodeMeta sdfsapitypes.FsINodeMeta) bool {
+		func(fsINodeMeta types.FsINodeMeta) bool {
 			return true
 		})
 	assert.NoError(t, err)

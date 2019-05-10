@@ -2,7 +2,6 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
@@ -23,10 +22,10 @@ func (p ReadResult) Size() int {
 func (p ReadResult) Done() {
 }
 
-func (p *DirTreeStg) SimpleReadWithMem(fsINodeID sdfsapitypes.FsINodeID,
+func (p *DirTreeStg) SimpleReadWithMem(fsINodeID types.FsINodeID,
 	data []byte, offset uint64) (int, error) {
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
+		uFsINode types.FsINodeUintptr
 		err      error
 	)
 	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeID)

@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (p *DirTreeStg) initNetINode(fsINodeMeta *sdfsapitypes.FsINodeMeta, netBlockCap, memBlockCap int) error {
+func (p *DirTreeStg) initNetINode(fsINodeMeta *types.FsINodeMeta, netBlockCap, memBlockCap int) error {
 	var (
 		uNetINode types.NetINodeUintptr
 		err       error
@@ -20,12 +20,12 @@ func (p *DirTreeStg) initNetINode(fsINodeMeta *sdfsapitypes.FsINodeMeta, netBloc
 }
 
 func (p *DirTreeStg) SimpleOpenFile(fsINodePath string,
-	netBlockCap int, memBlockCap int) (sdfsapitypes.FsINodeMeta, error) {
+	netBlockCap int, memBlockCap int) (types.FsINodeMeta, error) {
 	var (
 		paths       []string
 		i           int
-		parentID    sdfsapitypes.FsINodeID = sdfsapitypes.RootFsINodeID
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		parentID    types.FsINodeID = sdfsapitypes.RootFsINodeID
+		fsINodeMeta types.FsINodeMeta
 		err         error
 	)
 
@@ -72,7 +72,7 @@ OPEN_FILE_DONE:
 
 func (p *DirTreeStg) Create(input *fsapitypes.CreateIn, name string, out *fsapitypes.CreateOut) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		err         error
 	)
 
@@ -106,7 +106,7 @@ func (p *DirTreeStg) Create(input *fsapitypes.CreateIn, name string, out *fsapit
 
 func (p *DirTreeStg) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapitypes.Status {
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
+		uFsINode types.FsINodeUintptr
 		err      error
 	)
 

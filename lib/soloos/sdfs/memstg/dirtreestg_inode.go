@@ -2,14 +2,13 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
-func (p *DirTreeStg) FetchFsINodeByID(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
-	fsINodeID sdfsapitypes.FsINodeID) error {
+func (p *DirTreeStg) FetchFsINodeByID(pFsINodeMeta *types.FsINodeMeta,
+	fsINodeID types.FsINodeID) error {
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
+		uFsINode types.FsINodeUintptr
 		err      error
 	)
 	uFsINode, err = p.FsINodeDriver.GetFsINodeByID(fsINodeID)
@@ -22,10 +21,10 @@ func (p *DirTreeStg) FetchFsINodeByID(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
 	return nil
 }
 
-func (p *DirTreeStg) FetchFsINodeByName(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
+func (p *DirTreeStg) FetchFsINodeByName(pFsINodeMeta *types.FsINodeMeta,
 	parentID types.FsINodeID, fsINodeName string) error {
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
+		uFsINode types.FsINodeUintptr
 		err      error
 	)
 	uFsINode, err = p.FsINodeDriver.GetFsINodeByName(parentID, fsINodeName)
@@ -38,10 +37,10 @@ func (p *DirTreeStg) FetchFsINodeByName(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
 	return nil
 }
 
-func (p *DirTreeStg) FetchFsINodeByIDThroughHardLink(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
+func (p *DirTreeStg) FetchFsINodeByIDThroughHardLink(pFsINodeMeta *types.FsINodeMeta,
 	fsINodeID types.FsINodeID) error {
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
+		uFsINode types.FsINodeUintptr
 		err      error
 	)
 	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeID)
@@ -54,7 +53,7 @@ func (p *DirTreeStg) FetchFsINodeByIDThroughHardLink(pFsINodeMeta *sdfsapitypes.
 	return nil
 }
 
-func (p *DirTreeStg) createFsINode(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
+func (p *DirTreeStg) createFsINode(pFsINodeMeta *types.FsINodeMeta,
 	fsINodeID *types.FsINodeID,
 	netINodeID *types.NetINodeID, parentID types.FsINodeID,
 	name string, fsINodeType int, mode uint32,
@@ -79,7 +78,7 @@ func (p *DirTreeStg) createFsINode(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
 	return nil
 }
 
-func (p *DirTreeStg) SimpleOpen(fsINodeMeta *sdfsapitypes.FsINodeMeta,
+func (p *DirTreeStg) SimpleOpen(fsINodeMeta *types.FsINodeMeta,
 	flags uint32, out *fsapitypes.OpenOut) error {
 	out.Fh = p.FdTable.AllocFd(fsINodeMeta.Ino)
 	out.OpenFlags = flags
@@ -92,8 +91,8 @@ func (p *DirTreeStg) Mknod(input *fsapitypes.MknodIn, name string, out *fsapityp
 	}
 
 	var (
-		parentFsINodeMeta sdfsapitypes.FsINodeMeta
-		fsINodeMeta       sdfsapitypes.FsINodeMeta
+		parentFsINodeMeta types.FsINodeMeta
+		fsINodeMeta       types.FsINodeMeta
 		fsINodeType       int
 		err               error
 	)
@@ -128,7 +127,7 @@ func (p *DirTreeStg) Mknod(input *fsapitypes.MknodIn, name string, out *fsapityp
 
 func (p *DirTreeStg) Unlink(header *fsapitypes.InHeader, name string) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		err         error
 	)
 
@@ -152,7 +151,7 @@ func (p *DirTreeStg) Unlink(header *fsapitypes.InHeader, name string) fsapitypes
 
 func (p *DirTreeStg) Fsync(input *fsapitypes.FsyncIn) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		err         error
 	)
 
@@ -172,7 +171,7 @@ func (p *DirTreeStg) Lookup(header *fsapitypes.InHeader, name string, out *fsapi
 	}
 
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta types.FsINodeMeta
 		err         error
 	)
 
@@ -201,7 +200,7 @@ func (p *DirTreeStg) Release(input *fsapitypes.ReleaseIn) {
 }
 
 func (p *DirTreeStg) CheckPermissionChmod(uid uint32, gid uint32,
-	fsINodeMeta *sdfsapitypes.FsINodeMeta) bool {
+	fsINodeMeta *types.FsINodeMeta) bool {
 
 	if uid == 0 || uid == fsINodeMeta.Uid {
 		return true
@@ -211,7 +210,7 @@ func (p *DirTreeStg) CheckPermissionChmod(uid uint32, gid uint32,
 }
 
 func (p *DirTreeStg) CheckPermissionRead(uid uint32, gid uint32,
-	fsINodeMeta *sdfsapitypes.FsINodeMeta) bool {
+	fsINodeMeta *types.FsINodeMeta) bool {
 
 	perm := uint32(07777) & fsINodeMeta.Mode
 	if uid == fsINodeMeta.Uid {
@@ -234,7 +233,7 @@ func (p *DirTreeStg) CheckPermissionRead(uid uint32, gid uint32,
 }
 
 func (p *DirTreeStg) CheckPermissionWrite(uid uint32, gid uint32,
-	fsINodeMeta *sdfsapitypes.FsINodeMeta) bool {
+	fsINodeMeta *types.FsINodeMeta) bool {
 
 	perm := uint32(07777) & fsINodeMeta.Mode
 	if uid == fsINodeMeta.Uid {
@@ -257,7 +256,7 @@ func (p *DirTreeStg) CheckPermissionWrite(uid uint32, gid uint32,
 }
 
 func (p *DirTreeStg) CheckPermissionExecute(uid uint32, gid uint32,
-	fsINodeMeta *sdfsapitypes.FsINodeMeta) bool {
+	fsINodeMeta *types.FsINodeMeta) bool {
 
 	perm := uint32(07777) & fsINodeMeta.Mode
 	if uid == fsINodeMeta.Uid {
@@ -283,9 +282,9 @@ func (p *DirTreeStg) RefreshFsINodeACMtimeByIno(fsINodeID types.FsINodeID) error
 	return p.FsINodeDriver.RefreshFsINodeACMtimeByIno(fsINodeID)
 }
 
-func (p *DirTreeStg) TruncateINode(pFsINode *sdfsapitypes.FsINodeMeta, size uint64) error {
+func (p *DirTreeStg) TruncateINode(pFsINode *types.FsINodeMeta, size uint64) error {
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
+		uFsINode types.FsINodeUintptr
 		err      error
 	)
 	uFsINode, err = p.FsINodeDriver.GetFsINodeByID(pFsINode.Ino)

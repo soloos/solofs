@@ -18,6 +18,7 @@ const (
 
 type FsINodeUintptr = sdfsapitypes.FsINodeUintptr
 
+type FsINodeMeta = sdfsapitypes.FsINodeMeta
 type FsINode = sdfsapitypes.FsINode
 
 func FsModeToFsINodeType(mode uint32) int {

@@ -2,16 +2,15 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
-func (p *DirTreeStg) SimpleWriteWithMem(fsINodeID sdfsapitypes.FsINodeID,
+func (p *DirTreeStg) SimpleWriteWithMem(fsINodeID types.FsINodeID,
 	data []byte, offset uint64) error {
 
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
-		pFsINode *sdfsapitypes.FsINode
+		uFsINode types.FsINodeUintptr
+		pFsINode *types.FsINode
 		err      error
 	)
 

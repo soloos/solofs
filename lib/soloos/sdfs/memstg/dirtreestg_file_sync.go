@@ -2,14 +2,13 @@ package memstg
 
 import (
 	fsapitypes "soloos/common/fsapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 )
 
-func (p *DirTreeStg) SimpleFlush(fsINodeID sdfsapitypes.FsINodeID) error {
+func (p *DirTreeStg) SimpleFlush(fsINodeID types.FsINodeID) error {
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
-		pFsINode *sdfsapitypes.FsINode
+		uFsINode types.FsINodeUintptr
+		pFsINode *types.FsINode
 		err      error
 	)
 
