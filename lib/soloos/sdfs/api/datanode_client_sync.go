@@ -1,9 +1,9 @@
 package api
 
 import (
+	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/common/snet/types"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -25,9 +25,12 @@ func (p *DataNodeClient) GetNetINodeMetaData(uDataNode snettypes.PeerUintptr, uN
 
 	err = p.SNetClientDriver.Call(uDataNode,
 		"/NetINode/Sync", &req, &resp)
+	if err != nil {
+		return err
+	}
 
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	p.SNetClientDriver.ReadResponse(uDataNode, &req, &resp, body)
+	err = p.SNetClientDriver.ReadResponse(uDataNode, &req, &resp, body)
 	if err != nil {
 		return err
 	}

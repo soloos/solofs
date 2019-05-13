@@ -1,9 +1,9 @@
 package api
 
 import (
+	snettypes "soloos/common/snet/types"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
-	snettypes "soloos/common/snet/types"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -36,9 +36,12 @@ func (p *NameNodeClient) doGetNetINodeMetaData(isMustGet bool,
 		err = p.SNetClientDriver.Call(p.nameNodePeer,
 			"/NetINode/Get", &req, &resp)
 	}
+	if err != nil {
+		return err
+	}
 
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
+	err = p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
 	if err != nil {
 		return err
 	}
@@ -91,9 +94,12 @@ func (p *NameNodeClient) NetINodeCommitSizeInDB(uNetINode types.NetINodeUintptr,
 
 	err = p.SNetClientDriver.Call(p.nameNodePeer,
 		"/NetINode/CommitSizeInDB", &req, &resp)
+	if err != nil {
+		return err
+	}
 
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
+	err = p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
 	if err != nil {
 		return err
 	}

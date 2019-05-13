@@ -1,8 +1,8 @@
 package api
 
 import (
-	"soloos/sdfs/protocol"
 	snettypes "soloos/common/snet/types"
+	"soloos/sdfs/protocol"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -27,8 +27,12 @@ func (p *NameNodeClient) RegisterDataNode(peerID snettypes.PeerID, serveAddr str
 
 	err = p.SNetClientDriver.Call(p.nameNodePeer,
 		"/DataNode/Register", &req, &resp)
+	if err != nil {
+		return err
+	}
+
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
+	err = p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
 	if err != nil {
 		return err
 	}

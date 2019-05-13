@@ -7,7 +7,7 @@ import (
 )
 
 type preadArg struct {
-	conn       *snettypes.Connection
+	netQuery   *snettypes.NetQuery
 	dataLength int
 	data       []byte
 	offset     uint64
@@ -69,11 +69,11 @@ func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
 		}
 
 		// read memblock
-		if arg.conn == nil {
+		if arg.netQuery == nil {
 			uMemBlock.Ptr().PReadWithMem(arg.data[dataOffset:dataOffset+memBlockReadLength], memBlockReadOffset)
 		} else {
 			// TODO read to connection
-			err = uMemBlock.Ptr().PReadWithConn(arg.conn, memBlockReadLength, memBlockReadOffset)
+			err = uMemBlock.Ptr().PReadWithNetQuery(arg.netQuery, memBlockReadLength, memBlockReadOffset)
 			if err != nil {
 				goto READ_DATA_ONE_RUN_DONE
 			}
@@ -90,10 +90,10 @@ READ_DATA_DONE:
 	return arg.dataLength, err
 }
 
-func (p *NetINodeDriver) PReadWithConn(uNetINode types.NetINodeUintptr,
-	conn *snettypes.Connection, dataLength int, offset uint64) (int, error) {
+func (p *NetINodeDriver) PReadWithNetQuery(uNetINode types.NetINodeUintptr,
+	netQuery *snettypes.NetQuery, dataLength int, offset uint64) (int, error) {
 	return p.doPRead(uNetINode, preadArg{
-		conn:       conn,
+		netQuery:   netQuery,
 		data:       nil,
 		dataLength: dataLength,
 		offset:     offset,
@@ -103,7 +103,7 @@ func (p *NetINodeDriver) PReadWithConn(uNetINode types.NetINodeUintptr,
 func (p *NetINodeDriver) PReadWithMem(uNetINode types.NetINodeUintptr,
 	data []byte, offset uint64) (int, error) {
 	return p.doPRead(uNetINode, preadArg{
-		conn:       nil,
+		netQuery:   nil,
 		data:       data,
 		dataLength: len(data),
 		offset:     offset,

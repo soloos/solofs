@@ -9,15 +9,15 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeSRPCServer) DataNodeRegister(serviceReq snettypes.ServiceRequest) error {
+func (p *NameNodeSRPCServer) DataNodeRegister(serviceReq *snettypes.NetQuery) error {
 	var (
-		param           = make([]byte, serviceReq.ReqBodySize)
+		param           = make([]byte, serviceReq.BodySize)
 		req             protocol.SNetPeer
 		protocolBuilder flatbuffers.Builder
 		err             error
 	)
 
-	err = serviceReq.Conn.ReadAll(param)
+	err = serviceReq.ReadAll(param)
 	if err != nil {
 		return err
 	}
@@ -31,12 +31,12 @@ func (p *NameNodeSRPCServer) DataNodeRegister(serviceReq snettypes.ServiceReques
 	log.Info("datanode resgister:", string(peerID[:]), string(req.Address()))
 	if err != nil {
 		api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_502)
-		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
 	}
 
 	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
-	serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+	serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 
 SERVICE_DONE:
 	return nil

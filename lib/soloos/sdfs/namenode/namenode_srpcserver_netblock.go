@@ -9,9 +9,9 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(serviceReq snettypes.ServiceRequest) error {
+func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQuery) error {
 	var (
-		param           = make([]byte, serviceReq.ReqBodySize)
+		param           = make([]byte, serviceReq.BodySize)
 		req             protocol.NetINodeNetBlockInfoRequest
 		uNetINode       types.NetINodeUintptr
 		netINodeID      types.NetINodeID
@@ -20,7 +20,7 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(serviceReq snettypes.Servic
 		err             error
 	)
 
-	err = serviceReq.Conn.ReadAll(param)
+	err = serviceReq.ReadAll(param)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(serviceReq snettypes.Servic
 		} else {
 			api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
 		}
-		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
 	}
 
@@ -46,13 +46,13 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(serviceReq snettypes.Servic
 	defer p.nameNode.netBlockDriver.ReleaseNetBlock(uNetBlock)
 	if err != nil {
 		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
 	}
 
 	api.SetNetINodeNetBlockInfoResponse(&protocolBuilder,
 		uNetBlock.Ptr().StorDataBackends.Slice(), req.Cap(), req.Cap())
-	err = serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+	err = serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 
 SERVICE_DONE:
 	return err

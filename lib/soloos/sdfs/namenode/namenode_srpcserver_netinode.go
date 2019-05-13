@@ -10,9 +10,9 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool, serviceReq snettypes.ServiceRequest) error {
+func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool, serviceReq *snettypes.NetQuery) error {
 	var (
-		param           = make([]byte, serviceReq.ReqBodySize)
+		param           = make([]byte, serviceReq.BodySize)
 		req             protocol.NetINodeInfoRequest
 		uNetINode       types.NetINodeUintptr
 		netINodeID      types.NetINodeID
@@ -20,7 +20,7 @@ func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool, serviceReq snettypes.
 		err             error
 	)
 
-	err = serviceReq.Conn.ReadAll(param)
+	err = serviceReq.ReadAll(param)
 	if err != nil {
 		return err
 	}
@@ -40,38 +40,38 @@ func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool, serviceReq snettypes.
 	if err != nil {
 		if err == types.ErrObjectNotExists {
 			api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
-			serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+			serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 			err = nil
 			goto SERVICE_DONE
 		}
 
 		log.Info("get netinode from db error:", err, string(netINodeID[:]))
 		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
 	}
 
 	// response
 	api.SetNetINodeInfoResponse(&protocolBuilder,
 		uNetINode.Ptr().Size, int32(uNetINode.Ptr().NetBlockCap), int32(uNetINode.Ptr().MemBlockCap))
-	serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+	serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 	err = nil
 
 SERVICE_DONE:
 	return err
 }
 
-func (p *NameNodeSRPCServer) NetINodeGet(serviceReq snettypes.ServiceRequest) error {
+func (p *NameNodeSRPCServer) NetINodeGet(serviceReq *snettypes.NetQuery) error {
 	return p.doNetINodeGet(false, serviceReq)
 }
 
-func (p *NameNodeSRPCServer) NetINodeMustGet(serviceReq snettypes.ServiceRequest) error {
+func (p *NameNodeSRPCServer) NetINodeMustGet(serviceReq *snettypes.NetQuery) error {
 	return p.doNetINodeGet(true, serviceReq)
 }
 
-func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(serviceReq snettypes.ServiceRequest) error {
+func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(serviceReq *snettypes.NetQuery) error {
 	var (
-		param           = make([]byte, serviceReq.ReqBodySize)
+		param           = make([]byte, serviceReq.BodySize)
 		req             protocol.NetINodeCommitSizeInDBRequest
 		uNetINode       types.NetINodeUintptr
 		netINodeID      types.NetINodeID
@@ -79,7 +79,7 @@ func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(serviceReq snettypes.Service
 		err             error
 	)
 
-	err = serviceReq.Conn.ReadAll(param)
+	err = serviceReq.ReadAll(param)
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(serviceReq snettypes.Service
 
 	if err != nil {
 		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		err = nil
 		goto SERVICE_DONE
 	}
@@ -101,14 +101,14 @@ func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(serviceReq snettypes.Service
 	err = p.nameNode.metaStg.NetINodeDriver.NetINodeTruncate(uNetINode, req.Size())
 	if err != nil {
 		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		err = nil
 		goto SERVICE_DONE
 	}
 
 	// response
 	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
-	serviceReq.Conn.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+	serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 
 SERVICE_DONE:
 	return err

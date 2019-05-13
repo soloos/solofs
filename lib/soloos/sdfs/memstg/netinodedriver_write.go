@@ -6,7 +6,7 @@ import (
 )
 
 type pwriteArg struct {
-	conn       *snettypes.Connection
+	netQuery   *snettypes.NetQuery
 	dataLength int
 	data       []byte
 	offset     uint64
@@ -58,11 +58,11 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 		// TODO refine me
 		// write in memblock
 		for i = 0; i < 6; i++ {
-			if arg.conn == nil {
+			if arg.netQuery == nil {
 				isSuccess = uMemBlock.Ptr().PWriteWithMem(arg.data[dataOffset:dataOffset+memBlockWriteLength],
 					memBlockWriteOffset)
 			} else {
-				isSuccess = uMemBlock.Ptr().PWriteWithConn(arg.conn, memBlockWriteLength, memBlockWriteOffset)
+				isSuccess = uMemBlock.Ptr().PWriteWithNetQuery(arg.netQuery, memBlockWriteLength, memBlockWriteOffset)
 			}
 			if isSuccess {
 				break
@@ -107,10 +107,10 @@ WRITE_DATA_DONE:
 	return err
 }
 
-func (p *NetINodeDriver) PWriteWithConn(uNetINode types.NetINodeUintptr,
-	conn *snettypes.Connection, dataLength int, offset uint64) error {
+func (p *NetINodeDriver) PWriteWithNetQuery(uNetINode types.NetINodeUintptr,
+	netQuery *snettypes.NetQuery, dataLength int, offset uint64) error {
 	return p.doPWrite(uNetINode, pwriteArg{
-		conn:       conn,
+		netQuery:   netQuery,
 		data:       nil,
 		dataLength: dataLength,
 		offset:     offset,
@@ -120,7 +120,7 @@ func (p *NetINodeDriver) PWriteWithConn(uNetINode types.NetINodeUintptr,
 func (p *NetINodeDriver) PWriteWithMem(uNetINode types.NetINodeUintptr,
 	data []byte, offset uint64) error {
 	return p.doPWrite(uNetINode, pwriteArg{
-		conn:       nil,
+		netQuery:   nil,
 		data:       data,
 		dataLength: len(data),
 		offset:     offset,

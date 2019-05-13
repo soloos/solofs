@@ -11,9 +11,9 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq snettypes.ServiceRequest) error {
+func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq *snettypes.NetQuery) error {
 	var (
-		reqParamData         = make([]byte, serviceReq.ReqParamSize)
+		reqParamData         = make([]byte, serviceReq.ParamSize)
 		reqParam             protocol.NetINodePWriteRequest
 		syncDataProtoBackend protocol.SNetPeer
 		syncDataBackends     snettypes.PeerGroup
@@ -25,11 +25,11 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq snettypes.ServiceRequest)
 	)
 
 	// request param
-	err = serviceReq.Conn.ReadAll(reqParamData)
+	err = serviceReq.ReadAll(reqParamData)
 	if err != nil {
 		return err
 	}
-	reqParam.Init(reqParamData[:serviceReq.ReqParamSize], flatbuffers.GetUOffsetT(reqParamData[:serviceReq.ReqParamSize]))
+	reqParam.Init(reqParamData[:serviceReq.ParamSize], flatbuffers.GetUOffsetT(reqParamData[:serviceReq.ParamSize]))
 
 	// response
 
@@ -82,7 +82,7 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq snettypes.ServiceRequest)
 	}
 
 	// request file data
-	err = p.dataNode.netINodeDriver.PWriteWithConn(uNetINode, serviceReq.Conn,
+	err = p.dataNode.netINodeDriver.PWriteWithNetQuery(uNetINode, serviceReq,
 		int(reqParam.Length()), reqParam.Offset())
 	if err != nil {
 		return err
@@ -90,7 +90,6 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq snettypes.ServiceRequest)
 
 SERVICE_DONE:
 	if err != nil {
-		serviceReq.Conn.SkipReadRemaining()
 		return nil
 	}
 
@@ -99,7 +98,7 @@ SERVICE_DONE:
 	}
 
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
-	err = serviceReq.Conn.SimpleResponse(serviceReq.ReqID, respBody)
+	err = serviceReq.SimpleResponse(serviceReq.ReqID, respBody)
 	if err != nil {
 		return err
 	}

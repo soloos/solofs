@@ -32,8 +32,12 @@ func (p *NameNodeClient) PrepareNetBlockMetaData(netBlockInfo *protocol.NetINode
 	// TODO choose namenode
 	err = p.SNetClientDriver.Call(p.nameNodePeer,
 		"/NetBlock/PrepareMetaData", &req, &resp)
+	if err != nil {
+		return err
+	}
+
 	var body = make([]byte, resp.BodySize)[:resp.BodySize]
-	p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
+	err = p.SNetClientDriver.ReadResponse(p.nameNodePeer, &req, &resp, body)
 	if err != nil {
 		return err
 	}
