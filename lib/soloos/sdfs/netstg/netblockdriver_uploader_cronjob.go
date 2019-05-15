@@ -3,17 +3,21 @@ package netstg
 import (
 	"soloos/common/util"
 	"soloos/sdfs/types"
+	"sync"
 )
 
 func (p *netBlockDriverUploader) cronUpload() error {
 	var (
-		uJob      types.UploadMemBlockJobUintptr
-		pJob      *types.UploadMemBlockJob
-		pNetINode *types.NetINode
-		pNetBlock *types.NetBlock
-		i         int
-		ok        bool
-		err       error
+		uJob         types.UploadMemBlockJobUintptr
+		pJob         *types.UploadMemBlockJob
+		pNetINode    *types.NetINode
+		pNetBlock    *types.NetBlock
+		uploadJobNum int
+		uploadWG     sync.WaitGroup
+		uploadErrors []error
+		i            int
+		ok           bool
+		err          error
 	)
 
 	for {
@@ -26,28 +30,43 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		pNetINode = pJob.UNetINode.Ptr()
 		pNetBlock = pJob.UNetBlock.Ptr()
 
-		// prepare upload job
-		pJob.UploadMaskMutex.Lock()
-		if pJob.UploadMaskWaiting.Ptr().MaskArrayLen == 0 {
-			// upload done and continue
-			pJob.UploadMaskMutex.Unlock()
+		if pJob.PrepareUploadMask() {
 			goto ONE_RUN_DONE
-		} else {
-			// upload job exists
-			pJob.UploadMaskSwap()
-			pJob.UploadMaskMutex.Unlock()
 		}
 
 		util.AssertTrue(pNetBlock.SyncDataBackends.Len > 0)
 
+		uploadErrors = uploadErrors[:0]
+		uploadJobNum = pNetBlock.SyncDataBackends.Len - pNetBlock.SyncDataPrimaryBackendTransferCount
+		for i = 0; i < uploadJobNum; i++ {
+			uploadErrors = append(uploadErrors, nil)
+		}
+
+		uploadWG.Add(uploadJobNum)
+
 		// start upload
 		// upload primary backend
-		err = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, pNetBlock.SyncDataPrimaryBackendTransferCount)
+		go func() {
+			uploadErrors[0] = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, pNetBlock.SyncDataPrimaryBackendTransferCount)
+			uploadWG.Done()
+		}()
 
 		// upload other backends
 		for i = pNetBlock.SyncDataPrimaryBackendTransferCount + 1; i < pNetBlock.SyncDataBackends.Len; i++ {
-			err = p.driver.dataNodeClient.UploadMemBlock(uJob, i, 0)
+			go func(i int) {
+				uploadErrors[i] = p.driver.dataNodeClient.UploadMemBlock(uJob, i, 0)
+				uploadWG.Done()
+			}(i)
 		}
+
+		for i, _ = range uploadErrors {
+			if uploadErrors[i] != nil {
+				err = uploadErrors[i]
+				break
+			}
+		}
+
+		uploadWG.Wait()
 
 	ONE_RUN_DONE:
 		pJob.SyncDataSig.Done()
@@ -57,7 +76,7 @@ func (p *netBlockDriverUploader) cronUpload() error {
 			// TODO catch error
 			pNetINode.LastSyncDataError = err
 		} else {
-			pJob.UploadMaskProcessing.Ptr().Reset()
+			pJob.ResetProcessingChunkMask()
 		}
 	}
 

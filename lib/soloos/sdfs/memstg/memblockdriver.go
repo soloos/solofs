@@ -45,14 +45,14 @@ func (p *MemBlockDriver) PrepareMemBlockTable(memBlockTableOptions MemBlockTable
 func (p *MemBlockDriver) MustGetMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
 	memBlockIndex int32) (types.MemBlockUintptr, bool) {
 	var memBlockID types.PtrBindIndex
-	types.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
+	soloosbase.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
 	return p.tables[uNetINode.Ptr().MemBlockCap].MustGetMemBlockWithReadAcquire(memBlockID)
 }
 
 func (p *MemBlockDriver) TryGetMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
 	memBlockIndex int32) types.MemBlockUintptr {
 	var memBlockID types.PtrBindIndex
-	types.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
+	soloosbase.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
 	return p.tables[uNetINode.Ptr().MemBlockCap].TryGetMemBlockWithReadAcquire(memBlockID)
 }
 

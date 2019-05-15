@@ -1,13 +1,7 @@
 package types
 
 import (
-	sdbapitypes "soloos/common/sdbapi/types"
+	soloosbase "soloos/common/soloosapi/base"
 )
 
-const (
-	PtrBindIndexSize = sdbapitypes.PtrBindIndexSize
-)
-
-var (
-	EncodePtrBindIndex = sdbapitypes.EncodePtrBindIndex
-)
+type PtrBindIndex = soloosbase.PtrBindIndex

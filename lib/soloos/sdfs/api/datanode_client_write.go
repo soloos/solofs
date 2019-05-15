@@ -41,7 +41,7 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 		memBlockCap         int
 		peerOff, addrOff    flatbuffers.UOffsetT
 		backendOffs         = make([]flatbuffers.UOffsetT, 8)
-		pChunkMask          *offheap.ChunkMask
+		uploadChunkMask     offheap.ChunkMask
 		commonResp          protocol.CommonResponse
 		respBody            []byte
 		i                   int
@@ -50,13 +50,13 @@ func (p *DataNodeClient) doUploadMemBlockWithSRPC(uJob types.UploadMemBlockJobUi
 	)
 
 	uNetBlock = uJob.Ptr().UNetBlock
-	pChunkMask = uJob.Ptr().UploadMaskProcessing.Ptr()
+	uploadChunkMask = uJob.Ptr().GetProcessingChunkMask()
 
 	req.OffheapBody.OffheapBytes = uJob.Ptr().UMemBlock.Ptr().Bytes.Data
 	memBlockCap = uJob.Ptr().UMemBlock.Ptr().Bytes.Len
-	for chunkMaskIndex := 0; chunkMaskIndex < pChunkMask.MaskArrayLen; chunkMaskIndex++ {
-		req.OffheapBody.CopyOffset = pChunkMask.MaskArray[chunkMaskIndex].Offset
-		req.OffheapBody.CopyEnd = pChunkMask.MaskArray[chunkMaskIndex].End
+	for chunkMaskIndex := 0; chunkMaskIndex < uploadChunkMask.MaskArrayLen; chunkMaskIndex++ {
+		req.OffheapBody.CopyOffset = uploadChunkMask.MaskArray[chunkMaskIndex].Offset
+		req.OffheapBody.CopyEnd = uploadChunkMask.MaskArray[chunkMaskIndex].End
 		netINodeWriteOffset = memBlockCap*int(uJob.Ptr().MemBlockIndex) + req.OffheapBody.CopyOffset
 		netINodeWriteLength = req.OffheapBody.CopyEnd - req.OffheapBody.CopyOffset
 

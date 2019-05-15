@@ -39,7 +39,7 @@ func (p *MockMemBlockTable) HKVTableInvokePrepareNewObject(uObject uintptr) {
 func (p *MockMemBlockTable) AllocMemBlock() MemBlockUintptr {
 	var memBlockID PtrBindIndex
 	id := atomic.AddInt32(&p.mockID, 1)
-	EncodePtrBindIndex(&memBlockID, uintptr(id), id)
+	soloosbase.EncodePtrBindIndex(&memBlockID, uintptr(id), id)
 	uObject, _ := p.hkvTable.MustGetObjectWithReadAcquire(memBlockID)
 	uMemBlock := (MemBlockUintptr)(uObject)
 	return uMemBlock

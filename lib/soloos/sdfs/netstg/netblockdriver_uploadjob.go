@@ -21,8 +21,7 @@ func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *types.UploadMemB
 	pJob.UMemBlock = uMemBlock
 	pJob.MemBlockIndex = memBlockIndex
 
-	pJob.UploadMaskWaitingIndex = 1
-	pJob.UploadMaskSwap()
+	pJob.UploadBlockJob.Reset()
 
 	pJob.MetaDataState.Store(sdbapitypes.MetaDataStateInited)
 	pJob.MetaDataState.UnlockContext()

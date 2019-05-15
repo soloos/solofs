@@ -1,9 +1,9 @@
 package localfs
 
 import (
-	"soloos/sdfs/types"
 	snettypes "soloos/common/snet/types"
 	"soloos/sdbone/offheap"
+	"soloos/sdfs/types"
 )
 
 func (p *Fd) Upload(uJob types.UploadMemBlockJobUintptr) error {
@@ -11,20 +11,20 @@ func (p *Fd) Upload(uJob types.UploadMemBlockJobUintptr) error {
 		req                 snettypes.Request
 		netINodeWriteOffset int64
 		memBlockCap         int
-		pChunkMask          *offheap.ChunkMask
+		uploadChunkMask     offheap.ChunkMask
 		writeData           []byte
 		err                 error
 	)
 
-	pChunkMask = uJob.Ptr().UploadMaskProcessing.Ptr()
+	uploadChunkMask = uJob.Ptr().GetProcessingChunkMask()
 
 	req.OffheapBody.OffheapBytes = uJob.Ptr().UMemBlock.Ptr().Bytes.Data
 	memBlockCap = uJob.Ptr().UMemBlock.Ptr().Bytes.Len
-	for chunkMaskIndex := 0; chunkMaskIndex < pChunkMask.MaskArrayLen; chunkMaskIndex++ {
+	for chunkMaskIndex := 0; chunkMaskIndex < uploadChunkMask.MaskArrayLen; chunkMaskIndex++ {
 		netINodeWriteOffset = int64(memBlockCap)*int64(uJob.Ptr().MemBlockIndex) +
-			int64(pChunkMask.MaskArray[chunkMaskIndex].Offset)
+			int64(uploadChunkMask.MaskArray[chunkMaskIndex].Offset)
 
-		writeData = (*uJob.Ptr().UMemBlock.Ptr().BytesSlice())[pChunkMask.MaskArray[chunkMaskIndex].Offset:pChunkMask.MaskArray[chunkMaskIndex].End]
+		writeData = (*uJob.Ptr().UMemBlock.Ptr().BytesSlice())[uploadChunkMask.MaskArray[chunkMaskIndex].Offset:uploadChunkMask.MaskArray[chunkMaskIndex].End]
 		err = p.WriteAt(writeData, netINodeWriteOffset)
 		if err != nil {
 			goto PWRITE_DONE

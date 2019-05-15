@@ -1,8 +1,8 @@
 package netstg
 
 import (
-	"soloos/sdfs/types"
 	"soloos/common/util"
+	"soloos/sdfs/types"
 )
 
 type netBlockDriverUploader struct {

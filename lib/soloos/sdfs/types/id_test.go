@@ -1,6 +1,7 @@
 package types
 
 import (
+	soloosbase "soloos/common/soloosapi/base"
 	"testing"
 	"unsafe"
 
@@ -24,7 +25,7 @@ func TestEncodePtrBindIndex(t *testing.T) {
 		index int32   = 3
 		id    PtrBindIndex
 	)
-	EncodePtrBindIndex(&id, u, index)
+	soloosbase.EncodePtrBindIndex(&id, u, index)
 	assert.Equal(t, uintptr(0x12), *((*uintptr)(unsafe.Pointer(&id))))
 	assert.Equal(t, uint8(3), id[UintptrSize])
 }
@@ -35,16 +36,5 @@ func BenchmarkEncodeNetINodeBlockID(b *testing.B) {
 	blockIndex := int32(22)
 	for n := 0; n < b.N; n++ {
 		EncodeNetINodeBlockID(&netINodeBlockID, netINodeID, blockIndex)
-	}
-}
-
-func BenchmarkEncodeBindIndex(b *testing.B) {
-	var (
-		u     uintptr = 0x12
-		index int32   = 3
-		id    PtrBindIndex
-	)
-	for n := 0; n < b.N; n++ {
-		EncodePtrBindIndex(&id, u, index)
 	}
 }
