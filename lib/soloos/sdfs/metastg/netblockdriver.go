@@ -3,16 +3,16 @@ package metastg
 import (
 	"soloos/common/sdbapi"
 	sdbapitypes "soloos/common/sdbapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
 	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	"strings"
 )
 
 type NetBlockDriverHelper struct {
-	ChooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock
-	GetDataNode                   api.GetDataNode
+	ChooseDataNodesForNewNetBlock sdfsapitypes.ChooseDataNodesForNewNetBlock
+	GetDataNode                   sdfsapitypes.GetDataNode
 }
 
 type NetBlockDriver struct {
@@ -22,8 +22,8 @@ type NetBlockDriver struct {
 
 func (p *NetBlockDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	dbConn *sdbapi.Connection,
-	getDataNode api.GetDataNode,
-	chooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock,
+	getDataNode sdfsapitypes.GetDataNode,
+	chooseDataNodesForNewNetBlock sdfsapitypes.ChooseDataNodesForNewNetBlock,
 ) error {
 	p.dbConn = dbConn
 	p.SetHelper(getDataNode, chooseDataNodesForNewNetBlock)
@@ -31,8 +31,8 @@ func (p *NetBlockDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 }
 
 func (p *NetBlockDriver) SetHelper(
-	getDataNode api.GetDataNode,
-	chooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock,
+	getDataNode sdfsapitypes.GetDataNode,
+	chooseDataNodesForNewNetBlock sdfsapitypes.ChooseDataNodesForNewNetBlock,
 ) {
 	p.helper.GetDataNode = getDataNode
 	p.helper.ChooseDataNodesForNewNetBlock = chooseDataNodesForNewNetBlock

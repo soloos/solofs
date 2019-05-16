@@ -3,7 +3,7 @@ package namenode
 import (
 	"soloos/common/log"
 	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/api"
+	"soloos/common/sdfsapi"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 
@@ -39,20 +39,20 @@ func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool, serviceReq *snettypes
 
 	if err != nil {
 		if err == types.ErrObjectNotExists {
-			api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
+			sdfsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
 			serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 			err = nil
 			goto SERVICE_DONE
 		}
 
 		log.Info("get netinode from db error:", err, string(netINodeID[:]))
-		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
+		sdfsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
 		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
 	}
 
 	// response
-	api.SetNetINodeInfoResponse(&protocolBuilder,
+	sdfsapi.SetNetINodeInfoResponse(&protocolBuilder,
 		uNetINode.Ptr().Size, int32(uNetINode.Ptr().NetBlockCap), int32(uNetINode.Ptr().MemBlockCap))
 	serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 	err = nil
@@ -92,7 +92,7 @@ func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(serviceReq *snettypes.NetQue
 	defer p.nameNode.netINodeDriver.ReleaseNetINode(uNetINode)
 
 	if err != nil {
-		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
+		sdfsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
 		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		err = nil
 		goto SERVICE_DONE
@@ -100,14 +100,14 @@ func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(serviceReq *snettypes.NetQue
 
 	err = p.nameNode.metaStg.NetINodeDriver.NetINodeTruncate(uNetINode, req.Size())
 	if err != nil {
-		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
+		sdfsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
 		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		err = nil
 		goto SERVICE_DONE
 	}
 
 	// response
-	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
+	sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
 	serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 
 SERVICE_DONE:

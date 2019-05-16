@@ -4,7 +4,7 @@ import (
 	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
 	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/api"
+	"soloos/common/sdfsapi"
 	"soloos/sdfs/localfs"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
@@ -19,7 +19,7 @@ type DataNode struct {
 	memBlockDriver *memstg.MemBlockDriver
 	netBlockDriver *netstg.NetBlockDriver
 	netINodeDriver *memstg.NetINodeDriver
-	nameNodeClient api.NameNodeClient
+	nameNodeClient sdfsapi.NameNodeClient
 
 	localFs        localfs.LocalFs
 	uLocalDiskPeer snettypes.PeerUintptr

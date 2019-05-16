@@ -3,8 +3,8 @@ package metastg
 import "C"
 import (
 	"soloos/common/sdbapi"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/api"
 )
 
 type DirTreeStg struct {
@@ -16,9 +16,9 @@ type DirTreeStg struct {
 
 func (p *DirTreeStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	dbConn *sdbapi.Connection,
-	getNetINode api.GetNetINode,
-	mustGetNetINode api.MustGetNetINode,
-	releaseNetINode api.ReleaseNetINode,
+	getNetINode sdfsapitypes.GetNetINode,
+	mustGetNetINode sdfsapitypes.MustGetNetINode,
+	releaseNetINode sdfsapitypes.ReleaseNetINode,
 ) error {
 	var err error
 

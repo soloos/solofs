@@ -5,6 +5,7 @@ import (
 	"soloos/common/sdbapi"
 	"soloos/common/sdfsapi"
 	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/swalapi"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 )
@@ -77,4 +78,8 @@ func (p *Client) Close() error {
 
 func (p *Client) GetPosixFS() fsapi.PosixFS {
 	return &p.memDirTreeStg
+}
+
+func (p *Client) SetSWALClient(swalClient swalapi.Client) error {
+	return nil
 }

@@ -6,7 +6,7 @@ import (
 	snettypes "soloos/common/snet/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
-	"soloos/sdfs/api"
+	"soloos/common/sdfsapi"
 	"soloos/sdfs/protocol"
 	"time"
 
@@ -59,7 +59,7 @@ func (p *MockServer) DataNodeRegister(serviceReq *snettypes.NetQuery) error {
 	util.AssertErrIsNil(serviceReq.ReadAll(param))
 
 	var protocolBuilder flatbuffers.Builder
-	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
+	sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
 	util.AssertErrIsNil(
 		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
@@ -77,7 +77,7 @@ func (p *MockServer) NetINodeMustGet(serviceReq *snettypes.NetQuery) error {
 
 	// response
 	var protocolBuilder flatbuffers.Builder
-	api.SetNetINodeInfoResponse(&protocolBuilder, req.Size(), req.NetBlockCap(), req.MemBlockCap())
+	sdfsapi.SetNetINodeInfoResponse(&protocolBuilder, req.Size(), req.NetBlockCap(), req.MemBlockCap())
 	util.AssertErrIsNil(
 		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
@@ -97,7 +97,7 @@ func (p *MockServer) NetINodePWrite(serviceReq *snettypes.NetQuery) error {
 	}
 
 	var protocolBuilder flatbuffers.Builder
-	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
+	sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
 	util.AssertErrIsNil(serviceReq.SimpleResponse(serviceReq.ReqID, respBody))
 
@@ -113,7 +113,7 @@ func (p *MockServer) NetINodePRead(serviceReq *snettypes.NetQuery) error {
 	req.Init(reqData[:serviceReq.ParamSize], flatbuffers.GetUOffsetT(reqData[:serviceReq.ParamSize]))
 
 	var protocolBuilder flatbuffers.Builder
-	api.SetNetINodePReadResponse(&protocolBuilder, req.Length())
+	sdfsapi.SetNetINodePReadResponse(&protocolBuilder, req.Length())
 
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
 	util.AssertErrIsNil(serviceReq.Response(serviceReq.ReqID, respBody, make([]byte, req.Length())))
@@ -127,7 +127,7 @@ func (p *MockServer) NetINodeCommitSizeInDB(serviceReq *snettypes.NetQuery) erro
 
 	// response
 	var protocolBuilder flatbuffers.Builder
-	api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
+	sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
 	serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 
 	return nil
@@ -144,7 +144,7 @@ func (p *MockServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQuery) err
 
 	// response
 	var protocolBuilder flatbuffers.Builder
-	api.SetNetINodeNetBlockInfoResponse(&protocolBuilder, p.dataNodePeers[:], req.Cap(), req.Cap())
+	sdfsapi.SetNetINodeNetBlockInfoResponse(&protocolBuilder, p.dataNodePeers[:], req.Cap(), req.Cap())
 	util.AssertErrIsNil(serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
 	return nil

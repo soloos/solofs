@@ -2,17 +2,17 @@ package metastg
 
 import (
 	"soloos/common/sdbapi"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
-	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	"sync/atomic"
 )
 
 type FsINodeDriverHelper struct {
-	GetNetINode     api.GetNetINode
-	MustGetNetINode api.MustGetNetINode
-	ReleaseNetINode api.ReleaseNetINode
+	GetNetINode     sdfsapitypes.GetNetINode
+	MustGetNetINode sdfsapitypes.MustGetNetINode
+	ReleaseNetINode sdfsapitypes.ReleaseNetINode
 }
 
 type FsINodeDriver struct {
@@ -27,9 +27,9 @@ type FsINodeDriver struct {
 
 func (p *FsINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	dbConn *sdbapi.Connection,
-	getNetINode api.GetNetINode,
-	mustGetNetINode api.MustGetNetINode,
-	releaseNetINode api.ReleaseNetINode,
+	getNetINode sdfsapitypes.GetNetINode,
+	mustGetNetINode sdfsapitypes.MustGetNetINode,
+	releaseNetINode sdfsapitypes.ReleaseNetINode,
 ) error {
 	var err error
 
@@ -50,9 +50,9 @@ func (p *FsINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 }
 
 func (p *FsINodeDriver) SetHelper(
-	getNetINode api.GetNetINode,
-	mustGetNetINode api.MustGetNetINode,
-	ReleaseNetINode api.ReleaseNetINode,
+	getNetINode sdfsapitypes.GetNetINode,
+	mustGetNetINode sdfsapitypes.MustGetNetINode,
+	ReleaseNetINode sdfsapitypes.ReleaseNetINode,
 ) {
 	p.helper.GetNetINode = getNetINode
 	p.helper.MustGetNetINode = mustGetNetINode

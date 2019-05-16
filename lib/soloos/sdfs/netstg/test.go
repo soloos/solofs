@@ -5,14 +5,14 @@ import (
 	snettypes "soloos/common/snet/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
-	"soloos/sdfs/api"
+	"soloos/common/sdfsapi"
 	"time"
 )
 
 func MakeNetBlockDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	netBlockDriver *NetBlockDriver,
-	nameNodeClient *api.NameNodeClient,
-	dataNodeClient *api.DataNodeClient,
+	nameNodeClient *sdfsapi.NameNodeClient,
+	dataNodeClient *sdfsapi.DataNodeClient,
 ) {
 	util.AssertErrIsNil(netBlockDriver.Init(soloOSEnv,
 		nameNodeClient, dataNodeClient,
@@ -22,8 +22,8 @@ func MakeNetBlockDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 
 func MakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	nameNodeSRPCServerAddr string,
-	nameNodeClient *api.NameNodeClient,
-	dataNodeClient *api.DataNodeClient,
+	nameNodeClient *sdfsapi.NameNodeClient,
+	dataNodeClient *sdfsapi.DataNodeClient,
 	netBlockDriver *NetBlockDriver,
 ) {
 	var (
@@ -50,8 +50,8 @@ func MakeMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
 func MakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	mockServerAddr string,
 	mockServer *MockServer,
-	nameNodeClient *api.NameNodeClient,
-	dataNodeClient *api.DataNodeClient,
+	nameNodeClient *sdfsapi.NameNodeClient,
+	dataNodeClient *sdfsapi.DataNodeClient,
 	netBlockDriver *NetBlockDriver,
 ) {
 	MakeDriversForTest(soloOSEnv, mockServerAddr, nameNodeClient, dataNodeClient, netBlockDriver)

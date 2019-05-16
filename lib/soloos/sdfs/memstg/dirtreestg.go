@@ -2,8 +2,8 @@ package memstg
 
 import (
 	"soloos/common/fsapi"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/api"
 	"time"
 )
 
@@ -26,20 +26,20 @@ func (p *DirTreeStg) Init(
 	// FsINodeDriver
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
-	allocFsINodeID api.AllocFsINodeID,
-	getNetINode api.GetNetINode,
-	mustGetNetINode api.MustGetNetINode,
-	releaseNetINode api.ReleaseNetINode,
-	deleteFsINodeByIDInDB api.DeleteFsINodeByIDInDB,
-	listFsINodeByParentIDFromDB api.ListFsINodeByParentIDFromDB,
-	updateFsINodeInDB api.UpdateFsINodeInDB,
-	insertFsINodeInDB api.InsertFsINodeInDB,
-	fetchFsINodeByIDFromDB api.FetchFsINodeByIDFromDB,
-	fetchFsINodeByNameFromDB api.FetchFsINodeByNameFromDB,
+	allocFsINodeID sdfsapitypes.AllocFsINodeID,
+	getNetINode sdfsapitypes.GetNetINode,
+	mustGetNetINode sdfsapitypes.MustGetNetINode,
+	releaseNetINode sdfsapitypes.ReleaseNetINode,
+	deleteFsINodeByIDInDB sdfsapitypes.DeleteFsINodeByIDInDB,
+	listFsINodeByParentIDFromDB sdfsapitypes.ListFsINodeByParentIDFromDB,
+	updateFsINodeInDB sdfsapitypes.UpdateFsINodeInDB,
+	insertFsINodeInDB sdfsapitypes.InsertFsINodeInDB,
+	fetchFsINodeByIDFromDB sdfsapitypes.FetchFsINodeByIDFromDB,
+	fetchFsINodeByNameFromDB sdfsapitypes.FetchFsINodeByNameFromDB,
 	// FIXAttrDriver
-	deleteFIXAttrInDB api.DeleteFIXAttrInDB,
-	replaceFIXAttrInDB api.ReplaceFIXAttrInDB,
-	getFIXAttrByInoFromDB api.GetFIXAttrByInoFromDB,
+	deleteFIXAttrInDB sdfsapitypes.DeleteFIXAttrInDB,
+	replaceFIXAttrInDB sdfsapitypes.ReplaceFIXAttrInDB,
+	getFIXAttrByInoFromDB sdfsapitypes.GetFIXAttrByInoFromDB,
 ) error {
 	var err error
 

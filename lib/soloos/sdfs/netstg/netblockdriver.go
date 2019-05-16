@@ -5,7 +5,7 @@ import (
 	sdfsapitypes "soloos/common/sdfsapi/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdbone/offheap"
-	"soloos/sdfs/api"
+	"soloos/common/sdfsapi"
 	"soloos/sdfs/types"
 )
 
@@ -13,7 +13,7 @@ type PrepareNetBlockMetaData func(uNetBlock types.NetBlockUintptr,
 	uNetINode types.NetINodeUintptr, netblockIndex int32) error
 
 type NetBlockDriverHelper struct {
-	*api.NameNodeClient
+	*sdfsapi.NameNodeClient
 	PrepareNetBlockMetaData
 }
 
@@ -22,13 +22,13 @@ type NetBlockDriver struct {
 	helper NetBlockDriverHelper
 
 	netBlockTable          offheap.LKVTableWithBytes68
-	dataNodeClient         *api.DataNodeClient
+	dataNodeClient         *sdfsapi.DataNodeClient
 	netBlockDriverUploader netBlockDriverUploader
 }
 
 func (p *NetBlockDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	nameNodeClient *api.NameNodeClient,
-	dataNodeClient *api.DataNodeClient,
+	nameNodeClient *sdfsapi.NameNodeClient,
+	dataNodeClient *sdfsapi.DataNodeClient,
 	prepareNetBlockMetaData PrepareNetBlockMetaData,
 ) error {
 	var err error
@@ -66,19 +66,23 @@ func (p *NetBlockDriver) netBlockTablePrepareNewObjectFunc(uNetBlock types.NetBl
 }
 
 func (p *NetBlockDriver) SetHelper(
-	nameNodeClient *api.NameNodeClient,
+	nameNodeClient *sdfsapi.NameNodeClient,
 	prepareNetBlockMetaData PrepareNetBlockMetaData,
 ) {
 	p.helper.NameNodeClient = nameNodeClient
 	p.helper.PrepareNetBlockMetaData = prepareNetBlockMetaData
 }
 
-func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadWithDisk api.PReadMemBlockWithDisk) {
+func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadWithDisk sdfsapi.PReadMemBlockWithDisk) {
 	p.dataNodeClient.SetPReadMemBlockWithDisk(preadWithDisk)
 }
 
-func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk api.UploadMemBlockWithDisk) {
+func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk sdfsapi.UploadMemBlockWithDisk) {
 	p.dataNodeClient.SetUploadMemBlockWithDisk(uploadMemBlockWithDisk)
+}
+
+func (p *NetBlockDriver) SetUploadMemBlockWithSWAL(uploadMemBlockWithSWAL sdfsapi.UploadMemBlockWithSWAL) {
+	p.dataNodeClient.SetUploadMemBlockWithSWAL(uploadMemBlockWithSWAL)
 }
 
 func (p *NetBlockDriver) SyncMemBlock(uNetINode types.NetINodeUintptr,

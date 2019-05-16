@@ -3,7 +3,7 @@ package datanode
 import (
 	sdbapitypes "soloos/common/sdbapi/types"
 	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/api"
+	"soloos/common/sdfsapi"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 
@@ -44,10 +44,10 @@ func (p *DataNodeSRPCServer) NetINodePRead(serviceReq *snettypes.NetQuery) error
 	defer p.dataNode.netINodeDriver.ReleaseNetINode(uNetINode)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
-			api.SetNetINodePReadResponseError(&protocolBuilder, snettypes.CODE_404, "")
+			sdfsapi.SetNetINodePReadResponseError(&protocolBuilder, snettypes.CODE_404, "")
 			goto SERVICE_REQUEST_DONE
 		} else {
-			api.SetNetINodePReadResponseError(&protocolBuilder, snettypes.CODE_502, "")
+			sdfsapi.SetNetINodePReadResponseError(&protocolBuilder, snettypes.CODE_502, "")
 			goto SERVICE_REQUEST_DONE
 		}
 	}
@@ -66,7 +66,7 @@ func (p *DataNodeSRPCServer) NetINodePRead(serviceReq *snettypes.NetQuery) error
 		uNetBlock, err = p.dataNode.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 		defer p.dataNode.netBlockDriver.ReleaseNetBlock(uNetBlock)
 		if err != nil {
-			api.SetNetINodePReadResponseError(&protocolBuilder, snettypes.CODE_502, "")
+			sdfsapi.SetNetINodePReadResponseError(&protocolBuilder, snettypes.CODE_502, "")
 			goto SERVICE_REQUEST_DONE
 		}
 
@@ -81,7 +81,7 @@ SERVICE_REQUEST_DONE:
 	}
 
 	// request file data
-	api.SetNetINodePReadResponse(&protocolBuilder, int32(readDataSize))
+	sdfsapi.SetNetINodePReadResponse(&protocolBuilder, int32(readDataSize))
 	respBody = protocolBuilder.Bytes[protocolBuilder.Head():]
 	// TODO set write length
 	err = serviceReq.ResponseHeaderParam(serviceReq.ReqID, respBody, int(readDataSize))

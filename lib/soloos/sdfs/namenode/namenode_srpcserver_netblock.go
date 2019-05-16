@@ -2,7 +2,7 @@ package namenode
 
 import (
 	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/api"
+	"soloos/common/sdfsapi"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 
@@ -33,9 +33,9 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQu
 
 	if err != nil {
 		if err == types.ErrObjectNotExists {
-			api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
+			sdfsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
 		} else {
-			api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
+			sdfsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
 		}
 		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
@@ -45,12 +45,12 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQu
 	uNetBlock, err = p.nameNode.netBlockDriver.MustGetNetBlock(uNetINode, req.NetBlockIndex())
 	defer p.nameNode.netBlockDriver.ReleaseNetBlock(uNetBlock)
 	if err != nil {
-		api.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
+		sdfsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
 		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 		goto SERVICE_DONE
 	}
 
-	api.SetNetINodeNetBlockInfoResponse(&protocolBuilder,
+	sdfsapi.SetNetINodeNetBlockInfoResponse(&protocolBuilder,
 		uNetBlock.Ptr().StorDataBackends.Slice(), req.Cap(), req.Cap())
 	err = serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 

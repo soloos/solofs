@@ -4,7 +4,7 @@ import (
 	sdbapitypes "soloos/common/sdbapi/types"
 	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/api"
+	"soloos/common/sdfsapi"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 
@@ -47,10 +47,10 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq *snettypes.NetQuery) erro
 	defer p.dataNode.netINodeDriver.ReleaseNetINode(uNetINode)
 	if err != nil {
 		if err == types.ErrObjectNotExists {
-			api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_404)
+			sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_404)
 			goto SERVICE_DONE
 		} else {
-			api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_502)
+			sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_502)
 			goto SERVICE_DONE
 		}
 	}
@@ -72,7 +72,7 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq *snettypes.NetQuery) erro
 		uNetBlock, err = p.dataNode.netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 		defer p.dataNode.netBlockDriver.ReleaseNetBlock(uNetBlock)
 		if err != nil {
-			api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_502)
+			sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_502)
 			goto SERVICE_DONE
 		}
 
@@ -94,7 +94,7 @@ SERVICE_DONE:
 	}
 
 	if err == nil {
-		api.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
+		sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
 	}
 
 	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]

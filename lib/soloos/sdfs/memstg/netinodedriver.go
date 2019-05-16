@@ -2,18 +2,19 @@ package memstg
 
 import (
 	sdbapitypes "soloos/common/sdbapi/types"
+	"soloos/common/sdfsapi"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdbone/offheap"
-	"soloos/sdfs/api"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
 )
 
 type NetINodeDriverHelper struct {
-	*api.NameNodeClient
-	api.PrepareNetINodeMetaDataOnlyLoadDB
-	api.PrepareNetINodeMetaDataWithStorDB
-	api.NetINodeCommitSizeInDB
+	*sdfsapi.NameNodeClient
+	sdfsapitypes.PrepareNetINodeMetaDataOnlyLoadDB
+	sdfsapitypes.PrepareNetINodeMetaDataWithStorDB
+	sdfsapitypes.NetINodeCommitSizeInDB
 }
 
 type NetINodeDriver struct {
@@ -30,10 +31,10 @@ func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	netBlockDriver *netstg.NetBlockDriver,
 	memBlockDriver *MemBlockDriver,
 	// for NetINodeDriverHelper
-	nameNodeClient *api.NameNodeClient,
-	prepareNetINodeMetaDataOnlyLoadDB api.PrepareNetINodeMetaDataOnlyLoadDB,
-	prepareNetINodeMetaDataWithStorDB api.PrepareNetINodeMetaDataWithStorDB,
-	netINodeCommitSizeInDB api.NetINodeCommitSizeInDB,
+	nameNodeClient *sdfsapi.NameNodeClient,
+	prepareNetINodeMetaDataOnlyLoadDB sdfsapitypes.PrepareNetINodeMetaDataOnlyLoadDB,
+	prepareNetINodeMetaDataWithStorDB sdfsapitypes.PrepareNetINodeMetaDataWithStorDB,
+	netINodeCommitSizeInDB sdfsapitypes.NetINodeCommitSizeInDB,
 ) error {
 	var err error
 
@@ -68,10 +69,10 @@ func (p *NetINodeDriver) netINodeTablePrepareNewObjectFunc(uNetINode types.NetIN
 }
 
 func (p *NetINodeDriver) SetHelper(
-	nameNodeClient *api.NameNodeClient,
-	prepareNetINodeMetaDataOnlyLoadDB api.PrepareNetINodeMetaDataOnlyLoadDB,
-	prepareNetINodeMetaDataWithStorDB api.PrepareNetINodeMetaDataWithStorDB,
-	netINodeCommitSizeInDB api.NetINodeCommitSizeInDB,
+	nameNodeClient *sdfsapi.NameNodeClient,
+	prepareNetINodeMetaDataOnlyLoadDB sdfsapitypes.PrepareNetINodeMetaDataOnlyLoadDB,
+	prepareNetINodeMetaDataWithStorDB sdfsapitypes.PrepareNetINodeMetaDataWithStorDB,
+	netINodeCommitSizeInDB sdfsapitypes.NetINodeCommitSizeInDB,
 ) {
 	p.helper.NameNodeClient = nameNodeClient
 	p.helper.PrepareNetINodeMetaDataOnlyLoadDB = prepareNetINodeMetaDataOnlyLoadDB

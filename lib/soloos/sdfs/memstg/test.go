@@ -3,7 +3,7 @@ package memstg
 import (
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/util"
-	"soloos/sdfs/api"
+	"soloos/common/sdfsapi"
 	"soloos/sdfs/netstg"
 )
 
@@ -26,8 +26,8 @@ func MakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	netINodeDriver *NetINodeDriver,
 	blockSize int, blocksLimit int32) {
 	var (
-		nameNodeClient api.NameNodeClient
-		dataNodeClient api.DataNodeClient
+		nameNodeClient sdfsapi.NameNodeClient
+		dataNodeClient sdfsapi.DataNodeClient
 	)
 
 	netstg.MakeDriversForTest(soloOSEnv,
@@ -53,8 +53,8 @@ func MakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	netINodeDriver *NetINodeDriver,
 	blockSize int, blocksLimit int32) {
 	var (
-		nameNodeClient api.NameNodeClient
-		dataNodeClient api.DataNodeClient
+		nameNodeClient sdfsapi.NameNodeClient
+		dataNodeClient sdfsapi.DataNodeClient
 	)
 
 	netstg.MakeDriversWithMockServerForTest(soloOSEnv,

@@ -3,7 +3,7 @@ package netstg
 import (
 	sdfsapitypes "soloos/common/sdfsapi/types"
 	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/api"
+	"soloos/common/sdfsapi"
 	"soloos/sdfs/types"
 	"testing"
 
@@ -16,8 +16,8 @@ func TestNetBlockDriver(t *testing.T) {
 		mockNetINodeTable types.MockNetINodeTable
 		mockMemBlockTable types.MockMemBlockTable
 		mockServer        MockServer
-		nameNodeClient    api.NameNodeClient
-		dataNodeClient    api.DataNodeClient
+		nameNodeClient    sdfsapi.NameNodeClient
+		dataNodeClient    sdfsapi.DataNodeClient
 		netBlockDriver    NetBlockDriver
 	)
 	assert.NoError(t, soloOSEnv.Init())

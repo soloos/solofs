@@ -4,15 +4,15 @@ import (
 	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
 	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/api"
+	"soloos/common/sdfsapi"
 	"soloos/sdfs/netstg"
 )
 
 type MemStg struct {
 	*soloosbase.SoloOSEnv
 
-	NameNodeClient api.NameNodeClient
-	DataNodeClient api.DataNodeClient
+	NameNodeClient sdfsapi.NameNodeClient
+	DataNodeClient sdfsapi.DataNodeClient
 	netstg.NetBlockDriver
 	MemBlockDriver
 	NetINodeDriver

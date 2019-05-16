@@ -3,13 +3,13 @@ package metastg
 import (
 	"soloos/common/sdbapi"
 	sdbapitypes "soloos/common/sdbapi/types"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 )
 
 type NetINodeDriverHelper struct {
-	ChooseDataNodesForNewNetBlock api.ChooseDataNodesForNewNetBlock
+	ChooseDataNodesForNewNetBlock sdfsapitypes.ChooseDataNodesForNewNetBlock
 }
 
 type NetINodeDriver struct {
@@ -20,7 +20,7 @@ type NetINodeDriver struct {
 
 func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	dbConn *sdbapi.Connection,
-	chooseOneDataNode api.ChooseDataNodesForNewNetBlock,
+	chooseOneDataNode sdfsapitypes.ChooseDataNodesForNewNetBlock,
 ) error {
 	p.dbConn = dbConn
 	p.SetHelper(chooseOneDataNode)
@@ -28,7 +28,7 @@ func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 }
 
 func (p *NetINodeDriver) SetHelper(
-	chooseOneDataNode api.ChooseDataNodesForNewNetBlock,
+	chooseOneDataNode sdfsapitypes.ChooseDataNodesForNewNetBlock,
 ) {
 	p.helper.ChooseDataNodesForNewNetBlock = chooseOneDataNode
 }

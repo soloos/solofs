@@ -2,15 +2,15 @@ package memstg
 
 import (
 	"bytes"
-	"soloos/sdfs/api"
+	sdfsapitypes "soloos/common/sdfsapi/types"
 	"soloos/sdfs/types"
 	"sync"
 )
 
 type FIXAttrDriverHelper struct {
-	api.DeleteFIXAttrInDB
-	api.ReplaceFIXAttrInDB
-	api.GetFIXAttrByInoFromDB
+	sdfsapitypes.DeleteFIXAttrInDB
+	sdfsapitypes.ReplaceFIXAttrInDB
+	sdfsapitypes.GetFIXAttrByInoFromDB
 }
 
 // FIXAttrDriver is FsINode XAttr driver
@@ -18,13 +18,13 @@ type FIXAttrDriver struct {
 	helper FIXAttrDriverHelper
 
 	xattrsRWMutex sync.RWMutex
-	xattrs        map[types.FsINodeID]types.FsINodeXAttr
+	xattrs        map[sdfsapitypes.FsINodeID]sdfsapitypes.FsINodeXAttr
 }
 
 func (p *FIXAttrDriver) Init(
-	deleteFIXAttrInDB api.DeleteFIXAttrInDB,
-	replaceFIXAttrInDB api.ReplaceFIXAttrInDB,
-	getFIXAttrByInoFromDB api.GetFIXAttrByInoFromDB,
+	deleteFIXAttrInDB sdfsapitypes.DeleteFIXAttrInDB,
+	replaceFIXAttrInDB sdfsapitypes.ReplaceFIXAttrInDB,
+	getFIXAttrByInoFromDB sdfsapitypes.GetFIXAttrByInoFromDB,
 ) error {
 	p.SetHelper(
 		deleteFIXAttrInDB,
@@ -32,15 +32,15 @@ func (p *FIXAttrDriver) Init(
 		getFIXAttrByInoFromDB,
 	)
 
-	p.xattrs = make(map[types.FsINodeID]types.FsINodeXAttr)
+	p.xattrs = make(map[types.FsINodeID]sdfsapitypes.FsINodeXAttr)
 
 	return nil
 }
 
 func (p *FIXAttrDriver) SetHelper(
-	deleteFIXAttrInDB api.DeleteFIXAttrInDB,
-	replaceFIXAttrInDB api.ReplaceFIXAttrInDB,
-	getFIXAttrByInoFromDB api.GetFIXAttrByInoFromDB,
+	deleteFIXAttrInDB sdfsapitypes.DeleteFIXAttrInDB,
+	replaceFIXAttrInDB sdfsapitypes.ReplaceFIXAttrInDB,
+	getFIXAttrByInoFromDB sdfsapitypes.GetFIXAttrByInoFromDB,
 ) {
 	p.helper = FIXAttrDriverHelper{
 		DeleteFIXAttrInDB:     deleteFIXAttrInDB,
@@ -49,9 +49,9 @@ func (p *FIXAttrDriver) SetHelper(
 	}
 }
 
-func (p *FIXAttrDriver) getXAttrFromCache(fsINodeID types.FsINodeID) (types.FsINodeXAttr, bool) {
+func (p *FIXAttrDriver) getXAttrFromCache(fsINodeID types.FsINodeID) (sdfsapitypes.FsINodeXAttr, bool) {
 	var (
-		xattr  types.FsINodeXAttr
+		xattr  sdfsapitypes.FsINodeXAttr
 		exists bool
 	)
 	p.xattrsRWMutex.RLock()
@@ -60,13 +60,13 @@ func (p *FIXAttrDriver) getXAttrFromCache(fsINodeID types.FsINodeID) (types.FsIN
 	return xattr, exists
 }
 
-func (p *FIXAttrDriver) setXAttrInCache(fsINodeID types.FsINodeID, xattr types.FsINodeXAttr) {
+func (p *FIXAttrDriver) setXAttrInCache(fsINodeID types.FsINodeID, xattr sdfsapitypes.FsINodeXAttr) {
 	p.xattrsRWMutex.Lock()
 	p.xattrs[fsINodeID] = xattr
 	p.xattrsRWMutex.Unlock()
 }
 
-func (p *FIXAttrDriver) xAttrFetchAttr(xattr types.FsINodeXAttr, attr string) []byte {
+func (p *FIXAttrDriver) xAttrFetchAttr(xattr sdfsapitypes.FsINodeXAttr, attr string) []byte {
 	var ret []byte
 	p.xattrsRWMutex.RLock()
 	ret = xattr[attr]
@@ -74,22 +74,22 @@ func (p *FIXAttrDriver) xAttrFetchAttr(xattr types.FsINodeXAttr, attr string) []
 	return ret
 }
 
-func (p *FIXAttrDriver) xAttrSetAttr(xattr types.FsINodeXAttr, attr string, paramData []byte) {
+func (p *FIXAttrDriver) xAttrSetAttr(xattr sdfsapitypes.FsINodeXAttr, attr string, paramData []byte) {
 	var data = append([]byte{}, paramData...)
 	p.xattrsRWMutex.Lock()
 	xattr[attr] = data
 	p.xattrsRWMutex.Unlock()
 }
 
-func (p *FIXAttrDriver) xAttrRemoveAttr(xattr types.FsINodeXAttr, attr string) {
+func (p *FIXAttrDriver) xAttrRemoveAttr(xattr sdfsapitypes.FsINodeXAttr, attr string) {
 	p.xattrsRWMutex.Lock()
 	delete(xattr, attr)
 	p.xattrsRWMutex.Unlock()
 }
 
-func (p *FIXAttrDriver) getXAttr(fsINodeID types.FsINodeID) (types.FsINodeXAttr, error) {
+func (p *FIXAttrDriver) getXAttr(fsINodeID types.FsINodeID) (sdfsapitypes.FsINodeXAttr, error) {
 	var (
-		xattr       types.FsINodeXAttr
+		xattr       sdfsapitypes.FsINodeXAttr
 		xattrExists bool
 		err         error
 	)
@@ -119,7 +119,7 @@ func (p *FIXAttrDriver) GetXAttrSize(fsINodeID types.FsINodeID, attr string) (in
 
 func (p *FIXAttrDriver) GetXAttrData(fsINodeID types.FsINodeID, attr string) ([]byte, error) {
 	var (
-		xattr types.FsINodeXAttr
+		xattr sdfsapitypes.FsINodeXAttr
 		value []byte
 		err   error
 	)
@@ -133,7 +133,7 @@ func (p *FIXAttrDriver) GetXAttrData(fsINodeID types.FsINodeID, attr string) ([]
 
 func (p *FIXAttrDriver) ListXAttr(fsINodeID types.FsINodeID) ([]byte, error) {
 	var (
-		xattr types.FsINodeXAttr
+		xattr sdfsapitypes.FsINodeXAttr
 		err   error
 	)
 	xattr, err = p.getXAttr(fsINodeID)
@@ -152,7 +152,7 @@ func (p *FIXAttrDriver) ListXAttr(fsINodeID types.FsINodeID) ([]byte, error) {
 
 func (p *FIXAttrDriver) SetXAttr(fsINodeID types.FsINodeID, attr string, data []byte) error {
 	var (
-		xattr types.FsINodeXAttr
+		xattr sdfsapitypes.FsINodeXAttr
 		err   error
 	)
 
@@ -162,7 +162,7 @@ func (p *FIXAttrDriver) SetXAttr(fsINodeID types.FsINodeID, attr string, data []
 	}
 
 	if xattr == nil {
-		xattr = types.InitFsINodeXAttr()
+		xattr = sdfsapitypes.InitFsINodeXAttr()
 	}
 
 	p.xAttrSetAttr(xattr, attr, data)
@@ -179,7 +179,7 @@ func (p *FIXAttrDriver) SetXAttr(fsINodeID types.FsINodeID, attr string, data []
 
 func (p *FIXAttrDriver) RemoveXAttr(fsINodeID types.FsINodeID, attr string) error {
 	var (
-		xattr types.FsINodeXAttr
+		xattr sdfsapitypes.FsINodeXAttr
 		err   error
 	)
 

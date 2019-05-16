@@ -8,7 +8,6 @@ import (
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/timer"
 	"soloos/sdbone/offheap"
-	"soloos/sdfs/api"
 	"soloos/sdfs/types"
 	"strconv"
 	"sync"
@@ -16,16 +15,16 @@ import (
 )
 
 type FsINodeDriverHelper struct {
-	api.AllocFsINodeID
-	api.GetNetINode
-	api.MustGetNetINode
-	api.ReleaseNetINode
-	api.DeleteFsINodeByIDInDB
-	api.ListFsINodeByParentIDFromDB
-	api.UpdateFsINodeInDB
-	api.InsertFsINodeInDB
-	api.FetchFsINodeByIDFromDB
-	api.FetchFsINodeByNameFromDB
+	sdfsapitypes.AllocFsINodeID
+	sdfsapitypes.GetNetINode
+	sdfsapitypes.MustGetNetINode
+	sdfsapitypes.ReleaseNetINode
+	sdfsapitypes.DeleteFsINodeByIDInDB
+	sdfsapitypes.ListFsINodeByParentIDFromDB
+	sdfsapitypes.UpdateFsINodeInDB
+	sdfsapitypes.InsertFsINodeInDB
+	sdfsapitypes.FetchFsINodeByIDFromDB
+	sdfsapitypes.FetchFsINodeByNameFromDB
 }
 
 type FsINodeDriver struct {
@@ -59,20 +58,20 @@ func (p *FsINodeDriver) Init(
 	dirTreeStg *DirTreeStg,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
-	allocFsINodeID api.AllocFsINodeID,
-	getNetINode api.GetNetINode,
-	mustGetNetINode api.MustGetNetINode,
-	releaseNetINode api.ReleaseNetINode,
-	deleteFsINodeByIDInDB api.DeleteFsINodeByIDInDB,
-	listFsINodeByParentIDFromDB api.ListFsINodeByParentIDFromDB,
-	updateFsINodeInDB api.UpdateFsINodeInDB,
-	insertFsINodeInDB api.InsertFsINodeInDB,
-	fetchFsINodeByIDFromDB api.FetchFsINodeByIDFromDB,
-	fetchFsINodeByNameFromDB api.FetchFsINodeByNameFromDB,
+	allocFsINodeID sdfsapitypes.AllocFsINodeID,
+	getNetINode sdfsapitypes.GetNetINode,
+	mustGetNetINode sdfsapitypes.MustGetNetINode,
+	releaseNetINode sdfsapitypes.ReleaseNetINode,
+	deleteFsINodeByIDInDB sdfsapitypes.DeleteFsINodeByIDInDB,
+	listFsINodeByParentIDFromDB sdfsapitypes.ListFsINodeByParentIDFromDB,
+	updateFsINodeInDB sdfsapitypes.UpdateFsINodeInDB,
+	insertFsINodeInDB sdfsapitypes.InsertFsINodeInDB,
+	fetchFsINodeByIDFromDB sdfsapitypes.FetchFsINodeByIDFromDB,
+	fetchFsINodeByNameFromDB sdfsapitypes.FetchFsINodeByNameFromDB,
 	// FIXAttrDriver
-	deleteFIXAttrInDB api.DeleteFIXAttrInDB,
-	replaceFIXAttrInDB api.ReplaceFIXAttrInDB,
-	getFIXAttrByInoFromDB api.GetFIXAttrByInoFromDB,
+	deleteFIXAttrInDB sdfsapitypes.DeleteFIXAttrInDB,
+	replaceFIXAttrInDB sdfsapitypes.ReplaceFIXAttrInDB,
+	getFIXAttrByInoFromDB sdfsapitypes.GetFIXAttrByInoFromDB,
 ) error {
 	var err error
 
@@ -142,16 +141,16 @@ func (p *FsINodeDriver) fsINodesByIDTableInvokeBeforeReleaseObjectFunc(uObject u
 }
 
 func (p *FsINodeDriver) SetHelper(
-	allocFsINodeID api.AllocFsINodeID,
-	getNetINode api.GetNetINode,
-	mustGetNetINode api.MustGetNetINode,
-	releaseNetINode api.ReleaseNetINode,
-	deleteFsINodeByIDInDB api.DeleteFsINodeByIDInDB,
-	listFsINodeByParentIDFromDB api.ListFsINodeByParentIDFromDB,
-	updateFsINodeInDB api.UpdateFsINodeInDB,
-	insertFsINodeInDB api.InsertFsINodeInDB,
-	fetchFsINodeByIDFromDB api.FetchFsINodeByIDFromDB,
-	fetchFsINodeByNameFromDB api.FetchFsINodeByNameFromDB,
+	allocFsINodeID sdfsapitypes.AllocFsINodeID,
+	getNetINode sdfsapitypes.GetNetINode,
+	mustGetNetINode sdfsapitypes.MustGetNetINode,
+	releaseNetINode sdfsapitypes.ReleaseNetINode,
+	deleteFsINodeByIDInDB sdfsapitypes.DeleteFsINodeByIDInDB,
+	listFsINodeByParentIDFromDB sdfsapitypes.ListFsINodeByParentIDFromDB,
+	updateFsINodeInDB sdfsapitypes.UpdateFsINodeInDB,
+	insertFsINodeInDB sdfsapitypes.InsertFsINodeInDB,
+	fetchFsINodeByIDFromDB sdfsapitypes.FetchFsINodeByIDFromDB,
+	fetchFsINodeByNameFromDB sdfsapitypes.FetchFsINodeByNameFromDB,
 ) {
 	p.helper = FsINodeDriverHelper{
 		AllocFsINodeID:              allocFsINodeID,
