@@ -16,6 +16,8 @@ type Client struct {
 	memStg         *memstg.MemStg
 	metaDirTreeStg metastg.DirTreeStg
 	memDirTreeStg  memstg.DirTreeStg
+
+	swalClient swalapi.Client
 }
 
 var _ = sdfsapi.Client(&Client{})
@@ -78,8 +80,4 @@ func (p *Client) Close() error {
 
 func (p *Client) GetPosixFS() fsapi.PosixFS {
 	return &p.memDirTreeStg
-}
-
-func (p *Client) SetSWALClient(swalClient swalapi.Client) error {
-	return nil
 }

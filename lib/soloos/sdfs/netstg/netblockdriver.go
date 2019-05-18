@@ -2,10 +2,10 @@ package netstg
 
 import (
 	sdbapitypes "soloos/common/sdbapi/types"
+	"soloos/common/sdfsapi"
 	sdfsapitypes "soloos/common/sdfsapi/types"
 	soloosbase "soloos/common/soloosapi/base"
 	"soloos/sdbone/offheap"
-	"soloos/common/sdfsapi"
 	"soloos/sdfs/types"
 )
 
@@ -73,15 +73,15 @@ func (p *NetBlockDriver) SetHelper(
 	p.helper.PrepareNetBlockMetaData = prepareNetBlockMetaData
 }
 
-func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadWithDisk sdfsapi.PReadMemBlockWithDisk) {
+func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadWithDisk sdfsapitypes.PReadMemBlockWithDisk) {
 	p.dataNodeClient.SetPReadMemBlockWithDisk(preadWithDisk)
 }
 
-func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk sdfsapi.UploadMemBlockWithDisk) {
+func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk sdfsapitypes.UploadMemBlockWithDisk) {
 	p.dataNodeClient.SetUploadMemBlockWithDisk(uploadMemBlockWithDisk)
 }
 
-func (p *NetBlockDriver) SetUploadMemBlockWithSWAL(uploadMemBlockWithSWAL sdfsapi.UploadMemBlockWithSWAL) {
+func (p *NetBlockDriver) SetUploadMemBlockWithSWAL(uploadMemBlockWithSWAL sdfsapitypes.UploadMemBlockWithSWAL) {
 	p.dataNodeClient.SetUploadMemBlockWithSWAL(uploadMemBlockWithSWAL)
 }
 

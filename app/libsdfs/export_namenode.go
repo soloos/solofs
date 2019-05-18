@@ -5,7 +5,6 @@ import (
 	fsapitypes "soloos/common/fsapi/types"
 	"soloos/common/sdfsapi"
 	sdfsapitypes "soloos/common/sdfsapi/types"
-	"soloos/sdfs/types"
 	"unsafe"
 )
 
@@ -19,7 +18,7 @@ func GoSdfsOpenFile(cInodePath *C.char, flags,
 	)
 
 	fsINodeMeta, err = env.PosixFS.SimpleOpenFile(fsINodePath,
-		types.DefaultNetBlockCap,
+		env.Options.DefaultNetBlockCap,
 		env.Options.DefaultMemBlockCap)
 	if err != nil {
 		return 0, sdfsapi.CODE_ERR

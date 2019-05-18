@@ -1,10 +1,11 @@
 package memstg
 
 import (
+	"soloos/common/sdfsapi"
 	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
 	soloosbase "soloos/common/soloosapi/base"
-	"soloos/common/sdfsapi"
+	"soloos/common/swalapi"
 	"soloos/sdfs/netstg"
 )
 
@@ -16,6 +17,8 @@ type MemStg struct {
 	netstg.NetBlockDriver
 	MemBlockDriver
 	NetINodeDriver
+
+	swalClient swalapi.Client
 }
 
 func (p *MemStg) Init(soloOSEnv *soloosbase.SoloOSEnv,

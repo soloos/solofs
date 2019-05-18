@@ -2,9 +2,9 @@ package datanode
 
 import (
 	sdbapitypes "soloos/common/sdbapi/types"
+	"soloos/common/sdfsapi"
 	sdfsapitypes "soloos/common/sdfsapi/types"
 	snettypes "soloos/common/snet/types"
-	"soloos/common/sdfsapi"
 	"soloos/sdfs/protocol"
 	"soloos/sdfs/types"
 
