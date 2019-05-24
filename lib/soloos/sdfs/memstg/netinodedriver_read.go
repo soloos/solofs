@@ -2,8 +2,8 @@ package memstg
 
 import (
 	"io"
-	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
 )
 
 type preadArg struct {
@@ -13,11 +13,11 @@ type preadArg struct {
 	offset     uint64
 }
 
-func (p *NetINodeDriver) doPRead(uNetINode types.NetINodeUintptr,
+func (p *NetINodeDriver) doPRead(uNetINode sdfsapitypes.NetINodeUintptr,
 	arg preadArg) (int, error) {
 	var (
-		uMemBlock          types.MemBlockUintptr
-		uNetBlock          types.NetBlockUintptr
+		uMemBlock          sdfsapitypes.MemBlockUintptr
+		uNetBlock          sdfsapitypes.NetBlockUintptr
 		memBlockIndex      int32
 		netBlockIndex      int32
 		memBlockStart      uint64
@@ -90,7 +90,7 @@ READ_DATA_DONE:
 	return arg.dataLength, err
 }
 
-func (p *NetINodeDriver) PReadWithNetQuery(uNetINode types.NetINodeUintptr,
+func (p *NetINodeDriver) PReadWithNetQuery(uNetINode sdfsapitypes.NetINodeUintptr,
 	netQuery *snettypes.NetQuery, dataLength int, offset uint64) (int, error) {
 	return p.doPRead(uNetINode, preadArg{
 		netQuery:   netQuery,
@@ -100,7 +100,7 @@ func (p *NetINodeDriver) PReadWithNetQuery(uNetINode types.NetINodeUintptr,
 	})
 }
 
-func (p *NetINodeDriver) PReadWithMem(uNetINode types.NetINodeUintptr,
+func (p *NetINodeDriver) PReadWithMem(uNetINode sdfsapitypes.NetINodeUintptr,
 	data []byte, offset uint64) (int, error) {
 	return p.doPRead(uNetINode, preadArg{
 		netQuery:   nil,

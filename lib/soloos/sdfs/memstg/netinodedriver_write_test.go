@@ -1,7 +1,8 @@
 package memstg
 
 import (
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
@@ -23,7 +24,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		netBlockCap       int   = 4
 		memBlockCap       int   = 4
 		blocksLimit       int32 = 2
-		uNetINode         types.NetINodeUintptr
+		uNetINode         sdfsapitypes.NetINodeUintptr
 	)
 	util.AssertErrIsNil(soloOSEnv.Init())
 

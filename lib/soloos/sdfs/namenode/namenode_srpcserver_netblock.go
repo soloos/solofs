@@ -1,10 +1,10 @@
 package namenode
 
 import (
-	snettypes "soloos/common/snet/types"
 	"soloos/common/sdfsapi"
-	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/sdfsprotocol"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -12,10 +12,10 @@ import (
 func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQuery) error {
 	var (
 		param           = make([]byte, serviceReq.BodySize)
-		req             protocol.NetINodeNetBlockInfoRequest
-		uNetINode       types.NetINodeUintptr
-		netINodeID      types.NetINodeID
-		uNetBlock       types.NetBlockUintptr
+		req             sdfsprotocol.NetINodeNetBlockInfoRequest
+		uNetINode       sdfsapitypes.NetINodeUintptr
+		netINodeID      sdfsapitypes.NetINodeID
+		uNetBlock       sdfsapitypes.NetBlockUintptr
 		protocolBuilder flatbuffers.Builder
 		err             error
 	)
@@ -32,7 +32,7 @@ func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQu
 	defer p.nameNode.netINodeDriver.ReleaseNetINode(uNetINode)
 
 	if err != nil {
-		if err == types.ErrObjectNotExists {
+		if err == sdfsapitypes.ErrObjectNotExists {
 			sdfsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
 		} else {
 			sdfsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())

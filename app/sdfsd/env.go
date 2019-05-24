@@ -1,12 +1,12 @@
 package main
 
 import (
+	"soloos/common/sdfsapi"
 	"soloos/common/snet"
-	snettypes "soloos/common/snet/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/snettypes"
+	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
-	"soloos/sdfs/api"
 	"soloos/sdfs/datanode"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
@@ -21,7 +21,7 @@ type Env struct {
 	SNetDriver       snet.NetDriver
 	SNetClientDriver snet.ClientDriver
 	MetaStg          metastg.MetaStg
-	DataNodeClient   api.DataNodeClient
+	DataNodeClient   sdfsapi.DataNodeClient
 	MemBlockDriver   memstg.MemBlockDriver
 	NetBlockDriver   netstg.NetBlockDriver
 	NetINodeDriver   memstg.NetINodeDriver
@@ -102,7 +102,7 @@ func (p *Env) startDataNode() {
 		PeerID:               dataNodePeerID,
 		SrpcServerListenAddr: p.options.ListenAddr,
 		SrpcServerServeAddr:  p.options.ListenAddr,
-		LocalFsRoot:          p.options.DataNodeLocalFsRoot,
+		LocalFSRoot:          p.options.DataNodeLocalFSRoot,
 		NameNodePeerID:       nameNodePeerID,
 		NameNodeSRPCServer:   p.options.NameNodeAddr,
 	}

@@ -2,9 +2,9 @@ package namenode
 
 import (
 	"soloos/common/log"
-	snettypes "soloos/common/snet/types"
+	"soloos/common/snettypes"
 	"soloos/common/sdfsapi"
-	"soloos/sdfs/protocol"
+	"soloos/common/sdfsprotocol"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -12,7 +12,7 @@ import (
 func (p *NameNodeSRPCServer) DataNodeRegister(serviceReq *snettypes.NetQuery) error {
 	var (
 		param           = make([]byte, serviceReq.BodySize)
-		req             protocol.SNetPeer
+		req             sdfsprotocol.SNetPeer
 		protocolBuilder flatbuffers.Builder
 		err             error
 	)

@@ -2,10 +2,10 @@ package namenode
 
 import (
 	"soloos/common/log"
-	snettypes "soloos/common/snet/types"
 	"soloos/common/sdfsapi"
-	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/sdfsprotocol"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -13,9 +13,9 @@ import (
 func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool, serviceReq *snettypes.NetQuery) error {
 	var (
 		param           = make([]byte, serviceReq.BodySize)
-		req             protocol.NetINodeInfoRequest
-		uNetINode       types.NetINodeUintptr
-		netINodeID      types.NetINodeID
+		req             sdfsprotocol.NetINodeInfoRequest
+		uNetINode       sdfsapitypes.NetINodeUintptr
+		netINodeID      sdfsapitypes.NetINodeID
 		protocolBuilder flatbuffers.Builder
 		err             error
 	)
@@ -38,7 +38,7 @@ func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool, serviceReq *snettypes
 	defer p.nameNode.netINodeDriver.ReleaseNetINode(uNetINode)
 
 	if err != nil {
-		if err == types.ErrObjectNotExists {
+		if err == sdfsapitypes.ErrObjectNotExists {
 			sdfsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
 			serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
 			err = nil
@@ -72,9 +72,9 @@ func (p *NameNodeSRPCServer) NetINodeMustGet(serviceReq *snettypes.NetQuery) err
 func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(serviceReq *snettypes.NetQuery) error {
 	var (
 		param           = make([]byte, serviceReq.BodySize)
-		req             protocol.NetINodeCommitSizeInDBRequest
-		uNetINode       types.NetINodeUintptr
-		netINodeID      types.NetINodeID
+		req             sdfsprotocol.NetINodeCommitSizeInDBRequest
+		uNetINode       sdfsapitypes.NetINodeUintptr
+		netINodeID      sdfsapitypes.NetINodeID
 		protocolBuilder flatbuffers.Builder
 		err             error
 	)

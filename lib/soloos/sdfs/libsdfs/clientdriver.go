@@ -3,7 +3,7 @@ package libsdfs
 import (
 	"soloos/common/sdbapi"
 	"soloos/common/sdfsapi"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/soloosbase"
 	"soloos/sdfs/memstg"
 )
 

@@ -1,10 +1,10 @@
 package datanode
 
 import (
-	snettypes "soloos/common/snet/types"
 	"soloos/common/sdfsapi"
-	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/sdfsprotocol"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -12,7 +12,7 @@ import (
 func (p *DataNodeSRPCServer) NetINodeSync(serviceReq *snettypes.NetQuery) error {
 	var (
 		reqParamData = make([]byte, serviceReq.ParamSize)
-		reqParam     protocol.NetINodePWriteRequest
+		reqParam     sdfsprotocol.NetINodePWriteRequest
 		err          error
 	)
 
@@ -29,14 +29,14 @@ func (p *DataNodeSRPCServer) NetINodeSync(serviceReq *snettypes.NetQuery) error 
 	// get uNetINode
 	var (
 		protocolBuilder flatbuffers.Builder
-		netINodeID      types.NetINodeID
-		uNetINode       types.NetINodeUintptr
+		netINodeID      sdfsapitypes.NetINodeID
+		uNetINode       sdfsapitypes.NetINodeUintptr
 	)
 	copy(netINodeID[:], reqParam.NetINodeID())
 	uNetINode, err = p.dataNode.netINodeDriver.GetNetINode(netINodeID)
 	defer p.dataNode.netINodeDriver.ReleaseNetINode(uNetINode)
 	if err != nil {
-		if err == types.ErrObjectNotExists {
+		if err == sdfsapitypes.ErrObjectNotExists {
 			sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_404)
 			goto SERVICE_DONE
 		} else {

@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/common/sdfsapi"
 	"soloos/sdfs/netstg"

@@ -2,9 +2,9 @@ package memstg
 
 import (
 	"soloos/common/sdfsapi"
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	snettypes "soloos/common/snet/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/soloosbase"
 	"soloos/common/swalapi"
 	"soloos/sdfs/netstg"
 )
@@ -32,7 +32,7 @@ func (p *MemStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 
 	p.SoloOSEnv = soloOSEnv
 
-	nameNodePeer = p.SNetDriver.AllocPeer(nameNodeSRPCServerAddr, sdfsapitypes.DefaultSDFSRPCProtocol)
+	nameNodePeer, _ = p.SNetDriver.MustGetPeer(nil, nameNodeSRPCServerAddr, sdfsapitypes.DefaultSDFSRPCProtocol)
 	err = p.NameNodeClient.Init(p.SoloOSEnv, nameNodePeer)
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func (p *MemStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 
 	err = p.NetBlockDriver.Init(p.SoloOSEnv,
 		&p.NameNodeClient, &p.DataNodeClient,
-		p.NetBlockDriver.PrepareNetBlockMetaDataWithFanout,
+		p.NetBlockDriver.PrepareNetBlockMetaData,
 	)
 	if err != nil {
 		return err

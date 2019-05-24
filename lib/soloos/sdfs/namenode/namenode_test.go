@@ -1,13 +1,12 @@
 package namenode
 
 import (
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	snettypes "soloos/common/snet/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/soloosbase"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
-	"soloos/sdfs/types"
 	"testing"
 	"time"
 
@@ -37,7 +36,7 @@ func TestBase(t *testing.T) {
 		netBlockCap int   = 1024
 		memBlockCap int   = 128
 		blocksLimit int32 = 4
-		uNetINode   types.NetINodeUintptr
+		uNetINode   sdfsapitypes.NetINodeUintptr
 		peerID      snettypes.PeerID
 		i           int
 		err         error
@@ -70,7 +69,7 @@ func TestBase(t *testing.T) {
 		nameNode.RegisterDataNode(peerID, mockServerAddr)
 	}
 
-	var netINodeID types.NetINodeID
+	var netINodeID sdfsapitypes.NetINodeID
 	sdfsapitypes.InitTmpNetINodeID(&netINodeID)
 	uNetINode, err = netINodeDriverForClient.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
 	defer netINodeDriverForClient.ReleaseNetINode(uNetINode)

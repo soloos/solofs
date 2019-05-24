@@ -2,9 +2,9 @@ package main
 
 import "C"
 import (
-	fsapitypes "soloos/common/fsapi/types"
+	"soloos/common/fsapitypes"
 	"soloos/common/sdfsapi"
-	sdfsapitypes "soloos/common/sdfsapi/types"
+	"soloos/common/sdfsapitypes"
 	"unsafe"
 )
 
@@ -36,7 +36,7 @@ func GoSdfsExists(cInodePath *C.char) C.int {
 	)
 	err = env.PosixFS.FetchFsINodeByPath(&fsINodeMeta, fsINodePath)
 	if err != nil {
-		// contains err == types.ErrObjectNotExists
+		// contains err == sdfsapitypes.ErrObjectNotExists
 		return sdfsapi.CODE_ERR
 	}
 	return sdfsapi.CODE_OK

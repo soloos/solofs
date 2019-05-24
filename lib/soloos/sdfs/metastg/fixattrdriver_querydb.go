@@ -3,11 +3,10 @@ package metastg
 import (
 	"database/sql"
 	"soloos/common/sdbapi"
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
 )
 
-func (p *FIXAttrDriver) DeleteFIXAttrInDB(fsINodeID types.FsINodeID) error {
+func (p *FIXAttrDriver) DeleteFIXAttrInDB(fsINodeID sdfsapitypes.FsINodeID) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -28,7 +27,7 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(fsINodeID types.FsINodeID) error {
 	return nil
 }
 
-func (p *FIXAttrDriver) ReplaceFIXAttrInDB(fsINodeID types.FsINodeID, xattr sdfsapitypes.FsINodeXAttr) error {
+func (p *FIXAttrDriver) ReplaceFIXAttrInDB(fsINodeID sdfsapitypes.FsINodeID, xattr sdfsapitypes.FsINodeXAttr) error {
 	var (
 		sess       sdbapi.Session
 		xattrBytes []byte
@@ -56,7 +55,7 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(fsINodeID types.FsINodeID, xattr sdfs
 	return nil
 }
 
-func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(fsINodeID types.FsINodeID) (sdfsapitypes.FsINodeXAttr, error) {
+func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeXAttr, error) {
 	var (
 		sess    sdbapi.Session
 		sqlRows *sql.Rows
@@ -80,7 +79,7 @@ func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(fsINodeID types.FsINodeID) (sdfsap
 	}
 
 	if sqlRows.Next() == false {
-		err = types.ErrObjectNotExists
+		err = sdfsapitypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 

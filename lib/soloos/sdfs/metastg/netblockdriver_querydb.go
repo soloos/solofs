@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"database/sql"
 	"soloos/common/sdbapi"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
 )
 
-func (p *NetBlockDriver) FetchNetBlockFromDB(pNetINode *types.NetINode,
-	netBlockIndex int32, pNetBlock *types.NetBlock,
+func (p *NetBlockDriver) FetchNetBlockFromDB(pNetINode *sdfsapitypes.NetINode,
+	netBlockIndex int32, pNetBlock *sdfsapitypes.NetBlock,
 	backendPeerIDArrStr *string) (err error) {
 	var (
 		sess    sdbapi.Session
@@ -30,7 +30,7 @@ func (p *NetBlockDriver) FetchNetBlockFromDB(pNetINode *types.NetINode,
 	}
 
 	if sqlRows.Next() == false {
-		err = types.ErrObjectNotExists
+		err = sdfsapitypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 
@@ -48,7 +48,7 @@ QUERY_DONE:
 	return err
 }
 
-func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *types.NetINode, pNetBlock *types.NetBlock) error {
+func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *sdfsapitypes.NetINode, pNetBlock *sdfsapitypes.NetBlock) error {
 	var (
 		sess                sdbapi.Session
 		netINodeIDStr       = pNetINode.IDStr()

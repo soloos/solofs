@@ -2,7 +2,7 @@ package minicluster
 
 import (
 	"fmt"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/sdfs/datanode"
 	"soloos/sdfs/memstg"

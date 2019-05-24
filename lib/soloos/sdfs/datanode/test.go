@@ -2,8 +2,8 @@ package datanode
 
 import (
 	"path/filepath"
-	snettypes "soloos/common/snet/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/snettypes"
+	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
@@ -25,13 +25,13 @@ func MakeDataNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
 
 	var peerID snettypes.PeerID
 	snettypes.InitTmpPeerID(&peerID)
-	var localFsRoot = filepath.Join("/tmp/sdfs_test.data", string(peerID[:3]))
+	var localFSRoot = filepath.Join("/tmp/sdfs_test.data", string(peerID[:3]))
 
 	var options = DataNodeOptions{
 		PeerID:               peerID,
 		SrpcServerListenAddr: dataNodeSRPCServerAddr,
 		SrpcServerServeAddr:  dataNodeSRPCServerAddr,
-		LocalFsRoot:          localFsRoot,
+		LocalFSRoot:          localFSRoot,
 		NameNodeSRPCServer:   nameNodeSRPCServerAddr,
 	}
 

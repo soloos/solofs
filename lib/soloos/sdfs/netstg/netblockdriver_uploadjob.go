@@ -1,15 +1,15 @@
 package netstg
 
 import (
-	sdbapitypes "soloos/common/sdbapi/types"
-	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/types"
+	"soloos/common/sdbapitypes"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
 )
 
-func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *types.UploadMemBlockJob,
-	uNetINode types.NetINodeUintptr,
-	uNetBlock types.NetBlockUintptr, netBlockIndex int32,
-	uMemBlock types.MemBlockUintptr, memBlockIndex int32,
+func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *sdfsapitypes.UploadMemBlockJob,
+	uNetINode sdfsapitypes.NetINodeUintptr,
+	uNetBlock sdfsapitypes.NetBlockUintptr, netBlockIndex int32,
+	uMemBlock sdfsapitypes.MemBlockUintptr, memBlockIndex int32,
 	backends snettypes.PeerGroup) {
 	pJob.MetaDataState.LockContext()
 	if pJob.MetaDataState.Load() == sdbapitypes.MetaDataStateInited {

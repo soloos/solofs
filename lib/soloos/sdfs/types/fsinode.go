@@ -1,25 +1,8 @@
 package types
 
 import (
-	fsapitypes "soloos/common/fsapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
+	"soloos/common/fsapitypes"
 )
-
-type FsINodeID = sdfsapitypes.FsINodeID
-type DirTreeTime = sdfsapitypes.DirTreeTime
-type DirTreeTimeNsec = sdfsapitypes.DirTreeTimeNsec
-
-const (
-	RootFsINodeParentID = sdfsapitypes.RootFsINodeParentID
-	RootFsINodeID       = sdfsapitypes.RootFsINodeID
-	FsINodeStructSize   = sdfsapitypes.FsINodeStructSize
-	MaxFsINodeID        = sdfsapitypes.MaxFsINodeID
-)
-
-type FsINodeUintptr = sdfsapitypes.FsINodeUintptr
-
-type FsINodeMeta = sdfsapitypes.FsINodeMeta
-type FsINode = sdfsapitypes.FsINode
 
 func FsModeToFsINodeType(mode uint32) int {
 	if mode&fsapitypes.S_IFDIR != 0 {

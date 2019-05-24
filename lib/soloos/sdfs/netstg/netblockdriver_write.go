@@ -1,12 +1,12 @@
 package netstg
 
 import (
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
 )
 
-func (p *NetBlockDriver) PWrite(uNetINode types.NetINodeUintptr,
-	uNetBlock types.NetBlockUintptr, netBlockIndex int32,
-	uMemBlock types.MemBlockUintptr, memBlockIndex int32,
+func (p *NetBlockDriver) PWrite(uNetINode sdfsapitypes.NetINodeUintptr,
+	uNetBlock sdfsapitypes.NetBlockUintptr, netBlockIndex int32,
+	uMemBlock sdfsapitypes.MemBlockUintptr, memBlockIndex int32,
 	offset, end int) error {
 	var (
 		err error

@@ -1,8 +1,8 @@
 package netstg
 
 import (
-	sdbapitypes "soloos/common/sdbapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
+	"soloos/common/sdbapitypes"
+	"soloos/common/sdfsapitypes"
 )
 
 func (p *netBlockDriverUploader) PWrite(uNetINode sdfsapitypes.NetINodeUintptr,
@@ -37,7 +37,7 @@ func (p *netBlockDriverUploader) PWrite(uNetINode sdfsapitypes.NetINodeUintptr,
 		}
 
 		if isMergeWriteMaskSuccess == false {
-			pUploadJob.SyncDataSig.Wait()
+			pMemBlock.UploadJob.SyncDataSig.Wait()
 		}
 	}
 

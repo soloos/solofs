@@ -2,7 +2,7 @@ package main
 
 import (
 	"os"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/sdfs/libsdfs"
 	"soloos/sdfs/sfuse"

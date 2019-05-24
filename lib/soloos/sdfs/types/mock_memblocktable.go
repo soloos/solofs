@@ -1,7 +1,8 @@
 package types
 
 import (
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/soloosbase"
 	"soloos/sdbone/offheap"
 	"sync/atomic"
 )
@@ -18,7 +19,7 @@ func (p *MockMemBlockTable) Init(soloOSEnv *soloosbase.SoloOSEnv, ichunkSize int
 	p.SoloOSEnv = soloOSEnv
 	p.ichunkSize = ichunkSize
 	err = p.OffheapDriver.InitHKVTableWithBytes12(&p.hkvTable, "mock",
-		int(MemBlockStructSize+uintptr(p.ichunkSize)), -1, offheap.DefaultKVTableSharedCount,
+		int(sdfsapitypes.MemBlockStructSize+uintptr(p.ichunkSize)), -1, offheap.DefaultKVTableSharedCount,
 		p.HKVTableInvokePrepareNewObject, nil)
 	if err != nil {
 		return err
@@ -28,19 +29,19 @@ func (p *MockMemBlockTable) Init(soloOSEnv *soloosbase.SoloOSEnv, ichunkSize int
 }
 
 func (p *MockMemBlockTable) HKVTableInvokePrepareNewObject(uObject uintptr) {
-	uMemBlock := MemBlockUintptr(uObject)
+	uMemBlock := sdfsapitypes.MemBlockUintptr(uObject)
 	uMemBlock.Ptr().Reset()
-	uMemBlock.Ptr().Bytes.Data = uObject + MemBlockStructSize
+	uMemBlock.Ptr().Bytes.Data = uObject + sdfsapitypes.MemBlockStructSize
 	uMemBlock.Ptr().Bytes.Len = p.ichunkSize
 	uMemBlock.Ptr().Bytes.Cap = uMemBlock.Ptr().Bytes.Len
 	uMemBlock.Ptr().CompleteInit()
 }
 
-func (p *MockMemBlockTable) AllocMemBlock() MemBlockUintptr {
-	var memBlockID PtrBindIndex
+func (p *MockMemBlockTable) AllocMemBlock() sdfsapitypes.MemBlockUintptr {
+	var memBlockID soloosbase.PtrBindIndex
 	id := atomic.AddInt32(&p.mockID, 1)
 	soloosbase.EncodePtrBindIndex(&memBlockID, uintptr(id), id)
 	uObject, _ := p.hkvTable.MustGetObjectWithReadAcquire(memBlockID)
-	uMemBlock := (MemBlockUintptr)(uObject)
+	uMemBlock := (sdfsapitypes.MemBlockUintptr)(uObject)
 	return uMemBlock
 }

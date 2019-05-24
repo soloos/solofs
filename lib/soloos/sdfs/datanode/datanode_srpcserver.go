@@ -2,7 +2,7 @@ package datanode
 
 import (
 	"soloos/common/log"
-	sdfsapitypes "soloos/common/sdfsapi/types"
+	"soloos/common/sdfsapitypes"
 	"soloos/common/snet/srpc"
 )
 

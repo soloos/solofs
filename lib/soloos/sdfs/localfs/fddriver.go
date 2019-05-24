@@ -3,14 +3,14 @@ package localfs
 import (
 	"os"
 	"path/filepath"
-	"soloos/sdfs/types"
-	"sync"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/util"
 )
 
 type FdDriver struct {
 	dataPathPrefix string
-	fdMutex        sync.Mutex
-	fds            map[types.NetINodeUintptr]*Fd
+	fdMutex        util.Mutex
+	fds            map[sdfsapitypes.NetINodeUintptr]*Fd
 }
 
 func (p *FdDriver) Init(dataPathPrefix string) error {
@@ -21,12 +21,12 @@ func (p *FdDriver) Init(dataPathPrefix string) error {
 		return err
 	}
 
-	p.fds = make(map[types.NetINodeUintptr]*Fd)
+	p.fds = make(map[sdfsapitypes.NetINodeUintptr]*Fd)
 
 	return nil
 }
 
-func (p *FdDriver) Open(uNetINode types.NetINodeUintptr, uNetBlock types.NetBlockUintptr) (*Fd, error) {
+func (p *FdDriver) Open(uNetINode sdfsapitypes.NetINodeUintptr, uNetBlock sdfsapitypes.NetBlockUintptr) (*Fd, error) {
 	var (
 		fd  *Fd
 		err error

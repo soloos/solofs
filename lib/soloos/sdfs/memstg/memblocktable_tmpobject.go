@@ -1,27 +1,28 @@
 package memstg
 
 import (
+	"soloos/common/sdfsapitypes"
+	"soloos/common/soloosbase"
 	"soloos/sdbone/offheap"
-	"soloos/sdfs/types"
 )
 
 func (p *MemBlockTable) hkvTableInvokeBeforeReleaseTmpBlock(uMemBlock uintptr) {
-	pMemBlock := types.MemBlockUintptr(uMemBlock).Ptr()
+	pMemBlock := sdfsapitypes.MemBlockUintptr(uMemBlock).Ptr()
 	pMemBlock.Reset()
 	pMemBlock.SetReleasable()
 }
 
-func (p *MemBlockTable) MustGetTmpMemBlockWithReadAcquire(memBlockID types.PtrBindIndex) types.MemBlockUintptr {
+func (p *MemBlockTable) MustGetTmpMemBlockWithReadAcquire(memBlockID soloosbase.PtrBindIndex) sdfsapitypes.MemBlockUintptr {
 	var (
-		uMemBlock types.MemBlockUintptr
+		uMemBlock sdfsapitypes.MemBlockUintptr
 		uObject   offheap.HKVTableObjectUPtrWithBytes12
 	)
 	uObject, _ = p.tmpMemBlockTable.MustGetObjectWithReadAcquire(memBlockID)
-	uMemBlock = types.MemBlockUintptr(uObject)
+	uMemBlock = sdfsapitypes.MemBlockUintptr(uObject)
 	return uMemBlock
 
 }
 
-func (p *MemBlockTable) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) {
+func (p *MemBlockTable) ReleaseTmpMemBlock(uMemBlock sdfsapitypes.MemBlockUintptr) {
 	p.tmpMemBlockTable.DeleteObject(uMemBlock.Ptr().ID)
 }

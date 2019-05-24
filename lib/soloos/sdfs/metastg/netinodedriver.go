@@ -2,10 +2,9 @@ package metastg
 
 import (
 	"soloos/common/sdbapi"
-	sdbapitypes "soloos/common/sdbapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/types"
+	"soloos/common/sdbapitypes"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/soloosbase"
 )
 
 type NetINodeDriverHelper struct {
@@ -33,7 +32,7 @@ func (p *NetINodeDriver) SetHelper(
 	p.helper.ChooseDataNodesForNewNetBlock = chooseOneDataNode
 }
 
-func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode types.NetINodeUintptr) error {
+func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode sdfsapitypes.NetINodeUintptr) error {
 	var (
 		pNetINode = uNetINode.Ptr()
 		err       error
@@ -51,7 +50,7 @@ PREPARE_DONE:
 	return err
 }
 
-func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetINodeUintptr,
+func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode sdfsapitypes.NetINodeUintptr,
 	size uint64, netBlockCap int, memBlockCap int) error {
 	var (
 		pNetINode = uNetINode.Ptr()
@@ -60,7 +59,7 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode types.NetIN
 
 	err = p.FetchNetINodeFromDB(pNetINode)
 	if err != nil {
-		if err != types.ErrObjectNotExists {
+		if err != sdfsapitypes.ErrObjectNotExists {
 			goto PREPARE_DONE
 		}
 
@@ -80,6 +79,6 @@ PREPARE_DONE:
 	return err
 }
 
-func (p *NetINodeDriver) NetINodeTruncate(uNetINode types.NetINodeUintptr, size uint64) error {
+func (p *NetINodeDriver) NetINodeTruncate(uNetINode sdfsapitypes.NetINodeUintptr, size uint64) error {
 	return p.NetINodeCommitSizeInDB(uNetINode, size)
 }

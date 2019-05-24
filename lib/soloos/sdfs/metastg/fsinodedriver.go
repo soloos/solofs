@@ -2,10 +2,9 @@ package metastg
 
 import (
 	"soloos/common/sdbapi"
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/soloosbase"
 	"soloos/common/util"
-	"soloos/sdfs/types"
 	"sync/atomic"
 )
 
@@ -20,9 +19,9 @@ type FsINodeDriver struct {
 	dbConn *sdbapi.Connection
 	helper FsINodeDriverHelper
 
-	allocINodeIDDalta types.FsINodeID
-	lastFsINodeIDInDB types.FsINodeID
-	maxFsINodeID      types.FsINodeID
+	allocINodeIDDalta sdfsapitypes.FsINodeID
+	lastFsINodeIDInDB sdfsapitypes.FsINodeID
+	maxFsINodeID      sdfsapitypes.FsINodeID
 }
 
 func (p *FsINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
@@ -63,7 +62,7 @@ func (p *FsINodeDriver) prepareINodes() error {
 	var err error
 
 	p.allocINodeIDDalta = 10000 * 10
-	for p.lastFsINodeIDInDB <= types.RootFsINodeID {
+	for p.lastFsINodeIDInDB <= sdfsapitypes.RootFsINodeID {
 		p.lastFsINodeIDInDB, err = FetchAndUpdateMaxID(p.dbConn, "b_fsinode", p.allocINodeIDDalta)
 		if err != nil {
 			return err
@@ -74,7 +73,7 @@ func (p *FsINodeDriver) prepareINodes() error {
 	return nil
 }
 
-func (p *FsINodeDriver) AllocFsINodeID() types.FsINodeID {
+func (p *FsINodeDriver) AllocFsINodeID() sdfsapitypes.FsINodeID {
 	var ret = atomic.AddUint64(&p.maxFsINodeID, 1)
 	if p.lastFsINodeIDInDB-ret < p.allocINodeIDDalta/100 {
 		util.AssertErrIsNil1(FetchAndUpdateMaxID(p.dbConn, "b_fsinode", p.allocINodeIDDalta))

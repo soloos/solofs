@@ -3,15 +3,15 @@ package metastg
 import (
 	"database/sql"
 	"soloos/common/sdbapi"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
 )
 
-func FetchAndUpdateMaxID(dbConn *sdbapi.Connection, key string, delta types.FsINodeID) (types.FsINodeID, error) {
+func FetchAndUpdateMaxID(dbConn *sdbapi.Connection, key string, delta sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeID, error) {
 	var (
 		sess         sdbapi.Session
 		sqlRows      *sql.Rows
 		isNeedInsert bool
-		maxid        types.FsINodeID
+		maxid        sdfsapitypes.FsINodeID
 		err          error
 	)
 

@@ -2,18 +2,18 @@ package localfs
 
 import (
 	"os"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
 	"sync/atomic"
 )
 
 type Fd struct {
 	accessor  int32
-	uNetINode types.NetINodeUintptr
+	uNetINode sdfsapitypes.NetINodeUintptr
 	filePath  string
 	file      *os.File
 }
 
-func (p *Fd) Init(uNetINode types.NetINodeUintptr, filePath string) error {
+func (p *Fd) Init(uNetINode sdfsapitypes.NetINodeUintptr, filePath string) error {
 	var err error
 	p.uNetINode = uNetINode
 	p.filePath = filePath

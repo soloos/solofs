@@ -1,19 +1,18 @@
 package netstg
 
 import (
+	"soloos/common/sdfsapitypes"
 	"soloos/common/util"
-	"soloos/sdfs/types"
-	"sync"
 )
 
 func (p *netBlockDriverUploader) cronUpload() error {
 	var (
-		uJob         types.UploadMemBlockJobUintptr
-		pJob         *types.UploadMemBlockJob
-		pNetINode    *types.NetINode
-		pNetBlock    *types.NetBlock
+		uJob         sdfsapitypes.UploadMemBlockJobUintptr
+		pJob         *sdfsapitypes.UploadMemBlockJob
+		pNetINode    *sdfsapitypes.NetINode
+		pNetBlock    *sdfsapitypes.NetBlock
 		uploadJobNum int
-		uploadWG     sync.WaitGroup
+		uploadWG     util.RawWaitGroup
 		uploadErrors []error
 		i            int
 		ok           bool
@@ -46,17 +45,17 @@ func (p *netBlockDriverUploader) cronUpload() error {
 
 		// start upload
 		// upload primary backend
-		go func() {
-			uploadErrors[0] = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, pNetBlock.SyncDataPrimaryBackendTransferCount)
+		go func(uJob sdfsapitypes.UploadMemBlockJobUintptr, transferCount int) {
+			uploadErrors[0] = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, transferCount)
 			uploadWG.Done()
-		}()
+		}(uJob, pNetBlock.SyncDataPrimaryBackendTransferCount)
 
 		// upload other backends
 		for i = pNetBlock.SyncDataPrimaryBackendTransferCount + 1; i < pNetBlock.SyncDataBackends.Len; i++ {
-			go func(i int) {
+			go func(i int, uJob sdfsapitypes.UploadMemBlockJobUintptr) {
 				uploadErrors[i] = p.driver.dataNodeClient.UploadMemBlock(uJob, i, 0)
 				uploadWG.Done()
-			}(i)
+			}(i, uJob)
 		}
 
 		for i, _ = range uploadErrors {

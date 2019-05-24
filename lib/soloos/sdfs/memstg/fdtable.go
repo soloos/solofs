@@ -1,22 +1,22 @@
 package memstg
 
 import (
+	"soloos/common/sdfsapitypes"
+	"soloos/common/util"
 	"soloos/sdbone/offheap"
-	"soloos/sdfs/types"
-	"sync"
 )
 
 type FdTable struct {
 	fdIDsPool  offheap.NoGCUintptrPool
-	FdsRWMutex sync.RWMutex
-	Fds        []types.FsINodeFileHandler
+	FdsRWMutex util.RWMutex
+	Fds        []sdfsapitypes.FsINodeFileHandler
 }
 
 func (p *FdTable) Init() error {
 	p.fdIDsPool.New = func() uintptr {
 		var (
 			fdID uintptr
-			fd   types.FsINodeFileHandler
+			fd   sdfsapitypes.FsINodeFileHandler
 		)
 		fd.Reset()
 		p.FdsRWMutex.Lock()
@@ -28,37 +28,37 @@ func (p *FdTable) Init() error {
 	return nil
 }
 
-func (p *FdTable) AllocFd(fsINodeID types.FsINodeID) uint64 {
-	var fdID = int(p.fdIDsPool.Get())
+func (p *FdTable) AllocFd(fsINodeID sdfsapitypes.FsINodeID) sdfsapitypes.FsINodeFileHandlerID {
+	var fdID = sdfsapitypes.FsINodeFileHandlerID(p.fdIDsPool.Get())
 	p.FdsRWMutex.RLock()
 	p.Fds[fdID].FsINodeID = fsINodeID
 	p.FdsRWMutex.RUnlock()
-	return uint64(fdID)
+	return fdID
 
 }
 
-func (p *FdTable) FdAddAppendPosition(fdID uint64, delta uint64) {
+func (p *FdTable) FdAddAppendPosition(fdID sdfsapitypes.FsINodeFileHandlerID, delta uint64) {
 	p.FdsRWMutex.RLock()
 	p.Fds[int(fdID)].AppendPosition += delta
 	p.FdsRWMutex.RUnlock()
 	return
 }
 
-func (p *FdTable) FdAddReadPosition(fdID uint64, delta uint64) {
+func (p *FdTable) FdAddReadPosition(fdID sdfsapitypes.FsINodeFileHandlerID, delta uint64) {
 	p.FdsRWMutex.RLock()
 	p.Fds[int(fdID)].ReadPosition += delta
 	p.FdsRWMutex.RUnlock()
 	return
 }
 
-func (p *FdTable) GetFd(fdID uint64) (ret types.FsINodeFileHandler) {
+func (p *FdTable) GetFd(fdID sdfsapitypes.FsINodeFileHandlerID) (ret sdfsapitypes.FsINodeFileHandler) {
 	p.FdsRWMutex.RLock()
 	ret = p.Fds[int(fdID)]
 	p.FdsRWMutex.RUnlock()
 	return
 }
 
-func (p *FdTable) ReleaseFd(fdID uint64) {
+func (p *FdTable) ReleaseFd(fdID sdfsapitypes.FsINodeFileHandlerID) {
 	p.Fds[int(fdID)].Reset()
 	p.fdIDsPool.Put(uintptr(fdID))
 }

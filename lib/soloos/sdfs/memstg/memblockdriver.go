@@ -1,8 +1,8 @@
 package memstg
 
 import (
-	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/soloosbase"
 )
 
 type MemBlockDriver struct {
@@ -42,30 +42,30 @@ func (p *MemBlockDriver) PrepareMemBlockTable(memBlockTableOptions MemBlockTable
 }
 
 // MustGetMemBlockWithReadAcquire get or init a memblock's offheap
-func (p *MemBlockDriver) MustGetMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
-	memBlockIndex int32) (types.MemBlockUintptr, bool) {
-	var memBlockID types.PtrBindIndex
+func (p *MemBlockDriver) MustGetMemBlockWithReadAcquire(uNetINode sdfsapitypes.NetINodeUintptr,
+	memBlockIndex int32) (sdfsapitypes.MemBlockUintptr, bool) {
+	var memBlockID soloosbase.PtrBindIndex
 	soloosbase.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
 	return p.tables[uNetINode.Ptr().MemBlockCap].MustGetMemBlockWithReadAcquire(memBlockID)
 }
 
-func (p *MemBlockDriver) TryGetMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr,
-	memBlockIndex int32) types.MemBlockUintptr {
-	var memBlockID types.PtrBindIndex
+func (p *MemBlockDriver) TryGetMemBlockWithReadAcquire(uNetINode sdfsapitypes.NetINodeUintptr,
+	memBlockIndex int32) sdfsapitypes.MemBlockUintptr {
+	var memBlockID soloosbase.PtrBindIndex
 	soloosbase.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
 	return p.tables[uNetINode.Ptr().MemBlockCap].TryGetMemBlockWithReadAcquire(memBlockID)
 }
 
-func (p *MemBlockDriver) ReleaseMemBlockWithReadRelease(uMemBlock types.MemBlockUintptr) {
+func (p *MemBlockDriver) ReleaseMemBlockWithReadRelease(uMemBlock sdfsapitypes.MemBlockUintptr) {
 	if uMemBlock != 0 {
 		p.tables[uMemBlock.Ptr().Bytes.Cap].ReleaseMemBlockWithReadRelease(uMemBlock)
 	}
 }
 
-func (p *MemBlockDriver) MustGetTmpMemBlockWithReadAcquire(uNetINode types.NetINodeUintptr, memBlockID types.PtrBindIndex) types.MemBlockUintptr {
+func (p *MemBlockDriver) MustGetTmpMemBlockWithReadAcquire(uNetINode sdfsapitypes.NetINodeUintptr, memBlockID soloosbase.PtrBindIndex) sdfsapitypes.MemBlockUintptr {
 	return p.tables[uNetINode.Ptr().MemBlockCap].MustGetTmpMemBlockWithReadAcquire(memBlockID)
 }
 
-func (p *MemBlockDriver) ReleaseTmpMemBlock(uMemBlock types.MemBlockUintptr) {
+func (p *MemBlockDriver) ReleaseTmpMemBlock(uMemBlock sdfsapitypes.MemBlockUintptr) {
 	p.tables[uMemBlock.Ptr().Bytes.Cap].ReleaseTmpMemBlock(uMemBlock)
 }

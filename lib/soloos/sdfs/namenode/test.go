@@ -1,8 +1,8 @@
 package namenode
 
 import (
-	snettypes "soloos/common/snet/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/snettypes"
+	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"

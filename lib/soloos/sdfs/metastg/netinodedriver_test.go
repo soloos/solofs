@@ -1,10 +1,9 @@
 package metastg
 
 import (
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/soloosbase"
 	"soloos/common/util"
-	"soloos/sdfs/types"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,9 +13,9 @@ func TestMetaStgNetINode(t *testing.T) {
 	var (
 		soloOSEnv   soloosbase.SoloOSEnv
 		metaStg     MetaStg
-		netINode    types.NetINode
-		netINodeID0 types.NetINodeID
-		netINodeID1 types.NetINodeID
+		netINode    sdfsapitypes.NetINode
+		netINodeID0 sdfsapitypes.NetINodeID
+		netINodeID1 sdfsapitypes.NetINodeID
 	)
 	util.AssertErrIsNil(soloOSEnv.Init())
 
@@ -35,7 +34,7 @@ func TestMetaStgNetINode(t *testing.T) {
 	{
 		netINode.ID = netINodeID1
 		err := metaStg.FetchNetINodeFromDB(&netINode)
-		assert.Equal(t, err, types.ErrObjectNotExists)
+		assert.Equal(t, err, sdfsapitypes.ErrObjectNotExists)
 	}
 	{
 		netINode.ID = netINodeID0

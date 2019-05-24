@@ -1,8 +1,8 @@
 package types
 
 import (
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/soloosbase"
 	"soloos/sdbone/offheap"
 )
 
@@ -16,7 +16,7 @@ func (p *MockNetINodeTable) Init(soloOSEnv *soloosbase.SoloOSEnv) error {
 	p.SoloOSEnv = soloOSEnv
 
 	err = p.OffheapDriver.InitLKVTableWithBytes64(&p.table, "MockNetINode",
-		int(NetINodeStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
+		int(sdfsapitypes.NetINodeStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	if err != nil {
 		return err
 	}
@@ -24,18 +24,18 @@ func (p *MockNetINodeTable) Init(soloOSEnv *soloosbase.SoloOSEnv) error {
 	return nil
 }
 
-func (p *MockNetINodeTable) MustGetNetINode(netINodeID NetINodeID) (NetINodeUintptr, bool) {
+func (p *MockNetINodeTable) MustGetNetINode(netINodeID sdfsapitypes.NetINodeID) (sdfsapitypes.NetINodeUintptr, bool) {
 	uObject, afterSetNewObj := p.table.MustGetObject(netINodeID)
 	var loaded = afterSetNewObj == nil
 	if afterSetNewObj != nil {
 		afterSetNewObj()
 	}
-	uNetINode := (NetINodeUintptr)(uObject)
+	uNetINode := (sdfsapitypes.NetINodeUintptr)(uObject)
 	return uNetINode, loaded
 }
 
-func (p *MockNetINodeTable) AllocNetINode(netBlockCap, memBlockCap int) NetINodeUintptr {
-	var netINodeID NetINodeID
+func (p *MockNetINodeTable) AllocNetINode(netBlockCap, memBlockCap int) sdfsapitypes.NetINodeUintptr {
+	var netINodeID sdfsapitypes.NetINodeID
 	sdfsapitypes.InitTmpNetINodeID(&netINodeID)
 	uNetINode, _ := p.MustGetNetINode(netINodeID)
 	uNetINode.Ptr().ID = netINodeID

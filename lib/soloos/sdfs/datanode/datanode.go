@@ -1,10 +1,10 @@
 package datanode
 
 import (
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	snettypes "soloos/common/snet/types"
-	soloosbase "soloos/common/soloosapi/base"
 	"soloos/common/sdfsapi"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/soloosbase"
 	"soloos/sdfs/localfs"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
@@ -21,7 +21,7 @@ type DataNode struct {
 	netINodeDriver *memstg.NetINodeDriver
 	nameNodeClient sdfsapi.NameNodeClient
 
-	localFs        localfs.LocalFs
+	localFS        localfs.LocalFS
 	uLocalDiskPeer snettypes.PeerUintptr
 
 	srpcServerListenAddr string
@@ -63,15 +63,15 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		return err
 	}
 
-	err = p.localFs.Init(options.LocalFsRoot)
+	err = p.localFS.Init(options.LocalFSRoot)
 	if err != nil {
 		return err
 	}
 	p.uLocalDiskPeer, _ = p.SNetDriver.MustGetPeer(&p.peerID, "", snettypes.ProtocolDisk)
 
-	p.netBlockDriver.SetPReadMemBlockWithDisk(p.localFs.PReadMemBlockWithDisk)
-	p.netBlockDriver.SetUploadMemBlockWithDisk(p.localFs.UploadMemBlockWithDisk)
-	p.netBlockDriver.SetHelper(&p.nameNodeClient, p.netBlockDriver.PrepareNetBlockMetaDataWithFanout)
+	p.netBlockDriver.SetPReadMemBlockWithDisk(p.localFS.PReadMemBlockWithDisk)
+	p.netBlockDriver.SetUploadMemBlockWithDisk(p.localFS.UploadMemBlockWithDisk)
+	p.netBlockDriver.SetHelper(&p.nameNodeClient, p.netBlockDriver.PrepareNetBlockMetaData)
 
 	p.netINodeDriver.SetHelper(nil,
 		p.metaStg.PrepareNetINodeMetaDataOnlyLoadDB,

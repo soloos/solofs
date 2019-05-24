@@ -3,10 +3,10 @@ package metastg
 import (
 	"database/sql"
 	"soloos/common/sdbapi"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
 )
 
-func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
+func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID sdfsapitypes.FsINodeID) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -27,15 +27,15 @@ func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID types.FsINodeID) error {
 	return nil
 }
 
-func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID types.FsINodeID,
+func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID sdfsapitypes.FsINodeID,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(types.FsINodeMeta) bool,
+	literalFunc func(sdfsapitypes.FsINodeMeta) bool,
 ) error {
 	var (
 		sess            sdbapi.Session
 		sqlRows         *sql.Rows
-		ret             types.FsINodeMeta
+		ret             sdfsapitypes.FsINodeMeta
 		fetchRowsLimit  uint64
 		fetchRowsOffset uint64
 		netINodeIDStr   string
@@ -139,7 +139,7 @@ QUERY_DONE:
 	return err
 }
 
-func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINodeMeta *types.FsINodeMeta) error {
+func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -177,7 +177,7 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINodeMeta *types.FsINodeMeta) error
 	return nil
 }
 
-func (p *FsINodeDriver) InsertFsINodeInDB(pFsINodeMeta *types.FsINodeMeta) error {
+func (p *FsINodeDriver) InsertFsINodeInDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -217,7 +217,7 @@ func (p *FsINodeDriver) InsertFsINodeInDB(pFsINodeMeta *types.FsINodeMeta) error
 	return nil
 }
 
-func (p *FsINodeDriver) FetchFsINodeByIDFromDB(pFsINodeMeta *types.FsINodeMeta) error {
+func (p *FsINodeDriver) FetchFsINodeByIDFromDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var (
 		fsINodeName   string
 		sess          sdbapi.Session
@@ -241,7 +241,7 @@ func (p *FsINodeDriver) FetchFsINodeByIDFromDB(pFsINodeMeta *types.FsINodeMeta) 
 	}
 
 	if sqlRows.Next() == false {
-		err = types.ErrObjectNotExists
+		err = sdfsapitypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 
@@ -278,7 +278,7 @@ QUERY_DONE:
 	return err
 }
 
-func (p *FsINodeDriver) FetchFsINodeByNameFromDB(pFsINodeMeta *types.FsINodeMeta) error {
+func (p *FsINodeDriver) FetchFsINodeByNameFromDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var (
 		fsINodeName   string
 		sess          sdbapi.Session
@@ -302,7 +302,7 @@ func (p *FsINodeDriver) FetchFsINodeByNameFromDB(pFsINodeMeta *types.FsINodeMeta
 	}
 
 	if sqlRows.Next() == false {
-		err = types.ErrObjectNotExists
+		err = sdfsapitypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 

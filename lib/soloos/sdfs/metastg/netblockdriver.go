@@ -2,11 +2,10 @@ package metastg
 
 import (
 	"soloos/common/sdbapi"
-	sdbapitypes "soloos/common/sdbapi/types"
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	snettypes "soloos/common/snet/types"
-	soloosbase "soloos/common/soloosapi/base"
-	"soloos/sdfs/types"
+	"soloos/common/sdbapitypes"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/soloosbase"
 	"strings"
 )
 
@@ -38,8 +37,8 @@ func (p *NetBlockDriver) SetHelper(
 	p.helper.ChooseDataNodesForNewNetBlock = chooseDataNodesForNewNetBlock
 }
 
-func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr,
-	uNetINode types.NetINodeUintptr, netBlockIndex int32) error {
+func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlockUintptr,
+	uNetINode sdfsapitypes.NetINodeUintptr, netBlockIndex int32) error {
 	var (
 		pNetBlock           = uNetBlock.Ptr()
 		backendPeerIDArrStr string
@@ -55,14 +54,14 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 			copy(peerID[:], peerIDStr)
 			uPeer = p.helper.GetDataNode(peerID)
 			if uPeer == 0 {
-				err = types.ErrObjectNotExists
+				err = sdfsapitypes.ErrObjectNotExists
 				goto PREPARE_DONE
 			}
 			pNetBlock.StorDataBackends.Append(uPeer)
 		}
 
 	} else {
-		if err != types.ErrObjectNotExists {
+		if err != sdfsapitypes.ErrObjectNotExists {
 			goto PREPARE_DONE
 		}
 
@@ -70,7 +69,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock types.NetBlockUintptr
 		pNetBlock.IndexInNetINode = netBlockIndex
 		pNetBlock.Len = 0
 		pNetBlock.Cap = uNetINode.Ptr().NetBlockCap
-		pNetBlock.StorDataBackends, err = p.helper.ChooseDataNodesForNewNetBlock(uNetINode)
+		pNetBlock.StorDataBackends, err = p.ChooseDataNodesForNewNetBlock(uNetINode)
 		if err != nil {
 			goto PREPARE_DONE
 		}
@@ -88,7 +87,7 @@ PREPARE_DONE:
 	return err
 }
 
-func (p *NetBlockDriver) PrepareNetBlockSyncDataBackendsWithLock(uNetBlock types.NetBlockUintptr,
+func (p *NetBlockDriver) PrepareNetBlockSyncDataBackends(uNetBlock sdfsapitypes.NetBlockUintptr,
 	backends snettypes.PeerGroup,
 ) error {
 	var (
@@ -110,7 +109,7 @@ PREPARE_DONE:
 	return err
 }
 
-func (p *NetBlockDriver) PrepareNetBlockLocalDataBackendWithLock(uNetBlock types.NetBlockUintptr,
+func (p *NetBlockDriver) PrepareNetBlockLocalDataBackend(uNetBlock sdfsapitypes.NetBlockUintptr,
 	backend snettypes.PeerUintptr,
 ) error {
 	var (

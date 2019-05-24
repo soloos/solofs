@@ -1,8 +1,8 @@
 package memstg
 
 import (
-	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
 )
 
 type pwriteArg struct {
@@ -12,12 +12,12 @@ type pwriteArg struct {
 	offset     uint64
 }
 
-func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
+func (p *NetINodeDriver) doPWrite(uNetINode sdfsapitypes.NetINodeUintptr,
 	arg pwriteArg) error {
 	var (
 		isSuccess           bool
-		uMemBlock           types.MemBlockUintptr
-		uNetBlock           types.NetBlockUintptr
+		uMemBlock           sdfsapitypes.MemBlockUintptr
+		uNetBlock           sdfsapitypes.NetBlockUintptr
 		memBlockIndex       int32
 		netBlockIndex       int32
 		memBlockStart       uint64
@@ -74,7 +74,7 @@ func (p *NetINodeDriver) doPWrite(uNetINode types.NetINodeUintptr,
 		}
 		if isSuccess == false {
 			// TODO catch error
-			err = types.ErrRetryTooManyTimes
+			err = sdfsapitypes.ErrRetryTooManyTimes
 			goto WRITE_DATA_ONE_RUN_DONE
 		}
 
@@ -107,7 +107,7 @@ WRITE_DATA_DONE:
 	return err
 }
 
-func (p *NetINodeDriver) PWriteWithNetQuery(uNetINode types.NetINodeUintptr,
+func (p *NetINodeDriver) PWriteWithNetQuery(uNetINode sdfsapitypes.NetINodeUintptr,
 	netQuery *snettypes.NetQuery, dataLength int, offset uint64) error {
 	return p.doPWrite(uNetINode, pwriteArg{
 		netQuery:   netQuery,
@@ -117,7 +117,7 @@ func (p *NetINodeDriver) PWriteWithNetQuery(uNetINode types.NetINodeUintptr,
 	})
 }
 
-func (p *NetINodeDriver) PWriteWithMem(uNetINode types.NetINodeUintptr,
+func (p *NetINodeDriver) PWriteWithMem(uNetINode sdfsapitypes.NetINodeUintptr,
 	data []byte, offset uint64) error {
 	return p.doPWrite(uNetINode, pwriteArg{
 		netQuery:   nil,
@@ -127,7 +127,7 @@ func (p *NetINodeDriver) PWriteWithMem(uNetINode types.NetINodeUintptr,
 	})
 }
 
-func (p *NetINodeDriver) Sync(uNetINode types.NetINodeUintptr) error {
+func (p *NetINodeDriver) Sync(uNetINode sdfsapitypes.NetINodeUintptr) error {
 	// TODO commit offset in metadb
 	var (
 		pNetINode = uNetINode.Ptr()

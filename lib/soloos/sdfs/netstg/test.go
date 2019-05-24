@@ -1,11 +1,11 @@
 package netstg
 
 import (
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	snettypes "soloos/common/snet/types"
-	soloosbase "soloos/common/soloosapi/base"
-	"soloos/common/util"
 	"soloos/common/sdfsapi"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/soloosbase"
+	"soloos/common/util"
 	"time"
 )
 
@@ -16,7 +16,8 @@ func MakeNetBlockDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 ) {
 	util.AssertErrIsNil(netBlockDriver.Init(soloOSEnv,
 		nameNodeClient, dataNodeClient,
-		netBlockDriver.PrepareNetBlockMetaDataWithTransfer,
+		// TODO test netBlockDriver.PrepareNetBlockMetaDataWithTransfer,
+		netBlockDriver.PrepareNetBlockMetaData,
 	))
 }
 
@@ -30,7 +31,7 @@ func MakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 		nameNodePeer snettypes.PeerUintptr
 	)
 
-	nameNodePeer = soloOSEnv.SNetDriver.AllocPeer(nameNodeSRPCServerAddr, sdfsapitypes.DefaultSDFSRPCProtocol)
+	nameNodePeer, _ = soloOSEnv.SNetDriver.MustGetPeer(nil, nameNodeSRPCServerAddr, sdfsapitypes.DefaultSDFSRPCProtocol)
 	util.AssertErrIsNil(nameNodeClient.Init(soloOSEnv, nameNodePeer))
 	util.AssertErrIsNil(dataNodeClient.Init(soloOSEnv))
 	MakeNetBlockDriversForTest(soloOSEnv,

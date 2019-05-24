@@ -1,12 +1,12 @@
 package datanode
 
-import snettypes "soloos/common/snet/types"
+import "soloos/common/snettypes"
 
 type DataNodeOptions struct {
 	PeerID               snettypes.PeerID
 	SrpcServerListenAddr string
 	SrpcServerServeAddr  string
-	LocalFsRoot          string
+	LocalFSRoot          string
 	NameNodePeerID       snettypes.PeerID
 	NameNodeSRPCServer   string
 }

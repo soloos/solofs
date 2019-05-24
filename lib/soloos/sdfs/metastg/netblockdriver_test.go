@@ -1,12 +1,11 @@
 package metastg
 
 import (
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	snettypes "soloos/common/snet/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snettypes"
+	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/sdbone/offheap"
-	"soloos/sdfs/types"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,11 +17,11 @@ func TestMetaStgNetBlock(t *testing.T) {
 		peerPool    offheap.LKVTableWithBytes64
 		uObject     offheap.LKVTableObjectUPtrWithBytes64
 		metaStg     MetaStg
-		netINode    types.NetINode
-		netBlock    types.NetBlock
-		netINodeID0 types.NetINodeID
-		netINodeID1 types.NetINodeID
-		netINodeID2 types.NetINodeID
+		netINode    sdfsapitypes.NetINode
+		netBlock    sdfsapitypes.NetBlock
+		netINodeID0 sdfsapitypes.NetINodeID
+		netINodeID1 sdfsapitypes.NetINodeID
+		netINodeID2 sdfsapitypes.NetINodeID
 		peerID      snettypes.PeerID
 		err         error
 	)
@@ -62,7 +61,7 @@ func TestMetaStgNetBlock(t *testing.T) {
 		util.AssertErrIsNil(metaStg.FetchNetBlockFromDB(&netINode, 0, &netBlock, &backendPeerIDArrStr))
 	}
 	{
-		assert.Equal(t, metaStg.FetchNetBlockFromDB(&netINode, 1, &netBlock, &backendPeerIDArrStr), types.ErrObjectNotExists)
+		assert.Equal(t, metaStg.FetchNetBlockFromDB(&netINode, 1, &netBlock, &backendPeerIDArrStr), sdfsapitypes.ErrObjectNotExists)
 	}
 	{
 		util.AssertErrIsNil(metaStg.FetchNetBlockFromDB(&netINode, 0, &netBlock, &backendPeerIDArrStr))

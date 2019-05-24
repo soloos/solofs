@@ -1,13 +1,13 @@
 package datanode
 
 import (
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	soloosbase "soloos/common/soloosapi/base"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/soloosbase"
+	"soloos/common/util"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
 	"soloos/sdfs/netstg"
-	"soloos/sdfs/types"
 	"testing"
 	"time"
 
@@ -15,6 +15,7 @@ import (
 )
 
 func TestBase(t *testing.T) {
+	go util.PProfServe("192.168.56.100:17221")
 	var (
 		soloOSEnvForMetaStg     soloosbase.SoloOSEnv
 		metaStg                 metastg.MetaStg
@@ -50,7 +51,7 @@ func TestBase(t *testing.T) {
 		netBlockCap int   = 32
 		memBlockCap int   = 16
 		blocksLimit int32 = 4
-		uNetINode   types.NetINodeUintptr
+		uNetINode   sdfsapitypes.NetINodeUintptr
 		i           int
 		err         error
 	)
@@ -99,7 +100,7 @@ func TestBase(t *testing.T) {
 	time.Sleep(time.Millisecond * 300)
 
 	var (
-		netINodeID types.NetINodeID
+		netINodeID sdfsapitypes.NetINodeID
 	)
 	sdfsapitypes.InitTmpNetINodeID(&netINodeID)
 	uNetINode, err = netINodeDriverForClient.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)

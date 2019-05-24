@@ -1,12 +1,11 @@
 package datanode
 
 import (
-	sdbapitypes "soloos/common/sdbapi/types"
+	"soloos/common/sdbapitypes"
 	"soloos/common/sdfsapi"
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	snettypes "soloos/common/snet/types"
-	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -14,12 +13,12 @@ import (
 func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq *snettypes.NetQuery) error {
 	var (
 		reqParamData         = make([]byte, serviceReq.ParamSize)
-		reqParam             protocol.NetINodePWriteRequest
-		syncDataProtoBackend protocol.SNetPeer
+		reqParam             sdfsprotocol.NetINodePWriteRequest
+		syncDataProtoBackend sdfsprotocol.SNetPeer
 		syncDataBackends     snettypes.PeerGroup
 		uPeer                snettypes.PeerUintptr
 		peerID               snettypes.PeerID
-		uNetBlock            types.NetBlockUintptr
+		uNetBlock            sdfsapitypes.NetBlockUintptr
 		i                    int
 		err                  error
 	)
@@ -36,8 +35,8 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq *snettypes.NetQuery) erro
 	// get uNetINode
 	var (
 		protocolBuilder    flatbuffers.Builder
-		netINodeID         types.NetINodeID
-		uNetINode          types.NetINodeUintptr
+		netINodeID         sdfsapitypes.NetINodeID
+		uNetINode          sdfsapitypes.NetINodeUintptr
 		firstNetBlockIndex int32
 		lastNetBlockIndex  int32
 		netBlockIndex      int32
@@ -46,7 +45,7 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq *snettypes.NetQuery) erro
 	uNetINode, err = p.dataNode.netINodeDriver.GetNetINode(netINodeID)
 	defer p.dataNode.netINodeDriver.ReleaseNetINode(uNetINode)
 	if err != nil {
-		if err == types.ErrObjectNotExists {
+		if err == sdfsapitypes.ErrObjectNotExists {
 			sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_404)
 			goto SERVICE_DONE
 		} else {
@@ -77,7 +76,7 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq *snettypes.NetQuery) erro
 		}
 
 		if uNetBlock.Ptr().IsSyncDataBackendsInited.Load() == sdbapitypes.MetaDataStateUninited {
-			p.dataNode.metaStg.PrepareNetBlockSyncDataBackendsWithLock(uNetBlock, syncDataBackends)
+			p.dataNode.metaStg.PrepareNetBlockSyncDataBackends(uNetBlock, syncDataBackends)
 		}
 	}
 

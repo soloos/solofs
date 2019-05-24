@@ -12,7 +12,7 @@ type Options struct {
 	Mode                  string
 	DataNodePeerIDStr     string
 	ListenAddr            string
-	DataNodeLocalFsRoot   string
+	DataNodeLocalFSRoot   string
 	NameNodePeerIDStr     string
 	NameNodeAddr          string
 	PProfListenAddr       string

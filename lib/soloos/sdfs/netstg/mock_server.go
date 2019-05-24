@@ -1,13 +1,13 @@
 package netstg
 
 import (
-	sdfsapitypes "soloos/common/sdfsapi/types"
-	"soloos/common/snet/srpc"
-	snettypes "soloos/common/snet/types"
-	soloosbase "soloos/common/soloosapi/base"
-	"soloos/common/util"
 	"soloos/common/sdfsapi"
-	"soloos/sdfs/protocol"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/sdfsprotocol"
+	"soloos/common/snet/srpc"
+	"soloos/common/snettypes"
+	"soloos/common/soloosbase"
+	"soloos/common/util"
 	"time"
 
 	flatbuffers "github.com/google/flatbuffers/go"
@@ -47,7 +47,7 @@ func (p *MockServer) Init(soloOSEnv *soloosbase.SoloOSEnv, network string, addr 
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
 	p.dataNodePeers = make([]snettypes.PeerUintptr, 3)
 	for i := 0; i < len(p.dataNodePeers); i++ {
-		p.dataNodePeers[i] = p.SNetDriver.AllocPeer(p.addr, sdfsapitypes.DefaultSDFSRPCProtocol)
+		p.dataNodePeers[i], _ = p.SNetDriver.MustGetPeer(nil, p.addr, sdfsapitypes.DefaultSDFSRPCProtocol)
 	}
 
 	return nil
@@ -72,7 +72,7 @@ func (p *MockServer) NetINodeMustGet(serviceReq *snettypes.NetQuery) error {
 	util.AssertErrIsNil(serviceReq.ReadAll(blockData))
 
 	// request
-	var req protocol.NetINodeInfoRequest
+	var req sdfsprotocol.NetINodeInfoRequest
 	req.Init(blockData[:serviceReq.ParamSize], flatbuffers.GetUOffsetT(blockData[:serviceReq.ParamSize]))
 
 	// response
@@ -89,9 +89,9 @@ func (p *MockServer) NetINodePWrite(serviceReq *snettypes.NetQuery) error {
 	var reqBody = make([]byte, serviceReq.BodySize)
 	util.AssertErrIsNil(serviceReq.ReadAll(reqBody))
 
-	var req protocol.NetINodePWriteRequest
+	var req sdfsprotocol.NetINodePWriteRequest
 	req.Init(reqBody[:serviceReq.ParamSize], flatbuffers.GetUOffsetT(reqBody[:serviceReq.ParamSize]))
-	var backends = make([]protocol.SNetPeer, req.TransferBackendsLength())
+	var backends = make([]sdfsprotocol.SNetPeer, req.TransferBackendsLength())
 	for i := 0; i < len(backends); i++ {
 		req.TransferBackends(&backends[i], i)
 	}
@@ -109,7 +109,7 @@ func (p *MockServer) NetINodePRead(serviceReq *snettypes.NetQuery) error {
 	var reqData = make([]byte, serviceReq.BodySize)
 	util.AssertErrIsNil(serviceReq.ReadAll(reqData))
 
-	var req protocol.NetINodePReadRequest
+	var req sdfsprotocol.NetINodePReadRequest
 	req.Init(reqData[:serviceReq.ParamSize], flatbuffers.GetUOffsetT(reqData[:serviceReq.ParamSize]))
 
 	var protocolBuilder flatbuffers.Builder
@@ -139,7 +139,7 @@ func (p *MockServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQuery) err
 	util.AssertErrIsNil(serviceReq.ReadAll(blockData))
 
 	// request
-	var req protocol.NetINodeNetBlockInfoRequest
+	var req sdfsprotocol.NetINodeNetBlockInfoRequest
 	req.Init(blockData[:serviceReq.ParamSize], flatbuffers.GetUOffsetT(blockData[:serviceReq.ParamSize]))
 
 	// response

@@ -1,11 +1,11 @@
 package datanode
 
 import (
-	sdbapitypes "soloos/common/sdbapi/types"
-	snettypes "soloos/common/snet/types"
+	"soloos/common/sdbapitypes"
 	"soloos/common/sdfsapi"
-	"soloos/sdfs/protocol"
-	"soloos/sdfs/types"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -13,8 +13,8 @@ import (
 func (p *DataNodeSRPCServer) NetINodePRead(serviceReq *snettypes.NetQuery) error {
 	var (
 		reqParamData = make([]byte, serviceReq.ParamSize)
-		reqParam     protocol.NetINodePWriteRequest
-		uNetBlock    types.NetBlockUintptr
+		reqParam     sdfsprotocol.NetINodePWriteRequest
+		uNetBlock    sdfsapitypes.NetBlockUintptr
 		err          error
 	)
 
@@ -31,8 +31,8 @@ func (p *DataNodeSRPCServer) NetINodePRead(serviceReq *snettypes.NetQuery) error
 	// get uNetINode
 	var (
 		protocolBuilder    flatbuffers.Builder
-		netINodeID         types.NetINodeID
-		uNetINode          types.NetINodeUintptr
+		netINodeID         sdfsapitypes.NetINodeID
+		uNetINode          sdfsapitypes.NetINodeUintptr
 		firstNetBlockIndex int32
 		lastNetBlockIndex  int32
 		netBlockIndex      int32
@@ -43,7 +43,7 @@ func (p *DataNodeSRPCServer) NetINodePRead(serviceReq *snettypes.NetQuery) error
 	uNetINode, err = p.dataNode.netINodeDriver.GetNetINode(netINodeID)
 	defer p.dataNode.netINodeDriver.ReleaseNetINode(uNetINode)
 	if err != nil {
-		if err == types.ErrObjectNotExists {
+		if err == sdfsapitypes.ErrObjectNotExists {
 			sdfsapi.SetNetINodePReadResponseError(&protocolBuilder, snettypes.CODE_404, "")
 			goto SERVICE_REQUEST_DONE
 		} else {
@@ -71,7 +71,7 @@ func (p *DataNodeSRPCServer) NetINodePRead(serviceReq *snettypes.NetQuery) error
 		}
 
 		if uNetBlock.Ptr().IsLocalDataBackendInited.Load() == sdbapitypes.MetaDataStateUninited {
-			p.dataNode.metaStg.PrepareNetBlockLocalDataBackendWithLock(uNetBlock, p.dataNode.uLocalDiskPeer)
+			p.dataNode.metaStg.PrepareNetBlockLocalDataBackend(uNetBlock, p.dataNode.uLocalDiskPeer)
 		}
 	}
 
