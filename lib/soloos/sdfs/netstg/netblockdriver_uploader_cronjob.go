@@ -12,8 +12,7 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		pNetINode    *sdfsapitypes.NetINode
 		pNetBlock    *sdfsapitypes.NetBlock
 		uploadJobNum int
-		uploadWG     util.RawWaitGroup
-		uploadErrors []error
+		uploadRetArr chan error
 		i            int
 		ok           bool
 		err          error
@@ -35,37 +34,31 @@ func (p *netBlockDriverUploader) cronUpload() error {
 
 		util.AssertTrue(pNetBlock.SyncDataBackends.Len > 0)
 
-		uploadErrors = uploadErrors[:0]
 		uploadJobNum = pNetBlock.SyncDataBackends.Len - pNetBlock.SyncDataPrimaryBackendTransferCount
-		for i = 0; i < uploadJobNum; i++ {
-			uploadErrors = append(uploadErrors, nil)
-		}
-
-		uploadWG.Add(uploadJobNum)
+		uploadRetArr = make(chan error, uploadJobNum)
 
 		// start upload
 		// upload primary backend
-		go func(uJob sdfsapitypes.UploadMemBlockJobUintptr, transferCount int) {
-			uploadErrors[0] = p.driver.dataNodeClient.UploadMemBlock(uJob, 0, transferCount)
-			uploadWG.Done()
-		}(uJob, pNetBlock.SyncDataPrimaryBackendTransferCount)
+		go func(uploadRetArr chan error, uJob sdfsapitypes.UploadMemBlockJobUintptr, transferCount int) {
+			uploadRetArr <- p.driver.dataNodeClient.UploadMemBlock(uJob, 0, transferCount)
+		}(uploadRetArr, uJob, pNetBlock.SyncDataPrimaryBackendTransferCount)
 
 		// upload other backends
 		for i = pNetBlock.SyncDataPrimaryBackendTransferCount + 1; i < pNetBlock.SyncDataBackends.Len; i++ {
-			go func(i int, uJob sdfsapitypes.UploadMemBlockJobUintptr) {
-				uploadErrors[i] = p.driver.dataNodeClient.UploadMemBlock(uJob, i, 0)
-				uploadWG.Done()
-			}(i, uJob)
+			go func(uploadRetArr chan error, i int, uJob sdfsapitypes.UploadMemBlockJobUintptr) {
+				uploadRetArr <- p.driver.dataNodeClient.UploadMemBlock(uJob, i, 0)
+			}(uploadRetArr, i, uJob)
 		}
 
-		for i, _ = range uploadErrors {
-			if uploadErrors[i] != nil {
-				err = uploadErrors[i]
-				break
+		{
+			var tmpErr error
+			for i = 0; i < uploadJobNum; i++ {
+				tmpErr = <-uploadRetArr
+				if tmpErr != nil {
+					err = tmpErr
+				}
 			}
 		}
-
-		uploadWG.Wait()
 
 	ONE_RUN_DONE:
 		pJob.SyncDataSig.Done()
