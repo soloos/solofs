@@ -1,6 +1,7 @@
 package libsdfs
 
 import (
+	"soloos/common/log"
 	"soloos/common/sdbapi"
 	"soloos/common/sdfsapi"
 	"soloos/common/snettypes"
@@ -26,11 +27,13 @@ func (p *ClientDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 
 	err = p.initMemStg(nameNodePeerID)
 	if err != nil {
+		log.Debug("sdfs ClientDriver initMemStg error", err)
 		return err
 	}
 
 	err = p.dbConn.Init(dbDriver, dsn)
 	if err != nil {
+		log.Debug("sdfs ClientDriver dbConn init error", err)
 		return err
 	}
 
@@ -45,11 +48,13 @@ func (p *ClientDriver) initMemStg(nameNodePeerID snettypes.PeerID) error {
 	var nameNodePeer snettypes.Peer
 	nameNodePeer, err = p.SoloOSEnv.SNetDriver.GetPeer(nameNodePeerID)
 	if err != nil {
+		log.Debug("sdfs SNetDriver get nameNodePe error", err)
 		return err
 	}
 
 	err = p.memStg.Init(p.SoloOSEnv, nameNodePeer, memstg.MemBlockDriverOptions{})
 	if err != nil {
+		log.Debug("sdfs memstg Init error", err)
 		return err
 	}
 

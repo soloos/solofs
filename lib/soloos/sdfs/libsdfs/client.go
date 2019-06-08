@@ -13,7 +13,7 @@ import (
 type Client struct {
 	*soloosbase.SoloOSEnv
 
-	memStg         *memstg.MemStg
+	memStg      *memstg.MemStg
 	metaPosixFS metastg.PosixFS
 	memPosixFS  memstg.PosixFS
 

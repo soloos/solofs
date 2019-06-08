@@ -335,7 +335,7 @@ func (p *FsINodeDriver) GetFsINodeByID(fsINodeID sdfsapitypes.FsINodeID) (sdfsap
 	pFsINode.IsDBMetaDataInited.LockContext()
 	if pFsINode.IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited ||
 		p.ensureFsINodeValidInCache(uFsINode) == false {
-		err = p.helper.FetchFsINodeByIDFromDB(&pFsINode.Meta)
+		pFsINode.Meta, err = p.helper.FetchFsINodeByIDFromDB(fsINodeID)
 		if err != nil {
 			p.ReleaseFsINode(uFsINode)
 		} else {
@@ -369,11 +369,9 @@ func (p *FsINodeDriver) GetFsINodeByName(parentID sdfsapitypes.FsINodeID,
 		return uFsINode, nil
 	}
 
-	var fsINodeMeta sdfsapitypes.FsINodeMeta
-	fsINodeMeta.ParentID = parentID
-	fsINodeMeta.SetName(fsINodeName)
 	// TODO only get fsinode id is ok
-	err = p.helper.FetchFsINodeByNameFromDB(&fsINodeMeta)
+	var fsINodeMeta sdfsapitypes.FsINodeMeta
+	fsINodeMeta, err = p.helper.FetchFsINodeByNameFromDB(parentID, fsINodeName)
 	if err != nil {
 		return 0, err
 	}
@@ -392,7 +390,7 @@ func (p *FsINodeDriver) ReleaseFsINode(uFsINode sdfsapitypes.FsINodeUintptr) {
 func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var err error
 	pFsINodeMeta.Ctime = sdfsapitypes.DirTreeTime(p.Timer.Now().Unix())
-	err = p.helper.UpdateFsINodeInDB(pFsINodeMeta)
+	err = p.helper.UpdateFsINodeInDB(*pFsINodeMeta)
 	if err != nil {
 		return err
 	}
@@ -405,30 +403,30 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta
 	return err
 }
 
-func (p *FsINodeDriver) RefreshFsINodeMetaACMtime(fsINodeMeta *sdfsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) RefreshFsINodeMetaACMtime(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var err error
 	now := p.Timer.Now()
 	nowUnixNano := now.UnixNano()
-	if nowUnixNano-fsINodeMeta.LastModifyACMTime < int64(time.Millisecond)*600 {
+	if nowUnixNano-pFsINodeMeta.LastModifyACMTime < int64(time.Millisecond)*600 {
 		return nil
 	}
 
 	nowt := sdfsapitypes.DirTreeTime(now.Unix())
 	nowtnsec := sdfsapitypes.DirTreeTimeNsec(now.UnixNano())
 
-	fsINodeMeta.Atime = nowt
-	fsINodeMeta.Atimensec = nowtnsec
-	fsINodeMeta.Ctime = nowt
-	fsINodeMeta.Ctimensec = nowtnsec
-	fsINodeMeta.Mtime = nowt
-	fsINodeMeta.Mtimensec = nowtnsec
+	pFsINodeMeta.Atime = nowt
+	pFsINodeMeta.Atimensec = nowtnsec
+	pFsINodeMeta.Ctime = nowt
+	pFsINodeMeta.Ctimensec = nowtnsec
+	pFsINodeMeta.Mtime = nowt
+	pFsINodeMeta.Mtimensec = nowtnsec
 
-	err = p.helper.UpdateFsINodeInDB(fsINodeMeta)
+	err = p.helper.UpdateFsINodeInDB(*pFsINodeMeta)
 	if err != nil {
 		return err
 	}
 
-	fsINodeMeta.LastModifyACMTime = nowUnixNano
+	pFsINodeMeta.LastModifyACMTime = nowUnixNano
 	return err
 }
 
@@ -454,7 +452,7 @@ func (p *FsINodeDriver) RefreshFsINodeACMtime(uFsINode sdfsapitypes.FsINodeUintp
 	pFsINode.Meta.Mtime = nowt
 	pFsINode.Meta.Mtimensec = nowtnsec
 
-	err = p.helper.UpdateFsINodeInDB(&pFsINode.Meta)
+	err = p.helper.UpdateFsINodeInDB(pFsINode.Meta)
 	if err != nil {
 		return err
 	}
@@ -537,7 +535,7 @@ func (p *FsINodeDriver) PrepareFsINodeForCreate(fsINodeMeta *sdfsapitypes.FsINod
 
 func (p *FsINodeDriver) CreateFsINode(fsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var err error
-	err = p.helper.InsertFsINodeInDB(fsINodeMeta)
+	err = p.helper.InsertFsINodeInDB(*fsINodeMeta)
 	if err != nil {
 		return err
 	}
