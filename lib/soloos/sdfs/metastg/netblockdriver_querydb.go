@@ -63,10 +63,10 @@ func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *sdfsapitypes.NetINode, pNe
 	}
 
 	if pNetBlock.StorDataBackends.Len > 0 {
-		backendPeerIDArrStr.WriteString(pNetBlock.StorDataBackends.Arr[0].Ptr().PeerIDStr())
+		backendPeerIDArrStr.WriteString(pNetBlock.StorDataBackends.Arr[0].Str())
 		for i = 1; i < pNetBlock.StorDataBackends.Len; i++ {
 			backendPeerIDArrStr.WriteString(",")
-			backendPeerIDArrStr.WriteString(pNetBlock.StorDataBackends.Arr[i].Ptr().PeerIDStr())
+			backendPeerIDArrStr.WriteString(pNetBlock.StorDataBackends.Arr[i].Str())
 		}
 	} else {
 		backendPeerIDArrStr.WriteString("")

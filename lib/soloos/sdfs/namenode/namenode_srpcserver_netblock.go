@@ -3,8 +3,8 @@ package namenode
 import (
 	"soloos/common/sdfsapi"
 	"soloos/common/sdfsapitypes"
-	"soloos/common/snettypes"
 	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )

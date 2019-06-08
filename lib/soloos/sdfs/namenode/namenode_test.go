@@ -2,6 +2,7 @@ package namenode
 
 import (
 	"soloos/common/sdfsapitypes"
+	"soloos/common/snet"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/sdfs/memstg"
@@ -18,8 +19,9 @@ func TestBase(t *testing.T) {
 		soloOSEnvForCommon     soloosbase.SoloOSEnv
 		soloOSEnvForMetaStg    soloosbase.SoloOSEnv
 		metaStg                metastg.MetaStg
-		nameNodeSRPCListenAddr = "127.0.0.1:10300"
 		nameNode               NameNode
+		nameNodePeerID         = snet.MakeSysPeerID("NameNodeForTest")
+		nameNodeSRPCListenAddr = "127.0.0.1:10300"
 		mockServerAddr         = "127.0.0.1:10301"
 		mockServer             netstg.MockServer
 
@@ -37,7 +39,6 @@ func TestBase(t *testing.T) {
 		memBlockCap int   = 128
 		blocksLimit int32 = 4
 		uNetINode   sdfsapitypes.NetINodeUintptr
-		peerID      snettypes.PeerID
 		i           int
 		err         error
 	)
@@ -56,7 +57,8 @@ func TestBase(t *testing.T) {
 	memstg.MakeDriversForTest(&soloOSEnvForServer,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer, memBlockCap, blocksLimit)
-	MakeNameNodeForTest(&soloOSEnvForServer, &nameNode, &metaStg, nameNodeSRPCListenAddr,
+	MakeNameNodeForTest(&soloOSEnvForServer, &nameNode, &metaStg,
+		nameNodePeerID, nameNodeSRPCListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer)
 	go func() {
 		assert.NoError(t, nameNode.Serve())
@@ -65,8 +67,11 @@ func TestBase(t *testing.T) {
 	netstg.MakeMockServerForTest(&soloOSEnvForCommon, mockServerAddr, &mockServer)
 
 	for i = 0; i < 6; i++ {
-		snettypes.InitTmpPeerID(&peerID)
-		nameNode.RegisterDataNode(peerID, mockServerAddr)
+		var peer snettypes.Peer
+		snettypes.InitTmpPeerID((*snettypes.PeerID)(&peer.ID))
+		peer.SetAddress(mockServerAddr)
+		peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+		nameNode.RegisterDataNode(peer)
 	}
 
 	var netINodeID sdfsapitypes.NetINodeID

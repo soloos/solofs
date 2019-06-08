@@ -8,6 +8,8 @@
     "MountPoint": "/opt/soloos/sdfsd-fuse-mnt",
     "NodefsOptsTimeoutMs": 60000
   },
+  "SNetDriverListenAddr": "192.168.56.100:11703",
+  "SNetDriverServeAddr": "http://192.168.56.100:11703",
   "DBDriver": "mysql",
   "Dsn": "root:hello@/sdfs_test",
   "#DBDriver": "sqlite3",

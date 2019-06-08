@@ -2,9 +2,9 @@ package namenode
 
 import (
 	"soloos/common/log"
-	"soloos/common/snettypes"
 	"soloos/common/sdfsapi"
 	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
 
 	flatbuffers "github.com/google/flatbuffers/go"
 )
@@ -23,12 +23,15 @@ func (p *NameNodeSRPCServer) DataNodeRegister(serviceReq *snettypes.NetQuery) er
 	}
 
 	var (
-		peerID snettypes.PeerID
+		peer snettypes.Peer
 	)
 	req.Init(param, flatbuffers.GetUOffsetT(param))
-	copy(peerID[:], req.PeerID())
-	err = p.nameNode.RegisterDataNode(peerID, string(req.Address()))
-	log.Info("datanode resgister:", string(peerID[:]), string(req.Address()))
+	copy(peer.ID[:], req.PeerID())
+	peer.SetAddressBytes(req.Address())
+	peer.ServiceProtocol = int(req.Protocol())
+
+	err = p.nameNode.RegisterDataNode(peer)
+	log.Info("datanode resgister:", peer.PeerIDStr(), peer.AddressStr())
 	if err != nil {
 		sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_502)
 		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])

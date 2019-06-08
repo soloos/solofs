@@ -2,6 +2,8 @@ package libsdfs
 
 import (
 	"soloos/common/sdbapi"
+	"soloos/common/sdfsapitypes"
+	"soloos/common/snet"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
@@ -15,19 +17,23 @@ import (
 
 func MakeClientForTest(client *Client) {
 	var (
-		memStg    memstg.MemStg
-		metaStg   metastg.MetaStg
-		soloOSEnv soloosbase.SoloOSEnv
+		memStg             memstg.MemStg
+		metaStg            metastg.MetaStg
+		soloOSEnv          soloosbase.SoloOSEnv
+		netDriverSoloOSEnv soloosbase.SoloOSEnv
 	)
 
 	util.AssertErrIsNil(soloOSEnv.Init())
 
 	var (
-		nameNodeSRPCListenAddr = "127.0.0.1:10300"
-		nameNode               namenode.NameNode
-		mockServerAddr         = "127.0.0.1:10301"
-		mockServer             netstg.MockServer
-		mockMemBlockTable      types.MockMemBlockTable
+		nameNodePeerID            snettypes.PeerID = snet.MakeSysPeerID("NameNodeForTest")
+		nameNodeSRPCListenAddr                     = "127.0.0.1:10300"
+		netDriverServerListenAddr                  = "127.0.0.1:10402"
+		netDriverServerServeAddr                   = "http://127.0.0.1:10402"
+		nameNode                  namenode.NameNode
+		mockServerAddr            = "127.0.0.1:10301"
+		mockServer                netstg.MockServer
+		mockMemBlockTable         types.MockMemBlockTable
 
 		memBlockDriverForClient *memstg.MemBlockDriver = &memStg.MemBlockDriver
 		netBlockDriverForClient *netstg.NetBlockDriver = &memStg.NetBlockDriver
@@ -40,7 +46,7 @@ func MakeClientForTest(client *Client) {
 		netBlockCap int   = 1280
 		memBlockCap int   = 128
 		blocksLimit int32 = 4
-		peerID      snettypes.PeerID
+		peer        snettypes.Peer
 		i           int
 	)
 
@@ -53,19 +59,34 @@ func MakeClientForTest(client *Client) {
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer, memBlockCap, blocksLimit)
 
 	metastg.MakeMetaStgForTest(&soloOSEnv, &metaStg)
-	namenode.MakeNameNodeForTest(&soloOSEnv, &nameNode, &metaStg, nameNodeSRPCListenAddr,
+	namenode.MakeNameNodeForTest(&soloOSEnv, &nameNode, &metaStg,
+		nameNodePeerID, nameNodeSRPCListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer)
+
+	util.AssertErrIsNil(netDriverSoloOSEnv.Init())
+	util.AssertErrIsNil(netDriverSoloOSEnv.SNetDriver.Init(&netDriverSoloOSEnv.OffheapDriver))
+	go func() {
+		util.AssertErrIsNil(netDriverSoloOSEnv.SNetDriver.StartServer(netDriverServerListenAddr,
+			netDriverServerServeAddr,
+			nil, nil))
+	}()
+
+	util.AssertErrIsNil(soloOSEnv.SNetDriver.StartClient(netDriverServerServeAddr))
 
 	go func() {
 		util.AssertErrIsNil(nameNode.Serve())
 	}()
-	time.Sleep(time.Millisecond * 300)
+
+	time.Sleep(time.Millisecond * 600)
+
 	netstg.MakeMockServerForTest(&soloOSEnv, mockServerAddr, &mockServer)
 	mockMemBlockTable.Init(&soloOSEnv, 1024)
 
 	for i = 0; i < 6; i++ {
-		snettypes.InitTmpPeerID(&peerID)
-		nameNode.RegisterDataNode(peerID, mockServerAddr)
+		snettypes.InitTmpPeerID((*snettypes.PeerID)(&peer.ID))
+		peer.SetAddress(mockServerAddr)
+		peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+		nameNode.RegisterDataNode(peer)
 	}
 
 	var (

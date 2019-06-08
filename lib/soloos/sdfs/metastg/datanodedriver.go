@@ -1,7 +1,6 @@
 package metastg
 
 import (
-	"soloos/common/sdfsapitypes"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
@@ -12,36 +11,35 @@ type DataNodeDriver struct {
 	metaStg *MetaStg
 
 	chooseDataNodeIndex         uint32
-	dataNodesForBlockRegistered map[snettypes.PeerID]snettypes.PeerUintptr
-	dataNodesForBlock           []snettypes.PeerUintptr
+	dataNodesForBlockRegistered map[snettypes.PeerID]int64
+	dataNodesForBlock           []snettypes.PeerID
 	dataNodesForBlockRWMutex    util.RWMutex
 }
 
 func (p *DataNodeDriver) Init(metaStg *MetaStg) error {
 	p.SoloOSEnv = metaStg.SoloOSEnv
 	p.metaStg = metaStg
-	p.dataNodesForBlockRegistered = make(map[snettypes.PeerID]snettypes.PeerUintptr)
+	p.dataNodesForBlockRegistered = make(map[snettypes.PeerID]int64)
 	return nil
 }
 
-func (p *DataNodeDriver) RegisterDataNode(peerID snettypes.PeerID, addr string) error {
+func (p *DataNodeDriver) RegisterDataNode(peer snettypes.Peer) error {
 	var (
-		uDataNode  snettypes.PeerUintptr
 		registered bool
 	)
 
 	p.dataNodesForBlockRWMutex.Lock()
-	_, registered = p.dataNodesForBlockRegistered[peerID]
+	_, registered = p.dataNodesForBlockRegistered[peer.ID]
 	if registered == false {
-		uDataNode, _ = p.SNetDriver.MustGetPeer(&peerID, addr, sdfsapitypes.DefaultSDFSRPCProtocol)
-		p.dataNodesForBlockRegistered[peerID] = uDataNode
-		p.dataNodesForBlock = append(p.dataNodesForBlock, uDataNode)
+		p.SNetDriver.RegisterPeer(peer)
+		p.dataNodesForBlockRegistered[peer.ID] = 0
+		p.dataNodesForBlock = append(p.dataNodesForBlock, peer.ID)
 	}
 	p.dataNodesForBlockRWMutex.Unlock()
 
 	return nil
 }
 
-func (p *DataNodeDriver) GetDataNode(peerID snettypes.PeerID) snettypes.PeerUintptr {
+func (p *DataNodeDriver) GetDataNode(peerID snettypes.PeerID) (snettypes.Peer, error) {
 	return p.SNetDriver.GetPeer(peerID)
 }

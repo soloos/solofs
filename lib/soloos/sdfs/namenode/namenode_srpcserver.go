@@ -3,20 +3,25 @@ package namenode
 import (
 	"soloos/common/log"
 	"soloos/common/sdfsapitypes"
-	"soloos/common/snet/srpc"
+	"soloos/common/snet"
 )
 
 type NameNodeSRPCServer struct {
 	nameNode             *NameNode
 	srpcServerListenAddr string
-	srpcServer           srpc.Server
+	srpcServerServeAddr  string
+	srpcServer           snet.SRPCServer
 }
 
-func (p *NameNodeSRPCServer) Init(nameNode *NameNode, srpcServerListenAddr string) error {
+func (p *NameNodeSRPCServer) Init(nameNode *NameNode,
+	srpcServerListenAddr string,
+	srpcServerServeAddr string,
+) error {
 	var err error
 
 	p.nameNode = nameNode
 	p.srpcServerListenAddr = srpcServerListenAddr
+	p.srpcServerServeAddr = srpcServerServeAddr
 	err = p.srpcServer.Init(sdfsapitypes.DefaultSDFSRPCNetwork, p.srpcServerListenAddr)
 	if err != nil {
 		return err

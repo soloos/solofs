@@ -12,15 +12,13 @@ import (
 
 func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq *snettypes.NetQuery) error {
 	var (
-		reqParamData         = make([]byte, serviceReq.ParamSize)
-		reqParam             sdfsprotocol.NetINodePWriteRequest
-		syncDataProtoBackend sdfsprotocol.SNetPeer
-		syncDataBackends     snettypes.PeerGroup
-		uPeer                snettypes.PeerUintptr
-		peerID               snettypes.PeerID
-		uNetBlock            sdfsapitypes.NetBlockUintptr
-		i                    int
-		err                  error
+		reqParamData     = make([]byte, serviceReq.ParamSize)
+		reqParam         sdfsprotocol.NetINodePWriteRequest
+		syncDataBackends snettypes.PeerGroup
+		peerID           snettypes.PeerID
+		uNetBlock        sdfsapitypes.NetBlockUintptr
+		i                int
+		err              error
 	)
 
 	// request param
@@ -55,13 +53,10 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq *snettypes.NetQuery) erro
 	}
 
 	syncDataBackends.Reset()
-	syncDataBackends.Append(p.dataNode.uLocalDiskPeer)
+	syncDataBackends.Append(p.dataNode.localFsSNetPeer.ID)
 	for i = 0; i < reqParam.TransferBackendsLength(); i++ {
-		reqParam.TransferBackends(&syncDataProtoBackend, i)
-		copy(peerID[:], syncDataProtoBackend.PeerID())
-		uPeer, _ = p.dataNode.SNetDriver.MustGetPeer(&peerID,
-			string(syncDataProtoBackend.Address()), sdfsapitypes.DefaultSDFSRPCProtocol)
-		syncDataBackends.Append(uPeer)
+		copy(peerID[:], reqParam.TransferBackends(i))
+		syncDataBackends.Append(peerID)
 	}
 
 	// prepare uNetBlock

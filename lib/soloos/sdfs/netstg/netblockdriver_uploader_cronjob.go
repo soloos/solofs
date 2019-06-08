@@ -61,15 +61,15 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		}
 
 	ONE_RUN_DONE:
-		pJob.SyncDataSig.Done()
-		pNetINode.SyncDataSig.Done()
-
 		if err != nil {
 			// TODO catch error
 			pNetINode.LastSyncDataError = err
 		} else {
 			pJob.ResetProcessingChunkMask()
 		}
+
+		pJob.SyncDataSig.Done()
+		pNetINode.SyncDataSig.Done()
 	}
 
 	return nil

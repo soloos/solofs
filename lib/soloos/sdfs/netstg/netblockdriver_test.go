@@ -3,6 +3,8 @@ package netstg
 import (
 	"soloos/common/sdfsapi"
 	"soloos/common/sdfsapitypes"
+	"soloos/common/snet"
+	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/sdfs/types"
 	"testing"
@@ -29,8 +31,17 @@ func TestNetBlockDriver(t *testing.T) {
 		&nameNodeClient, &dataNodeClient,
 		&netBlockDriver)
 
-	var uPeer0, _ = soloOSEnv.SNetDriver.MustGetPeer(nil, mockServerAddr, sdfsapitypes.DefaultSDFSRPCProtocol)
-	var uPeer1, _ = soloOSEnv.SNetDriver.MustGetPeer(nil, mockServerAddr, sdfsapitypes.DefaultSDFSRPCProtocol)
+	var peer0 snettypes.Peer
+	peer0.ID = snet.MakeSysPeerID("Peer0ForTest")
+	peer0.SetAddress(mockServerAddr)
+	peer0.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+	soloOSEnv.SNetDriver.RegisterPeer(peer0)
+
+	var peer1 snettypes.Peer
+	peer1.ID = snet.MakeSysPeerID("Peer0ForTest")
+	peer1.SetAddress(mockServerAddr)
+	peer1.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+	soloOSEnv.SNetDriver.RegisterPeer(peer1)
 
 	data := make([]byte, 8)
 	for i := 0; i < len(data); i++ {
@@ -44,8 +55,8 @@ func TestNetBlockDriver(t *testing.T) {
 	uNetBlock, err := netBlockDriver.MustGetNetBlock(uNetINode, netBlockIndex)
 	defer netBlockDriver.ReleaseNetBlock(uNetBlock)
 	assert.NoError(t, err)
-	uNetBlock.Ptr().StorDataBackends.Append(uPeer0)
-	uNetBlock.Ptr().StorDataBackends.Append(uPeer1)
+	uNetBlock.Ptr().StorDataBackends.Append(peer0.ID)
+	uNetBlock.Ptr().StorDataBackends.Append(peer1.ID)
 	uMemBlock := mockMemBlockTable.AllocMemBlock()
 	memBlockIndex := int32(0)
 	assert.NoError(t, netBlockDriver.PWrite(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, 0, 12))

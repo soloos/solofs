@@ -3,16 +3,20 @@ package datanode
 import (
 	"soloos/common/log"
 	"soloos/common/sdfsapitypes"
-	"soloos/common/snet/srpc"
+	"soloos/common/snet"
 )
 
 type DataNodeSRPCServer struct {
 	dataNode             *DataNode
 	srpcServerListenAddr string
-	srpcServer           srpc.Server
+	srpcServerServeAddr  string
+	srpcServer           snet.SRPCServer
 }
 
-func (p *DataNodeSRPCServer) Init(dataNode *DataNode, srpcServerListenAddr string) error {
+func (p *DataNodeSRPCServer) Init(dataNode *DataNode,
+	srpcServerListenAddr string,
+	srpcServerServeAddr string,
+) error {
 	var err error
 
 	p.dataNode = dataNode

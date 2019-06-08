@@ -3,6 +3,7 @@ package libsdfs
 import (
 	"soloos/common/sdbapi"
 	"soloos/common/sdfsapi"
+	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/sdfs/memstg"
 )
@@ -17,13 +18,13 @@ type ClientDriver struct {
 var _ = sdfsapi.ClientDriver(&ClientDriver{})
 
 func (p *ClientDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	nameNodeSRPCServerAddr string,
+	nameNodePeerID snettypes.PeerID,
 	dbDriver string, dsn string,
 ) error {
 	var err error
 	p.SoloOSEnv = soloOSEnv
 
-	err = p.initMemStg(nameNodeSRPCServerAddr)
+	err = p.initMemStg(nameNodePeerID)
 	if err != nil {
 		return err
 	}
@@ -36,12 +37,18 @@ func (p *ClientDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	return nil
 }
 
-func (p *ClientDriver) initMemStg(nameNodeSRPCServerAddr string) error {
+func (p *ClientDriver) initMemStg(nameNodePeerID snettypes.PeerID) error {
 	var (
 		err error
 	)
 
-	err = p.memStg.Init(p.SoloOSEnv, nameNodeSRPCServerAddr, memstg.MemBlockDriverOptions{})
+	var nameNodePeer snettypes.Peer
+	nameNodePeer, err = p.SoloOSEnv.SNetDriver.GetPeer(nameNodePeerID)
+	if err != nil {
+		return err
+	}
+
+	err = p.memStg.Init(p.SoloOSEnv, nameNodePeer, memstg.MemBlockDriverOptions{})
 	if err != nil {
 		return err
 	}

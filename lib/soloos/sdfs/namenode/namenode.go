@@ -1,6 +1,7 @@
 package namenode
 
 import (
+	"soloos/common/sdfsapitypes"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/sdfs/memstg"
@@ -10,7 +11,7 @@ import (
 
 type NameNode struct {
 	*soloosbase.SoloOSEnv
-	peerID  snettypes.PeerID
+	peer    snettypes.Peer
 	metaStg *metastg.MetaStg
 
 	memBlockDriver *memstg.MemBlockDriver
@@ -21,8 +22,9 @@ type NameNode struct {
 }
 
 func (p *NameNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	srpcServerListenAddr string,
 	peerID snettypes.PeerID,
+	srpcServerListenAddr string,
+	srpcServerServeAddr string,
 	metaStg *metastg.MetaStg,
 	memBlockDriver *memstg.MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
@@ -31,9 +33,11 @@ func (p *NameNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	var err error
 
 	p.SoloOSEnv = soloOSEnv
-	p.peerID = peerID
+	p.peer.ID = peerID
+	p.peer.SetAddress(srpcServerServeAddr)
+	p.peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
 
-	err = p.SRPCServer.Init(p, srpcServerListenAddr)
+	err = p.SRPCServer.Init(p, srpcServerListenAddr, srpcServerServeAddr)
 	if err != nil {
 		return err
 	}
@@ -43,11 +47,21 @@ func (p *NameNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	p.netBlockDriver = netBlockDriver
 	p.netINodeDriver = netINodeDriver
 
+	err = p.SNetDriver.RegisterPeer(p.peer)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (p *NameNode) RegisterDataNode(peerID snettypes.PeerID, serveAddr string) error {
-	return p.metaStg.RegisterDataNode(peerID, serveAddr)
+func (p *NameNode) RegisterDataNode(peer snettypes.Peer) error {
+	var err = p.SoloOSEnv.SNetDriver.RegisterPeer(peer)
+	if err != nil {
+		return err
+	}
+
+	return p.metaStg.RegisterDataNode(peer)
 }
 
 func (p *NameNode) Serve() error {

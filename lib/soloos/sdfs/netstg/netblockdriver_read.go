@@ -18,7 +18,7 @@ func (p *NetBlockDriver) PReadMemBlock(uNetINode sdfsapitypes.NetINodeUintptr,
 	)
 
 	// TODO choose datanode to read
-	readedLen, err = p.dataNodeClient.PReadMemBlock(uNetINode, uNetBlock.Ptr().StorDataBackends.Arr[0],
+	readedLen, err = p.dataNodeClient.PReadMemBlock(uNetINode,
 		uNetBlock, netBlockIndex,
 		uMemBlock, memBlockIndex,
 		offset, length)

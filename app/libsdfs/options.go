@@ -6,13 +6,15 @@ import (
 )
 
 type Options struct {
-	NameNodeSRPCServerAddr string
-	DefaultNetBlockCap     int
-	DefaultMemBlockCap     int
-	DefaultMemBlocksLimit  int32
-	DBDriver               string
-	Dsn                    string
-	PProfListenAddr        string
+	SNetDriverListenAddr  string
+	SNetDriverServeAddr   string
+	NameNodePeerID        string
+	DefaultNetBlockCap    int
+	DefaultMemBlockCap    int
+	DefaultMemBlocksLimit int32
+	DBDriver              string
+	Dsn                   string
+	PProfListenAddr       string
 }
 
 func LoadOptionsFile(optionsFilePath string) (Options, error) {

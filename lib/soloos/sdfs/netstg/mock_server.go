@@ -4,7 +4,7 @@ import (
 	"soloos/common/sdfsapi"
 	"soloos/common/sdfsapitypes"
 	"soloos/common/sdfsprotocol"
-	"soloos/common/snet/srpc"
+	"soloos/common/snet"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
@@ -21,12 +21,8 @@ type MockServer struct {
 	*soloosbase.SoloOSEnv
 	network       string
 	addr          string
-	srpcServer    srpc.Server
-	dataNodePeers []snettypes.PeerUintptr
-}
-
-func (p *MockServer) SetDataNodePeers(dataNodePeers []snettypes.PeerUintptr) {
-	p.dataNodePeers = dataNodePeers
+	srpcServer    snet.SRPCServer
+	dataNodePeers []snettypes.Peer
 }
 
 func (p *MockServer) Init(soloOSEnv *soloosbase.SoloOSEnv, network string, addr string) error {
@@ -45,9 +41,12 @@ func (p *MockServer) Init(soloOSEnv *soloosbase.SoloOSEnv, network string, addr 
 	p.srpcServer.RegisterService("/NetINode/PRead", p.NetINodePRead)
 	p.srpcServer.RegisterService("/NetINode/CommitSizeInDB", p.NetINodeCommitSizeInDB)
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
-	p.dataNodePeers = make([]snettypes.PeerUintptr, 3)
+	p.dataNodePeers = make([]snettypes.Peer, 3)
 	for i := 0; i < len(p.dataNodePeers); i++ {
-		p.dataNodePeers[i], _ = p.SNetDriver.MustGetPeer(nil, p.addr, sdfsapitypes.DefaultSDFSRPCProtocol)
+		p.SNetDriver.InitPeerID((*snettypes.PeerID)(&p.dataNodePeers[i].ID))
+		p.dataNodePeers[i].SetAddress(p.addr)
+		p.dataNodePeers[i].ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+		util.AssertErrIsNil(p.SNetDriver.RegisterPeer(p.dataNodePeers[i]))
 	}
 
 	return nil
@@ -91,9 +90,9 @@ func (p *MockServer) NetINodePWrite(serviceReq *snettypes.NetQuery) error {
 
 	var req sdfsprotocol.NetINodePWriteRequest
 	req.Init(reqBody[:serviceReq.ParamSize], flatbuffers.GetUOffsetT(reqBody[:serviceReq.ParamSize]))
-	var backends = make([]sdfsprotocol.SNetPeer, req.TransferBackendsLength())
+	var backends = make([]string, req.TransferBackendsLength())
 	for i := 0; i < len(backends); i++ {
-		req.TransferBackends(&backends[i], i)
+		backends[i] = string(req.TransferBackends(i))
 	}
 
 	var protocolBuilder flatbuffers.Builder
@@ -144,7 +143,11 @@ func (p *MockServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQuery) err
 
 	// response
 	var protocolBuilder flatbuffers.Builder
-	sdfsapi.SetNetINodeNetBlockInfoResponse(&protocolBuilder, p.dataNodePeers[:], req.Cap(), req.Cap())
+	var peerIDs = make([]snettypes.PeerID, len(p.dataNodePeers))
+	for index, _ := range peerIDs {
+		peerIDs[index] = p.dataNodePeers[index].PeerID()
+	}
+	sdfsapi.SetNetINodeNetBlockInfoResponse(&protocolBuilder, peerIDs, req.Cap(), req.Cap())
 	util.AssertErrIsNil(serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
 
 	return nil

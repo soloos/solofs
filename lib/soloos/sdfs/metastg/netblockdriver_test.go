@@ -15,14 +15,14 @@ func TestMetaStgNetBlock(t *testing.T) {
 	var (
 		soloOSEnv   soloosbase.SoloOSEnv
 		peerPool    offheap.LKVTableWithBytes64
-		uObject     offheap.LKVTableObjectUPtrWithBytes64
 		metaStg     MetaStg
 		netINode    sdfsapitypes.NetINode
 		netBlock    sdfsapitypes.NetBlock
 		netINodeID0 sdfsapitypes.NetINodeID
 		netINodeID1 sdfsapitypes.NetINodeID
 		netINodeID2 sdfsapitypes.NetINodeID
-		peerID      snettypes.PeerID
+		peerID0     snettypes.PeerID
+		peerID1     snettypes.PeerID
 		err         error
 	)
 	util.AssertErrIsNil(soloOSEnv.Init())
@@ -39,18 +39,11 @@ func TestMetaStgNetBlock(t *testing.T) {
 	netINode.ID = netINodeID0
 	netBlock.NetINodeID = netINode.ID
 
-	snettypes.InitTmpPeerID(&peerID)
-	uObject, _ = peerPool.MustGetObject(peerID)
-	defer peerPool.ReleaseObject(uObject)
-	uPeer0 := snettypes.PeerUintptr(uObject)
+	snettypes.InitTmpPeerID(&peerID0)
+	snettypes.InitTmpPeerID(&peerID1)
 
-	snettypes.InitTmpPeerID(&peerID)
-	uObject, _ = peerPool.MustGetObject(peerID)
-	defer peerPool.ReleaseObject(uObject)
-	uPeer1 := snettypes.PeerUintptr(uObject)
-
-	netBlock.StorDataBackends.Append(uPeer0)
-	netBlock.StorDataBackends.Append(uPeer1)
+	netBlock.StorDataBackends.Append(peerID0)
+	netBlock.StorDataBackends.Append(peerID1)
 	netBlock.IndexInNetINode = 0
 
 	util.AssertErrIsNil(metaStg.StoreNetBlockInDB(&netINode, &netBlock))

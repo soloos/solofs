@@ -2,8 +2,8 @@ package netstg
 
 import (
 	"soloos/common/sdfsapitypes"
-	"soloos/common/snettypes"
 	"soloos/common/sdfsprotocol"
+	"soloos/common/snettypes"
 )
 
 // TODO make this configurable
@@ -13,9 +13,7 @@ func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlo
 	var (
 		pNetBlock    = uNetBlock.Ptr()
 		netBlockInfo sdfsprotocol.NetINodeNetBlockInfoResponse
-		backend      sdfsprotocol.SNetPeer
 		peerID       snettypes.PeerID
-		uPeer        snettypes.PeerUintptr
 		i            int
 		err          error
 	)
@@ -27,11 +25,8 @@ func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlo
 
 	pNetBlock.StorDataBackends.Reset()
 	for i = 0; i < netBlockInfo.BackendsLength(); i++ {
-		netBlockInfo.Backends(&backend, i)
-		copy(peerID[:], backend.PeerID())
-		uPeer, _ = p.SNetDriver.MustGetPeer(&peerID, string(backend.Address()),
-			sdfsapitypes.DefaultSDFSRPCProtocol)
-		pNetBlock.StorDataBackends.Append(uPeer)
+		copy(peerID[:], netBlockInfo.Backends(i))
+		pNetBlock.StorDataBackends.Append(peerID)
 	}
 
 	pNetBlock.SyncDataBackends = pNetBlock.StorDataBackends

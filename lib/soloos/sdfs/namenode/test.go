@@ -10,7 +10,8 @@ import (
 )
 
 func MakeNameNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
-	nameNode *NameNode, metaStg *metastg.MetaStg, nameNodeSRPCServerAddr string,
+	nameNode *NameNode, metaStg *metastg.MetaStg,
+	nameNodePeerID snettypes.PeerID, nameNodeSRPCServerAddr string,
 	memBlockDriver *memstg.MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
 	netINodeDriver *memstg.NetINodeDriver,
@@ -23,9 +24,7 @@ func MakeNameNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
 		metaStg.PrepareNetINodeMetaDataWithStorDB,
 		metaStg.NetINodeCommitSizeInDB,
 	)
-	var nameNodePeerID snettypes.PeerID
-	snettypes.InitTmpPeerID(&nameNodePeerID)
-	err = nameNode.Init(soloOSEnv, nameNodeSRPCServerAddr, nameNodePeerID, metaStg,
+	err = nameNode.Init(soloOSEnv, nameNodePeerID, nameNodeSRPCServerAddr, nameNodeSRPCServerAddr, metaStg,
 		memBlockDriver,
 		netBlockDriver,
 		netINodeDriver,

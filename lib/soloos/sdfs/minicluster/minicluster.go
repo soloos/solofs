@@ -2,6 +2,7 @@ package minicluster
 
 import (
 	"fmt"
+	"soloos/common/snet"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/sdfs/datanode"
@@ -38,7 +39,7 @@ func (p *MiniCluster) Init(soloOSEnv *soloosbase.SoloOSEnv, nameNodePorts []int,
 		metastg.MakeMetaStgForTest(p.SoloOSEnv, &p.NameNodeMetaStgs[i])
 
 		namenode.MakeNameNodeForTest(p.SoloOSEnv, &p.NameNodes[i], &p.NameNodeMetaStgs[i],
-			fmt.Sprintf("127.0.0.1:%d", nameNodePorts[i]),
+			snet.MakeSysPeerID("NameNodeForTest"), fmt.Sprintf("127.0.0.1:%d", nameNodePorts[i]),
 			&p.NameNodeMemBlockDrivers[i],
 			&p.NameNodeNetBlockDrivers[i],
 			&p.NameNodeNetINodeDrivers[i],

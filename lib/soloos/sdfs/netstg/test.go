@@ -27,12 +27,13 @@ func MakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	dataNodeClient *sdfsapi.DataNodeClient,
 	netBlockDriver *NetBlockDriver,
 ) {
-	var (
-		nameNodePeer snettypes.PeerUintptr
-	)
+	var nameNodePeer snettypes.Peer
+	soloOSEnv.SNetDriver.InitPeerID((*snettypes.PeerID)(&nameNodePeer.ID))
+	nameNodePeer.SetAddress(nameNodeSRPCServerAddr)
+	nameNodePeer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+	util.AssertErrIsNil(soloOSEnv.SNetDriver.RegisterPeer(nameNodePeer))
 
-	nameNodePeer, _ = soloOSEnv.SNetDriver.MustGetPeer(nil, nameNodeSRPCServerAddr, sdfsapitypes.DefaultSDFSRPCProtocol)
-	util.AssertErrIsNil(nameNodeClient.Init(soloOSEnv, nameNodePeer))
+	util.AssertErrIsNil(nameNodeClient.Init(soloOSEnv, nameNodePeer.ID))
 	util.AssertErrIsNil(dataNodeClient.Init(soloOSEnv))
 	MakeNetBlockDriversForTest(soloOSEnv,
 		netBlockDriver, nameNodeClient, dataNodeClient,

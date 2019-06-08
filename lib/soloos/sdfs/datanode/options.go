@@ -8,5 +8,4 @@ type DataNodeOptions struct {
 	SrpcServerServeAddr  string
 	LocalFSRoot          string
 	NameNodePeerID       snettypes.PeerID
-	NameNodeSRPCServer   string
 }

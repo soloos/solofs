@@ -10,7 +10,6 @@ func (p *DataNodeDriver) ChooseDataNodesForNewNetBlock(uNetINode sdfsapitypes.Ne
 	var (
 		backends      snettypes.PeerGroup
 		dataNodeIndex uint32
-		uDataNode     snettypes.PeerUintptr
 	)
 	dataNodeIndex = atomic.AddUint32(&p.chooseDataNodeIndex, 1)
 
@@ -18,8 +17,7 @@ func (p *DataNodeDriver) ChooseDataNodesForNewNetBlock(uNetINode sdfsapitypes.Ne
 	p.dataNodesForBlockRWMutex.RLock()
 	for i := uint32(0); i < 3; i++ {
 		dataNodeIndex = (dataNodeIndex + uint32(i)) % uint32(len(p.dataNodesForBlock))
-		uDataNode = p.dataNodesForBlock[dataNodeIndex]
-		backends.Append(uDataNode)
+		backends.Append(p.dataNodesForBlock[dataNodeIndex])
 	}
 	p.dataNodesForBlockRWMutex.RUnlock()
 	return backends, nil

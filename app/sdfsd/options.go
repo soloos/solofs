@@ -10,14 +10,20 @@ type Options struct {
 	DefaultMemBlockCap    int
 	DefaultMemBlocksLimit int32
 	Mode                  string
-	DataNodePeerIDStr     string
-	ListenAddr            string
-	DataNodeLocalFSRoot   string
-	NameNodePeerIDStr     string
-	NameNodeAddr          string
-	PProfListenAddr       string
-	DBDriver              string
-	Dsn                   string
+
+	SNetDriverListenAddr string
+	SNetDriverServeAddr  string
+	ServeAddr            string
+	ListenAddr           string
+
+	DataNodePeerIDStr   string
+	DataNodeLocalFSRoot string
+
+	NameNodePeerIDStr string
+
+	PProfListenAddr string
+	DBDriver        string
+	Dsn             string
 }
 
 func LoadOptionsFile(optionsFilePath string) (Options, error) {

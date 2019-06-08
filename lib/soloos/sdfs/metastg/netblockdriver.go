@@ -43,7 +43,6 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlock
 		pNetBlock           = uNetBlock.Ptr()
 		backendPeerIDArrStr string
 		peerID              snettypes.PeerID
-		uPeer               snettypes.PeerUintptr
 		err                 error
 	)
 
@@ -52,12 +51,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlock
 		backendPeerIDArr := strings.Split(backendPeerIDArrStr, ",")
 		for _, peerIDStr := range backendPeerIDArr {
 			copy(peerID[:], peerIDStr)
-			uPeer = p.helper.GetDataNode(peerID)
-			if uPeer == 0 {
-				err = sdfsapitypes.ErrObjectNotExists
-				goto PREPARE_DONE
-			}
-			pNetBlock.StorDataBackends.Append(uPeer)
+			pNetBlock.StorDataBackends.Append(peerID)
 		}
 
 	} else {
@@ -109,9 +103,7 @@ PREPARE_DONE:
 	return err
 }
 
-func (p *NetBlockDriver) PrepareNetBlockLocalDataBackend(uNetBlock sdfsapitypes.NetBlockUintptr,
-	backend snettypes.PeerUintptr,
-) error {
+func (p *NetBlockDriver) PrepareNetBlockLocalDataBackend(uNetBlock sdfsapitypes.NetBlockUintptr) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()
 		err       error
@@ -122,7 +114,7 @@ func (p *NetBlockDriver) PrepareNetBlockLocalDataBackend(uNetBlock sdfsapitypes.
 		goto PREPARE_DONE
 	}
 
-	pNetBlock.LocalDataBackend = backend
+	pNetBlock.IsLocalDataBackendExists = true
 	pNetBlock.IsLocalDataBackendInited.Store(sdbapitypes.MetaDataStateInited)
 
 PREPARE_DONE:

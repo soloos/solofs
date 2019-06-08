@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/sdfs/libsdfs"
@@ -22,14 +23,21 @@ func main() {
 
 	err = soloOSEnv.Init()
 	util.AssertErrIsNil(err)
+	err = soloOSEnv.SNetDriver.StartClient(options.SNetDriverServeAddr)
+	util.AssertErrIsNil(err)
 
 	if options.PProfListenAddr != "" {
 		go util.PProfServe(options.PProfListenAddr)
 	}
 
-	err = clientDriver.Init(&soloOSEnv, options.NameNodeSRPCServerAddr,
-		options.DBDriver, options.Dsn)
-	util.AssertErrIsNil(err)
+	{
+		var nameNodePeerID snettypes.PeerID
+		nameNodePeerID.SetStr(options.NameNodePeerID)
+		err = clientDriver.Init(&soloOSEnv,
+			nameNodePeerID,
+			options.DBDriver, options.Dsn)
+		util.AssertErrIsNil(err)
+	}
 
 	err = sfuseServer.Init(options.SFuseOptions,
 		options.DefaultNetBlockCap,
