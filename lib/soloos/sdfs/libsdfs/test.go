@@ -95,5 +95,6 @@ func MakeClientForTest(client *Client) {
 	)
 	err = dbConn.Init(metastg.TestMetaStgDBDriver, metastg.TestMetaStgDBConnect)
 	util.AssertErrIsNil(err)
-	util.AssertErrIsNil(client.Init(&soloOSEnv, &memStg, &dbConn, netBlockCap, memBlockCap))
+	util.AssertErrIsNil(client.Init(&soloOSEnv, sdfsapitypes.DefaultNameSpaceID,
+		&memStg, &dbConn, netBlockCap, memBlockCap))
 }

@@ -14,17 +14,20 @@ type FIXAttrDriverHelper struct {
 
 // FIXAttrDriver is FsINode XAttr driver
 type FIXAttrDriver struct {
-	helper FIXAttrDriverHelper
+	posixFS *PosixFS
+	helper  FIXAttrDriverHelper
 
 	xattrsRWMutex util.RWMutex
 	xattrs        map[sdfsapitypes.FsINodeID]sdfsapitypes.FsINodeXAttr
 }
 
 func (p *FIXAttrDriver) Init(
+	posixFS *PosixFS,
 	deleteFIXAttrInDB sdfsapitypes.DeleteFIXAttrInDB,
 	replaceFIXAttrInDB sdfsapitypes.ReplaceFIXAttrInDB,
 	getFIXAttrByInoFromDB sdfsapitypes.GetFIXAttrByInoFromDB,
 ) error {
+	p.posixFS = posixFS
 	p.SetHelper(
 		deleteFIXAttrInDB,
 		replaceFIXAttrInDB,
@@ -98,7 +101,7 @@ func (p *FIXAttrDriver) getXAttr(fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes
 		return xattr, nil
 	}
 
-	xattr, err = p.helper.GetFIXAttrByInoFromDB(fsINodeID)
+	xattr, err = p.helper.GetFIXAttrByInoFromDB(p.posixFS.NameSpaceID, fsINodeID)
 	if err != nil && err != sdfsapitypes.ErrObjectNotExists {
 		return xattr, err
 	}
@@ -166,7 +169,7 @@ func (p *FIXAttrDriver) SetXAttr(fsINodeID sdfsapitypes.FsINodeID, attr string, 
 
 	p.xAttrSetAttr(xattr, attr, data)
 
-	err = p.helper.ReplaceFIXAttrInDB(fsINodeID, xattr)
+	err = p.helper.ReplaceFIXAttrInDB(p.posixFS.NameSpaceID, fsINodeID, xattr)
 	if err != nil {
 		return err
 	}
@@ -188,7 +191,7 @@ func (p *FIXAttrDriver) RemoveXAttr(fsINodeID sdfsapitypes.FsINodeID, attr strin
 	}
 
 	p.xAttrRemoveAttr(xattr, attr)
-	err = p.helper.ReplaceFIXAttrInDB(fsINodeID, xattr)
+	err = p.helper.ReplaceFIXAttrInDB(p.posixFS.NameSpaceID, fsINodeID, xattr)
 	if err != nil {
 		return err
 	}

@@ -23,7 +23,7 @@ func (p *PosixFS) ListFsINodeByIno(ino sdfsapitypes.FsINodeID,
 		return err
 	}
 
-	err = p.FsINodeDriver.helper.ListFsINodeByParentIDFromDB(uFsINode.Ptr().Meta.Ino,
+	err = p.FsINodeDriver.helper.ListFsINodeByParentIDFromDB(p.NameSpaceID, uFsINode.Ptr().Meta.Ino,
 		isFetchAllCols, beforeLiteralFunc, literalFunc)
 	if err != nil {
 		return err

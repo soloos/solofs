@@ -2,6 +2,7 @@ package main
 
 import (
 	"soloos/common/fsapi"
+	"soloos/common/sdfsapitypes"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
@@ -50,6 +51,7 @@ func (p *Env) Init(optionsFile string) {
 
 	util.AssertErrIsNil(
 		p.ClientDriver.InitClient(&p.Client,
+			sdfsapitypes.NameSpaceID(p.Options.NameSpaceID),
 			p.Options.DefaultNetBlockCap,
 			p.Options.DefaultMemBlockCap,
 			p.Options.DefaultMemBlocksLimit,

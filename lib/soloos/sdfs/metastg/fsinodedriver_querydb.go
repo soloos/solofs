@@ -6,7 +6,8 @@ import (
 	"soloos/common/sdfsapitypes"
 )
 
-func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID sdfsapitypes.FsINodeID) error {
+func (p *FsINodeDriver) DeleteFsINodeByIDInDB(nameSpaceID sdfsapitypes.NameSpaceID,
+	fsINodeID sdfsapitypes.FsINodeID) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -18,7 +19,7 @@ func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID sdfsapitypes.FsINodeID) 
 	}
 
 	_, err = sess.DeleteFrom("b_fsinode").
-		Where("fsinode_ino=?", fsINodeID).
+		Where("namespace_id=? and fsinode_ino=?", nameSpaceID, fsINodeID).
 		Exec()
 	if err != nil {
 		return err
@@ -27,7 +28,8 @@ func (p *FsINodeDriver) DeleteFsINodeByIDInDB(fsINodeID sdfsapitypes.FsINodeID) 
 	return nil
 }
 
-func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID sdfsapitypes.FsINodeID,
+func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(nameSpaceID sdfsapitypes.NameSpaceID,
+	parentID sdfsapitypes.FsINodeID,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
 	literalFunc func(sdfsapitypes.FsINodeMeta) bool,
@@ -51,7 +53,7 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID sdfsapitypes.FsINod
 
 	sqlRows, err = sess.Select("count(fsinode_ino) as result").
 		From("b_fsinode").
-		Where("parent_fsinode_ino=?", parentID).Rows()
+		Where("namespace_id=? and parent_fsinode_ino=?", nameSpaceID, parentID).Rows()
 	if err != nil {
 		goto QUERY_DONE
 	}
@@ -78,7 +80,7 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID sdfsapitypes.FsINod
 		}
 		sqlRows, err = sess.Select(schemaAttr...).
 			From("b_fsinode").
-			Where("parent_fsinode_ino=?", parentID).
+			Where("namespace_id=? and parent_fsinode_ino=?", nameSpaceID, parentID).
 			OrderDesc("fsinode_ino").
 			Limit(fetchRowsLimit).
 			Offset(fetchRowsOffset).
@@ -92,6 +94,7 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID sdfsapitypes.FsINod
 	for sqlRows.Next() {
 		if isFetchAllCols == false {
 			err = sqlRows.Scan(
+				&ret.NameSpaceID,
 				&ret.Ino,
 				&ret.HardLinkIno,
 				&netINodeIDStr,
@@ -102,6 +105,7 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(parentID sdfsapitypes.FsINod
 			)
 		} else {
 			err = sqlRows.Scan(
+				&ret.NameSpaceID,
 				&ret.Ino,
 				&ret.HardLinkIno,
 				&netINodeIDStr,
@@ -139,7 +143,8 @@ QUERY_DONE:
 	return err
 }
 
-func (p *FsINodeDriver) UpdateFsINodeInDB(fsINodeMeta sdfsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) UpdateFsINodeInDB(nameSpaceID sdfsapitypes.NameSpaceID,
+	fsINodeMeta sdfsapitypes.FsINodeMeta) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -168,7 +173,7 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(fsINodeMeta sdfsapitypes.FsINodeMeta) 
 		Set("uid", fsINodeMeta.Uid).
 		Set("gid", fsINodeMeta.Gid).
 		Set("rdev", fsINodeMeta.Rdev).
-		Where("fsinode_ino=?", fsINodeMeta.Ino).
+		Where("namespace_id=? and fsinode_ino=?", nameSpaceID, fsINodeMeta.Ino).
 		Exec()
 	if err != nil {
 		return err
@@ -177,7 +182,8 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(fsINodeMeta sdfsapitypes.FsINodeMeta) 
 	return nil
 }
 
-func (p *FsINodeDriver) InsertFsINodeInDB(fsINodeMeta sdfsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) InsertFsINodeInDB(nameSpaceID sdfsapitypes.NameSpaceID,
+	fsINodeMeta sdfsapitypes.FsINodeMeta) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -188,9 +194,12 @@ func (p *FsINodeDriver) InsertFsINodeInDB(fsINodeMeta sdfsapitypes.FsINodeMeta) 
 		return err
 	}
 
+	fsINodeMeta.NameSpaceID = nameSpaceID
+
 	_, err = sess.InsertInto("b_fsinode").
 		Columns(schemaDirTreeFsINodeAttr...).
 		Values(
+			fsINodeMeta.NameSpaceID,
 			fsINodeMeta.Ino,
 			fsINodeMeta.HardLinkIno,
 			string(fsINodeMeta.NetINodeID[:]),
@@ -217,7 +226,8 @@ func (p *FsINodeDriver) InsertFsINodeInDB(fsINodeMeta sdfsapitypes.FsINodeMeta) 
 	return nil
 }
 
-func (p *FsINodeDriver) FetchFsINodeByIDFromDB(fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeMeta, error) {
+func (p *FsINodeDriver) FetchFsINodeByIDFromDB(nameSpaceID sdfsapitypes.NameSpaceID,
+	fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeMeta, error) {
 	var (
 		fsINodeMeta   sdfsapitypes.FsINodeMeta
 		fsINodeName   string
@@ -234,7 +244,7 @@ func (p *FsINodeDriver) FetchFsINodeByIDFromDB(fsINodeID sdfsapitypes.FsINodeID)
 
 	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
 		From("b_fsinode").
-		Where("fsinode_ino=?", fsINodeID).
+		Where("namespace_id=? and fsinode_ino=?", nameSpaceID, fsINodeID).
 		Limit(1).Rows()
 	if err != nil {
 		goto QUERY_DONE
@@ -246,6 +256,7 @@ func (p *FsINodeDriver) FetchFsINodeByIDFromDB(fsINodeID sdfsapitypes.FsINodeID)
 	}
 
 	err = sqlRows.Scan(
+		&fsINodeMeta.NameSpaceID,
 		&fsINodeMeta.Ino,
 		&fsINodeMeta.HardLinkIno,
 		&netINodeIDStr,
@@ -278,7 +289,8 @@ QUERY_DONE:
 	return fsINodeMeta, err
 }
 
-func (p *FsINodeDriver) FetchFsINodeByNameFromDB(parentID sdfsapitypes.FsINodeID,
+func (p *FsINodeDriver) FetchFsINodeByNameFromDB(nameSpaceID sdfsapitypes.NameSpaceID,
+	parentID sdfsapitypes.FsINodeID,
 	fsINodeName string) (sdfsapitypes.FsINodeMeta, error) {
 	var (
 		fsINodeMeta   sdfsapitypes.FsINodeMeta
@@ -295,8 +307,8 @@ func (p *FsINodeDriver) FetchFsINodeByNameFromDB(parentID sdfsapitypes.FsINodeID
 
 	sqlRows, err = sess.Select(schemaDirTreeFsINodeAttr...).
 		From("b_fsinode").
-		Where("parent_fsinode_ino=? and fsinode_name=?",
-			parentID, fsINodeName,
+		Where("namespace_id=? and parent_fsinode_ino=? and fsinode_name=?",
+			nameSpaceID, parentID, fsINodeName,
 		).Limit(1).Rows()
 	if err != nil {
 		goto QUERY_DONE
@@ -310,6 +322,7 @@ func (p *FsINodeDriver) FetchFsINodeByNameFromDB(parentID sdfsapitypes.FsINodeID
 	{
 		var name string
 		err = sqlRows.Scan(
+			&fsINodeMeta.NameSpaceID,
 			&fsINodeMeta.Ino,
 			&fsINodeMeta.HardLinkIno,
 			&netINodeIDStr,

@@ -46,6 +46,7 @@ func (p *PosixFS) prepareDirTreeSqls() []string {
 	// `)
 	sql = append(sql, `
 	create table if not exists b_fsinode (
+	namespace_id int,
 	fsinode_ino bigint,
 	hardlink_ino bigint,
 	netinode_id char(64),
@@ -63,13 +64,13 @@ func (p *PosixFS) prepareDirTreeSqls() []string {
 	uid int default 0,
 	gid int default 0,
 	rdev int default 0,
-	primary key(fsinode_ino)
+	primary key(namespace_id, fsinode_ino)
 	);
 `)
 
 	sql = append(sql, `
 	create unique index if not exists i_b_fsinode_parent_fsinode_ino_and_fsinode_name 
-	on b_fsinode(parent_fsinode_ino, fsinode_name);
+	on b_fsinode(namespace_id, parent_fsinode_ino, fsinode_name);
 `)
 
 	sql = append(sql, `

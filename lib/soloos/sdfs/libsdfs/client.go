@@ -4,6 +4,7 @@ import (
 	"soloos/common/fsapi"
 	"soloos/common/sdbapi"
 	"soloos/common/sdfsapi"
+	"soloos/common/sdfsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/common/swalapi"
 	"soloos/sdfs/memstg"
@@ -23,6 +24,7 @@ type Client struct {
 var _ = sdfsapi.Client(&Client{})
 
 func (p *Client) Init(soloOSEnv *soloosbase.SoloOSEnv,
+	nameSpaceID sdfsapitypes.NameSpaceID,
 	memStg *memstg.MemStg,
 	dbConn *sdbapi.Connection,
 	defaultNetBlockCap int,
@@ -44,6 +46,7 @@ func (p *Client) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	}
 
 	err = p.memPosixFS.Init(p.SoloOSEnv,
+		nameSpaceID,
 		p.memStg,
 		defaultNetBlockCap,
 		defaultMemBlockCap,

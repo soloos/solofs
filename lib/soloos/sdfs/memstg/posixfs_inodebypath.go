@@ -105,7 +105,8 @@ func (p *PosixFS) ListFsINodeByParentPath(parentPath string,
 		return err
 	}
 
-	err = p.FsINodeDriver.helper.ListFsINodeByParentIDFromDB(fsINodeMeta.Ino,
+	err = p.FsINodeDriver.helper.ListFsINodeByParentIDFromDB(p.NameSpaceID,
+		fsINodeMeta.Ino,
 		isFetchAllCols, beforeLiteralFunc, literalFunc)
 	if err != nil {
 		return err

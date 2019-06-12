@@ -9,6 +9,7 @@ import (
 
 type PosixFS struct {
 	*soloosbase.SoloOSEnv
+	NameSpaceID   sdfsapitypes.NameSpaceID
 	MemStg        *MemStg
 	FsINodeDriver FsINodeDriver
 	FdTable       FdTable
@@ -22,6 +23,7 @@ var _ = fsapi.PosixFS(&PosixFS{})
 
 func (p *PosixFS) Init(
 	soloOSEnv *soloosbase.SoloOSEnv,
+	nameSpaceID sdfsapitypes.NameSpaceID,
 	memStg *MemStg,
 	// FsINodeDriver
 	defaultNetBlockCap int,
@@ -44,6 +46,7 @@ func (p *PosixFS) Init(
 	var err error
 
 	p.SoloOSEnv = soloOSEnv
+	p.NameSpaceID = nameSpaceID
 	p.MemStg = memStg
 
 	err = p.FsINodeDriver.Init(p.SoloOSEnv,

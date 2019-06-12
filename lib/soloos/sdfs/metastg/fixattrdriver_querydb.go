@@ -6,7 +6,8 @@ import (
 	"soloos/common/sdfsapitypes"
 )
 
-func (p *FIXAttrDriver) DeleteFIXAttrInDB(fsINodeID sdfsapitypes.FsINodeID) error {
+func (p *FIXAttrDriver) DeleteFIXAttrInDB(nameSpaceID sdfsapitypes.NameSpaceID,
+	fsINodeID sdfsapitypes.FsINodeID) error {
 	var (
 		sess sdbapi.Session
 		err  error
@@ -18,7 +19,7 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(fsINodeID sdfsapitypes.FsINodeID) erro
 	}
 
 	_, err = sess.DeleteFrom("b_fsinode_xattr").
-		Where("fsinode_ino=?", fsINodeID).
+		Where("namespace_id=? and fsinode_ino=?", nameSpaceID, fsINodeID).
 		Exec()
 	if err != nil {
 		return err
@@ -27,7 +28,9 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(fsINodeID sdfsapitypes.FsINodeID) erro
 	return nil
 }
 
-func (p *FIXAttrDriver) ReplaceFIXAttrInDB(fsINodeID sdfsapitypes.FsINodeID, xattr sdfsapitypes.FsINodeXAttr) error {
+func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nameSpaceID sdfsapitypes.NameSpaceID,
+	fsINodeID sdfsapitypes.FsINodeID,
+	xattr sdfsapitypes.FsINodeXAttr) error {
 	var (
 		sess       sdbapi.Session
 		xattrBytes []byte
@@ -45,7 +48,7 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(fsINodeID sdfsapitypes.FsINodeID, xat
 	}
 
 	err = sess.ReplaceInto("b_fsinode_xattr").
-		PrimaryColumns("fsinode_ino").PrimaryValues(fsINodeID).
+		PrimaryColumns("namespace_id", "fsinode_ino").PrimaryValues(nameSpaceID, fsINodeID).
 		Columns("xattr").Values(xattrBytes).
 		Exec()
 	if err != nil {
@@ -55,7 +58,8 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(fsINodeID sdfsapitypes.FsINodeID, xat
 	return nil
 }
 
-func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeXAttr, error) {
+func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nameSpaceID sdfsapitypes.NameSpaceID,
+	fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeXAttr, error) {
 	var (
 		sess    sdbapi.Session
 		sqlRows *sql.Rows
@@ -71,9 +75,8 @@ func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(fsINodeID sdfsapitypes.FsINodeID) 
 
 	sqlRows, err = sess.Select("xattr").
 		From("b_fsinode_xattr").
-		Where("fsinode_ino=?",
-			fsINodeID,
-		).Limit(1).Rows()
+		Where("namespace_id=? and fsinode_ino=?", nameSpaceID, fsINodeID).
+		Limit(1).Rows()
 	if err != nil {
 		goto QUERY_DONE
 	}

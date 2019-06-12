@@ -29,8 +29,8 @@ type FsINodeDriverHelper struct {
 
 type FsINodeDriver struct {
 	*soloosbase.SoloOSEnv
-	dirTreeStg *PosixFS
-	helper     FsINodeDriverHelper
+	posixFS *PosixFS
+	helper  FsINodeDriverHelper
 
 	Timer timer.Timer
 
@@ -54,7 +54,7 @@ type FsINodeDriver struct {
 
 func (p *FsINodeDriver) Init(
 	soloOSEnv *soloosbase.SoloOSEnv,
-	dirTreeStg *PosixFS,
+	posixFS *PosixFS,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
 	allocFsINodeID sdfsapitypes.AllocFsINodeID,
@@ -75,7 +75,7 @@ func (p *FsINodeDriver) Init(
 	var err error
 
 	p.SoloOSEnv = soloOSEnv
-	p.dirTreeStg = dirTreeStg
+	p.posixFS = posixFS
 
 	err = p.Timer.Init()
 	if err != nil {
@@ -121,6 +121,7 @@ func (p *FsINodeDriver) Init(
 	}
 
 	err = p.FIXAttrDriver.Init(
+		p.posixFS,
 		deleteFIXAttrInDB,
 		replaceFIXAttrInDB,
 		getFIXAttrByInoFromDB,
@@ -190,13 +191,13 @@ func (p *FsINodeDriver) prepareBaseDir() error {
 	)
 
 	ino = sdfsapitypes.RootFsINodeID
-	code = p.dirTreeStg.SimpleMkdir(&fsINodeMeta, &ino, sdfsapitypes.RootFsINodeParentID, 0777, "", 0, 0, types.FS_RDEV)
+	code = p.posixFS.SimpleMkdir(&fsINodeMeta, &ino, sdfsapitypes.RootFsINodeParentID, 0777, "", 0, 0, types.FS_RDEV)
 	if code != fsapitypes.OK {
 		log.Warn("mkdir root error ", code)
 	}
 
 	ino = p.helper.AllocFsINodeID()
-	code = p.dirTreeStg.SimpleMkdir(&fsINodeMeta, &ino, sdfsapitypes.RootFsINodeID, 0777, "tmp", 0, 0, types.FS_RDEV)
+	code = p.posixFS.SimpleMkdir(&fsINodeMeta, &ino, sdfsapitypes.RootFsINodeID, 0777, "tmp", 0, 0, types.FS_RDEV)
 	if code != fsapitypes.OK {
 		log.Warn("mkdir tmp error", code)
 	}
@@ -335,7 +336,7 @@ func (p *FsINodeDriver) GetFsINodeByID(fsINodeID sdfsapitypes.FsINodeID) (sdfsap
 	pFsINode.IsDBMetaDataInited.LockContext()
 	if pFsINode.IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited ||
 		p.ensureFsINodeValidInCache(uFsINode) == false {
-		pFsINode.Meta, err = p.helper.FetchFsINodeByIDFromDB(fsINodeID)
+		pFsINode.Meta, err = p.helper.FetchFsINodeByIDFromDB(p.posixFS.NameSpaceID, fsINodeID)
 		if err != nil {
 			p.ReleaseFsINode(uFsINode)
 		} else {
@@ -371,7 +372,7 @@ func (p *FsINodeDriver) GetFsINodeByName(parentID sdfsapitypes.FsINodeID,
 
 	// TODO only get fsinode id is ok
 	var fsINodeMeta sdfsapitypes.FsINodeMeta
-	fsINodeMeta, err = p.helper.FetchFsINodeByNameFromDB(parentID, fsINodeName)
+	fsINodeMeta, err = p.helper.FetchFsINodeByNameFromDB(p.posixFS.NameSpaceID, parentID, fsINodeName)
 	if err != nil {
 		return 0, err
 	}
@@ -390,7 +391,7 @@ func (p *FsINodeDriver) ReleaseFsINode(uFsINode sdfsapitypes.FsINodeUintptr) {
 func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var err error
 	pFsINodeMeta.Ctime = sdfsapitypes.DirTreeTime(p.Timer.Now().Unix())
-	err = p.helper.UpdateFsINodeInDB(*pFsINodeMeta)
+	err = p.helper.UpdateFsINodeInDB(p.posixFS.NameSpaceID, *pFsINodeMeta)
 	if err != nil {
 		return err
 	}
@@ -421,7 +422,7 @@ func (p *FsINodeDriver) RefreshFsINodeMetaACMtime(pFsINodeMeta *sdfsapitypes.FsI
 	pFsINodeMeta.Mtime = nowt
 	pFsINodeMeta.Mtimensec = nowtnsec
 
-	err = p.helper.UpdateFsINodeInDB(*pFsINodeMeta)
+	err = p.helper.UpdateFsINodeInDB(p.posixFS.NameSpaceID, *pFsINodeMeta)
 	if err != nil {
 		return err
 	}
@@ -452,7 +453,7 @@ func (p *FsINodeDriver) RefreshFsINodeACMtime(uFsINode sdfsapitypes.FsINodeUintp
 	pFsINode.Meta.Mtime = nowt
 	pFsINode.Meta.Mtimensec = nowtnsec
 
-	err = p.helper.UpdateFsINodeInDB(pFsINode.Meta)
+	err = p.helper.UpdateFsINodeInDB(p.posixFS.NameSpaceID, pFsINode.Meta)
 	if err != nil {
 		return err
 	}
@@ -535,7 +536,7 @@ func (p *FsINodeDriver) PrepareFsINodeForCreate(fsINodeMeta *sdfsapitypes.FsINod
 
 func (p *FsINodeDriver) CreateFsINode(fsINodeMeta *sdfsapitypes.FsINodeMeta) error {
 	var err error
-	err = p.helper.InsertFsINodeInDB(*fsINodeMeta)
+	err = p.helper.InsertFsINodeInDB(p.posixFS.NameSpaceID, *fsINodeMeta)
 	if err != nil {
 		return err
 	}

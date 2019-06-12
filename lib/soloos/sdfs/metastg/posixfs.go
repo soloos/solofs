@@ -1,6 +1,5 @@
 package metastg
 
-import "C"
 import (
 	"soloos/common/sdbapi"
 	"soloos/common/sdfsapitypes"
@@ -8,6 +7,7 @@ import (
 )
 
 type PosixFS struct {
+	nameSpaceID sdfsapitypes.NameSpaceID
 	*soloosbase.SoloOSEnv
 	dbConn        *sdbapi.Connection
 	FsINodeDriver FsINodeDriver

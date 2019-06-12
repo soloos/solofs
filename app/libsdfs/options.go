@@ -9,6 +9,7 @@ type Options struct {
 	SNetDriverListenAddr  string
 	SNetDriverServeAddr   string
 	NameNodePeerID        string
+	NameSpaceID           int64
 	DefaultNetBlockCap    int
 	DefaultMemBlockCap    int
 	DefaultMemBlocksLimit int32

@@ -7,7 +7,8 @@ import (
 )
 
 type Options struct {
-	MountPoint string
+	NameSpaceID int64
+	MountPoint  string
 
 	NodefsOptsTimeoutMs           uint32
 	TimeDurationNodefsOptsTimeout time.Duration `json:"-"`

@@ -9,6 +9,7 @@ const (
 
 var (
 	schemaDirTreeFsINodeBasicAttr = []string{
+		"namespace_id",
 		"fsinode_ino",
 		"hardlink_ino",
 		"netinode_id",
@@ -19,6 +20,7 @@ var (
 	}
 
 	schemaDirTreeFsINodeAttr = []string{
+		"namespace_id",
 		"fsinode_ino",
 		"hardlink_ino",
 		"netinode_id",

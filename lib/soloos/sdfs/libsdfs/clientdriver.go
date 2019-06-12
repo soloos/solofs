@@ -4,6 +4,7 @@ import (
 	"soloos/common/log"
 	"soloos/common/sdbapi"
 	"soloos/common/sdfsapi"
+	"soloos/common/sdfsapitypes"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/sdfs/memstg"
@@ -62,6 +63,7 @@ func (p *ClientDriver) initMemStg(nameNodePeerID snettypes.PeerID) error {
 }
 
 func (p *ClientDriver) InitClient(itClient sdfsapi.Client,
+	nameSpaceID sdfsapitypes.NameSpaceID,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
 	defaultMemBlocksLimit int32,
@@ -77,7 +79,9 @@ func (p *ClientDriver) InitClient(itClient sdfsapi.Client,
 		return err
 	}
 
-	err = client.Init(p.SoloOSEnv, &p.memStg, &p.dbConn,
+	err = client.Init(p.SoloOSEnv,
+		nameSpaceID,
+		&p.memStg, &p.dbConn,
 		defaultNetBlockCap,
 		defaultMemBlockCap,
 	)
