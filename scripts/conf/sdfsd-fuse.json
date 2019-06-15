@@ -1,5 +1,5 @@
 {
-  "NameNodeSRPCServerAddr": "192.168.56.100:11701",
+  "NameNodePeerID": "NAME_NODE_100000000000000000000000000000000000000000000000000000",
   "DefaultNetBlockCap": 8388608,
   "DefaultMemBlockCap": 2097152,
   "DefaultMemBlocksLimit": 64,

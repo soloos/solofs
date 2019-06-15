@@ -34,20 +34,18 @@ func (p *netBlockDriverUploader) cronUpload() error {
 
 		util.AssertTrue(pNetBlock.SyncDataBackends.Len > 0)
 
-		uploadJobNum = pNetBlock.SyncDataBackends.Len - pNetBlock.SyncDataPrimaryBackendTransferCount
+		uploadJobNum = 0
+		for i = 0; i < pNetBlock.SyncDataBackends.Len; {
+			i += int(pNetBlock.SyncDataBackends.Arr[i].TransferCount + 1)
+			uploadJobNum++
+		}
 		uploadRetArr = make(chan error, uploadJobNum)
 
-		// start upload
-		// upload primary backend
-		go func(uploadRetArr chan error, uJob sdfsapitypes.UploadMemBlockJobUintptr, transferCount int) {
-			uploadRetArr <- p.driver.dataNodeClient.UploadMemBlock(uJob, 0, transferCount)
-		}(uploadRetArr, uJob, pNetBlock.SyncDataPrimaryBackendTransferCount)
-
-		// upload other backends
-		for i = pNetBlock.SyncDataPrimaryBackendTransferCount + 1; i < pNetBlock.SyncDataBackends.Len; i++ {
-			go func(uploadRetArr chan error, i int, uJob sdfsapitypes.UploadMemBlockJobUintptr) {
-				uploadRetArr <- p.driver.dataNodeClient.UploadMemBlock(uJob, i, 0)
-			}(uploadRetArr, i, uJob)
+		for i = 0; i < pNetBlock.SyncDataBackends.Len; {
+			go func(uploadRetArr chan error, i int, uJob sdfsapitypes.UploadMemBlockJobUintptr, transferCount int) {
+				uploadRetArr <- p.driver.dataNodeClient.UploadMemBlock(uJob, i, transferCount)
+			}(uploadRetArr, i, uJob, int(pNetBlock.SyncDataBackends.Arr[i].TransferCount))
+			i += int(pNetBlock.SyncDataBackends.Arr[i].TransferCount + 1)
 		}
 
 		{

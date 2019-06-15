@@ -5,6 +5,7 @@ import "C"
 import (
 	"os"
 	"soloos/common/log"
+	"strings"
 	"sync"
 )
 
@@ -29,7 +30,14 @@ func initEnv() {
 		return
 	}
 
-	env.Init(os.Args[1])
+	var optionsFile string
+	for _, v := range os.Args {
+		if strings.Contains(v, ".json") {
+			optionsFile = v
+			break
+		}
+	}
+	env.Init(optionsFile)
 	isInited = true
 	log.Info("init success.")
 }

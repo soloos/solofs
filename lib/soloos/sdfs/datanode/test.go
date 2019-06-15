@@ -6,14 +6,12 @@ import (
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/sdfs/memstg"
-	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
 )
 
 func MakeDataNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	dataNode *DataNode,
 	dataNodePeerID snettypes.PeerID, dataNodeSRPCServerAddr string,
-	metaStg *metastg.MetaStg,
 	nameNodePeerID snettypes.PeerID, nameNodeSRPCServerAddr string,
 	memBlockDriver *memstg.MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
@@ -35,7 +33,6 @@ func MakeDataNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
 
 	err = dataNode.Init(soloOSEnv,
 		options,
-		metaStg,
 		memBlockDriver, netBlockDriver, netINodeDriver)
 	util.AssertErrIsNil(err)
 }

@@ -49,7 +49,7 @@ func (p *ClientDriver) initMemStg(nameNodePeerID snettypes.PeerID) error {
 	var nameNodePeer snettypes.Peer
 	nameNodePeer, err = p.SoloOSEnv.SNetDriver.GetPeer(nameNodePeerID)
 	if err != nil {
-		log.Debug("sdfs SNetDriver get nameNodePe error", err)
+		log.Debug("sdfs SNetDriver get nameNodePeer error", err, nameNodePeerID.Str())
 		return err
 	}
 

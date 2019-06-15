@@ -9,13 +9,13 @@ func (p *NetBlockDriver) prepareNetBlockMetaDataWithTransfer(uNetBlock sdfsapity
 	uNetINode sdfsapitypes.NetINodeUintptr, netblockIndex int32) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()
-		err       error
 	)
-	err = p.doPrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex)
-	if err != nil {
-		return err
+
+	pNetBlock.SyncDataBackends.Append(pNetBlock.StorDataBackends.Arr[0], pNetBlock.StorDataBackends.Len-1)
+	for i := 1; i < pNetBlock.StorDataBackends.Len; i++ {
+		pNetBlock.SyncDataBackends.Append(pNetBlock.StorDataBackends.Arr[i], 0)
 	}
-	pNetBlock.SyncDataPrimaryBackendTransferCount = pNetBlock.SyncDataBackends.Len - 1
+
 	return nil
 }
 
@@ -23,13 +23,12 @@ func (p *NetBlockDriver) prepareNetBlockMetaDataWithFanout(uNetBlock sdfsapitype
 	uNetINode sdfsapitypes.NetINodeUintptr, netblockIndex int32) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()
-		err       error
 	)
-	err = p.doPrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex)
-	if err != nil {
-		return err
+
+	for i := 0; i < pNetBlock.StorDataBackends.Len; i++ {
+		pNetBlock.SyncDataBackends.Append(pNetBlock.StorDataBackends.Arr[i], 0)
 	}
-	pNetBlock.SyncDataPrimaryBackendTransferCount = 0
+
 	return nil
 }
 
@@ -41,13 +40,14 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlock
 		err       error
 	)
 
-	err = p.prepareNetBlockMetaDataWithFanout(uNetBlock, uNetINode, netblockIndex)
+	err = p.doPrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex)
 	if err != nil {
 		return err
 	}
 
 	switch pNetINode.MemBlockPlacementPolicy.GetType() {
 	case sdfsapitypes.BlockPlacementPolicyDefault:
+		err = p.prepareNetBlockMetaDataWithFanout(uNetBlock, uNetINode, netblockIndex)
 
 	case sdfsapitypes.BlockPlacementPolicySWAL:
 		err = p.helper.SWALClient.PrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex)

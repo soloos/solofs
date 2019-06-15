@@ -52,6 +52,7 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq *snettypes.NetQuery) erro
 		}
 	}
 
+	// TODO no need prepare syncDataBackends every pwrite
 	syncDataBackends.Reset()
 	syncDataBackends.Append(p.dataNode.localFsSNetPeer.ID)
 	for i = 0; i < reqParam.TransferBackendsLength(); i++ {
@@ -71,7 +72,7 @@ func (p *DataNodeSRPCServer) NetINodePWrite(serviceReq *snettypes.NetQuery) erro
 		}
 
 		if uNetBlock.Ptr().IsSyncDataBackendsInited.Load() == sdbapitypes.MetaDataStateUninited {
-			p.dataNode.metaStg.PrepareNetBlockSyncDataBackends(uNetBlock, syncDataBackends)
+			p.dataNode.PrepareNetBlockSyncDataBackends(uNetBlock, syncDataBackends)
 		}
 	}
 

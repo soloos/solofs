@@ -9,14 +9,12 @@ import (
 	"soloos/common/soloosbase"
 	"soloos/sdfs/localfs"
 	"soloos/sdfs/memstg"
-	"soloos/sdfs/metastg"
 	"soloos/sdfs/netstg"
 )
 
 type DataNode struct {
 	*soloosbase.SoloOSEnv
-	peer    snettypes.Peer
-	metaStg *metastg.MetaStg
+	peer snettypes.Peer
 
 	memBlockDriver *memstg.MemBlockDriver
 	netBlockDriver *netstg.NetBlockDriver
@@ -31,7 +29,6 @@ type DataNode struct {
 
 func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	options DataNodeOptions,
-	metaStg *metastg.MetaStg,
 	memBlockDriver *memstg.MemBlockDriver,
 	netBlockDriver *netstg.NetBlockDriver,
 	netINodeDriver *memstg.NetINodeDriver,
@@ -45,7 +42,6 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	p.peer.SetAddress(options.SrpcServerServeAddr)
 	p.peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
 
-	p.metaStg = metaStg
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
 	p.netINodeDriver = netINodeDriver
@@ -72,10 +68,10 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	p.netBlockDriver.SetUploadMemBlockWithDisk(p.localFS.UploadMemBlockWithDisk)
 	p.netBlockDriver.SetHelper(&p.nameNodeClient, p.netBlockDriver.PrepareNetBlockMetaData)
 
-	p.netINodeDriver.SetHelper(nil,
-		p.metaStg.PrepareNetINodeMetaDataOnlyLoadDB,
-		p.metaStg.PrepareNetINodeMetaDataWithStorDB,
-		p.metaStg.NetINodeCommitSizeInDB,
+	p.netINodeDriver.SetHelper(&p.nameNodeClient,
+		p.netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
+		p.netINodeDriver.PrepareNetINodeMetaDataWithStorDB,
+		p.netINodeDriver.NetINodeCommitSizeInDB,
 	)
 
 	err = p.SNetDriver.RegisterPeer(p.peer)

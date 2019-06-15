@@ -71,7 +71,7 @@ func (p *DataNodeSRPCServer) NetINodePRead(serviceReq *snettypes.NetQuery) error
 		}
 
 		if uNetBlock.Ptr().IsLocalDataBackendInited.Load() == sdbapitypes.MetaDataStateUninited {
-			p.dataNode.metaStg.PrepareNetBlockLocalDataBackend(uNetBlock)
+			p.dataNode.PrepareNetBlockLocalDataBackend(uNetBlock)
 		}
 	}
 

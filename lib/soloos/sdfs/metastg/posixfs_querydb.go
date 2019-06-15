@@ -75,9 +75,10 @@ func (p *PosixFS) prepareDirTreeSqls() []string {
 
 	sql = append(sql, `
 	create table if not exists b_fsinode_xattr (
+	namespace_id int,
 	fsinode_ino bigint,
 	xattr text,
-	primary key(fsinode_ino)
+	primary key(namespace_id, fsinode_ino)
 	);
 `)
 

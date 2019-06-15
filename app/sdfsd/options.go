@@ -16,10 +16,10 @@ type Options struct {
 	ServeAddr            string
 	ListenAddr           string
 
-	DataNodePeerIDStr   string
+	DataNodePeerID      string
 	DataNodeLocalFSRoot string
 
-	NameNodePeerIDStr string
+	NameNodePeerID string
 
 	PProfListenAddr string
 	DBDriver        string

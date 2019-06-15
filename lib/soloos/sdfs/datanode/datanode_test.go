@@ -37,7 +37,6 @@ func TestBase(t *testing.T) {
 			"127.0.0.1:10414",
 			"127.0.0.1:10415",
 		}
-		metaStgForDataNodes [6]metastg.MetaStg
 	)
 
 	var (
@@ -94,7 +93,6 @@ func TestBase(t *testing.T) {
 	for i = 0; i < len(dataNodeSRPCListenAddrs); i++ {
 		assert.NoError(t, soloOSEnvForDataNodes[i].Init())
 		assert.NoError(t, soloOSEnvForDataNodes[i].SNetDriver.StartClient(netDriverServerServeAddr))
-		metastg.MakeMetaStgForTest(&soloOSEnvForDataNodes[i], &metaStgForDataNodes[i])
 		dataNodePeerIDs[i] = snet.MakeSysPeerID(fmt.Sprintf("DataNodeForTest_%v", i))
 
 		memstg.MakeDriversForTest(&soloOSEnvForDataNodes[i],
@@ -107,7 +105,6 @@ func TestBase(t *testing.T) {
 		MakeDataNodeForTest(&soloOSEnvForDataNodes[i],
 			&dataNodes[i],
 			dataNodePeerIDs[i], dataNodeSRPCListenAddrs[i],
-			&metaStgForDataNodes[i],
 			nameNodePeerID, nameNodeSRPCListenAddr,
 			&memBlockDriverForDataNodes[i],
 			&netBlockDriverForDataNodes[i],

@@ -60,7 +60,7 @@ func (p *Env) startNameNode() {
 		nameNode       namenode.NameNode
 		nameNodePeerID snettypes.PeerID
 	)
-	copy(nameNodePeerID[:], []byte(p.options.NameNodePeerIDStr))
+	copy(nameNodePeerID[:], []byte(p.options.NameNodePeerID))
 
 	go func() {
 		util.AssertErrIsNil(
@@ -103,8 +103,8 @@ func (p *Env) startDataNode() {
 		dataNodeOptions datanode.DataNodeOptions
 	)
 
-	copy(dataNodePeerID[:], []byte(p.options.DataNodePeerIDStr))
-	copy(nameNodePeerID[:], []byte(p.options.NameNodePeerIDStr))
+	copy(dataNodePeerID[:], []byte(p.options.DataNodePeerID))
+	copy(nameNodePeerID[:], []byte(p.options.NameNodePeerID))
 
 	dataNodeOptions = datanode.DataNodeOptions{
 		PeerID:               dataNodePeerID,
@@ -129,7 +129,6 @@ func (p *Env) startDataNode() {
 	))
 
 	util.AssertErrIsNil(dataNode.Init(&p.SoloOSEnv, dataNodeOptions,
-		&p.MetaStg,
 		&p.MemBlockDriver,
 		&p.NetBlockDriver,
 		&p.NetINodeDriver,

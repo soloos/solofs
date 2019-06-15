@@ -29,6 +29,5 @@ func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlo
 		pNetBlock.StorDataBackends.Append(peerID)
 	}
 
-	pNetBlock.SyncDataBackends = pNetBlock.StorDataBackends
 	return nil
 }
