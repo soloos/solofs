@@ -42,9 +42,9 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		uploadRetArr = make(chan error, uploadJobNum)
 
 		for i = 0; i < pNetBlock.SyncDataBackends.Len; {
-			go func(uploadRetArr chan error, i int, uJob sdfsapitypes.UploadMemBlockJobUintptr, transferCount int) {
-				uploadRetArr <- p.driver.dataNodeClient.UploadMemBlock(uJob, i, transferCount)
-			}(uploadRetArr, i, uJob, int(pNetBlock.SyncDataBackends.Arr[i].TransferCount))
+			go func(uploadRetArr chan error, i int, uJob sdfsapitypes.UploadMemBlockJobUintptr) {
+				uploadRetArr <- p.driver.dataNodeClient.UploadMemBlock(uJob, i)
+			}(uploadRetArr, i, uJob)
 			i += int(pNetBlock.SyncDataBackends.Arr[i].TransferCount + 1)
 		}
 

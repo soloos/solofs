@@ -69,6 +69,7 @@ func TestBase(t *testing.T) {
 			netDriverServerServeAddr,
 			nil, nil))
 	}()
+	time.Sleep(100 * time.Millisecond)
 	metastg.MakeMetaStgForTest(&soloOSEnvForNameNode, &metaStgForNameNode)
 
 	assert.NoError(t, soloOSEnvForClient.Init())

@@ -3,7 +3,7 @@ package localfs
 import "soloos/common/sdfsapitypes"
 
 func (p *LocalFS) UploadMemBlockWithDisk(uJob sdfsapitypes.UploadMemBlockJobUintptr,
-	uploadPeerIndex int, transferPeersCount int,
+	uploadPeerIndex int,
 ) error {
 	var (
 		fd  *Fd

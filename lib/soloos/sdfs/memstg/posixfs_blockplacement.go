@@ -4,23 +4,23 @@ import (
 	"soloos/common/sdfsapitypes"
 )
 
-func (p *PosixFS) SetFsINodeBlockPlacement(fsINodeID sdfsapitypes.FsINodeID,
+func (p *PosixFS) SetNetINodeBlockPlacement(netINodeID sdfsapitypes.NetINodeID,
 	policy sdfsapitypes.MemBlockPlacementPolicy) error {
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
-		err      error
+		uNetINode sdfsapitypes.NetINodeUintptr
+		err       error
 	)
-	uFsINode, err = p.FsINodeDriver.GetFsINodeByID(fsINodeID)
-	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
+	uNetINode, err = p.MemStg.NetINodeDriver.GetNetINode(netINodeID)
+	defer p.MemStg.NetINodeDriver.ReleaseNetINode(uNetINode)
 	if err != nil {
 		return err
 	}
 
-	if uFsINode.Ptr().UNetINode == 0 {
+	if uNetINode == 0 {
 		return sdfsapitypes.ErrNetINodeNotExists
 	}
 
-	uFsINode.Ptr().UNetINode.Ptr().MemBlockPlacementPolicy = policy
+	uNetINode.Ptr().MemBlockPlacementPolicy = policy
 
 	return nil
 }
