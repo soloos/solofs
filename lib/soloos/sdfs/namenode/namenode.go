@@ -21,6 +21,18 @@ type NameNode struct {
 	SRPCServer NameNodeSRPCServer
 }
 
+func (p *NameNode) initSNetPeer(peerID snettypes.PeerID, srpcServerServeAddr string) error {
+	var err error
+	p.peer.ID = peerID
+	p.peer.SetAddress(srpcServerServeAddr)
+	p.peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+	err = p.SNetDriver.RegisterPeer(p.peer)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (p *NameNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	peerID snettypes.PeerID,
 	srpcServerListenAddr string,
@@ -33,21 +45,17 @@ func (p *NameNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	var err error
 
 	p.SoloOSEnv = soloOSEnv
-	p.peer.ID = peerID
-	p.peer.SetAddress(srpcServerServeAddr)
-	p.peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+	p.metaStg = metaStg
+	p.memBlockDriver = memBlockDriver
+	p.netBlockDriver = netBlockDriver
+	p.netINodeDriver = netINodeDriver
 
 	err = p.SRPCServer.Init(p, srpcServerListenAddr, srpcServerServeAddr)
 	if err != nil {
 		return err
 	}
 
-	p.metaStg = metaStg
-	p.memBlockDriver = memBlockDriver
-	p.netBlockDriver = netBlockDriver
-	p.netINodeDriver = netINodeDriver
-
-	err = p.SNetDriver.RegisterPeer(p.peer)
+	err = p.initSNetPeer(peerID, srpcServerServeAddr)
 	if err != nil {
 		return err
 	}

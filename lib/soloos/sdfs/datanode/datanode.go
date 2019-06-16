@@ -27,36 +27,14 @@ type DataNode struct {
 	SRPCServer DataNodeSRPCServer
 }
 
-func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	options DataNodeOptions,
-	memBlockDriver *memstg.MemBlockDriver,
-	netBlockDriver *netstg.NetBlockDriver,
-	netINodeDriver *memstg.NetINodeDriver,
-) error {
-	var (
-		err error
-	)
-
-	p.SoloOSEnv = soloOSEnv
-	p.peer.ID = options.PeerID
-	p.peer.SetAddress(options.SrpcServerServeAddr)
-	p.peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
-
-	p.netBlockDriver = netBlockDriver
-	p.memBlockDriver = memBlockDriver
-	p.netINodeDriver = netINodeDriver
-
-	err = p.SRPCServer.Init(p, options.SrpcServerListenAddr, options.SrpcServerServeAddr)
-	if err != nil {
-		return err
-	}
-
+func (p *DataNode) initLocalFs(options DataNodeOptions) error {
+	var err error
 	err = p.localFS.Init(options.LocalFSRoot)
 	if err != nil {
 		return err
 	}
 
-	p.localFsSNetPeer.ID = snet.MakeSysPeerID(fmt.Sprintf("DATANODE_"))
+	p.localFsSNetPeer.ID = snet.MakeSysPeerID(fmt.Sprintf("DATANODE_LOCAL_FS"))
 	p.localFsSNetPeer.SetAddress("LocalFs")
 	p.localFsSNetPeer.ServiceProtocol = snettypes.ProtocolDisk
 	err = p.SNetDriver.RegisterPeer(p.localFsSNetPeer)
@@ -64,17 +42,71 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		return err
 	}
 
+	return nil
+}
+
+func (p *DataNode) initSNetPeer(options DataNodeOptions) error {
+	var err error
+	p.peer.ID = options.PeerID
+	p.peer.SetAddress(options.SrpcServerServeAddr)
+	p.peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+	err = p.SNetDriver.RegisterPeer(p.peer)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *DataNode) initNetBlockDriver() error {
 	p.netBlockDriver.SetPReadMemBlockWithDisk(p.localFS.PReadMemBlockWithDisk)
 	p.netBlockDriver.SetUploadMemBlockWithDisk(p.localFS.UploadMemBlockWithDisk)
 	p.netBlockDriver.SetHelper(&p.nameNodeClient, p.netBlockDriver.PrepareNetBlockMetaData)
+	return nil
+}
 
+func (p *DataNode) initNetINodeDriver() error {
 	p.netINodeDriver.SetHelper(&p.nameNodeClient,
 		p.netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
 		p.netINodeDriver.PrepareNetINodeMetaDataWithStorDB,
 		p.netINodeDriver.NetINodeCommitSizeInDB,
 	)
+	return nil
+}
 
-	err = p.SNetDriver.RegisterPeer(p.peer)
+func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
+	options DataNodeOptions,
+	memBlockDriver *memstg.MemBlockDriver,
+	netBlockDriver *netstg.NetBlockDriver,
+	netINodeDriver *memstg.NetINodeDriver,
+) error {
+	var err error
+
+	p.SoloOSEnv = soloOSEnv
+	p.netBlockDriver = netBlockDriver
+	p.memBlockDriver = memBlockDriver
+	p.netINodeDriver = netINodeDriver
+
+	err = p.initSNetPeer(options)
+	if err != nil {
+		return err
+	}
+
+	err = p.SRPCServer.Init(p, options.SrpcServerListenAddr, options.SrpcServerServeAddr)
+	if err != nil {
+		return err
+	}
+
+	err = p.initLocalFs(options)
+	if err != nil {
+		return err
+	}
+
+	err = p.initNetBlockDriver()
+	if err != nil {
+		return err
+	}
+
+	err = p.initNetINodeDriver()
 	if err != nil {
 		return err
 	}

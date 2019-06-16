@@ -62,7 +62,8 @@ func (p *MemBlockDriver) ReleaseMemBlockWithReadRelease(uMemBlock sdfsapitypes.M
 	}
 }
 
-func (p *MemBlockDriver) MustGetTmpMemBlockWithReadAcquire(uNetINode sdfsapitypes.NetINodeUintptr, memBlockID soloosbase.PtrBindIndex) sdfsapitypes.MemBlockUintptr {
+func (p *MemBlockDriver) MustGetTmpMemBlockWithReadAcquire(uNetINode sdfsapitypes.NetINodeUintptr,
+	memBlockID soloosbase.PtrBindIndex) sdfsapitypes.MemBlockUintptr {
 	return p.tables[uNetINode.Ptr().MemBlockCap].MustGetTmpMemBlockWithReadAcquire(memBlockID)
 }
 

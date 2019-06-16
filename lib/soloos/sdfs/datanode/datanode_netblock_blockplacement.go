@@ -48,6 +48,7 @@ func (p *DataNode) PrepareNetBlockLocalDataBackend(uNetBlock sdfsapitypes.NetBlo
 		goto PREPARE_DONE
 	}
 
+	// TODO: maybe pNetBlock.IsLocalDataBackendExists is false
 	pNetBlock.IsLocalDataBackendExists = true
 	pNetBlock.IsLocalDataBackendInited.Store(sdbapitypes.MetaDataStateInited)
 
