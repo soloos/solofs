@@ -6,7 +6,7 @@ import (
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
-	"soloos/sdfs/libsdfs"
+	"soloos/sdfs/sdfscli"
 )
 
 var (
@@ -16,8 +16,8 @@ var (
 type Env struct {
 	Options      Options
 	SoloOSEnv    soloosbase.SoloOSEnv
-	ClientDriver libsdfs.ClientDriver
-	Client       libsdfs.Client
+	ClientDriver sdfscli.ClientDriver
+	Client       sdfscli.Client
 	PosixFS      fsapi.PosixFS
 }
 

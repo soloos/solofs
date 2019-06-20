@@ -5,7 +5,7 @@ import (
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
-	"soloos/sdfs/libsdfs"
+	"soloos/sdfs/sdfscli"
 	"soloos/sdfs/sfuse"
 )
 
@@ -17,7 +17,7 @@ func main() {
 
 	var (
 		soloOSEnv    soloosbase.SoloOSEnv
-		clientDriver libsdfs.ClientDriver
+		clientDriver sdfscli.ClientDriver
 		sfuseServer  sfuse.Server
 	)
 

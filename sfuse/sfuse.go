@@ -4,13 +4,13 @@ import (
 	"os"
 	"soloos/common/go-fuse/fuse"
 	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/libsdfs"
+	"soloos/sdfs/sdfscli"
 )
 
 type Server struct {
 	options Options
 
-	Client     libsdfs.Client
+	Client     sdfscli.Client
 	MountOpts  fuse.MountOptions
 	FuseServer *fuse.Server
 }
@@ -19,7 +19,7 @@ func (p *Server) Init(options Options,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
 	defaultMemBlocksLimit int32,
-	clientDriver *libsdfs.ClientDriver) error {
+	clientDriver *sdfscli.ClientDriver) error {
 	var err error
 	p.options = options
 

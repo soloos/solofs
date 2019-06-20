@@ -1,4 +1,4 @@
-package libsdfs
+package sdfscli
 
 import "soloos/common/swalapi"
 

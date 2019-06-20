@@ -1,29 +1,29 @@
 
-test-soloos-sdfs-datanode:
-	go test soloos/sdfs/datanode
-
-test-soloos-sdfs-libsdfs:
-	go test soloos/sdfs/libsdfs
-
-test-soloos-sdfs-memstg:
-	go test soloos/sdfs/memstg
-
-test-soloos-sdfs-metastg:
-	go test soloos/sdfs/metastg
-
-test-soloos-sdfs-minicluster:
-	go test soloos/sdfs/minicluster
-
-test-soloos-sdfs-namenode:
-	go test soloos/sdfs/namenode
-
-test-soloos-sdfs-netstg:
-	go test soloos/sdfs/netstg
-
-test-soloos-sdfs-sfuse:
-	go test soloos/sdfs/sfuse
+test-datanode:
+	go test .//datanode
 
 test-libsdfs:
-	go test libsdfs
+	go test .//libsdfs
 
-test: test-soloos-sdfs-datanode test-soloos-sdfs-libsdfs test-soloos-sdfs-memstg test-soloos-sdfs-metastg test-soloos-sdfs-minicluster test-soloos-sdfs-namenode test-soloos-sdfs-netstg test-soloos-sdfs-sfuse test-libsdfs
+test-memstg:
+	go test .//memstg
+
+test-metastg:
+	go test .//metastg
+
+test-minicluster:
+	go test .//minicluster
+
+test-namenode:
+	go test .//namenode
+
+test-netstg:
+	go test .//netstg
+
+test-sdfscli:
+	go test .//sdfscli
+
+test-sfuse:
+	go test .//sfuse
+
+test: test-datanode test-libsdfs test-memstg test-metastg test-minicluster test-namenode test-netstg test-sdfscli test-sfuse

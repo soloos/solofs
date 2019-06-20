@@ -1,29 +1,29 @@
 
-bench-soloos-sdfs-datanode:
-	cd src/soloos/sdfs/datanode/ && go test -bench=. -benchmem 
-
-bench-soloos-sdfs-libsdfs:
-	cd src/soloos/sdfs/libsdfs/ && go test -bench=. -benchmem 
-
-bench-soloos-sdfs-memstg:
-	cd src/soloos/sdfs/memstg/ && go test -bench=. -benchmem 
-
-bench-soloos-sdfs-metastg:
-	cd src/soloos/sdfs/metastg/ && go test -bench=. -benchmem 
-
-bench-soloos-sdfs-minicluster:
-	cd src/soloos/sdfs/minicluster/ && go test -bench=. -benchmem 
-
-bench-soloos-sdfs-namenode:
-	cd src/soloos/sdfs/namenode/ && go test -bench=. -benchmem 
-
-bench-soloos-sdfs-netstg:
-	cd src/soloos/sdfs/netstg/ && go test -bench=. -benchmem 
-
-bench-soloos-sdfs-sfuse:
-	cd src/soloos/sdfs/sfuse/ && go test -bench=. -benchmem 
+bench-datanode:
+	cd src/.//datanode/ && go test -bench=. -benchmem 
 
 bench-libsdfs:
-	cd src/libsdfs/ && go test -bench=. -benchmem 
+	cd src/.//libsdfs/ && go test -bench=. -benchmem 
 
-bench: bench-soloos-sdfs-datanode bench-soloos-sdfs-libsdfs bench-soloos-sdfs-memstg bench-soloos-sdfs-metastg bench-soloos-sdfs-minicluster bench-soloos-sdfs-namenode bench-soloos-sdfs-netstg bench-soloos-sdfs-sfuse bench-libsdfs
+bench-memstg:
+	cd src/.//memstg/ && go test -bench=. -benchmem 
+
+bench-metastg:
+	cd src/.//metastg/ && go test -bench=. -benchmem 
+
+bench-minicluster:
+	cd src/.//minicluster/ && go test -bench=. -benchmem 
+
+bench-namenode:
+	cd src/.//namenode/ && go test -bench=. -benchmem 
+
+bench-netstg:
+	cd src/.//netstg/ && go test -bench=. -benchmem 
+
+bench-sdfscli:
+	cd src/.//sdfscli/ && go test -bench=. -benchmem 
+
+bench-sfuse:
+	cd src/.//sfuse/ && go test -bench=. -benchmem 
+
+bench: bench-datanode bench-libsdfs bench-memstg bench-metastg bench-minicluster bench-namenode bench-netstg bench-sdfscli bench-sfuse
