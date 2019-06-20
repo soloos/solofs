@@ -1,4 +1,4 @@
-package netstg
+package memstg
 
 func (p *StorePolicy) SetFanout() {
 }

@@ -1,4 +1,4 @@
-package netstg
+package memstg
 
 import (
 	"soloos/common/sdbapitypes"

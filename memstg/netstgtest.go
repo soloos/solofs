@@ -1,4 +1,4 @@
-package netstg
+package memstg
 
 import (
 	"soloos/common/sdfsapi"
@@ -6,10 +6,9 @@ import (
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
-	"time"
 )
 
-func MakeNetBlockDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func NetStgMakeNetBlockDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	netBlockDriver *NetBlockDriver,
 	nameNodeClient *sdfsapi.NameNodeClient,
 	dataNodeClient *sdfsapi.DataNodeClient,
@@ -21,7 +20,7 @@ func MakeNetBlockDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	))
 }
 
-func MakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func NetStgMakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	nameNodeSRPCServerAddr string,
 	nameNodeClient *sdfsapi.NameNodeClient,
 	dataNodeClient *sdfsapi.DataNodeClient,
@@ -35,27 +34,18 @@ func MakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 
 	util.AssertErrIsNil(nameNodeClient.Init(soloOSEnv, nameNodePeer.ID))
 	util.AssertErrIsNil(dataNodeClient.Init(soloOSEnv))
-	MakeNetBlockDriversForTest(soloOSEnv,
+	NetStgMakeNetBlockDriversForTest(soloOSEnv,
 		netBlockDriver, nameNodeClient, dataNodeClient,
 	)
 }
 
-func MakeMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
-	mockServerAddr string, mockServer *MockServer) {
-	util.AssertErrIsNil(mockServer.Init(soloOSEnv, "tcp", mockServerAddr))
-	go func() {
-		util.AssertErrIsNil(mockServer.Serve())
-	}()
-	time.Sleep(time.Millisecond * 300)
-}
-
-func MakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func NetStgMakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	mockServerAddr string,
 	mockServer *MockServer,
 	nameNodeClient *sdfsapi.NameNodeClient,
 	dataNodeClient *sdfsapi.DataNodeClient,
 	netBlockDriver *NetBlockDriver,
 ) {
-	MakeDriversForTest(soloOSEnv, mockServerAddr, nameNodeClient, dataNodeClient, netBlockDriver)
+	NetStgMakeDriversForTest(soloOSEnv, mockServerAddr, nameNodeClient, dataNodeClient, netBlockDriver)
 	MakeMockServerForTest(soloOSEnv, mockServerAddr, mockServer)
 }

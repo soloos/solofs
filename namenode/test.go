@@ -6,14 +6,13 @@ import (
 	"soloos/common/util"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
-	"soloos/sdfs/netstg"
 )
 
 func MakeNameNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	nameNode *NameNode, metaStg *metastg.MetaStg,
 	nameNodePeerID snettypes.PeerID, nameNodeSRPCServerAddr string,
 	memBlockDriver *memstg.MemBlockDriver,
-	netBlockDriver *netstg.NetBlockDriver,
+	netBlockDriver *memstg.NetBlockDriver,
 	netINodeDriver *memstg.NetINodeDriver,
 ) {
 	var err error

@@ -1,13 +1,12 @@
 package memstg
 
 import (
+	"soloos/common/sdfsapi"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
-	"soloos/common/sdfsapi"
-	"soloos/sdfs/netstg"
 )
 
-func MakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, soloOSEnv *soloosbase.SoloOSEnv,
+func MemStgMakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, soloOSEnv *soloosbase.SoloOSEnv,
 	blockSize int, blocksLimit int32) {
 	memBlockDriverOptions := MemBlockDriverOptions{
 		[]MemBlockTableOptions{
@@ -19,10 +18,10 @@ func MakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, soloOSEnv *soloo
 	util.AssertErrIsNil(memBlockDriver.Init(soloOSEnv, memBlockDriverOptions))
 }
 
-func MakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func MemStgMakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	nameNodeSRPCServerAddr string,
 	memBlockDriver *MemBlockDriver,
-	netBlockDriver *netstg.NetBlockDriver,
+	netBlockDriver *NetBlockDriver,
 	netINodeDriver *NetINodeDriver,
 	blockSize int, blocksLimit int32) {
 	var (
@@ -30,13 +29,13 @@ func MakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 		dataNodeClient sdfsapi.DataNodeClient
 	)
 
-	netstg.MakeDriversForTest(soloOSEnv,
+	NetStgMakeDriversForTest(soloOSEnv,
 		nameNodeSRPCServerAddr,
 		&nameNodeClient, &dataNodeClient,
 		netBlockDriver,
 	)
 
-	MakeMemBlockDriversForTest(memBlockDriver, soloOSEnv, blockSize, blocksLimit)
+	MemStgMakeMemBlockDriversForTest(memBlockDriver, soloOSEnv, blockSize, blocksLimit)
 
 	util.AssertErrIsNil(netINodeDriver.Init(soloOSEnv, netBlockDriver, memBlockDriver, &nameNodeClient,
 		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
@@ -45,10 +44,10 @@ func MakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	))
 }
 
-func MakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func MemStgMakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	mockServerAddr string,
-	mockServer *netstg.MockServer,
-	netBlockDriver *netstg.NetBlockDriver,
+	mockServer *MockServer,
+	netBlockDriver *NetBlockDriver,
 	memBlockDriver *MemBlockDriver,
 	netINodeDriver *NetINodeDriver,
 	blockSize int, blocksLimit int32) {
@@ -57,13 +56,13 @@ func MakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
 		dataNodeClient sdfsapi.DataNodeClient
 	)
 
-	netstg.MakeDriversWithMockServerForTest(soloOSEnv,
+	NetStgMakeDriversWithMockServerForTest(soloOSEnv,
 		mockServerAddr, mockServer,
 		&nameNodeClient, &dataNodeClient,
 		netBlockDriver,
 	)
 
-	MakeMemBlockDriversForTest(memBlockDriver, soloOSEnv, blockSize, blocksLimit)
+	MemStgMakeMemBlockDriversForTest(memBlockDriver, soloOSEnv, blockSize, blocksLimit)
 
 	util.AssertErrIsNil(netINodeDriver.Init(soloOSEnv, netBlockDriver, memBlockDriver, &nameNodeClient,
 		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,

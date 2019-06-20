@@ -5,7 +5,6 @@ import (
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/swalapi"
-	"soloos/sdfs/netstg"
 )
 
 type MemStg struct {
@@ -13,7 +12,7 @@ type MemStg struct {
 
 	NameNodeClient sdfsapi.NameNodeClient
 	DataNodeClient sdfsapi.DataNodeClient
-	netstg.NetBlockDriver
+	NetBlockDriver
 	MemBlockDriver
 	NetINodeDriver
 

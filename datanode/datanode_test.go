@@ -10,7 +10,6 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
-	"soloos/sdfs/netstg"
 	"testing"
 	"time"
 
@@ -42,17 +41,17 @@ func TestBase(t *testing.T) {
 	var (
 		soloOSEnvForClient      soloosbase.SoloOSEnv
 		memBlockDriverForClient memstg.MemBlockDriver
-		netBlockDriverForClient netstg.NetBlockDriver
+		netBlockDriverForClient memstg.NetBlockDriver
 		netINodeDriverForClient memstg.NetINodeDriver
 
 		soloOSEnvForNameNode      soloosbase.SoloOSEnv
 		memBlockDriverForNameNode memstg.MemBlockDriver
-		netBlockDriverForNameNode netstg.NetBlockDriver
+		netBlockDriverForNameNode memstg.NetBlockDriver
 		netINodeDriverForNameNode memstg.NetINodeDriver
 
 		soloOSEnvForDataNodes      [6]soloosbase.SoloOSEnv
 		memBlockDriverForDataNodes [6]memstg.MemBlockDriver
-		netBlockDriverForDataNodes [6]netstg.NetBlockDriver
+		netBlockDriverForDataNodes [6]memstg.NetBlockDriver
 		netINodeDriverForDataNodes [6]memstg.NetINodeDriver
 
 		netBlockCap int   = 32
@@ -75,11 +74,11 @@ func TestBase(t *testing.T) {
 	assert.NoError(t, soloOSEnvForClient.Init())
 	assert.NoError(t, soloOSEnvForClient.SNetDriver.StartClient(netDriverServerServeAddr))
 
-	memstg.MakeDriversForTest(&soloOSEnvForClient,
+	memstg.MemStgMakeDriversForTest(&soloOSEnvForClient,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverForClient, &netBlockDriverForClient, &netINodeDriverForClient, memBlockCap, blocksLimit)
 
-	memstg.MakeDriversForTest(&soloOSEnvForNameNode,
+	memstg.MemStgMakeDriversForTest(&soloOSEnvForNameNode,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverForNameNode, &netBlockDriverForNameNode, &netINodeDriverForNameNode, memBlockCap, blocksLimit)
 	namenode.MakeNameNodeForTest(&soloOSEnvForNameNode, &nameNode, &metaStgForNameNode,
@@ -96,7 +95,7 @@ func TestBase(t *testing.T) {
 		assert.NoError(t, soloOSEnvForDataNodes[i].SNetDriver.StartClient(netDriverServerServeAddr))
 		dataNodePeerIDs[i] = snet.MakeSysPeerID(fmt.Sprintf("DataNodeForTest_%v", i))
 
-		memstg.MakeDriversForTest(&soloOSEnvForDataNodes[i],
+		memstg.MemStgMakeDriversForTest(&soloOSEnvForDataNodes[i],
 			nameNodeSRPCListenAddr,
 			&memBlockDriverForDataNodes[i],
 			&netBlockDriverForDataNodes[i],

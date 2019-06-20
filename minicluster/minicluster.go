@@ -9,7 +9,6 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
-	"soloos/sdfs/netstg"
 )
 
 type MiniCluster struct {
@@ -18,13 +17,13 @@ type MiniCluster struct {
 	NameNodes               []namenode.NameNode
 	NameNodeMetaStgs        []metastg.MetaStg
 	NameNodeMemBlockDrivers []memstg.MemBlockDriver
-	NameNodeNetBlockDrivers []netstg.NetBlockDriver
+	NameNodeNetBlockDrivers []memstg.NetBlockDriver
 	NameNodeNetINodeDrivers []memstg.NetINodeDriver
 
 	DataNodes               []datanode.DataNode
 	DataNodeMetaStgs        []metastg.MetaStg
 	DataNodeMemBlockDrivers []memstg.MemBlockDriver
-	DataNodeNetBlockDrivers []netstg.NetBlockDriver
+	DataNodeNetBlockDrivers []memstg.NetBlockDriver
 	DataNodeNetINodeDrivers []memstg.NetINodeDriver
 }
 
@@ -33,7 +32,7 @@ func (p *MiniCluster) Init(soloOSEnv *soloosbase.SoloOSEnv, nameNodePorts []int,
 	p.NameNodes = make([]namenode.NameNode, len(nameNodePorts))
 	p.NameNodeMetaStgs = make([]metastg.MetaStg, len(nameNodePorts))
 	p.NameNodeMemBlockDrivers = make([]memstg.MemBlockDriver, len(nameNodePorts))
-	p.NameNodeNetBlockDrivers = make([]netstg.NetBlockDriver, len(nameNodePorts))
+	p.NameNodeNetBlockDrivers = make([]memstg.NetBlockDriver, len(nameNodePorts))
 	p.NameNodeNetINodeDrivers = make([]memstg.NetINodeDriver, len(nameNodePorts))
 	for i := 0; i < len(nameNodePorts); i++ {
 		metastg.MakeMetaStgForTest(p.SoloOSEnv, &p.NameNodeMetaStgs[i])
@@ -52,7 +51,7 @@ func (p *MiniCluster) Init(soloOSEnv *soloosbase.SoloOSEnv, nameNodePorts []int,
 	p.DataNodes = make([]datanode.DataNode, len(dataNodePorts))
 	p.DataNodeMetaStgs = make([]metastg.MetaStg, len(dataNodePorts))
 	p.DataNodeMemBlockDrivers = make([]memstg.MemBlockDriver, len(dataNodePorts))
-	p.DataNodeNetBlockDrivers = make([]netstg.NetBlockDriver, len(dataNodePorts))
+	p.DataNodeNetBlockDrivers = make([]memstg.NetBlockDriver, len(dataNodePorts))
 	p.DataNodeNetINodeDrivers = make([]memstg.NetINodeDriver, len(dataNodePorts))
 	for i := 0; i < len(dataNodePorts); i++ {
 		metastg.MakeMetaStgForTest(p.SoloOSEnv, &p.NameNodeMetaStgs[i])

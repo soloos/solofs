@@ -1,4 +1,4 @@
-package netstg
+package memstg
 
 import (
 	"soloos/common/sdfsapi"
@@ -26,7 +26,7 @@ func TestNetBlockDriver(t *testing.T) {
 	mockServerAddr := "127.0.0.1:10021"
 	assert.NoError(t, mockNetINodeTable.Init(&soloOSEnv))
 	assert.NoError(t, mockMemBlockTable.Init(&soloOSEnv, 1024))
-	MakeDriversWithMockServerForTest(&soloOSEnv,
+	NetStgMakeDriversWithMockServerForTest(&soloOSEnv,
 		mockServerAddr, &mockServer,
 		&nameNodeClient, &dataNodeClient,
 		&netBlockDriver)

@@ -17,13 +17,10 @@ bench-minicluster:
 bench-namenode:
 	cd src/.//namenode/ && go test -bench=. -benchmem 
 
-bench-netstg:
-	cd src/.//netstg/ && go test -bench=. -benchmem 
-
 bench-sdfscli:
 	cd src/.//sdfscli/ && go test -bench=. -benchmem 
 
 bench-sfuse:
 	cd src/.//sfuse/ && go test -bench=. -benchmem 
 
-bench: bench-datanode bench-libsdfs bench-memstg bench-metastg bench-minicluster bench-namenode bench-netstg bench-sdfscli bench-sfuse
+bench: bench-datanode bench-libsdfs bench-memstg bench-metastg bench-minicluster bench-namenode bench-sdfscli bench-sfuse

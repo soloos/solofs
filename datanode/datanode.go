@@ -9,7 +9,6 @@ import (
 	"soloos/common/soloosbase"
 	"soloos/sdfs/localfs"
 	"soloos/sdfs/memstg"
-	"soloos/sdfs/netstg"
 )
 
 type DataNode struct {
@@ -17,7 +16,7 @@ type DataNode struct {
 	peer snettypes.Peer
 
 	memBlockDriver *memstg.MemBlockDriver
-	netBlockDriver *netstg.NetBlockDriver
+	netBlockDriver *memstg.NetBlockDriver
 	netINodeDriver *memstg.NetINodeDriver
 	nameNodeClient sdfsapi.NameNodeClient
 
@@ -76,7 +75,7 @@ func (p *DataNode) initNetINodeDriver() error {
 func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	options DataNodeOptions,
 	memBlockDriver *memstg.MemBlockDriver,
-	netBlockDriver *netstg.NetBlockDriver,
+	netBlockDriver *memstg.NetBlockDriver,
 	netINodeDriver *memstg.NetINodeDriver,
 ) error {
 	var err error

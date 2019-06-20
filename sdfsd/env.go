@@ -11,7 +11,6 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
-	"soloos/sdfs/netstg"
 )
 
 type Env struct {
@@ -23,7 +22,7 @@ type Env struct {
 	MetaStg          metastg.MetaStg
 	DataNodeClient   sdfsapi.DataNodeClient
 	MemBlockDriver   memstg.MemBlockDriver
-	NetBlockDriver   netstg.NetBlockDriver
+	NetBlockDriver   memstg.NetBlockDriver
 	NetINodeDriver   memstg.NetINodeDriver
 }
 

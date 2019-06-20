@@ -4,7 +4,6 @@ import (
 	"soloos/common/sdfsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
-	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
 	"testing"
 
@@ -14,9 +13,9 @@ import (
 func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 	var (
 		soloOSEnv         soloosbase.SoloOSEnv
-		mockServer        netstg.MockServer
+		mockServer        MockServer
 		mockNetINodeTable types.MockNetINodeTable
-		netBlockDriver    netstg.NetBlockDriver
+		netBlockDriver    NetBlockDriver
 		memBlockDriver    MemBlockDriver
 		netINodeDriver    NetINodeDriver
 		maxBlocks         int32 = 16
@@ -29,7 +28,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 	util.AssertErrIsNil(soloOSEnv.Init())
 
 	assert.NoError(t, mockNetINodeTable.Init(&soloOSEnv))
-	MakeDriversWithMockServerForTest(&soloOSEnv, "127.0.0.1:10023", &mockServer,
+	MemStgMakeDriversWithMockServerForTest(&soloOSEnv, "127.0.0.1:10023", &mockServer,
 		&netBlockDriver, &memBlockDriver, &netINodeDriver,
 		memBlockCap, blocksLimit)
 	uNetINode = mockNetINodeTable.AllocNetINode(netBlockCap, memBlockCap)

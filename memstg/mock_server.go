@@ -1,4 +1,4 @@
-package netstg
+package memstg
 
 import (
 	"soloos/common/sdfsapi"
@@ -162,4 +162,13 @@ func (p *MockServer) Close() error {
 	err = p.srpcServer.Close()
 	time.Sleep(time.Second)
 	return err
+}
+
+func MakeMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
+	mockServerAddr string, mockServer *MockServer) {
+	util.AssertErrIsNil(mockServer.Init(soloOSEnv, "tcp", mockServerAddr))
+	go func() {
+		util.AssertErrIsNil(mockServer.Serve())
+	}()
+	time.Sleep(time.Millisecond * 300)
 }

@@ -10,7 +10,6 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
-	"soloos/sdfs/netstg"
 	"soloos/sdfs/types"
 	"time"
 )
@@ -32,15 +31,15 @@ func MakeClientForTest(client *Client) {
 		netDriverServerServeAddr                   = "http://127.0.0.1:10402"
 		nameNode                  namenode.NameNode
 		mockServerAddr            = "127.0.0.1:10301"
-		mockServer                netstg.MockServer
+		mockServer                memstg.MockServer
 		mockMemBlockTable         types.MockMemBlockTable
 
 		memBlockDriverForClient *memstg.MemBlockDriver = &memStg.MemBlockDriver
-		netBlockDriverForClient *netstg.NetBlockDriver = &memStg.NetBlockDriver
+		netBlockDriverForClient *memstg.NetBlockDriver = &memStg.NetBlockDriver
 		netINodeDriverForClient *memstg.NetINodeDriver = &memStg.NetINodeDriver
 
 		memBlockDriverForServer memstg.MemBlockDriver
-		netBlockDriverForServer netstg.NetBlockDriver
+		netBlockDriverForServer memstg.NetBlockDriver
 		netINodeDriverForServer memstg.NetINodeDriver
 
 		netBlockCap int   = 1280
@@ -50,11 +49,11 @@ func MakeClientForTest(client *Client) {
 		i           int
 	)
 
-	memstg.MakeDriversForTest(&soloOSEnv,
+	memstg.MemStgMakeDriversForTest(&soloOSEnv,
 		nameNodeSRPCListenAddr,
 		memBlockDriverForClient, netBlockDriverForClient, netINodeDriverForClient, memBlockCap, blocksLimit)
 
-	memstg.MakeDriversForTest(&soloOSEnv,
+	memstg.MemStgMakeDriversForTest(&soloOSEnv,
 		nameNodeSRPCListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer, memBlockCap, blocksLimit)
 
@@ -79,7 +78,7 @@ func MakeClientForTest(client *Client) {
 
 	time.Sleep(time.Millisecond * 600)
 
-	netstg.MakeMockServerForTest(&soloOSEnv, mockServerAddr, &mockServer)
+	memstg.MakeMockServerForTest(&soloOSEnv, mockServerAddr, &mockServer)
 	mockMemBlockTable.Init(&soloOSEnv, 1024)
 
 	for i = 0; i < 6; i++ {

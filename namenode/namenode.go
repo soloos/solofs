@@ -6,7 +6,6 @@ import (
 	"soloos/common/soloosbase"
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
-	"soloos/sdfs/netstg"
 )
 
 type NameNode struct {
@@ -15,7 +14,7 @@ type NameNode struct {
 	metaStg *metastg.MetaStg
 
 	memBlockDriver *memstg.MemBlockDriver
-	netBlockDriver *netstg.NetBlockDriver
+	netBlockDriver *memstg.NetBlockDriver
 	netINodeDriver *memstg.NetINodeDriver
 
 	SRPCServer NameNodeSRPCServer
@@ -39,7 +38,7 @@ func (p *NameNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	srpcServerServeAddr string,
 	metaStg *metastg.MetaStg,
 	memBlockDriver *memstg.MemBlockDriver,
-	netBlockDriver *netstg.NetBlockDriver,
+	netBlockDriver *memstg.NetBlockDriver,
 	netINodeDriver *memstg.NetINodeDriver,
 ) error {
 	var err error

@@ -6,7 +6,6 @@ import (
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/sdfs/memstg"
-	"soloos/sdfs/netstg"
 )
 
 func MakeDataNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
@@ -14,7 +13,7 @@ func MakeDataNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	dataNodePeerID snettypes.PeerID, dataNodeSRPCServerAddr string,
 	nameNodePeerID snettypes.PeerID, nameNodeSRPCServerAddr string,
 	memBlockDriver *memstg.MemBlockDriver,
-	netBlockDriver *netstg.NetBlockDriver,
+	netBlockDriver *memstg.NetBlockDriver,
 	netINodeDriver *memstg.NetINodeDriver,
 ) {
 	var (

@@ -6,7 +6,6 @@ import (
 	"soloos/common/sdfsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/sdbone/offheap"
-	"soloos/sdfs/netstg"
 )
 
 type NetINodeDriverHelper struct {
@@ -23,11 +22,11 @@ type NetINodeDriver struct {
 	netINodeTable offheap.LKVTableWithBytes64
 
 	memBlockDriver *MemBlockDriver
-	netBlockDriver *netstg.NetBlockDriver
+	netBlockDriver *NetBlockDriver
 }
 
 func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	netBlockDriver *netstg.NetBlockDriver,
+	netBlockDriver *NetBlockDriver,
 	memBlockDriver *MemBlockDriver,
 	// for NetINodeDriverHelper
 	nameNodeClient *sdfsapi.NameNodeClient,
