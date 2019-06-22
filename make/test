@@ -17,10 +17,10 @@ test-minicluster:
 test-namenode:
 	go test .//namenode
 
-test-sdfscli:
-	go test .//sdfscli
+test-sdfssdk:
+	go test .//sdfssdk
 
 test-sfuse:
 	go test .//sfuse
 
-test: test-datanode test-libsdfs test-memstg test-metastg test-minicluster test-namenode test-sdfscli test-sfuse
+test: test-datanode test-libsdfs test-memstg test-metastg test-minicluster test-namenode test-sdfssdk test-sfuse

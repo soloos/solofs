@@ -1,4 +1,4 @@
-package sdfscli
+package sdfssdk
 
 import (
 	"soloos/common/log"

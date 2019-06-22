@@ -16,7 +16,7 @@ clean-test-cache:
 
 fbs: $(GENERATED_PROTOS)
 
-all:sdfsd sdfsd-mock sdfscli
+all:sdfsd sdfsd-mock sdfssdk
 
 libsdfs:
 	$(GOBUILD) -o ./bin/libsdfs.so -buildmode=c-shared ./libsdfs
