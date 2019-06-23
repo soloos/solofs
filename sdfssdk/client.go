@@ -2,6 +2,7 @@ package sdfssdk
 
 import (
 	"soloos/common/fsapi"
+	"soloos/common/log"
 	"soloos/common/sdbapi"
 	"soloos/common/sdfsapi"
 	"soloos/common/sdfsapitypes"
@@ -42,6 +43,7 @@ func (p *Client) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		p.memStg.ReleaseNetINode,
 	)
 	if err != nil {
+		log.Debug("SDFS metaPosixFS Init error", err)
 		return err
 	}
 
@@ -65,6 +67,7 @@ func (p *Client) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		p.metaPosixFS.FIXAttrDriver.GetFIXAttrByInoFromDB,
 	)
 	if err != nil {
+		log.Debug("SDFS metaPosixFS Init error", err)
 		return err
 	}
 

@@ -76,6 +76,7 @@ func (p *ClientDriver) InitClient(itClient sdfsapi.Client,
 		ObjectsLimit: defaultMemBlocksLimit,
 	})
 	if err != nil {
+		log.Debug("SDFS ClientDriver PrepareMemBlockTabl error", err)
 		return err
 	}
 
@@ -86,6 +87,7 @@ func (p *ClientDriver) InitClient(itClient sdfsapi.Client,
 		defaultMemBlockCap,
 	)
 	if err != nil {
+		log.Debug("SDFS ClientDriver InitClient error", err)
 		return err
 	}
 
