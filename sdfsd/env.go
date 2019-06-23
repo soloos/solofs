@@ -49,6 +49,8 @@ func (p *Env) Init(options Options) {
 }
 
 func (p *Env) startCommon() {
+	util.AssertErrIsNil(p.SoloOSEnv.SNetDriver.StartClient(p.options.SNetDriverServeAddr))
+
 	if p.options.PProfListenAddr != "" {
 		go util.PProfServe(p.options.PProfListenAddr)
 	}
@@ -60,14 +62,6 @@ func (p *Env) startNameNode() {
 		nameNodePeerID snettypes.PeerID
 	)
 	copy(nameNodePeerID[:], []byte(p.options.NameNodePeerID))
-
-	go func() {
-		util.AssertErrIsNil(
-			p.SoloOSEnv.SNetDriver.StartServer(p.options.SNetDriverListenAddr,
-				p.options.SNetDriverServeAddr,
-				nil, nil),
-		)
-	}()
 
 	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloOSEnv,
 		nil, &p.DataNodeClient, p.MetaStg.PrepareNetBlockMetaData))
@@ -112,8 +106,6 @@ func (p *Env) startDataNode() {
 		LocalFSRoot:          p.options.DataNodeLocalFSRoot,
 		NameNodePeerID:       nameNodePeerID,
 	}
-
-	util.AssertErrIsNil(p.SoloOSEnv.SNetDriver.StartClient(p.options.SNetDriverServeAddr))
 
 	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloOSEnv,
 		nil, &p.DataNodeClient, p.MetaStg.PrepareNetBlockMetaData))

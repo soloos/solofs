@@ -11,10 +11,9 @@ type Options struct {
 	DefaultMemBlocksLimit int32
 	Mode                  string
 
-	SNetDriverListenAddr string
-	SNetDriverServeAddr  string
-	ServeAddr            string
-	ListenAddr           string
+	SNetDriverServeAddr string
+	ServeAddr           string
+	ListenAddr          string
 
 	DataNodePeerID      string
 	DataNodeLocalFSRoot string
