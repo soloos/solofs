@@ -7,9 +7,11 @@ require (
 	github.com/stretchr/testify v1.3.0
 	soloos/common v0.0.0
 	soloos/sdbone v0.0.0
+	soloos/silicon v0.0.0
 )
 
 replace (
 	soloos/common v0.0.0 => /soloos/common
 	soloos/sdbone v0.0.0 => /soloos/sdbone
+	soloos/silicon v0.0.0 => /soloos/silicon
 )

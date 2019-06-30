@@ -1,5 +1,6 @@
 {
     "SNetDriverServeAddr": "http://192.168.56.100:20701",
+    "SiliconServeAddr": "http://192.168.56.100:20702",
     "DBDriver":"mysql",
     "Dsn":"root:hello@/sdfs_test",
     "#DBDriver":"sqlite3",

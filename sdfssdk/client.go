@@ -43,7 +43,7 @@ func (p *Client) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		p.memStg.ReleaseNetINode,
 	)
 	if err != nil {
-		log.Debug("SDFS metaPosixFS Init error", err)
+		log.Warn("SDFS metaPosixFS Init error", err)
 		return err
 	}
 
@@ -67,7 +67,7 @@ func (p *Client) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		p.metaPosixFS.FIXAttrDriver.GetFIXAttrByInoFromDB,
 	)
 	if err != nil {
-		log.Debug("SDFS metaPosixFS Init error", err)
+		log.Warn("SDFS metaPosixFS Init error", err)
 		return err
 	}
 

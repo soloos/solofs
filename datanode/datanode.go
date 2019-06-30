@@ -2,6 +2,7 @@ package datanode
 
 import (
 	"fmt"
+	"soloos/common/log"
 	"soloos/common/sdfsapi"
 	"soloos/common/sdfsapitypes"
 	"soloos/common/snet"
@@ -87,31 +88,37 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 
 	err = p.initSNetPeer(options)
 	if err != nil {
+		log.Warn("DataNode Init initSNetPeer failed, err:", err)
 		return err
 	}
 
 	err = p.SRPCServer.Init(p, options.SrpcServerListenAddr, options.SrpcServerServeAddr)
 	if err != nil {
+		log.Warn("DataNode Init SRPCServer.Init failed, err:", err)
 		return err
 	}
 
 	err = p.initLocalFs(options)
 	if err != nil {
+		log.Warn("DataNode Init initLocalFs failed, err:", err)
 		return err
 	}
 
 	err = p.initNetBlockDriver()
 	if err != nil {
+		log.Warn("DataNode Init initNetBlockDriver failed, err:", err)
 		return err
 	}
 
 	err = p.initNetINodeDriver()
 	if err != nil {
+		log.Warn("DataNode Init initNetINodeDriver failed, err:", err)
 		return err
 	}
 
 	err = p.nameNodeClient.Init(p.SoloOSEnv, options.NameNodePeerID)
 	if err != nil {
+		log.Warn("DataNode Init nameNodeClient.Init failed, err:", err)
 		return err
 	}
 

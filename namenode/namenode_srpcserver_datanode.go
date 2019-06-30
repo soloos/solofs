@@ -28,7 +28,7 @@ func (p *NameNodeSRPCServer) DataNodeRegister(serviceReq *snettypes.NetQuery) er
 	req.Init(param, flatbuffers.GetUOffsetT(param))
 	copy(peer.ID[:], req.PeerID())
 	peer.SetAddressBytes(req.Address())
-	peer.ServiceProtocol = int(req.Protocol())
+	peer.ServiceProtocol.SetProtocolBytes(req.Protocol())
 
 	err = p.nameNode.RegisterDataNode(peer)
 	log.Info("datanode resgister:", peer.PeerIDStr(), peer.AddressStr())

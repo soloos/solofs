@@ -12,6 +12,7 @@ type Options struct {
 	Mode                  string
 
 	SNetDriverServeAddr string
+	SiliconServeAddr    string
 	ServeAddr           string
 	ListenAddr          string
 

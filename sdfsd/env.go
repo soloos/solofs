@@ -11,6 +11,8 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
+	"soloos/silicon/siliconsdk"
+	"time"
 )
 
 type Env struct {
@@ -24,28 +26,43 @@ type Env struct {
 	MemBlockDriver   memstg.MemBlockDriver
 	NetBlockDriver   memstg.NetBlockDriver
 	NetINodeDriver   memstg.NetINodeDriver
+
+	nameNode namenode.NameNode
+	dataNode datanode.DataNode
+	peerID   snettypes.PeerID
+
+	siliconClient          siliconsdk.Client
+	siliconCronJobDuration time.Duration
+}
+
+func (p *Env) initMetaStg() error {
+	return p.MetaStg.Init(&p.SoloOSEnv,
+		p.options.DBDriver, p.options.Dsn)
+}
+
+func (p *Env) initMemStg() error {
+	var memBlockDriverOptions = memstg.MemBlockDriverOptions{
+		[]memstg.MemBlockTableOptions{
+			memstg.MemBlockTableOptions{
+				p.options.DefaultMemBlockCap,
+				p.options.DefaultMemBlocksLimit,
+			},
+		},
+	}
+	return (p.MemBlockDriver.Init(&p.SoloOSEnv, memBlockDriverOptions))
 }
 
 func (p *Env) Init(options Options) {
 	p.options = options
 	util.AssertErrIsNil(p.SoloOSEnv.Init())
 
-	util.AssertErrIsNil(p.MetaStg.Init(&p.SoloOSEnv,
-		options.DBDriver, options.Dsn))
-
 	p.DataNodeClient.Init(&p.SoloOSEnv)
 
-	{
-		var memBlockDriverOptions = memstg.MemBlockDriverOptions{
-			[]memstg.MemBlockTableOptions{
-				memstg.MemBlockTableOptions{
-					p.options.DefaultMemBlockCap,
-					p.options.DefaultMemBlocksLimit,
-				},
-			},
-		}
-		util.AssertErrIsNil(p.MemBlockDriver.Init(&p.SoloOSEnv, memBlockDriverOptions))
-	}
+	util.AssertErrIsNil(p.initMetaStg())
+
+	util.AssertErrIsNil(p.initMemStg())
+
+	util.AssertErrIsNil(p.initSilicon())
 }
 
 func (p *Env) startCommon() {
@@ -57,11 +74,7 @@ func (p *Env) startCommon() {
 }
 
 func (p *Env) startNameNode() {
-	var (
-		nameNode       namenode.NameNode
-		nameNodePeerID snettypes.PeerID
-	)
-	copy(nameNodePeerID[:], []byte(p.options.NameNodePeerID))
+	copy(p.peerID[:], []byte(p.options.NameNodePeerID))
 
 	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloOSEnv,
 		nil, &p.DataNodeClient, p.MetaStg.PrepareNetBlockMetaData))
@@ -75,8 +88,8 @@ func (p *Env) startNameNode() {
 		p.MetaStg.NetINodeCommitSizeInDB,
 	))
 
-	util.AssertErrIsNil(nameNode.Init(&p.SoloOSEnv,
-		nameNodePeerID,
+	util.AssertErrIsNil(p.nameNode.Init(&p.SoloOSEnv,
+		p.peerID,
 		p.options.ListenAddr, p.options.ServeAddr,
 		&p.MetaStg,
 		&p.MemBlockDriver,
@@ -84,23 +97,21 @@ func (p *Env) startNameNode() {
 		&p.NetINodeDriver,
 	))
 
-	util.AssertErrIsNil(nameNode.Serve())
-	util.AssertErrIsNil(nameNode.Close())
+	util.AssertErrIsNil(p.nameNode.Serve())
+	util.AssertErrIsNil(p.nameNode.Close())
 }
 
 func (p *Env) startDataNode() {
 	var (
-		dataNodePeerID  snettypes.PeerID
-		dataNode        datanode.DataNode
 		nameNodePeerID  snettypes.PeerID
 		dataNodeOptions datanode.DataNodeOptions
 	)
 
-	copy(dataNodePeerID[:], []byte(p.options.DataNodePeerID))
+	copy(p.peerID[:], []byte(p.options.DataNodePeerID))
 	copy(nameNodePeerID[:], []byte(p.options.NameNodePeerID))
 
 	dataNodeOptions = datanode.DataNodeOptions{
-		PeerID:               dataNodePeerID,
+		PeerID:               p.peerID,
 		SrpcServerListenAddr: p.options.ListenAddr,
 		SrpcServerServeAddr:  p.options.ServeAddr,
 		LocalFSRoot:          p.options.DataNodeLocalFSRoot,
@@ -119,16 +130,20 @@ func (p *Env) startDataNode() {
 		p.MetaStg.NetINodeCommitSizeInDB,
 	))
 
-	util.AssertErrIsNil(dataNode.Init(&p.SoloOSEnv, dataNodeOptions,
+	util.AssertErrIsNil(p.dataNode.Init(&p.SoloOSEnv, dataNodeOptions,
 		&p.MemBlockDriver,
 		&p.NetBlockDriver,
 		&p.NetINodeDriver,
 	))
-	util.AssertErrIsNil(dataNode.Serve())
-	util.AssertErrIsNil(dataNode.Close())
+	util.AssertErrIsNil(p.dataNode.Serve())
+	util.AssertErrIsNil(p.dataNode.Close())
 }
 
 func (p *Env) Start() {
+	go func() {
+		util.AssertErrIsNil(p.cronSiliconJob())
+	}()
+
 	if p.options.Mode == "namenode" {
 		p.startCommon()
 		p.startNameNode()

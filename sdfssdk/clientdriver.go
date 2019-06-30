@@ -28,13 +28,13 @@ func (p *ClientDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 
 	err = p.initMemStg(nameNodePeerID)
 	if err != nil {
-		log.Debug("sdfs ClientDriver initMemStg error", err)
+		log.Warn("sdfs ClientDriver initMemStg error", err)
 		return err
 	}
 
 	err = p.dbConn.Init(dbDriver, dsn)
 	if err != nil {
-		log.Debug("sdfs ClientDriver dbConn init error", err)
+		log.Warn("sdfs ClientDriver dbConn init error", err)
 		return err
 	}
 
@@ -49,13 +49,13 @@ func (p *ClientDriver) initMemStg(nameNodePeerID snettypes.PeerID) error {
 	var nameNodePeer snettypes.Peer
 	nameNodePeer, err = p.SoloOSEnv.SNetDriver.GetPeer(nameNodePeerID)
 	if err != nil {
-		log.Debug("sdfs SNetDriver get nameNodePeer error", err, nameNodePeerID.Str())
+		log.Warn("sdfs SNetDriver get nameNodePeer error", err, nameNodePeerID.Str())
 		return err
 	}
 
 	err = p.memStg.Init(p.SoloOSEnv, nameNodePeer, memstg.MemBlockDriverOptions{})
 	if err != nil {
-		log.Debug("sdfs memstg Init error", err)
+		log.Warn("sdfs memstg Init error", err)
 		return err
 	}
 
@@ -76,7 +76,7 @@ func (p *ClientDriver) InitClient(itClient sdfsapi.Client,
 		ObjectsLimit: defaultMemBlocksLimit,
 	})
 	if err != nil {
-		log.Debug("SDFS ClientDriver PrepareMemBlockTabl error", err)
+		log.Warn("SDFS ClientDriver PrepareMemBlockTabl error", err)
 		return err
 	}
 
@@ -87,7 +87,7 @@ func (p *ClientDriver) InitClient(itClient sdfsapi.Client,
 		defaultMemBlockCap,
 	)
 	if err != nil {
-		log.Debug("SDFS ClientDriver InitClient error", err)
+		log.Warn("SDFS ClientDriver InitClient error", err)
 		return err
 	}
 
