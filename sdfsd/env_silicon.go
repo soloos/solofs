@@ -5,25 +5,25 @@ import (
 	"time"
 )
 
-func (p *Env) initSilicon() error {
-	p.siliconCronJobDuration = time.Second * 3
-	return p.siliconClient.Init(p.options.SiliconServeAddr)
+func (p *Env) initSoloBoat() error {
+	p.soloboatCronJobDuration = time.Second * 3
+	return p.soloboatClient.Init(p.options.SoloBoatServeAddr)
 }
 
 func (p *Env) doHeartBeat() error {
-	return p.siliconClient.HeartBeat(p.peerID)
+	return p.soloboatClient.HeartBeat(p.peerID)
 }
 
-func (p *Env) cronSiliconJob() error {
+func (p *Env) cronSoloBoatJob() error {
 	go func() {
 		for {
 			var err = p.doHeartBeat()
 			if err != nil {
-				log.Warn("cronSiliconJob failed, err:", err)
+				log.Warn("cronSoloBoatJob failed, err:", err)
 			} else {
-				log.Warn("cronSiliconJob HeartBeat, peerID:", p.peerID.Str())
+				log.Warn("cronSoloBoatJob HeartBeat, peerID:", p.peerID.Str())
 			}
-			time.Sleep(p.siliconCronJobDuration)
+			time.Sleep(p.soloboatCronJobDuration)
 		}
 	}()
 	return nil

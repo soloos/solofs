@@ -11,7 +11,7 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
-	"soloos/silicon/siliconsdk"
+	"soloos/soloboat/soloboatsdk"
 	"time"
 )
 
@@ -31,8 +31,8 @@ type Env struct {
 	dataNode datanode.DataNode
 	peerID   snettypes.PeerID
 
-	siliconClient          siliconsdk.Client
-	siliconCronJobDuration time.Duration
+	soloboatClient          soloboatsdk.Client
+	soloboatCronJobDuration time.Duration
 }
 
 func (p *Env) initMetaStg() error {
@@ -62,7 +62,7 @@ func (p *Env) Init(options Options) {
 
 	util.AssertErrIsNil(p.initMemStg())
 
-	util.AssertErrIsNil(p.initSilicon())
+	util.AssertErrIsNil(p.initSoloBoat())
 }
 
 func (p *Env) startCommon() {
@@ -141,7 +141,7 @@ func (p *Env) startDataNode() {
 
 func (p *Env) Start() {
 	go func() {
-		util.AssertErrIsNil(p.cronSiliconJob())
+		util.AssertErrIsNil(p.cronSoloBoatJob())
 	}()
 
 	if p.options.Mode == "namenode" {
