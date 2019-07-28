@@ -23,7 +23,7 @@ func (p *DataNodeDriver) Init(metaStg *MetaStg) error {
 	return nil
 }
 
-func (p *DataNodeDriver) RegisterDataNode(peer snettypes.Peer) error {
+func (p *DataNodeDriver) DataNodeHeartBeat(peer snettypes.Peer) error {
 	var (
 		registered bool
 	)

@@ -30,7 +30,7 @@ func (p *NameNodeSRPCServer) DataNodeRegister(serviceReq *snettypes.NetQuery) er
 	peer.SetAddressBytes(req.Address())
 	peer.ServiceProtocol.SetProtocolBytes(req.Protocol())
 
-	err = p.nameNode.RegisterDataNode(peer)
+	err = p.nameNode.DataNodeHeartBeat(peer)
 	log.Info("datanode resgister:", peer.PeerIDStr(), peer.AddressStr())
 	if err != nil {
 		sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_502)

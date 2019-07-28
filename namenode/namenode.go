@@ -62,13 +62,13 @@ func (p *NameNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	return nil
 }
 
-func (p *NameNode) RegisterDataNode(peer snettypes.Peer) error {
+func (p *NameNode) DataNodeHeartBeat(peer snettypes.Peer) error {
 	var err = p.SoloOSEnv.SNetDriver.RegisterPeer(peer)
 	if err != nil {
 		return err
 	}
 
-	return p.metaStg.RegisterDataNode(peer)
+	return p.metaStg.DataNodeHeartBeat(peer)
 }
 
 func (p *NameNode) Serve() error {

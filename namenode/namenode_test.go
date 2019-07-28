@@ -70,7 +70,7 @@ func TestBase(t *testing.T) {
 		snettypes.InitTmpPeerID((*snettypes.PeerID)(&peer.ID))
 		peer.SetAddress(mockServerAddr)
 		peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
-		nameNode.RegisterDataNode(peer)
+		nameNode.DataNodeHeartBeat(peer)
 	}
 
 	var netINodeID sdfsapitypes.NetINodeID

@@ -85,7 +85,7 @@ func MakeClientForTest(client *Client) {
 		snettypes.InitTmpPeerID((*snettypes.PeerID)(&peer.ID))
 		peer.SetAddress(mockServerAddr)
 		peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
-		nameNode.RegisterDataNode(peer)
+		nameNode.DataNodeHeartBeat(peer)
 	}
 
 	var (

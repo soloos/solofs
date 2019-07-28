@@ -127,7 +127,7 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 
 func (p *DataNode) Serve() error {
 	var err error
-	err = p.nameNodeClient.RegisterDataNode(p.peer.ID, p.peer.AddressStr(), p.peer.ServiceProtocol)
+	err = p.nameNodeClient.DataNodeHeartBeat(p.peer.ID, p.peer.AddressStr(), p.peer.ServiceProtocol)
 	if err != nil {
 		return err
 	}
