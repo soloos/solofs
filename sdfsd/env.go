@@ -12,7 +12,6 @@ import (
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
 	"soloos/soloboat/soloboatsdk"
-	"time"
 )
 
 type Env struct {
@@ -32,8 +31,7 @@ type Env struct {
 	srpcPeerID snettypes.PeerID
 	webPeerID  snettypes.PeerID
 
-	soloboatClient          soloboatsdk.Client
-	soloboatCronJobDuration time.Duration
+	soloboatClient soloboatsdk.Client
 }
 
 func (p *Env) initMetaStg() error {
@@ -142,10 +140,6 @@ func (p *Env) startDataNode() {
 }
 
 func (p *Env) Start() {
-	go func() {
-		util.AssertErrIsNil(p.cronSoloBoatJob())
-	}()
-
 	if p.options.Mode == "namenode" {
 		p.startCommon()
 		p.startNameNode()
