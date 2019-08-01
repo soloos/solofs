@@ -1,7 +1,4 @@
 {
-    "DefaultMemBlockCap":2097152,
-    "DefaultMemBlocksLimit":256,
-	"Mode":"namenode",
 	"NameNodePeerID":"NAME_NODE_100000000000000000000000000000000000000000000000000000",
 	"ServeAddr":"192.168.56.100:11701",
 	"ListenAddr":"192.168.56.100:11701",

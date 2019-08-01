@@ -22,8 +22,6 @@ func MakeClientForTest(client *Client) {
 		netDriverSoloOSEnv soloosbase.SoloOSEnv
 	)
 
-	util.AssertErrIsNil(soloOSEnv.Init())
-
 	var (
 		nameNodePeerID            snettypes.PeerID = snet.MakeSysPeerID("NameNodeForTest")
 		nameNodeSRPCListenAddr                     = "127.0.0.1:10300"
@@ -49,6 +47,20 @@ func MakeClientForTest(client *Client) {
 		i           int
 	)
 
+	util.AssertErrIsNil(netDriverSoloOSEnv.InitWithSNet(""))
+	util.AssertErrIsNil(netDriverSoloOSEnv.SNetDriver.Init(&netDriverSoloOSEnv.OffheapDriver))
+	go func() {
+		util.AssertErrIsNil(netDriverSoloOSEnv.SNetDriver.PrepareServer(netDriverServerListenAddr,
+			netDriverServerServeAddr,
+			nil, nil))
+		util.AssertErrIsNil(netDriverSoloOSEnv.SNetDriver.ServerServe())
+	}()
+
+	// wait netDriverSoloOSEnv SNetDriver ServerServe
+	time.Sleep(time.Millisecond * 200)
+
+	util.AssertErrIsNil(soloOSEnv.InitWithSNet(netDriverServerServeAddr))
+
 	memstg.MemStgMakeDriversForTest(&soloOSEnv,
 		nameNodeSRPCListenAddr,
 		memBlockDriverForClient, netBlockDriverForClient, netINodeDriverForClient, memBlockCap, blocksLimit)
@@ -61,16 +73,6 @@ func MakeClientForTest(client *Client) {
 	namenode.MakeNameNodeForTest(&soloOSEnv, &nameNode, &metaStg,
 		nameNodePeerID, nameNodeSRPCListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer)
-
-	util.AssertErrIsNil(netDriverSoloOSEnv.Init())
-	util.AssertErrIsNil(netDriverSoloOSEnv.SNetDriver.Init(&netDriverSoloOSEnv.OffheapDriver))
-	go func() {
-		util.AssertErrIsNil(netDriverSoloOSEnv.SNetDriver.StartServer(netDriverServerListenAddr,
-			netDriverServerServeAddr,
-			nil, nil))
-	}()
-
-	util.AssertErrIsNil(soloOSEnv.SNetDriver.StartClient(netDriverServerServeAddr))
 
 	go func() {
 		util.AssertErrIsNil(nameNode.Serve())

@@ -54,7 +54,7 @@ func (p *Env) initMemStg() error {
 
 func (p *Env) Init(options Options) {
 	p.options = options
-	util.AssertErrIsNil(p.SoloOSEnv.Init())
+	util.AssertErrIsNil(p.SoloOSEnv.InitWithSNet(p.options.SNetDriverServeAddr))
 
 	p.DataNodeClient.Init(&p.SoloOSEnv)
 
@@ -66,8 +66,6 @@ func (p *Env) Init(options Options) {
 }
 
 func (p *Env) startCommon() {
-	util.AssertErrIsNil(p.SoloOSEnv.SNetDriver.StartClient(p.options.SNetDriverServeAddr))
-
 	if p.options.PProfListenAddr != "" {
 		go util.PProfServe(p.options.PProfListenAddr)
 	}

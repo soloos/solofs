@@ -17,7 +17,7 @@ func TestMetaStgNetINode(t *testing.T) {
 		netINodeID0 sdfsapitypes.NetINodeID
 		netINodeID1 sdfsapitypes.NetINodeID
 	)
-	util.AssertErrIsNil(soloOSEnv.Init())
+	util.AssertErrIsNil(soloOSEnv.InitWithSNet(""))
 
 	assert.NoError(t, metaStg.Init(&soloOSEnv, TestMetaStgDBDriver, TestMetaStgDBConnect))
 	sdfsapitypes.InitTmpNetINodeID(&netINodeID0)

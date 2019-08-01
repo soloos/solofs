@@ -22,7 +22,7 @@ func TestNetBlockDriver(t *testing.T) {
 		dataNodeClient    sdfsapi.DataNodeClient
 		netBlockDriver    NetBlockDriver
 	)
-	assert.NoError(t, soloOSEnv.Init())
+	assert.NoError(t, soloOSEnv.InitWithSNet(""))
 	mockServerAddr := "127.0.0.1:10021"
 	assert.NoError(t, mockNetINodeTable.Init(&soloOSEnv))
 	assert.NoError(t, mockMemBlockTable.Init(&soloOSEnv, 1024))

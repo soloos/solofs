@@ -25,7 +25,7 @@ func TestMetaStgNetBlock(t *testing.T) {
 		peerID1     snettypes.PeerID
 		err         error
 	)
-	util.AssertErrIsNil(soloOSEnv.Init())
+	util.AssertErrIsNil(soloOSEnv.InitWithSNet(""))
 
 	util.AssertErrIsNil(metaStg.Init(&soloOSEnv, TestMetaStgDBDriver, TestMetaStgDBConnect))
 	sdfsapitypes.InitTmpNetINodeID(&netINodeID0)

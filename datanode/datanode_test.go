@@ -62,17 +62,17 @@ func TestBase(t *testing.T) {
 		err         error
 	)
 
-	assert.NoError(t, soloOSEnvForNameNode.Init())
+	assert.NoError(t, soloOSEnvForNameNode.InitWithSNet(""))
 	go func() {
-		assert.NoError(t, soloOSEnvForNameNode.SNetDriver.StartServer(netDriverServerListenAddr,
+		assert.NoError(t, soloOSEnvForNameNode.SNetDriver.PrepareServer(netDriverServerListenAddr,
 			netDriverServerServeAddr,
 			nil, nil))
+		assert.NoError(t, soloOSEnvForNameNode.SNetDriver.ServerServe())
 	}()
 	time.Sleep(100 * time.Millisecond)
 	metastg.MakeMetaStgForTest(&soloOSEnvForNameNode, &metaStgForNameNode)
 
-	assert.NoError(t, soloOSEnvForClient.Init())
-	assert.NoError(t, soloOSEnvForClient.SNetDriver.StartClient(netDriverServerServeAddr))
+	assert.NoError(t, soloOSEnvForClient.InitWithSNet(netDriverServerServeAddr))
 
 	memstg.MemStgMakeDriversForTest(&soloOSEnvForClient,
 		nameNodeSRPCListenAddr,
@@ -91,8 +91,7 @@ func TestBase(t *testing.T) {
 	time.Sleep(time.Millisecond * 300)
 
 	for i = 0; i < len(dataNodeSRPCListenAddrs); i++ {
-		assert.NoError(t, soloOSEnvForDataNodes[i].Init())
-		assert.NoError(t, soloOSEnvForDataNodes[i].SNetDriver.StartClient(netDriverServerServeAddr))
+		assert.NoError(t, soloOSEnvForDataNodes[i].InitWithSNet(netDriverServerServeAddr))
 		dataNodePeerIDs[i] = snet.MakeSysPeerID(fmt.Sprintf("DataNodeForTest_%v", i))
 
 		memstg.MemStgMakeDriversForTest(&soloOSEnvForDataNodes[i],

@@ -42,12 +42,12 @@ func TestBase(t *testing.T) {
 		err         error
 	)
 
-	assert.NoError(t, soloOSEnvForCommon.Init())
-	assert.NoError(t, soloOSEnvForMetaStg.Init())
+	assert.NoError(t, soloOSEnvForCommon.InitWithSNet(""))
+	assert.NoError(t, soloOSEnvForMetaStg.InitWithSNet(""))
 	metastg.MakeMetaStgForTest(&soloOSEnvForMetaStg, &metaStg)
 
-	assert.NoError(t, soloOSEnvForClient.Init())
-	assert.NoError(t, soloOSEnvForServer.Init())
+	assert.NoError(t, soloOSEnvForClient.InitWithSNet(""))
+	assert.NoError(t, soloOSEnvForServer.InitWithSNet(""))
 
 	memstg.MemStgMakeDriversForTest(&soloOSEnvForClient,
 		nameNodeSRPCListenAddr,

@@ -29,9 +29,7 @@ func (p *Env) Init(optionsFile string) {
 	p.Options, err = LoadOptionsFile(optionsFile)
 	util.AssertErrIsNil(err)
 
-	err = p.SoloOSEnv.Init()
-	util.AssertErrIsNil(err)
-	err = p.SoloOSEnv.SNetDriver.StartClient(p.Options.SNetDriverServeAddr)
+	err = p.SoloOSEnv.InitWithSNet(p.Options.SNetDriverServeAddr)
 	util.AssertErrIsNil(err)
 
 	go func() {

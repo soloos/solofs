@@ -22,7 +22,7 @@ func TestNetINodeDriverNetINodeRead(t *testing.T) {
 		uNetINode      sdfsapitypes.NetINodeUintptr
 		err            error
 	)
-	util.AssertErrIsNil(soloOSEnv.Init())
+	util.AssertErrIsNil(soloOSEnv.InitWithSNet(""))
 	MemStgMakeDriversWithMockServerForTest(&soloOSEnv, "127.0.0.1:10022", &mockServer,
 		&netBlockDriver, &memBlockDriver, &netINodeDriver, memBlockCap, blocksLimit)
 	var netINodeID sdfsapitypes.NetINodeID

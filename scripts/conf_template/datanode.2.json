@@ -1,11 +1,7 @@
 {
-    "DefaultMemBlockCap":2097152,
-    "DefaultMemBlocksLimit":256,
-	"Mode":"datanode",
 	"DataNodePeerID":"DATA_NODE_200000000000000000000000000000000000000000000000000000",
 	"ListenAddr":"192.168.56.100:10801",
 	"ServeAddr":"192.168.56.100:10801",
 	"DataNodeLocalFSRoot":"/tmp/sdfs_test.data.02",
-	"NameNodePeerID":"NAME_NODE_100000000000000000000000000000000000000000000000000000",
     "PProfListenAddr":"192.168.56.100:10802"
 }

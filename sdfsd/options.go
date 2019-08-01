@@ -12,7 +12,7 @@ type Options struct {
 	Mode                  string
 
 	SNetDriverServeAddr string
-	SoloBoatServeAddr    string
+	SoloBoatServeAddr   string
 	ServeAddr           string
 	ListenAddr          string
 
@@ -24,6 +24,8 @@ type Options struct {
 	PProfListenAddr string
 	DBDriver        string
 	Dsn             string
+
+	HeartBeatServerPeerIDs []string
 }
 
 func LoadOptionsFile(optionsFilePath string) (Options, error) {

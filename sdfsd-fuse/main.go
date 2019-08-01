@@ -21,9 +21,7 @@ func main() {
 		sfuseServer  sfuse.Server
 	)
 
-	err = soloOSEnv.Init()
-	util.AssertErrIsNil(err)
-	err = soloOSEnv.SNetDriver.StartClient(options.SNetDriverServeAddr)
+	err = soloOSEnv.InitWithSNet(options.SNetDriverServeAddr)
 	util.AssertErrIsNil(err)
 
 	if options.PProfListenAddr != "" {

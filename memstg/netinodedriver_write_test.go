@@ -25,7 +25,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		blocksLimit       int32 = 2
 		uNetINode         sdfsapitypes.NetINodeUintptr
 	)
-	util.AssertErrIsNil(soloOSEnv.Init())
+	util.AssertErrIsNil(soloOSEnv.InitWithSNet(""))
 
 	assert.NoError(t, mockNetINodeTable.Init(&soloOSEnv))
 	MemStgMakeDriversWithMockServerForTest(&soloOSEnv, "127.0.0.1:10023", &mockServer,
