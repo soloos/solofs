@@ -11,9 +11,6 @@ test-memstg:
 test-metastg:
 	go test .//metastg
 
-test-minicluster:
-	go test .//minicluster
-
 test-namenode:
 	go test .//namenode
 
@@ -23,4 +20,4 @@ test-sdfssdk:
 test-sfuse:
 	go test .//sfuse
 
-test: test-datanode test-libsdfs test-memstg test-metastg test-minicluster test-namenode test-sdfssdk test-sfuse
+test: test-datanode test-libsdfs test-memstg test-metastg test-namenode test-sdfssdk test-sfuse

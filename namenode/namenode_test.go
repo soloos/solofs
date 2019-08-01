@@ -19,9 +19,11 @@ func TestBase(t *testing.T) {
 		soloOSEnvForMetaStg    soloosbase.SoloOSEnv
 		metaStg                metastg.MetaStg
 		nameNode               NameNode
-		nameNodePeerID         = snet.MakeSysPeerID("NameNodeForTest")
+		nameNodeSRPCPeerID     = snet.MakeSysPeerID("NameNodeSRPCForTest")
 		nameNodeSRPCListenAddr = "127.0.0.1:10300"
-		mockServerAddr         = "127.0.0.1:10301"
+		nameNodeWebPeerID      = snet.MakeSysPeerID("NameNodeWebForTest")
+		nameNodeWebListenAddr  = "127.0.0.1:10301"
+		mockServerAddr         = "127.0.0.1:10302"
 		mockServer             memstg.MockServer
 
 		soloOSEnvForClient      soloosbase.SoloOSEnv
@@ -57,7 +59,8 @@ func TestBase(t *testing.T) {
 		nameNodeSRPCListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer, memBlockCap, blocksLimit)
 	MakeNameNodeForTest(&soloOSEnvForServer, &nameNode, &metaStg,
-		nameNodePeerID, nameNodeSRPCListenAddr,
+		nameNodeSRPCPeerID, nameNodeSRPCListenAddr,
+		nameNodeWebPeerID, nameNodeWebListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer)
 	go func() {
 		assert.NoError(t, nameNode.Serve())
@@ -70,7 +73,7 @@ func TestBase(t *testing.T) {
 		snettypes.InitTmpPeerID((*snettypes.PeerID)(&peer.ID))
 		peer.SetAddress(mockServerAddr)
 		peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
-		nameNode.DataNodeHeartBeat(peer)
+		nameNode.DataNodeRegister(peer)
 	}
 
 	var netINodeID sdfsapitypes.NetINodeID

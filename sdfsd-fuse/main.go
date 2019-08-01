@@ -29,10 +29,10 @@ func main() {
 	}
 
 	{
-		var nameNodePeerID snettypes.PeerID
-		nameNodePeerID.SetStr(options.NameNodePeerID)
+		var nameNodeSRPCPeerID snettypes.PeerID
+		nameNodeSRPCPeerID.SetStr(options.NameNodeSRPCPeerID)
 		err = clientDriver.Init(&soloOSEnv,
-			nameNodePeerID,
+			nameNodeSRPCPeerID,
 			options.DBDriver, options.Dsn)
 		util.AssertErrIsNil(err)
 	}

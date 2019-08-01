@@ -6,14 +6,14 @@ import (
 	"soloos/common/snet"
 )
 
-type NameNodeSRPCServer struct {
+type SRPCServer struct {
 	nameNode             *NameNode
 	srpcServerListenAddr string
 	srpcServerServeAddr  string
 	srpcServer           snet.SRPCServer
 }
 
-func (p *NameNodeSRPCServer) Init(nameNode *NameNode,
+func (p *SRPCServer) Init(nameNode *NameNode,
 	srpcServerListenAddr string,
 	srpcServerServeAddr string,
 ) error {
@@ -36,12 +36,12 @@ func (p *NameNodeSRPCServer) Init(nameNode *NameNode,
 	return nil
 }
 
-func (p *NameNodeSRPCServer) Serve() error {
+func (p *SRPCServer) Serve() error {
 	log.Info("namenode srpcserver serve at:", p.srpcServerListenAddr)
 	return p.srpcServer.Serve()
 }
 
-func (p *NameNodeSRPCServer) Close() error {
+func (p *SRPCServer) Close() error {
 	log.Info("namenode srpcserver stop at:", p.srpcServerListenAddr)
 	return p.srpcServer.Close()
 }

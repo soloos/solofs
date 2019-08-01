@@ -9,7 +9,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeSRPCServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQuery) error {
+func (p *SRPCServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQuery) error {
 	var (
 		param           = make([]byte, serviceReq.BodySize)
 		req             sdfsprotocol.NetINodeNetBlockInfoRequest

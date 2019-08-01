@@ -20,14 +20,16 @@ func TestBase(t *testing.T) {
 	go util.PProfServe("192.168.56.100:17221")
 	var (
 		nameNode                  namenode.NameNode
-		nameNodePeerID            = snet.MakeSysPeerID("NameNodeForTest")
+		nameNodeSRPCPeerID        = snet.MakeSysPeerID("NameNodeSRPCForTest")
+		nameNodeWebPeerID         = snet.MakeSysPeerID("NameNodeWebForTest")
 		nameNodeSRPCListenAddr    = "127.0.0.1:10401"
-		netDriverServerListenAddr = "127.0.0.1:10402"
-		netDriverServerServeAddr  = "http://127.0.0.1:10402"
+		nameNodeWebListenAddr     = "127.0.0.1:10402"
+		netDriverServerListenAddr = "127.0.0.1:10403"
+		netDriverServerServeAddr  = "http://127.0.0.1:10403"
 		metaStgForNameNode        metastg.MetaStg
 
 		dataNodes               [6]DataNode
-		dataNodePeerIDs         [6]snettypes.PeerID
+		dataNodeSRPCPeerIDs     [6]snettypes.PeerID
 		dataNodeSRPCListenAddrs = []string{
 			"127.0.0.1:10410",
 			"127.0.0.1:10411",
@@ -82,7 +84,8 @@ func TestBase(t *testing.T) {
 		nameNodeSRPCListenAddr,
 		&memBlockDriverForNameNode, &netBlockDriverForNameNode, &netINodeDriverForNameNode, memBlockCap, blocksLimit)
 	namenode.MakeNameNodeForTest(&soloOSEnvForNameNode, &nameNode, &metaStgForNameNode,
-		nameNodePeerID, nameNodeSRPCListenAddr,
+		nameNodeSRPCPeerID, nameNodeSRPCListenAddr,
+		nameNodeWebPeerID, nameNodeWebListenAddr,
 		&memBlockDriverForNameNode, &netBlockDriverForNameNode, &netINodeDriverForNameNode)
 
 	go func() {
@@ -92,7 +95,7 @@ func TestBase(t *testing.T) {
 
 	for i = 0; i < len(dataNodeSRPCListenAddrs); i++ {
 		assert.NoError(t, soloOSEnvForDataNodes[i].InitWithSNet(netDriverServerServeAddr))
-		dataNodePeerIDs[i] = snet.MakeSysPeerID(fmt.Sprintf("DataNodeForTest_%v", i))
+		dataNodeSRPCPeerIDs[i] = snet.MakeSysPeerID(fmt.Sprintf("DataNodeForTest_%v", i))
 
 		memstg.MemStgMakeDriversForTest(&soloOSEnvForDataNodes[i],
 			nameNodeSRPCListenAddr,
@@ -103,8 +106,8 @@ func TestBase(t *testing.T) {
 
 		MakeDataNodeForTest(&soloOSEnvForDataNodes[i],
 			&dataNodes[i],
-			dataNodePeerIDs[i], dataNodeSRPCListenAddrs[i],
-			nameNodePeerID, nameNodeSRPCListenAddr,
+			dataNodeSRPCPeerIDs[i], dataNodeSRPCListenAddrs[i],
+			nameNodeSRPCPeerID, nameNodeSRPCListenAddr,
 			&memBlockDriverForDataNodes[i],
 			&netBlockDriverForDataNodes[i],
 			&netINodeDriverForDataNodes[i])

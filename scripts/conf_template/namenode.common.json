@@ -1,5 +1,9 @@
 {
     "DefaultMemBlockCap":2097152,
     "DefaultMemBlocksLimit":256,
-	"Mode":"namenode"
+	"Mode":"namenode",
+    "HeartBeatServerPeerIDs": [
+        "NAME_NODE_WEB_1_00000000000000000000000000000000000000000000000",
+        "SOLOBOAT_1_0000000000000000000000000000000000000000000000000000"
+    ]
 }

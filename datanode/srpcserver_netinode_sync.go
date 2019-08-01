@@ -9,7 +9,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *DataNodeSRPCServer) NetINodeSync(serviceReq *snettypes.NetQuery) error {
+func (p *SRPCServer) NetINodeSync(serviceReq *snettypes.NetQuery) error {
 	var (
 		reqParamData = make([]byte, serviceReq.ParamSize)
 		reqParam     sdfsprotocol.NetINodePWriteRequest

@@ -20,13 +20,13 @@ type ClientDriver struct {
 var _ = sdfsapi.ClientDriver(&ClientDriver{})
 
 func (p *ClientDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	nameNodePeerID snettypes.PeerID,
+	nameNodeSRPCPeerID snettypes.PeerID,
 	dbDriver string, dsn string,
 ) error {
 	var err error
 	p.SoloOSEnv = soloOSEnv
 
-	err = p.initMemStg(nameNodePeerID)
+	err = p.initMemStg(nameNodeSRPCPeerID)
 	if err != nil {
 		log.Warn("sdfs ClientDriver initMemStg error", err)
 		return err
@@ -41,15 +41,15 @@ func (p *ClientDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	return nil
 }
 
-func (p *ClientDriver) initMemStg(nameNodePeerID snettypes.PeerID) error {
+func (p *ClientDriver) initMemStg(nameNodeSRPCPeerID snettypes.PeerID) error {
 	var (
 		err error
 	)
 
 	var nameNodePeer snettypes.Peer
-	nameNodePeer, err = p.SoloOSEnv.SNetDriver.GetPeer(nameNodePeerID)
+	nameNodePeer, err = p.SoloOSEnv.SNetDriver.GetPeer(nameNodeSRPCPeerID)
 	if err != nil {
-		log.Warn("sdfs SNetDriver get nameNodePeer error", err, nameNodePeerID.Str())
+		log.Warn("sdfs SNetDriver get nameNodePeer error", err, nameNodeSRPCPeerID.Str())
 		return err
 	}
 

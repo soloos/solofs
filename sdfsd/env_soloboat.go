@@ -11,7 +11,7 @@ func (p *Env) initSoloBoat() error {
 }
 
 func (p *Env) doHeartBeat() error {
-	return p.soloboatClient.HeartBeat(p.peerID)
+	return p.soloboatClient.HeartBeat(p.srpcPeerID)
 }
 
 func (p *Env) cronSoloBoatJob() error {
@@ -21,7 +21,7 @@ func (p *Env) cronSoloBoatJob() error {
 			if err != nil {
 				log.Warn("cronSoloBoatJob failed, err:", err)
 			} else {
-				log.Warn("cronSoloBoatJob HeartBeat, peerID:", p.peerID.Str())
+				log.Warn("cronSoloBoatJob HeartBeat, peerID:", p.srpcPeerID.Str())
 			}
 			time.Sleep(p.soloboatCronJobDuration)
 		}

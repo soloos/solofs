@@ -10,7 +10,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeSRPCServer) doNetINodeGet(isMustGet bool, serviceReq *snettypes.NetQuery) error {
+func (p *SRPCServer) doNetINodeGet(isMustGet bool, serviceReq *snettypes.NetQuery) error {
 	var (
 		param           = make([]byte, serviceReq.BodySize)
 		req             sdfsprotocol.NetINodeInfoRequest
@@ -61,15 +61,15 @@ SERVICE_DONE:
 	return err
 }
 
-func (p *NameNodeSRPCServer) NetINodeGet(serviceReq *snettypes.NetQuery) error {
+func (p *SRPCServer) NetINodeGet(serviceReq *snettypes.NetQuery) error {
 	return p.doNetINodeGet(false, serviceReq)
 }
 
-func (p *NameNodeSRPCServer) NetINodeMustGet(serviceReq *snettypes.NetQuery) error {
+func (p *SRPCServer) NetINodeMustGet(serviceReq *snettypes.NetQuery) error {
 	return p.doNetINodeGet(true, serviceReq)
 }
 
-func (p *NameNodeSRPCServer) NetINodeCommitSizeInDB(serviceReq *snettypes.NetQuery) error {
+func (p *SRPCServer) NetINodeCommitSizeInDB(serviceReq *snettypes.NetQuery) error {
 	var (
 		param           = make([]byte, serviceReq.BodySize)
 		req             sdfsprotocol.NetINodeCommitSizeInDBRequest

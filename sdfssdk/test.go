@@ -23,12 +23,14 @@ func MakeClientForTest(client *Client) {
 	)
 
 	var (
-		nameNodePeerID            snettypes.PeerID = snet.MakeSysPeerID("NameNodeForTest")
+		nameNodeSRPCPeerID        snettypes.PeerID = snet.MakeSysPeerID("NameNodeSRPCForTest")
 		nameNodeSRPCListenAddr                     = "127.0.0.1:10300"
+		nameNodeWebPeerID         snettypes.PeerID = snet.MakeSysPeerID("NameNodeWebForTest")
+		nameNodeWebListenAddr                      = "127.0.0.1:10301"
 		netDriverServerListenAddr                  = "127.0.0.1:10402"
 		netDriverServerServeAddr                   = "http://127.0.0.1:10402"
 		nameNode                  namenode.NameNode
-		mockServerAddr            = "127.0.0.1:10301"
+		mockServerAddr            = "127.0.0.1:10302"
 		mockServer                memstg.MockServer
 		mockMemBlockTable         types.MockMemBlockTable
 
@@ -71,7 +73,8 @@ func MakeClientForTest(client *Client) {
 
 	metastg.MakeMetaStgForTest(&soloOSEnv, &metaStg)
 	namenode.MakeNameNodeForTest(&soloOSEnv, &nameNode, &metaStg,
-		nameNodePeerID, nameNodeSRPCListenAddr,
+		nameNodeSRPCPeerID, nameNodeSRPCListenAddr,
+		nameNodeWebPeerID, nameNodeWebListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer)
 
 	go func() {
@@ -87,7 +90,7 @@ func MakeClientForTest(client *Client) {
 		snettypes.InitTmpPeerID((*snettypes.PeerID)(&peer.ID))
 		peer.SetAddress(mockServerAddr)
 		peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
-		nameNode.DataNodeHeartBeat(peer)
+		nameNode.DataNodeRegister(peer)
 	}
 
 	var (

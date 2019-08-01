@@ -10,8 +10,8 @@ import (
 
 func MakeDataNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	dataNode *DataNode,
-	dataNodePeerID snettypes.PeerID, dataNodeSRPCServerAddr string,
-	nameNodePeerID snettypes.PeerID, nameNodeSRPCServerAddr string,
+	dataNodeSRPCPeerID snettypes.PeerID, dataNodeSRPCServerAddr string,
+	nameNodeSRPCPeerID snettypes.PeerID, nameNodeSRPCServerAddr string,
 	memBlockDriver *memstg.MemBlockDriver,
 	netBlockDriver *memstg.NetBlockDriver,
 	netINodeDriver *memstg.NetINodeDriver,
@@ -20,14 +20,14 @@ func MakeDataNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
 		err error
 	)
 
-	var localFSRoot = filepath.Join("/tmp/sdfs_test.data", dataNodePeerID.Str())
+	var localFSRoot = filepath.Join("/tmp/sdfs_test.data", dataNodeSRPCPeerID.Str())
 
 	var options = DataNodeOptions{
-		PeerID:               dataNodePeerID,
-		SrpcServerListenAddr: dataNodeSRPCServerAddr,
-		SrpcServerServeAddr:  dataNodeSRPCServerAddr,
+		SRPCPeerID:           dataNodeSRPCPeerID,
+		SRPCServerListenAddr: dataNodeSRPCServerAddr,
+		SRPCServerServeAddr:  dataNodeSRPCServerAddr,
 		LocalFSRoot:          localFSRoot,
-		NameNodePeerID:       nameNodePeerID,
+		NameNodeSRPCPeerID:   nameNodeSRPCPeerID,
 	}
 
 	err = dataNode.Init(soloOSEnv,

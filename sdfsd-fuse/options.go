@@ -8,7 +8,7 @@ import (
 
 type Options struct {
 	SNetDriverServeAddr   string
-	NameNodePeerID        string
+	NameNodeSRPCPeerID        string
 	DefaultNetBlockCap    int
 	DefaultMemBlockCap    int
 	DefaultMemBlocksLimit int32

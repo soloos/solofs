@@ -9,7 +9,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *NameNodeSRPCServer) DataNodeRegister(serviceReq *snettypes.NetQuery) error {
+func (p *SRPCServer) DataNodeRegister(serviceReq *snettypes.NetQuery) error {
 	var (
 		param           = make([]byte, serviceReq.BodySize)
 		req             sdfsprotocol.SNetPeer
@@ -30,7 +30,7 @@ func (p *NameNodeSRPCServer) DataNodeRegister(serviceReq *snettypes.NetQuery) er
 	peer.SetAddressBytes(req.Address())
 	peer.ServiceProtocol.SetProtocolBytes(req.Protocol())
 
-	err = p.nameNode.DataNodeHeartBeat(peer)
+	err = p.nameNode.DataNodeRegister(peer)
 	log.Info("datanode resgister:", peer.PeerIDStr(), peer.AddressStr())
 	if err != nil {
 		sdfsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_502)

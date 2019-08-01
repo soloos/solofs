@@ -13,13 +13,17 @@ type Options struct {
 
 	SNetDriverServeAddr string
 	SoloBoatServeAddr   string
-	ServeAddr           string
-	ListenAddr          string
 
-	DataNodePeerID      string
+	SRPCServeAddr  string
+	SRPCListenAddr string
+	WebServeAddr   string
+	WebListenAddr  string
+
+	DataNodeSRPCPeerID  string
 	DataNodeLocalFSRoot string
 
-	NameNodePeerID string
+	NameNodeSRPCPeerID string
+	NameNodeWebPeerID  string
 
 	PProfListenAddr string
 	DBDriver        string

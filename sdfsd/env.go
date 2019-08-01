@@ -27,9 +27,10 @@ type Env struct {
 	NetBlockDriver   memstg.NetBlockDriver
 	NetINodeDriver   memstg.NetINodeDriver
 
-	nameNode namenode.NameNode
-	dataNode datanode.DataNode
-	peerID   snettypes.PeerID
+	nameNode   namenode.NameNode
+	dataNode   datanode.DataNode
+	srpcPeerID snettypes.PeerID
+	webPeerID  snettypes.PeerID
 
 	soloboatClient          soloboatsdk.Client
 	soloboatCronJobDuration time.Duration
@@ -72,7 +73,8 @@ func (p *Env) startCommon() {
 }
 
 func (p *Env) startNameNode() {
-	copy(p.peerID[:], []byte(p.options.NameNodePeerID))
+	copy(p.srpcPeerID[:], []byte(p.options.NameNodeSRPCPeerID))
+	copy(p.webPeerID[:], []byte(p.options.NameNodeWebPeerID))
 
 	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloOSEnv,
 		nil, &p.DataNodeClient, p.MetaStg.PrepareNetBlockMetaData))
@@ -87,8 +89,8 @@ func (p *Env) startNameNode() {
 	))
 
 	util.AssertErrIsNil(p.nameNode.Init(&p.SoloOSEnv,
-		p.peerID,
-		p.options.ListenAddr, p.options.ServeAddr,
+		p.srpcPeerID, p.options.SRPCListenAddr, p.options.SRPCServeAddr,
+		p.webPeerID, p.options.WebListenAddr, p.options.WebServeAddr,
 		&p.MetaStg,
 		&p.MemBlockDriver,
 		&p.NetBlockDriver,
@@ -101,19 +103,21 @@ func (p *Env) startNameNode() {
 
 func (p *Env) startDataNode() {
 	var (
-		nameNodePeerID  snettypes.PeerID
-		dataNodeOptions datanode.DataNodeOptions
+		nameNodeSRPCPeerID snettypes.PeerID
+		dataNodeOptions    datanode.DataNodeOptions
 	)
 
-	copy(p.peerID[:], []byte(p.options.DataNodePeerID))
-	copy(nameNodePeerID[:], []byte(p.options.NameNodePeerID))
+	copy(p.srpcPeerID[:], []byte(p.options.DataNodeSRPCPeerID))
+	copy(nameNodeSRPCPeerID[:], []byte(p.options.NameNodeSRPCPeerID))
 
 	dataNodeOptions = datanode.DataNodeOptions{
-		PeerID:               p.peerID,
-		SrpcServerListenAddr: p.options.ListenAddr,
-		SrpcServerServeAddr:  p.options.ServeAddr,
+		SRPCPeerID:           p.srpcPeerID,
+		SRPCServerListenAddr: p.options.SRPCListenAddr,
+		SRPCServerServeAddr:  p.options.SRPCServeAddr,
+		WebServerListenAddr:  p.options.WebListenAddr,
+		WebServerServeAddr:   p.options.WebServeAddr,
 		LocalFSRoot:          p.options.DataNodeLocalFSRoot,
-		NameNodePeerID:       nameNodePeerID,
+		NameNodeSRPCPeerID:   nameNodeSRPCPeerID,
 	}
 
 	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloOSEnv,

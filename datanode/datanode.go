@@ -14,7 +14,7 @@ import (
 
 type DataNode struct {
 	*soloosbase.SoloOSEnv
-	peer snettypes.Peer
+	srpcPeer snettypes.Peer
 
 	memBlockDriver *memstg.MemBlockDriver
 	netBlockDriver *memstg.NetBlockDriver
@@ -24,7 +24,8 @@ type DataNode struct {
 	localFS         localfs.LocalFS
 	localFsSNetPeer snettypes.Peer
 
-	SRPCServer DataNodeSRPCServer
+	srpcServer SRPCServer
+	webServer  WebServer
 }
 
 func (p *DataNode) initLocalFs(options DataNodeOptions) error {
@@ -47,10 +48,10 @@ func (p *DataNode) initLocalFs(options DataNodeOptions) error {
 
 func (p *DataNode) initSNetPeer(options DataNodeOptions) error {
 	var err error
-	p.peer.ID = options.PeerID
-	p.peer.SetAddress(options.SrpcServerServeAddr)
-	p.peer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
-	err = p.SNetDriver.RegisterPeer(p.peer)
+	p.srpcPeer.ID = options.SRPCPeerID
+	p.srpcPeer.SetAddress(options.SRPCServerServeAddr)
+	p.srpcPeer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+	err = p.SNetDriver.RegisterPeer(p.srpcPeer)
 	if err != nil {
 		return err
 	}
@@ -92,9 +93,15 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		return err
 	}
 
-	err = p.SRPCServer.Init(p, options.SrpcServerListenAddr, options.SrpcServerServeAddr)
+	err = p.srpcServer.Init(p, options.SRPCServerListenAddr, options.SRPCServerServeAddr)
 	if err != nil {
 		log.Warn("DataNode Init SRPCServer.Init failed, err:", err)
+		return err
+	}
+
+	err = p.webServer.Init(p, options.WebServerListenAddr, options.WebServerServeAddr)
+	if err != nil {
+		log.Warn("DataNode Init WebServer.Init failed, err:", err)
 		return err
 	}
 
@@ -116,7 +123,7 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		return err
 	}
 
-	err = p.nameNodeClient.Init(p.SoloOSEnv, options.NameNodePeerID)
+	err = p.nameNodeClient.Init(p.SoloOSEnv, options.NameNodeSRPCPeerID)
 	if err != nil {
 		log.Warn("DataNode Init nameNodeClient.Init failed, err:", err)
 		return err
@@ -127,14 +134,14 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 
 func (p *DataNode) Serve() error {
 	var err error
-	err = p.nameNodeClient.DataNodeHeartBeat(p.peer.ID, p.peer.AddressStr(), p.peer.ServiceProtocol)
+	err = p.nameNodeClient.DataNodeRegister(p.srpcPeer.ID, p.srpcPeer.AddressStr(), p.srpcPeer.ServiceProtocol)
 	if err != nil {
 		return err
 	}
 
-	return p.SRPCServer.Serve()
+	return p.srpcServer.Serve()
 }
 
 func (p *DataNode) Close() error {
-	return p.SRPCServer.Close()
+	return p.srpcServer.Close()
 }
