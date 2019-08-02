@@ -6,7 +6,7 @@ import "soloos/common/log"
 // var sql []string
 // sql = append(sql, fmt.Sprintf(`
 // insert into b_fsinode (fsinode_ino,parent_fsinode_ino,fsinode_name,netinode_id,fsinode_type) values(%d,%d,"","",%d);
-// `, sdfsapitypes.RootFsINodeID, sdfsapitypes.RootFsINodeParentID, types.FSINODE_TYPE_DIR))
+// `, sdfsapitypes.RootFsINodeID, sdfsapitypes.RootFsINodeParentID, sdfstypes.FSINODE_TYPE_DIR))
 // return sql
 // }
 

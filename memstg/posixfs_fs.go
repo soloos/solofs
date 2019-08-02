@@ -2,7 +2,7 @@ package memstg
 
 import (
 	"soloos/common/fsapitypes"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 )
 
 func (p *PosixFS) StatLimits() (uint64, uint64) {
@@ -37,7 +37,7 @@ func (p *PosixFS) StatFs(input *fsapitypes.InHeader, out *fsapitypes.StatfsOut) 
 	out.Files = files
 	out.Ffree = out.Files - filesCount
 	out.Bsize = blksize
-	out.NameLen = types.FS_MAX_NAME_LENGTH
+	out.NameLen = sdfstypes.FS_MAX_NAME_LENGTH
 	out.Frsize = blksize
 
 	return fsapitypes.OK

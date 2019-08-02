@@ -3,7 +3,7 @@ package memstg
 import (
 	"soloos/common/sdfsapitypes"
 	"soloos/sdbone/offheap"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 	"sync/atomic"
 )
 
@@ -42,14 +42,14 @@ func (p *FsINodeDriver) doSetLk(fsINodeID sdfsapitypes.FsINodeID, setFlag *sdfsa
 	pINodeRWMutex.INodeRWMutexMeta.End = setFlag.End
 	pINodeRWMutex.INodeRWMutexMeta.Pid = setFlag.Pid
 
-	if setFlag.Typ == types.FS_INODE_LOCK_SH {
+	if setFlag.Typ == sdfstypes.FS_INODE_LOCK_SH {
 		if isShouldBlock {
 			pINodeRWMutex.RLock()
-			pINodeRWMutex.INodeRWMutexMeta.Typ = types.FS_INODE_LOCK_SH
+			pINodeRWMutex.INodeRWMutexMeta.Typ = sdfstypes.FS_INODE_LOCK_SH
 			err = nil
 		} else {
-			if atomic.CompareAndSwapUint32(&pINodeRWMutex.INodeRWMutexMeta.Typ, 0, uint32(types.FS_INODE_LOCK_SH)) ||
-				pINodeRWMutex.INodeRWMutexMeta.Typ == types.FS_INODE_LOCK_SH {
+			if atomic.CompareAndSwapUint32(&pINodeRWMutex.INodeRWMutexMeta.Typ, 0, uint32(sdfstypes.FS_INODE_LOCK_SH)) ||
+				pINodeRWMutex.INodeRWMutexMeta.Typ == sdfstypes.FS_INODE_LOCK_SH {
 				go pINodeRWMutex.RLock()
 				err = nil
 			} else {
@@ -57,13 +57,13 @@ func (p *FsINodeDriver) doSetLk(fsINodeID sdfsapitypes.FsINodeID, setFlag *sdfsa
 			}
 		}
 
-	} else if setFlag.Typ == types.FS_INODE_LOCK_EX {
+	} else if setFlag.Typ == sdfstypes.FS_INODE_LOCK_EX {
 		if isShouldBlock {
 			pINodeRWMutex.Lock()
-			pINodeRWMutex.INodeRWMutexMeta.Typ = types.FS_INODE_LOCK_EX
+			pINodeRWMutex.INodeRWMutexMeta.Typ = sdfstypes.FS_INODE_LOCK_EX
 			err = nil
 		} else {
-			if atomic.CompareAndSwapUint32(&pINodeRWMutex.INodeRWMutexMeta.Typ, 0, uint32(types.FS_INODE_LOCK_EX)) {
+			if atomic.CompareAndSwapUint32(&pINodeRWMutex.INodeRWMutexMeta.Typ, 0, uint32(sdfstypes.FS_INODE_LOCK_EX)) {
 				go pINodeRWMutex.LockSig.Lock()
 				err = nil
 			} else {

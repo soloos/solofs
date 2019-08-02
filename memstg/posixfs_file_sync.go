@@ -3,7 +3,7 @@ package memstg
 import (
 	"soloos/common/fsapitypes"
 	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 )
 
 func (p *PosixFS) SimpleFlush(fsINodeID sdfsapitypes.FsINodeID) error {
@@ -32,5 +32,5 @@ func (p *PosixFS) SimpleFlush(fsINodeID sdfsapitypes.FsINodeID) error {
 
 func (p *PosixFS) Flush(input *fsapitypes.FlushIn) fsapitypes.Status {
 	var err = p.SimpleFlush(input.NodeId)
-	return types.ErrorToFsStatus(err)
+	return sdfstypes.ErrorToFsStatus(err)
 }

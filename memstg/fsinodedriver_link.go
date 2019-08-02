@@ -3,7 +3,7 @@ package memstg
 import (
 	"soloos/common/fsapitypes"
 	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 	"sync/atomic"
 )
 
@@ -25,8 +25,8 @@ func (p *FsINodeDriver) Link(srcFsINodeID sdfsapitypes.FsINodeID,
 
 	err = p.PrepareFsINodeForCreate(retFsINode,
 		nil, nil, parentID,
-		filename, types.FSINODE_TYPE_HARD_LINK, pSrcFsINode.Meta.Mode,
-		0, 0, types.FS_RDEV)
+		filename, sdfstypes.FSINODE_TYPE_HARD_LINK, pSrcFsINode.Meta.Mode,
+		0, 0, sdfstypes.FS_RDEV)
 	if err != nil {
 		return err
 	}
@@ -53,8 +53,8 @@ func (p *FsINodeDriver) Symlink(parentID sdfsapitypes.FsINodeID, pointedTo strin
 
 	err = p.PrepareFsINodeForCreate(retFsINodeMeta,
 		nil, nil, parentID,
-		linkName, types.FSINODE_TYPE_SOFT_LINK, fsapitypes.S_IFLNK|0777,
-		0, 0, types.FS_RDEV)
+		linkName, sdfstypes.FSINODE_TYPE_SOFT_LINK, fsapitypes.S_IFLNK|0777,
+		0, 0, sdfstypes.FS_RDEV)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (p *FsINodeDriver) Symlink(parentID sdfsapitypes.FsINodeID, pointedTo strin
 		return err
 	}
 
-	err = p.FIXAttrDriver.SetXAttr(retFsINodeMeta.Ino, types.FS_XATTR_SOFT_LNKMETA_KEY, []byte(pointedTo))
+	err = p.FIXAttrDriver.SetXAttr(retFsINodeMeta.Ino, sdfstypes.FS_XATTR_SOFT_LNKMETA_KEY, []byte(pointedTo))
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (p *FsINodeDriver) Symlink(parentID sdfsapitypes.FsINodeID, pointedTo strin
 }
 
 func (p *FsINodeDriver) Readlink(fsINodeID sdfsapitypes.FsINodeID) ([]byte, error) {
-	return p.FIXAttrDriver.GetXAttrData(fsINodeID, types.FS_XATTR_SOFT_LNKMETA_KEY)
+	return p.FIXAttrDriver.GetXAttrData(fsINodeID, sdfstypes.FS_XATTR_SOFT_LNKMETA_KEY)
 }
 
 func (p *FsINodeDriver) deleteFsINodeHardLinked(fsINodeID sdfsapitypes.FsINodeID) error {
@@ -121,7 +121,7 @@ func (p *FsINodeDriver) decreaseFsINodeNLink(uFsINode sdfsapitypes.FsINodeUintpt
 	}
 
 	// assert fsINode.Nlink == 0
-	if pFsINode.Meta.Type == types.FSINODE_TYPE_HARD_LINK {
+	if pFsINode.Meta.Type == sdfstypes.FSINODE_TYPE_HARD_LINK {
 		err = p.deleteFsINodeHardLinked(pFsINode.Meta.HardLinkIno)
 		if err != nil {
 			return false, err

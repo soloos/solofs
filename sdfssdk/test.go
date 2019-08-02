@@ -10,7 +10,7 @@ import (
 	"soloos/sdfs/memstg"
 	"soloos/sdfs/metastg"
 	"soloos/sdfs/namenode"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 	"time"
 )
 
@@ -32,7 +32,7 @@ func MakeClientForTest(client *Client) {
 		nameNode                  namenode.NameNode
 		mockServerAddr            = "127.0.0.1:10302"
 		mockServer                memstg.MockServer
-		mockMemBlockTable         types.MockMemBlockTable
+		mockMemBlockTable         sdfstypes.MockMemBlockTable
 
 		memBlockDriverForClient *memstg.MemBlockDriver = &memStg.MemBlockDriver
 		netBlockDriverForClient *memstg.NetBlockDriver = &memStg.NetBlockDriver

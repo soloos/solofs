@@ -3,14 +3,14 @@ package memstg
 import (
 	"soloos/common/fsapitypes"
 	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 )
 
 func (p *PosixFS) SetFsAttrByFsINode(fsAttr *fsapitypes.Attr, pFsINodeMeta *sdfsapitypes.FsINodeMeta) {
 	fsAttr.Ino = pFsINodeMeta.Ino
 
 	if pFsINodeMeta.NetINodeID != sdfsapitypes.ZeroNetINodeID ||
-		pFsINodeMeta.Type == types.FSINODE_TYPE_HARD_LINK {
+		pFsINodeMeta.Type == sdfstypes.FSINODE_TYPE_HARD_LINK {
 		var uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(pFsINodeMeta.Ino)
 		defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
 		var pFsINode = uFsINode.Ptr()
@@ -62,7 +62,7 @@ func (p *PosixFS) SetFsINodeByFsAttr(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
 	}
 
 	if input.Valid&fsapitypes.FATTR_SIZE != 0 {
-		if pFsINodeMeta.Type == types.FSINODE_TYPE_DIR {
+		if pFsINodeMeta.Type == sdfstypes.FSINODE_TYPE_DIR {
 			return fsapitypes.EISDIR
 		}
 		var err = p.TruncateINode(pFsINodeMeta, input.Size)
@@ -118,7 +118,7 @@ func (p *PosixFS) GetAttr(input *fsapitypes.GetAttrIn, out *fsapitypes.AttrOut) 
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, input.NodeId)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	p.SetFsAttrOutByFsINode(out, &fsINodeMeta)
@@ -135,7 +135,7 @@ func (p *PosixFS) SetAttr(input *fsapitypes.SetAttrIn, out *fsapitypes.AttrOut) 
 
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, input.NodeId)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	code = p.SetFsINodeByFsAttr(&fsINodeMeta, input)
@@ -145,7 +145,7 @@ func (p *PosixFS) SetAttr(input *fsapitypes.SetAttrIn, out *fsapitypes.AttrOut) 
 
 	err = p.FsINodeDriver.UpdateFsINodeInDB(&fsINodeMeta)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	p.SetFsAttrOutByFsINode(out, &fsINodeMeta)

@@ -5,7 +5,7 @@ import (
 	"soloos/common/fsapitypes"
 	"soloos/common/sdfsapitypes"
 	"soloos/common/util"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,8 +15,8 @@ func TestMetaStgPosixFSBase(t *testing.T) {
 	var (
 		client      Client
 		fsINodeMeta sdfsapitypes.FsINodeMeta
-		netBlockCap = types.DefaultNetBlockCap
-		memBlockCap = types.DefaultMemBlockCap
+		netBlockCap = sdfstypes.DefaultNetBlockCap
+		memBlockCap = sdfstypes.DefaultMemBlockCap
 		posixFS     fsapi.PosixFS
 		code        fsapitypes.Status
 		err         error
@@ -24,9 +24,9 @@ func TestMetaStgPosixFSBase(t *testing.T) {
 	MakeClientForTest(&client)
 	posixFS = client.GetPosixFS()
 
-	code = posixFS.SimpleMkdir(&fsINodeMeta, nil, sdfsapitypes.RootFsINodeID, 0777, "test", 0, 0, types.FS_RDEV)
+	code = posixFS.SimpleMkdir(&fsINodeMeta, nil, sdfsapitypes.RootFsINodeID, 0777, "test", 0, 0, sdfstypes.FS_RDEV)
 	if code != fsapitypes.OK {
-		assert.Equal(t, code, types.FS_EEXIST)
+		assert.Equal(t, code, sdfstypes.FS_EEXIST)
 	}
 
 	util.Ignore(fsINodeMeta)

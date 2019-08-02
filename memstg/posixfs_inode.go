@@ -3,7 +3,7 @@ package memstg
 import (
 	"soloos/common/fsapitypes"
 	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 )
 
 func (p *PosixFS) FetchFsINodeByID(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
@@ -87,8 +87,8 @@ func (p *PosixFS) SimpleOpen(fsINodeMeta *sdfsapitypes.FsINodeMeta,
 }
 
 func (p *PosixFS) Mknod(input *fsapitypes.MknodIn, name string, out *fsapitypes.EntryOut) fsapitypes.Status {
-	if len([]byte(name)) > types.FS_MAX_NAME_LENGTH {
-		return types.FS_ENAMETOOLONG
+	if len([]byte(name)) > sdfstypes.FS_MAX_NAME_LENGTH {
+		return sdfstypes.FS_ENAMETOOLONG
 	}
 
 	var (
@@ -98,14 +98,14 @@ func (p *PosixFS) Mknod(input *fsapitypes.MknodIn, name string, out *fsapitypes.
 		err               error
 	)
 
-	fsINodeType = types.FsModeToFsINodeType(input.Mode)
-	if fsINodeType == types.FSINODE_TYPE_UNKOWN {
+	fsINodeType = sdfstypes.FsModeToFsINodeType(input.Mode)
+	if fsINodeType == sdfstypes.FSINODE_TYPE_UNKOWN {
 		return fsapitypes.EIO
 	}
 
 	err = p.FetchFsINodeByIDThroughHardLink(&parentFsINodeMeta, input.NodeId)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	err = p.createFsINode(&fsINodeMeta,
@@ -113,12 +113,12 @@ func (p *PosixFS) Mknod(input *fsapitypes.MknodIn, name string, out *fsapitypes.
 		name, fsINodeType, input.Mode,
 		input.Uid, input.Gid, input.Rdev)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	err = p.RefreshFsINodeACMtimeByIno(input.NodeId)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	p.SetFsEntryOutByFsINode(out, &fsINodeMeta)
@@ -134,17 +134,17 @@ func (p *PosixFS) Unlink(header *fsapitypes.InHeader, name string) fsapitypes.St
 
 	err = p.FetchFsINodeByName(&fsINodeMeta, header.NodeId, name)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	err = p.FsINodeDriver.UnlinkFsINode(fsINodeMeta.Ino)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	err = p.RefreshFsINodeACMtimeByIno(header.NodeId)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	return fsapitypes.OK
@@ -158,7 +158,7 @@ func (p *PosixFS) Fsync(input *fsapitypes.FsyncIn) fsapitypes.Status {
 
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, input.NodeId)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	// TODO flush metadata
@@ -167,8 +167,8 @@ func (p *PosixFS) Fsync(input *fsapitypes.FsyncIn) fsapitypes.Status {
 }
 
 func (p *PosixFS) Lookup(header *fsapitypes.InHeader, name string, out *fsapitypes.EntryOut) fsapitypes.Status {
-	if len([]byte(name)) > types.FS_MAX_NAME_LENGTH {
-		return types.FS_ENAMETOOLONG
+	if len([]byte(name)) > sdfstypes.FS_MAX_NAME_LENGTH {
+		return sdfstypes.FS_ENAMETOOLONG
 	}
 
 	var (
@@ -178,12 +178,12 @@ func (p *PosixFS) Lookup(header *fsapitypes.InHeader, name string, out *fsapityp
 
 	err = p.FetchFsINodeByName(&fsINodeMeta, header.NodeId, name)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeMeta.Ino)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	p.SetFsEntryOutByFsINode(out, &fsINodeMeta)
@@ -215,18 +215,18 @@ func (p *PosixFS) CheckPermissionRead(uid uint32, gid uint32,
 
 	perm := uint32(07777) & fsINodeMeta.Mode
 	if uid == fsINodeMeta.Uid {
-		if perm&types.FS_PERM_USER_READ != 0 {
+		if perm&sdfstypes.FS_PERM_USER_READ != 0 {
 			return true
 		}
 	}
 
 	if gid == fsINodeMeta.Gid {
-		if perm&types.FS_PERM_GROUP_READ != 0 {
+		if perm&sdfstypes.FS_PERM_GROUP_READ != 0 {
 			return true
 		}
 	}
 
-	if perm&types.FS_PERM_OTHER_READ != 0 {
+	if perm&sdfstypes.FS_PERM_OTHER_READ != 0 {
 		return true
 	}
 
@@ -238,18 +238,18 @@ func (p *PosixFS) CheckPermissionWrite(uid uint32, gid uint32,
 
 	perm := uint32(07777) & fsINodeMeta.Mode
 	if uid == fsINodeMeta.Uid {
-		if perm&types.FS_PERM_USER_WRITE != 0 {
+		if perm&sdfstypes.FS_PERM_USER_WRITE != 0 {
 			return true
 		}
 	}
 
 	if gid == fsINodeMeta.Gid {
-		if perm&types.FS_PERM_GROUP_WRITE != 0 {
+		if perm&sdfstypes.FS_PERM_GROUP_WRITE != 0 {
 			return true
 		}
 	}
 
-	if perm&types.FS_PERM_OTHER_WRITE != 0 {
+	if perm&sdfstypes.FS_PERM_OTHER_WRITE != 0 {
 		return true
 	}
 
@@ -261,18 +261,18 @@ func (p *PosixFS) CheckPermissionExecute(uid uint32, gid uint32,
 
 	perm := uint32(07777) & fsINodeMeta.Mode
 	if uid == fsINodeMeta.Uid {
-		if perm&types.FS_PERM_USER_EXECUTE != 0 {
+		if perm&sdfstypes.FS_PERM_USER_EXECUTE != 0 {
 			return true
 		}
 	}
 
 	if gid == fsINodeMeta.Gid {
-		if perm&types.FS_PERM_GROUP_EXECUTE != 0 {
+		if perm&sdfstypes.FS_PERM_GROUP_EXECUTE != 0 {
 			return true
 		}
 	}
 
-	if perm&types.FS_PERM_OTHER_EXECUTE != 0 {
+	if perm&sdfstypes.FS_PERM_OTHER_EXECUTE != 0 {
 		return true
 	}
 

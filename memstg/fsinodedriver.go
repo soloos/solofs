@@ -8,7 +8,7 @@ import (
 	"soloos/common/soloosbase"
 	"soloos/common/timer"
 	"soloos/sdbone/offheap"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 	"strconv"
 	"sync"
 	"time"
@@ -191,13 +191,13 @@ func (p *FsINodeDriver) prepareBaseDir() error {
 	)
 
 	ino = sdfsapitypes.RootFsINodeID
-	code = p.posixFS.SimpleMkdir(&fsINodeMeta, &ino, sdfsapitypes.RootFsINodeParentID, 0777, "", 0, 0, types.FS_RDEV)
+	code = p.posixFS.SimpleMkdir(&fsINodeMeta, &ino, sdfsapitypes.RootFsINodeParentID, 0777, "", 0, 0, sdfstypes.FS_RDEV)
 	if code != fsapitypes.OK {
 		log.Warn("mkdir root error ", code)
 	}
 
 	ino = p.helper.AllocFsINodeID()
-	code = p.posixFS.SimpleMkdir(&fsINodeMeta, &ino, sdfsapitypes.RootFsINodeID, 0777, "tmp", 0, 0, types.FS_RDEV)
+	code = p.posixFS.SimpleMkdir(&fsINodeMeta, &ino, sdfsapitypes.RootFsINodeID, 0777, "tmp", 0, 0, sdfstypes.FS_RDEV)
 	if code != fsapitypes.OK {
 		log.Warn("mkdir tmp error", code)
 	}
@@ -234,7 +234,7 @@ func (p *FsINodeDriver) prepareBaseDir() error {
 }
 
 func (p *FsINodeDriver) checkIfNeedNetINode(fsINodeType int) bool {
-	return fsINodeType == types.FSINODE_TYPE_FILE
+	return fsINodeType == sdfstypes.FSINODE_TYPE_FILE
 }
 
 // ensureFsINodeValidInCache return false if fsinode invalid in cache
@@ -298,7 +298,7 @@ func (p *FsINodeDriver) GetFsINodeByIDThroughHardLink(fsINodeID sdfsapitypes.FsI
 	for {
 		uFsINode, err = p.GetFsINodeByID(fsINodeID)
 		if err == nil {
-			if uFsINode.Ptr().Meta.Type != types.FSINODE_TYPE_HARD_LINK {
+			if uFsINode.Ptr().Meta.Type != sdfstypes.FSINODE_TYPE_HARD_LINK {
 				return uFsINode, nil
 			}
 		}
@@ -504,7 +504,7 @@ func (p *FsINodeDriver) PrepareFsINodeForCreate(fsINodeMeta *sdfsapitypes.FsINod
 	}
 
 	if netINodeID == nil {
-		if fsINodeType != types.FSINODE_TYPE_FILE {
+		if fsINodeType != sdfstypes.FSINODE_TYPE_FILE {
 			fsINodeMeta.NetINodeID = sdfsapitypes.ZeroNetINodeID
 		} else {
 			err = p.AllocNetINode(fsINodeMeta)

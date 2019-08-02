@@ -3,7 +3,7 @@ package memstg
 import (
 	"path/filepath"
 	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 	"strings"
 )
 
@@ -49,7 +49,7 @@ func (p *PosixFS) RenameWithFullPath(oldFsINodeName, newFsINodePath string) erro
 		return err
 	}
 
-	if parentFsINodeMeta.Type != types.FSINODE_TYPE_DIR {
+	if parentFsINodeMeta.Type != sdfstypes.FSINODE_TYPE_DIR {
 		return sdfsapitypes.ErrObjectNotExists
 	}
 
@@ -70,7 +70,7 @@ func (p *PosixFS) RenameWithFullPath(oldFsINodeName, newFsINodePath string) erro
 		}
 	}
 
-	if tmpFsINodeMeta.Type == types.FSINODE_TYPE_DIR {
+	if tmpFsINodeMeta.Type == sdfstypes.FSINODE_TYPE_DIR {
 		parentFsINodeMeta = tmpFsINodeMeta
 		fsINodeMeta.ParentID = parentFsINodeMeta.Ino
 		// keep fsINodeMeta.Name

@@ -29,7 +29,9 @@ type Options struct {
 	DBDriver        string
 	Dsn             string
 
-	HeartBeatServerPeerIDs []string
+	HeartBeatServers []struct {
+		PeerID string
+	}
 }
 
 func LoadOptionsFile(optionsFilePath string) (Options, error) {

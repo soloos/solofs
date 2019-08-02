@@ -3,7 +3,7 @@ package memstg
 import (
 	"soloos/common/fsapitypes"
 	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 )
 
 func (p *PosixFS) SimpleGetXAttrSize(fsINodeID sdfsapitypes.FsINodeID, attr string) (int, fsapitypes.Status) {
@@ -14,12 +14,12 @@ func (p *PosixFS) SimpleGetXAttrSize(fsINodeID sdfsapitypes.FsINodeID, attr stri
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
 	if err != nil {
-		return 0, types.ErrorToFsStatus(err)
+		return 0, sdfstypes.ErrorToFsStatus(err)
 	}
 
 	sz, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrSize(fsINodeMeta.Ino, attr)
 	if err != nil {
-		return 0, types.ErrorToFsStatus(err)
+		return 0, sdfstypes.ErrorToFsStatus(err)
 	}
 	return sz, fsapitypes.OK
 }
@@ -32,12 +32,12 @@ func (p *PosixFS) SimpleGetXAttrData(fsINodeID sdfsapitypes.FsINodeID, attr stri
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
 	if err != nil {
-		return nil, types.ErrorToFsStatus(err)
+		return nil, sdfstypes.ErrorToFsStatus(err)
 	}
 
 	data, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrData(fsINodeMeta.Ino, attr)
 	if err != nil {
-		return nil, types.ErrorToFsStatus(err)
+		return nil, sdfstypes.ErrorToFsStatus(err)
 	}
 	return data, fsapitypes.OK
 }
@@ -50,12 +50,12 @@ func (p *PosixFS) SimpleListXAttr(fsINodeID sdfsapitypes.FsINodeID) ([]byte, fsa
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
 	if err != nil {
-		return nil, types.ErrorToFsStatus(err)
+		return nil, sdfstypes.ErrorToFsStatus(err)
 	}
 
 	data, err = p.FsINodeDriver.FIXAttrDriver.ListXAttr(fsINodeMeta.Ino)
 	if err != nil {
-		return nil, types.ErrorToFsStatus(err)
+		return nil, sdfstypes.ErrorToFsStatus(err)
 	}
 	return data, fsapitypes.OK
 }
@@ -63,13 +63,13 @@ func (p *PosixFS) SimpleListXAttr(fsINodeID sdfsapitypes.FsINodeID) ([]byte, fsa
 func (p *PosixFS) SimpleSetXAttr(fsINodeID sdfsapitypes.FsINodeID, attr string, data []byte) fsapitypes.Status {
 	var err error
 	err = p.FsINodeDriver.FIXAttrDriver.SetXAttr(fsINodeID, attr, data)
-	return types.ErrorToFsStatus(err)
+	return sdfstypes.ErrorToFsStatus(err)
 }
 
 func (p *PosixFS) SimpleRemoveXAttr(fsINodeID sdfsapitypes.FsINodeID, attr string) fsapitypes.Status {
 	var err error
 	err = p.FsINodeDriver.FIXAttrDriver.RemoveXAttr(fsINodeID, attr)
-	return types.ErrorToFsStatus(err)
+	return sdfstypes.ErrorToFsStatus(err)
 }
 
 // Extended attributes.

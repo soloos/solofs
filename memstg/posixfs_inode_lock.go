@@ -3,7 +3,7 @@ package memstg
 import (
 	"soloos/common/fsapitypes"
 	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 )
 
 func (p *PosixFS) setLKOutByMeta(out *fsapitypes.LkOut, meta *sdfsapitypes.INodeRWMutexMeta) {
@@ -28,7 +28,7 @@ func (p *PosixFS) GetLk(input *fsapitypes.LkIn, out *fsapitypes.LkOut) fsapitype
 	)
 	err = p.FsINodeDriver.GetLk(input.NodeId, &meta)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 	p.setLKOutByMeta(out, &meta)
 	return fsapitypes.OK
@@ -43,7 +43,7 @@ func (p *PosixFS) SetLk(input *fsapitypes.LkIn) fsapitypes.Status {
 	p.setMetaByLKIn(input, &meta)
 	err = p.FsINodeDriver.SetLk(input.NodeId, &meta)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 	return fsapitypes.OK
 }
@@ -57,7 +57,7 @@ func (p *PosixFS) SetLkw(input *fsapitypes.LkIn) fsapitypes.Status {
 	p.setMetaByLKIn(input, &meta)
 	err = p.FsINodeDriver.SetLkw(input.NodeId, &meta)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 	return fsapitypes.OK
 }

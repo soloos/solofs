@@ -3,7 +3,7 @@ package memstg
 import (
 	"soloos/common/fsapitypes"
 	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 )
 
 type ReadResult struct {
@@ -50,7 +50,7 @@ func (p *PosixFS) Read(input *fsapitypes.ReadIn, buf []byte) (fsapitypes.ReadRes
 
 	ret.dataLen, err = p.SimpleReadWithMem(input.NodeId, buf[:input.Size], input.Offset)
 	if err != nil {
-		return ret, types.ErrorToFsStatus(err)
+		return ret, sdfstypes.ErrorToFsStatus(err)
 	}
 
 	return ret, fsapitypes.OK

@@ -1,4 +1,4 @@
-package types
+package sdfstypes
 
 import (
 	"soloos/common/sdfsapitypes"

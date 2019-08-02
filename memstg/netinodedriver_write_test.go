@@ -4,7 +4,7 @@ import (
 	"soloos/common/sdfsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +14,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 	var (
 		soloOSEnv         soloosbase.SoloOSEnv
 		mockServer        MockServer
-		mockNetINodeTable types.MockNetINodeTable
+		mockNetINodeTable sdfstypes.MockNetINodeTable
 		netBlockDriver    NetBlockDriver
 		memBlockDriver    MemBlockDriver
 		netINodeDriver    NetINodeDriver

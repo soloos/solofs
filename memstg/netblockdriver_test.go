@@ -6,7 +6,7 @@ import (
 	"soloos/common/snet"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,8 +15,8 @@ import (
 func TestNetBlockDriver(t *testing.T) {
 	var (
 		soloOSEnv         soloosbase.SoloOSEnv
-		mockNetINodeTable types.MockNetINodeTable
-		mockMemBlockTable types.MockMemBlockTable
+		mockNetINodeTable sdfstypes.MockNetINodeTable
+		mockMemBlockTable sdfstypes.MockMemBlockTable
 		mockServer        MockServer
 		nameNodeClient    sdfsapi.NameNodeClient
 		dataNodeClient    sdfsapi.DataNodeClient

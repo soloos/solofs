@@ -4,7 +4,7 @@ import (
 	"os"
 	"soloos/common/fsapitypes"
 	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/types"
+	"soloos/sdfs/sdfstypes"
 	"strings"
 )
 
@@ -43,8 +43,8 @@ func (p *PosixFS) SimpleOpenFile(fsINodePath string,
 	if err == sdfsapitypes.ErrObjectNotExists {
 		err = p.createFsINode(&fsINodeMeta,
 			nil, nil, parentID,
-			paths[i], types.FSINODE_TYPE_FILE, fsapitypes.S_IFREG|0777,
-			0, 0, types.FS_RDEV)
+			paths[i], sdfstypes.FSINODE_TYPE_FILE, fsapitypes.S_IFREG|0777,
+			0, 0, sdfstypes.FS_RDEV)
 		if err != nil {
 			goto OPEN_FILE_DONE
 		}
@@ -60,27 +60,27 @@ func (p *PosixFS) Create(input *fsapitypes.CreateIn, name string, out *fsapitype
 		err         error
 	)
 
-	if len([]byte(name)) > types.FS_MAX_NAME_LENGTH {
-		return types.FS_ENAMETOOLONG
+	if len([]byte(name)) > sdfstypes.FS_MAX_NAME_LENGTH {
+		return sdfstypes.FS_ENAMETOOLONG
 	}
 
 	err = p.createFsINode(&fsINodeMeta,
 		nil, nil, input.NodeId,
-		name, types.FSINODE_TYPE_FILE,
+		name, sdfstypes.FSINODE_TYPE_FILE,
 		uint32(0777)&input.Mode|uint32(fsapitypes.S_IFREG),
-		input.Uid, input.Gid, types.FS_RDEV)
+		input.Uid, input.Gid, sdfstypes.FS_RDEV)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	err = p.SimpleOpen(&fsINodeMeta, input.Flags, &out.OpenOut)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	err = p.RefreshFsINodeACMtimeByIno(fsINodeMeta.ParentID)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	p.SetFsEntryOutByFsINode(&out.EntryOut, &fsINodeMeta)
@@ -97,12 +97,12 @@ func (p *PosixFS) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapit
 	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(input.NodeId)
 	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	err = p.SimpleOpen(&uFsINode.Ptr().Meta, input.Flags, out)
 	if err != nil {
-		return types.ErrorToFsStatus(err)
+		return sdfstypes.ErrorToFsStatus(err)
 	}
 
 	openFlags := int(input.Flags)
@@ -111,7 +111,7 @@ func (p *PosixFS) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapit
 		(openFlags&os.O_APPEND != 0) {
 		err = p.FsINodeDriver.RefreshFsINodeACMtime(uFsINode)
 		if err != nil {
-			return types.ErrorToFsStatus(err)
+			return sdfstypes.ErrorToFsStatus(err)
 		}
 	}
 
