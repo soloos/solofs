@@ -2,15 +2,27 @@
   "DataNodeSRPCPeerID": "DATA_NODE_SRPC_0_00000000000000000000000000000000000000000000000",
   "SRPCListenAddr": "192.168.56.100:10601",
   "SRPCServeAddr": "192.168.56.100:10601",
-  "DataNodeLocalFSRoot": "/tmp/sdfs_test.data.01",
-  "PProfListenAddr": "192.168.56.100:10602",
+  "DataNodeWebPeerID": "DATA_NODE_Web_0_000000000000000000000000000000000000000000000000",
+  "WebServer": {
+    "ServeStr": "http://192.168.56.100:10602",
+    "ListenStr": "192.168.56.100:10602"
+  },
+  "DataNodeLocalFSRoot": "/tmp/sdfs_test.data.00",
+  "PProfListenAddr": "192.168.56.100:10603",
   "DefaultMemBlockCap": 2097152,
   "DefaultMemBlocksLimit": 256,
   "Mode": "datanode",
   "NameNodeSRPCPeerID": "NAME_NODE_SRPC_1_00000000000000000000000000000000000000000000000",
   "NameNodeWebPeerID": "NAME_NODE_WEB_1_000000000000000000000000000000000000000000000000",
-  "HeartBeatServerPeerIDs": [
-    "NAME_NODE_SRPC_1_00000000000000000000000000000000000000000000000"
+  "HeartBeatServers": [
+    {
+      "PeerID": "NAME_NODE_WEB_1_000000000000000000000000000000000000000000000000",
+      "DurationMS": 3000
+    },
+    {
+      "PeerID": "SOLOBOAT_1_00000000000000000000000000000000000000000000000000000",
+      "DurationMS": 3000
+    }
   ],
   "SNetDriverServeAddr": "http://192.168.56.100:20701",
   "SoloBoatServeAddr": "http://192.168.56.100:20702",

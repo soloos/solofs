@@ -1,6 +1,6 @@
 #!/bin/bash
 rm -rf /tmp/sdfs*
-./bin/sdfsd ./scripts/conf/namenode.1.json > ./logs/namenode.1.log 2>&1 &
+bash scripts/front.namenode.sh > ./logs/namenode.1.log 2>&1 &
 sleep 1
 
 for i in {0..3}

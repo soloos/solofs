@@ -1,7 +1,13 @@
+
 {
-	"DataNodeSRPCPeerID":"DATA_NODE_SRPC_1_00000000000000000000000000000000000000000000000",
-	"SRPCListenAddr":"192.168.56.100:10701",
-	"SRPCServeAddr":"192.168.56.100:10701",
-	"DataNodeLocalFSRoot":"/tmp/sdfs_test.data.01",
-    "PProfListenAddr":"192.168.56.100:10702"
+    "DataNodeSRPCPeerID":"DATA_NODE_SRPC_1_00000000000000000000000000000000000000000000000",
+    "SRPCListenAddr":"192.168.56.100:10701",
+    "SRPCServeAddr":"192.168.56.100:10701",
+    "DataNodeWebPeerID":"DATA_NODE_Web_1_000000000000000000000000000000000000000000000000",
+    "WebServer": {
+        "ServeStr":"http://192.168.56.100:10702",
+        "ListenStr":"192.168.56.100:10702"
+    },
+    "DataNodeLocalFSRoot":"/tmp/sdfs_test.data.01",
+    "PProfListenAddr":"192.168.56.100:10703"
 }

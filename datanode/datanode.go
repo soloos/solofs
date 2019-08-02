@@ -15,6 +15,7 @@ import (
 type DataNode struct {
 	*soloosbase.SoloOSEnv
 	srpcPeer snettypes.Peer
+	webPeer  snettypes.Peer
 
 	memBlockDriver *memstg.MemBlockDriver
 	netBlockDriver *memstg.NetBlockDriver
@@ -24,8 +25,10 @@ type DataNode struct {
 	localFS         localfs.LocalFS
 	localFsSNetPeer snettypes.Peer
 
-	srpcServer SRPCServer
-	webServer  WebServer
+	heartBeatServerOptionsArr []sdfsapitypes.HeartBeatServerOptions
+	serverCount               int
+	srpcServer                SRPCServer
+	webServer                 WebServer
 }
 
 func (p *DataNode) initLocalFs(options DataNodeOptions) error {
@@ -48,6 +51,7 @@ func (p *DataNode) initLocalFs(options DataNodeOptions) error {
 
 func (p *DataNode) initSNetPeer(options DataNodeOptions) error {
 	var err error
+
 	p.srpcPeer.ID = options.SRPCPeerID
 	p.srpcPeer.SetAddress(options.SRPCServerServeAddr)
 	p.srpcPeer.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
@@ -55,6 +59,15 @@ func (p *DataNode) initSNetPeer(options DataNodeOptions) error {
 	if err != nil {
 		return err
 	}
+
+	p.webPeer.ID = options.WebPeerID
+	p.webPeer.SetAddress(options.WebServer.ServeStr)
+	p.webPeer.ServiceProtocol = snettypes.ProtocolWeb
+	err = p.SNetDriver.RegisterPeer(p.webPeer)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -99,7 +112,7 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		return err
 	}
 
-	err = p.webServer.Init(p, options.WebServerListenAddr, options.WebServerServeAddr)
+	err = p.webServer.Init(p, options.WebServer)
 	if err != nil {
 		log.Warn("DataNode Init WebServer.Init failed, err:", err)
 		return err
@@ -133,15 +146,58 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 }
 
 func (p *DataNode) Serve() error {
-	var err error
+	var (
+		errChan chan error
+		tmpErr  error
+		err     error
+	)
+
 	err = p.nameNodeClient.DataNodeRegister(p.srpcPeer.ID, p.srpcPeer.AddressStr(), p.srpcPeer.ServiceProtocol)
 	if err != nil {
 		return err
 	}
 
-	return p.srpcServer.Serve()
+	err = p.StartHeartBeat()
+	if err != nil {
+		return err
+	}
+
+	errChan = make(chan error, p.serverCount)
+
+	p.serverCount = 2
+
+	go func(errChan chan<- error) {
+		errChan <- p.srpcServer.Serve()
+	}(errChan)
+
+	go func(errChan chan<- error) {
+		errChan <- p.webServer.Serve()
+	}(errChan)
+
+	for i := 0; i < p.serverCount; i++ {
+		tmpErr = <-errChan
+		if tmpErr != nil {
+			log.Error("serve error, err:", tmpErr)
+			err = tmpErr
+		}
+	}
+
+	return err
 }
 
 func (p *DataNode) Close() error {
-	return p.srpcServer.Close()
+	var (
+		tmpErr error
+		err    error
+	)
+
+	for i := 0; i < p.serverCount; i++ {
+		tmpErr = p.srpcServer.Close()
+		if err != nil {
+			log.Error("server close error, err:", tmpErr)
+			err = tmpErr
+		}
+	}
+
+	return err
 }

@@ -1,6 +1,7 @@
 package namenode
 
 import (
+	"soloos/common/iron"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
@@ -26,9 +27,14 @@ func MakeNameNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
 		metaStg.PrepareNetINodeMetaDataWithStorDB,
 		metaStg.NetINodeCommitSizeInDB,
 	)
+
+	var webServerOptions = iron.Options{
+		ServeStr:  nameNodeWebServerAddr,
+		ListenStr: nameNodeWebServerAddr,
+	}
 	err = nameNode.Init(soloOSEnv,
 		nameNodeSRPCPeerID, nameNodeSRPCServerAddr, nameNodeSRPCServerAddr,
-		nameNodeWebPeerID, nameNodeWebServerAddr, nameNodeWebServerAddr,
+		nameNodeWebPeerID, webServerOptions,
 		metaStg,
 		memBlockDriver,
 		netBlockDriver,

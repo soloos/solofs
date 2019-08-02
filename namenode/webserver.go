@@ -8,16 +8,12 @@ type WebServer struct {
 }
 
 func (p *WebServer) Init(nameNode *NameNode,
-	webServerListenAddr string,
-	webServerServeAddr string,
+	webServerOptions iron.Options,
 ) error {
 	var err error
 	p.nameNode = nameNode
 
-	var webOptions iron.Options
-	webOptions.ListenStr = webServerListenAddr
-	webOptions.ServeStr = webServerServeAddr
-	err = p.server.Init(webOptions)
+	err = p.server.Init(webServerOptions)
 	if err != nil {
 		return err
 	}

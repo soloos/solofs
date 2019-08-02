@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
+	"soloos/common/iron"
+	"soloos/common/sdfsapitypes"
 )
 
 type Options struct {
@@ -16,10 +18,10 @@ type Options struct {
 
 	SRPCServeAddr  string
 	SRPCListenAddr string
-	WebServeAddr   string
-	WebListenAddr  string
+	WebServer      iron.Options
 
 	DataNodeSRPCPeerID  string
+	DataNodeWebPeerID   string
 	DataNodeLocalFSRoot string
 
 	NameNodeSRPCPeerID string
@@ -29,9 +31,7 @@ type Options struct {
 	DBDriver        string
 	Dsn             string
 
-	HeartBeatServers []struct {
-		PeerID string
-	}
+	HeartBeatServers []sdfsapitypes.HeartBeatServerOptions
 }
 
 func LoadOptionsFile(optionsFilePath string) (Options, error) {

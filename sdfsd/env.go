@@ -88,13 +88,13 @@ func (p *Env) startNameNode() {
 
 	util.AssertErrIsNil(p.nameNode.Init(&p.SoloOSEnv,
 		p.srpcPeerID, p.options.SRPCListenAddr, p.options.SRPCServeAddr,
-		p.webPeerID, p.options.WebListenAddr, p.options.WebServeAddr,
+		p.webPeerID, p.options.WebServer,
 		&p.MetaStg,
 		&p.MemBlockDriver,
 		&p.NetBlockDriver,
 		&p.NetINodeDriver,
 	))
-
+	util.AssertErrIsNil(p.nameNode.SetHeartBeatServers(p.options.HeartBeatServers))
 	util.AssertErrIsNil(p.nameNode.Serve())
 	util.AssertErrIsNil(p.nameNode.Close())
 }
@@ -106,14 +106,15 @@ func (p *Env) startDataNode() {
 	)
 
 	copy(p.srpcPeerID[:], []byte(p.options.DataNodeSRPCPeerID))
+	copy(p.webPeerID[:], []byte(p.options.DataNodeWebPeerID))
 	copy(nameNodeSRPCPeerID[:], []byte(p.options.NameNodeSRPCPeerID))
 
 	dataNodeOptions = datanode.DataNodeOptions{
 		SRPCPeerID:           p.srpcPeerID,
 		SRPCServerListenAddr: p.options.SRPCListenAddr,
 		SRPCServerServeAddr:  p.options.SRPCServeAddr,
-		WebServerListenAddr:  p.options.WebListenAddr,
-		WebServerServeAddr:   p.options.WebServeAddr,
+		WebPeerID:            p.webPeerID,
+		WebServer:            p.options.WebServer,
 		LocalFSRoot:          p.options.DataNodeLocalFSRoot,
 		NameNodeSRPCPeerID:   nameNodeSRPCPeerID,
 	}
@@ -135,6 +136,7 @@ func (p *Env) startDataNode() {
 		&p.NetBlockDriver,
 		&p.NetINodeDriver,
 	))
+	util.AssertErrIsNil(p.dataNode.SetHeartBeatServers(p.options.HeartBeatServers))
 	util.AssertErrIsNil(p.dataNode.Serve())
 	util.AssertErrIsNil(p.dataNode.Close())
 }
