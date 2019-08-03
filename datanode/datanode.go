@@ -40,7 +40,7 @@ func (p *DataNode) initLocalFs(options DataNodeOptions) error {
 
 	p.localFsSNetPeer.ID = snet.MakeSysPeerID(fmt.Sprintf("DATANODE_LOCAL_FS"))
 	p.localFsSNetPeer.SetAddress("LocalFs")
-	p.localFsSNetPeer.ServiceProtocol = snettypes.ProtocolDisk
+	p.localFsSNetPeer.ServiceProtocol = snettypes.ProtocolLocalFS
 	err = p.SNetDriver.RegisterPeer(p.localFsSNetPeer)
 	if err != nil {
 		return err
