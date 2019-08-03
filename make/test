@@ -1,9 +1,9 @@
 
+test-apps-libsdfs:
+	go test .//apps/libsdfs
+
 test-datanode:
 	go test .//datanode
-
-test-libsdfs:
-	go test .//libsdfs
 
 test-memstg:
 	go test .//memstg
@@ -20,4 +20,4 @@ test-sdfssdk:
 test-sfuse:
 	go test .//sfuse
 
-test: test-datanode test-libsdfs test-memstg test-metastg test-namenode test-sdfssdk test-sfuse
+test: test-apps-libsdfs test-datanode test-memstg test-metastg test-namenode test-sdfssdk test-sfuse

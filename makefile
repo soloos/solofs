@@ -19,14 +19,14 @@ fbs: $(GENERATED_PROTOS)
 all:sdfsd sdfsd-mock sdfssdk
 
 libsdfs:
-	$(GOBUILD) -o ./bin/libsdfs.so -buildmode=c-shared ./libsdfs
+	$(GOBUILD) -o ./bin/libsdfs.so -buildmode=c-shared ./apps/libsdfs
 
 sdfsd:
-	$(GOBUILD) -o ./bin/sdfsd ./sdfsd
+	$(GOBUILD) -o ./bin/sdfsd ./apps/sdfsd
 
 sdfsd-fuse:
 	rm -f bin/sdfsd-fuse
-	$(GOBUILD) -o ./bin/sdfsd-fuse ./sdfsd-fuse
+	$(GOBUILD) -o ./bin/sdfsd-fuse ./apps/sdfsd-fuse
 
 include ./make/test
 include ./make/bench

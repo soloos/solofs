@@ -1,5 +1,5 @@
-package main
+package sdfsd
 
-func (p *Env) initSoloBoat() error {
+func (p *SDFSD) initSoloBoat() error {
 	return p.soloboatClient.Init(p.options.SoloBoatServeAddr)
 }

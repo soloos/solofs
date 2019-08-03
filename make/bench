@@ -1,9 +1,9 @@
 
+bench-apps-libsdfs:
+	cd src/.//apps/libsdfs/ && go test -bench=. -benchmem 
+
 bench-datanode:
 	cd src/.//datanode/ && go test -bench=. -benchmem 
-
-bench-libsdfs:
-	cd src/.//libsdfs/ && go test -bench=. -benchmem 
 
 bench-memstg:
 	cd src/.//memstg/ && go test -bench=. -benchmem 
@@ -20,4 +20,4 @@ bench-sdfssdk:
 bench-sfuse:
 	cd src/.//sfuse/ && go test -bench=. -benchmem 
 
-bench: bench-datanode bench-libsdfs bench-memstg bench-metastg bench-namenode bench-sdfssdk bench-sfuse
+bench: bench-apps-libsdfs bench-datanode bench-memstg bench-metastg bench-namenode bench-sdfssdk bench-sfuse

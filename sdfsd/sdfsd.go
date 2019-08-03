@@ -1,4 +1,4 @@
-package main
+package sdfsd
 
 import (
 	"soloos/common/sdfsapi"
@@ -14,7 +14,7 @@ import (
 	"soloos/soloboat/soloboatsdk"
 )
 
-type Env struct {
+type SDFSD struct {
 	options          Options
 	SoloOSEnv        soloosbase.SoloOSEnv
 	offheapDriver    *offheap.OffheapDriver
@@ -34,12 +34,12 @@ type Env struct {
 	soloboatClient soloboatsdk.Client
 }
 
-func (p *Env) initMetaStg() error {
+func (p *SDFSD) initMetaStg() error {
 	return p.MetaStg.Init(&p.SoloOSEnv,
 		p.options.DBDriver, p.options.Dsn)
 }
 
-func (p *Env) initMemStg() error {
+func (p *SDFSD) initMemStg() error {
 	var memBlockDriverOptions = memstg.MemBlockDriverOptions{
 		[]memstg.MemBlockTableOptions{
 			memstg.MemBlockTableOptions{
@@ -51,7 +51,7 @@ func (p *Env) initMemStg() error {
 	return (p.MemBlockDriver.Init(&p.SoloOSEnv, memBlockDriverOptions))
 }
 
-func (p *Env) Init(options Options) {
+func (p *SDFSD) Init(options Options) {
 	p.options = options
 	util.AssertErrIsNil(p.SoloOSEnv.InitWithSNet(p.options.SNetDriverServeAddr))
 
@@ -64,13 +64,13 @@ func (p *Env) Init(options Options) {
 	util.AssertErrIsNil(p.initSoloBoat())
 }
 
-func (p *Env) startCommon() {
+func (p *SDFSD) startCommon() {
 	if p.options.PProfListenAddr != "" {
 		go util.PProfServe(p.options.PProfListenAddr)
 	}
 }
 
-func (p *Env) startNameNode() {
+func (p *SDFSD) startNameNode() {
 	copy(p.srpcPeerID[:], []byte(p.options.NameNodeSRPCPeerID))
 	copy(p.webPeerID[:], []byte(p.options.NameNodeWebPeerID))
 
@@ -99,7 +99,7 @@ func (p *Env) startNameNode() {
 	util.AssertErrIsNil(p.nameNode.Close())
 }
 
-func (p *Env) startDataNode() {
+func (p *SDFSD) startDataNode() {
 	var (
 		nameNodeSRPCPeerID snettypes.PeerID
 		dataNodeOptions    datanode.DataNodeOptions
@@ -141,7 +141,7 @@ func (p *Env) startDataNode() {
 	util.AssertErrIsNil(p.dataNode.Close())
 }
 
-func (p *Env) Start() {
+func (p *SDFSD) Start() {
 	if p.options.Mode == "namenode" {
 		p.startCommon()
 		p.startNameNode()
