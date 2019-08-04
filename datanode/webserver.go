@@ -7,6 +7,8 @@ type WebServer struct {
 	server   iron.Server
 }
 
+var _ = iron.IServer(&WebServer{})
+
 func (p *WebServer) Init(dataNode *DataNode,
 	webServerOptions iron.Options,
 ) error {
@@ -19,6 +21,10 @@ func (p *WebServer) Init(dataNode *DataNode,
 	}
 
 	return nil
+}
+
+func (p *WebServer) ServerName() string {
+	return "SoloOS.SDFS.DataNode.WebServer"
 }
 
 func (p *WebServer) Serve() error {

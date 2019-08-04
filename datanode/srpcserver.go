@@ -1,6 +1,7 @@
 package datanode
 
 import (
+	"soloos/common/iron"
 	"soloos/common/log"
 	"soloos/common/sdfsapitypes"
 	"soloos/common/snet"
@@ -12,6 +13,8 @@ type SRPCServer struct {
 	srpcServerServeAddr  string
 	srpcServer           snet.SRPCServer
 }
+
+var _ = iron.IServer(&SRPCServer{})
 
 func (p *SRPCServer) Init(dataNode *DataNode,
 	srpcServerListenAddr string,
@@ -31,6 +34,10 @@ func (p *SRPCServer) Init(dataNode *DataNode,
 	p.srpcServer.RegisterService("/NetINode/PRead", p.NetINodePRead)
 
 	return nil
+}
+
+func (p *SRPCServer) ServerName() string {
+	return "SoloOS.SDFS.DataNode.SRPCServer"
 }
 
 func (p *SRPCServer) Serve() error {

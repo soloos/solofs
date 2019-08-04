@@ -2,6 +2,7 @@ package datanode
 
 import (
 	"fmt"
+	"soloos/common/iron"
 	"soloos/common/log"
 	"soloos/common/sdfsapi"
 	"soloos/common/sdfsapitypes"
@@ -26,9 +27,9 @@ type DataNode struct {
 	localFsSNetPeer snettypes.Peer
 
 	heartBeatServerOptionsArr []sdfsapitypes.HeartBeatServerOptions
-	serverCount               int
 	srpcServer                SRPCServer
 	webServer                 WebServer
+	serverDriver              iron.ServerDriver
 }
 
 func (p *DataNode) initLocalFs(options DataNodeOptions) error {
@@ -118,6 +119,11 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		return err
 	}
 
+	err = p.serverDriver.Init(&p.srpcServer, &p.webServer)
+	if err != nil {
+		return err
+	}
+
 	err = p.initLocalFs(options)
 	if err != nil {
 		log.Warn("DataNode Init initLocalFs failed, err:", err)
@@ -146,11 +152,7 @@ func (p *DataNode) Init(soloOSEnv *soloosbase.SoloOSEnv,
 }
 
 func (p *DataNode) Serve() error {
-	var (
-		errChan chan error
-		tmpErr  error
-		err     error
-	)
+	var err error
 
 	err = p.nameNodeClient.DataNodeRegister(p.srpcPeer.ID, p.srpcPeer.AddressStr(), p.srpcPeer.ServiceProtocol)
 	if err != nil {
@@ -162,42 +164,20 @@ func (p *DataNode) Serve() error {
 		return err
 	}
 
-	errChan = make(chan error, p.serverCount)
-
-	p.serverCount = 2
-
-	go func(errChan chan<- error) {
-		errChan <- p.srpcServer.Serve()
-	}(errChan)
-
-	go func(errChan chan<- error) {
-		errChan <- p.webServer.Serve()
-	}(errChan)
-
-	for i := 0; i < p.serverCount; i++ {
-		tmpErr = <-errChan
-		if tmpErr != nil {
-			log.Error("serve error, err:", tmpErr)
-			err = tmpErr
-		}
+	err = p.serverDriver.Serve()
+	if err != nil {
+		return err
 	}
 
-	return err
+	return nil
 }
 
 func (p *DataNode) Close() error {
-	var (
-		tmpErr error
-		err    error
-	)
-
-	for i := 0; i < p.serverCount; i++ {
-		tmpErr = p.srpcServer.Close()
-		if err != nil {
-			log.Error("server close error, err:", tmpErr)
-			err = tmpErr
-		}
+	var err error
+	err = p.serverDriver.Close()
+	if err != nil {
+		return err
 	}
 
-	return err
+	return nil
 }

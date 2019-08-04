@@ -1,6 +1,7 @@
 package namenode
 
 import (
+	"soloos/common/iron"
 	"soloos/common/log"
 	"soloos/common/sdfsapitypes"
 	"soloos/common/snet"
@@ -12,6 +13,8 @@ type SRPCServer struct {
 	srpcServerServeAddr  string
 	srpcServer           snet.SRPCServer
 }
+
+var _ = iron.IServer(&SRPCServer{})
 
 func (p *SRPCServer) Init(nameNode *NameNode,
 	srpcServerListenAddr string,
@@ -34,6 +37,10 @@ func (p *SRPCServer) Init(nameNode *NameNode,
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
 
 	return nil
+}
+
+func (p *SRPCServer) ServerName() string {
+	return "SoloOS.SDFS.NameNode.SRPCServer"
 }
 
 func (p *SRPCServer) Serve() error {

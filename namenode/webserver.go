@@ -7,6 +7,8 @@ type WebServer struct {
 	server   iron.Server
 }
 
+var _ = iron.IServer(&WebServer{})
+
 func (p *WebServer) Init(nameNode *NameNode,
 	webServerOptions iron.Options,
 ) error {
@@ -21,6 +23,10 @@ func (p *WebServer) Init(nameNode *NameNode,
 	p.server.Router("/DataNode/HeartBeat", p.ctrDataNodeHeartBeat)
 
 	return nil
+}
+
+func (p *WebServer) ServerName() string {
+	return "SoloOS.SDFS.NameNode.WebServer"
 }
 
 func (p *WebServer) Serve() error {
