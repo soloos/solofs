@@ -1,4 +1,5 @@
 #!/bin/bash
+scripts/init.conf.template.py
 cd ./scripts
 jq -s add ./conf_template/namenode.1.json ./conf_template/namenode.common.json ./conf_template/common.json > ./conf/namenode.1.json
 for i in {0..3}

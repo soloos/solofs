@@ -5,7 +5,7 @@
     "HeartBeatServers": [
         {
             "PeerID": "SOLOBOAT_1_00000000000000000000000000000000000000000000000000000",
-            "DurationMS": 3000
+            "DurationMS": 180000
         }
     ]
 }

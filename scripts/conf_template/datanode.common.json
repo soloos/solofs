@@ -7,11 +7,11 @@
     "HeartBeatServers": [
         {
             "PeerID": "NAME_NODE_WEB_1_000000000000000000000000000000000000000000000000",
-            "DurationMS": 3000
+            "DurationMS": 180000
         },
         {
             "PeerID": "SOLOBOAT_1_00000000000000000000000000000000000000000000000000000",
-            "DurationMS": 3000
+            "DurationMS": 180000
         }
     ]
 }
