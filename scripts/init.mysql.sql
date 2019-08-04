@@ -1,5 +1,5 @@
-CREATE DATABASE `sdfs_test` /*!40100 DEFAULT CHARACTER SET utf8 */;
-use sdfs_test;
+CREATE DATABASE `soloos_test` /*!40100 DEFAULT CHARACTER SET utf8 */;
+use soloos_test;
 
 drop table b_inode;
 create table b_inode (

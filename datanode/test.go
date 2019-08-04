@@ -20,7 +20,7 @@ func MakeDataNodeForTest(soloOSEnv *soloosbase.SoloOSEnv,
 		err error
 	)
 
-	var localFSRoot = filepath.Join("/tmp/sdfs_test.data", dataNodeSRPCPeerID.Str())
+	var localFSRoot = filepath.Join("/tmp/soloos_test.data", dataNodeSRPCPeerID.Str())
 
 	var options = DataNodeOptions{
 		SRPCPeerID:           dataNodeSRPCPeerID,

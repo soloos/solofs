@@ -8,6 +8,6 @@
         "ServeStr":"http://192.168.56.100:10802",
         "ListenStr":"192.168.56.100:10802"
     },
-    "DataNodeLocalFSRoot":"/tmp/sdfs_test.data.02",
+    "DataNodeLocalFSRoot":"/tmp/soloos_test.data.02",
     "PProfListenAddr":"192.168.56.100:10803"
 }

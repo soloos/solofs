@@ -2,9 +2,9 @@ package metastg
 
 const (
 	// TestMetaStgDBDriver  = "mysql"
-	// TestMetaStgDBConnect = "root:hello@/sdfs_test"
+	// TestMetaStgDBConnect = "root:hello@/soloos_test"
 	TestMetaStgDBDriver  = "sqlite3"
-	TestMetaStgDBConnect = "/tmp/sdfs_test.db"
+	TestMetaStgDBConnect = "/tmp/soloos_test.db"
 )
 
 var (

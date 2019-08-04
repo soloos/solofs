@@ -1,2 +1,2 @@
 #!/bin/bash
-mysql -uroot -phello sdfs_test < ./scripts/reformat.mysql.sql
+mysql -uroot -phello soloos_test < ./scripts/reformat.mysql.sql

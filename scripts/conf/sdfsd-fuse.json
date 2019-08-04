@@ -11,7 +11,7 @@
   "SNetDriverServeAddr": "http://192.168.56.100:20701",
   "SoloBoatWebPeerID": "SOLOBOAT_1_00000000000000000000000000000000000000000000000000000",
   "DBDriver": "mysql",
-  "Dsn": "root:hello@/sdfs_test",
+  "Dsn": "root:hello@/soloos_test",
   "#DBDriver": "sqlite3",
   "#Dsn": "/tmp/sdfs.db"
 }

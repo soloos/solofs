@@ -7,7 +7,7 @@
     "ServeStr": "http://192.168.56.100:10702",
     "ListenStr": "192.168.56.100:10702"
   },
-  "DataNodeLocalFSRoot": "/tmp/sdfs_test.data.01",
+  "DataNodeLocalFSRoot": "/tmp/soloos_test.data.01",
   "PProfListenAddr": "192.168.56.100:10703",
   "DefaultMemBlockCap": 2097152,
   "DefaultMemBlocksLimit": 256,
@@ -27,7 +27,7 @@
   "SNetDriverServeAddr": "http://192.168.56.100:20701",
   "SoloBoatWebPeerID": "SOLOBOAT_1_00000000000000000000000000000000000000000000000000000",
   "DBDriver": "mysql",
-  "Dsn": "root:hello@/sdfs_test",
+  "Dsn": "root:hello@/soloos_test",
   "#DBDriver": "sqlite3",
   "#Dsn": "/tmp/sdfs.db"
 }
