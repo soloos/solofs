@@ -19,7 +19,7 @@ type NameNode struct {
 	netBlockDriver *memstg.NetBlockDriver
 	netINodeDriver *memstg.NetINodeDriver
 
-	heartBeatServerOptionsArr []sdfsapitypes.HeartBeatServerOptions
+	heartBeatServerOptionsArr []snettypes.HeartBeatServerOptions
 	serverCount               int
 	srpcServer                SRPCServer
 	webServer                 WebServer

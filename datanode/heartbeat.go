@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-func (p *DataNode) SetHeartBeatServers(heartBeatServerOptionsArr []sdfsapitypes.HeartBeatServerOptions) error {
+func (p *DataNode) SetHeartBeatServers(heartBeatServerOptionsArr []snettypes.HeartBeatServerOptions) error {
 	p.heartBeatServerOptionsArr = heartBeatServerOptionsArr
 	return nil
 }
 
-func (p *DataNode) doHeartBeat(options sdfsapitypes.HeartBeatServerOptions) {
+func (p *DataNode) doHeartBeat(options snettypes.HeartBeatServerOptions) {
 	var (
 		heartBeat sdfsapitypes.DataNodeHeartBeat
 		webret    iron.ApiOutputResult

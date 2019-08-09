@@ -1,6 +1,7 @@
 package sdfssdk
 
 import (
+	"soloos/common/iron"
 	"soloos/common/sdbapi"
 	"soloos/common/sdfsapitypes"
 	"soloos/common/snet"
@@ -27,8 +28,9 @@ func MakeClientForTest(client *Client) {
 		nameNodeSRPCListenAddr                     = "127.0.0.1:10300"
 		nameNodeWebPeerID         snettypes.PeerID = snet.MakeSysPeerID("NameNodeWebForTest")
 		nameNodeWebListenAddr                      = "127.0.0.1:10301"
-		netDriverServerListenAddr                  = "127.0.0.1:10402"
-		netDriverServerServeAddr                   = "http://127.0.0.1:10402"
+		netDriverWebServer        iron.Server
+		netDriverServerListenAddr = "127.0.0.1:10402"
+		netDriverServerServeAddr  = "http://127.0.0.1:10402"
 		nameNode                  namenode.NameNode
 		mockServerAddr            = "127.0.0.1:10302"
 		mockServer                memstg.MockServer
@@ -51,9 +53,16 @@ func MakeClientForTest(client *Client) {
 
 	util.AssertErrIsNil(netDriverSoloOSEnv.InitWithSNet(""))
 	util.AssertErrIsNil(netDriverSoloOSEnv.SNetDriver.Init(&netDriverSoloOSEnv.OffheapDriver))
+	{
+		var webServerOptions = iron.Options{
+			ListenStr: netDriverServerListenAddr,
+			ServeStr:  netDriverServerServeAddr,
+		}
+		util.AssertErrIsNil(netDriverWebServer.Init(webServerOptions))
+	}
 	go func() {
-		util.AssertErrIsNil(netDriverSoloOSEnv.SNetDriver.PrepareServer(netDriverServerListenAddr,
-			netDriverServerServeAddr,
+		util.AssertErrIsNil(netDriverSoloOSEnv.SNetDriver.PrepareServer("",
+			&netDriverWebServer,
 			nil, nil))
 		util.AssertErrIsNil(netDriverSoloOSEnv.SNetDriver.ServerServe())
 	}()

@@ -26,7 +26,7 @@ type DataNode struct {
 	localFS         localfs.LocalFS
 	localFsSNetPeer snettypes.Peer
 
-	heartBeatServerOptionsArr []sdfsapitypes.HeartBeatServerOptions
+	heartBeatServerOptionsArr []snettypes.HeartBeatServerOptions
 	srpcServer                SRPCServer
 	webServer                 WebServer
 	serverDriver              iron.ServerDriver

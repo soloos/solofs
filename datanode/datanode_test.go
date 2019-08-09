@@ -2,6 +2,7 @@ package datanode
 
 import (
 	"fmt"
+	"soloos/common/iron"
 	"soloos/common/sdfsapitypes"
 	"soloos/common/snet"
 	"soloos/common/snettypes"
@@ -24,6 +25,7 @@ func TestBase(t *testing.T) {
 		nameNodeWebPeerID         = snet.MakeSysPeerID("NameNodeWebForTest")
 		nameNodeSRPCListenAddr    = "127.0.0.1:10401"
 		nameNodeWebListenAddr     = "127.0.0.1:10402"
+		netDriverWebServer        iron.Server
 		netDriverServerListenAddr = "127.0.0.1:10403"
 		netDriverServerServeAddr  = "http://127.0.0.1:10403"
 		metaStgForNameNode        metastg.MetaStg
@@ -65,9 +67,16 @@ func TestBase(t *testing.T) {
 	)
 
 	assert.NoError(t, soloOSEnvForNameNode.InitWithSNet(""))
+	{
+		var webServerOptions = iron.Options{
+			ListenStr: netDriverServerListenAddr,
+			ServeStr:  netDriverServerServeAddr,
+		}
+		util.AssertErrIsNil(netDriverWebServer.Init(webServerOptions))
+	}
 	go func() {
-		assert.NoError(t, soloOSEnvForNameNode.SNetDriver.PrepareServer(netDriverServerListenAddr,
-			netDriverServerServeAddr,
+		assert.NoError(t, soloOSEnvForNameNode.SNetDriver.PrepareServer("",
+			&netDriverWebServer,
 			nil, nil))
 		assert.NoError(t, soloOSEnvForNameNode.SNetDriver.ServerServe())
 	}()
