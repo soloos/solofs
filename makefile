@@ -1,3 +1,5 @@
+export GO111MODULE=on
+
 SDFS_LDFLAGS += -X "soloos/sdfs/version.BuildTS=$(shell date -u '+%Y-%m-%d %I:%M:%S')"
 SDFS_LDFLAGS += -X "soloos/sdfs/version.GitHash=$(shell git rev-parse HEAD)"
 # SDFS_PREFIX += GOTMPDIR=./go.build/tmp GOCACHE=./go.build/cache
