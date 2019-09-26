@@ -3,14 +3,14 @@ package sfuse
 import (
 	"os"
 	"soloos/common/go-fuse/fuse"
-	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/sdfssdk"
+	"soloos/common/solofsapitypes"
+	"soloos/solofs/solofssdk"
 )
 
 type Server struct {
 	options Options
 
-	Client     sdfssdk.Client
+	Client     solofssdk.Client
 	MountOpts  fuse.MountOptions
 	FuseServer *fuse.Server
 }
@@ -19,14 +19,14 @@ func (p *Server) Init(options Options,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
 	defaultMemBlocksLimit int32,
-	clientDriver *sdfssdk.ClientDriver) error {
+	clientDriver *solofssdk.ClientDriver) error {
 	var err error
 	p.options = options
 
 	os.MkdirAll(options.MountPoint, 0777)
 
 	err = clientDriver.InitClient(&p.Client,
-		sdfsapitypes.NameSpaceID(options.NameSpaceID),
+		solofsapitypes.NameSpaceID(options.NameSpaceID),
 		defaultNetBlockCap, defaultMemBlockCap, defaultMemBlocksLimit)
 	if err != nil {
 		return err

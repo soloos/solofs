@@ -1,9 +1,9 @@
 
-bench-apps-libsdfs:
-	cd src/.//apps/libsdfs/ && go test -bench=. -benchmem 
+bench-apps-libsolofs:
+	cd src/.//apps/libsolofs/ && go test -bench=. -benchmem 
 
-bench-datanode:
-	cd src/.//datanode/ && go test -bench=. -benchmem 
+bench-solodn:
+	cd src/.//solodn/ && go test -bench=. -benchmem 
 
 bench-memstg:
 	cd src/.//memstg/ && go test -bench=. -benchmem 
@@ -11,13 +11,13 @@ bench-memstg:
 bench-metastg:
 	cd src/.//metastg/ && go test -bench=. -benchmem 
 
-bench-namenode:
-	cd src/.//namenode/ && go test -bench=. -benchmem 
+bench-solonn:
+	cd src/.//solonn/ && go test -bench=. -benchmem 
 
-bench-sdfssdk:
-	cd src/.//sdfssdk/ && go test -bench=. -benchmem 
+bench-solofssdk:
+	cd src/.//solofssdk/ && go test -bench=. -benchmem 
 
 bench-sfuse:
 	cd src/.//sfuse/ && go test -bench=. -benchmem 
 
-bench: bench-apps-libsdfs bench-datanode bench-memstg bench-metastg bench-namenode bench-sdfssdk bench-sfuse
+bench: bench-apps-libsolofs bench-solodn bench-memstg bench-metastg bench-solonn bench-solofssdk bench-sfuse

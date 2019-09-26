@@ -1,9 +1,9 @@
 
-test-apps-libsdfs:
-	go test .//apps/libsdfs
+test-apps-libsolofs:
+	go test .//apps/libsolofs
 
-test-datanode:
-	go test .//datanode
+test-solodn:
+	go test .//solodn
 
 test-memstg:
 	go test .//memstg
@@ -11,13 +11,13 @@ test-memstg:
 test-metastg:
 	go test .//metastg
 
-test-namenode:
-	go test .//namenode
+test-solonn:
+	go test .//solonn
 
-test-sdfssdk:
-	go test .//sdfssdk
+test-solofssdk:
+	go test .//solofssdk
 
 test-sfuse:
 	go test .//sfuse
 
-test: test-apps-libsdfs test-datanode test-memstg test-metastg test-namenode test-sdfssdk test-sfuse
+test: test-apps-libsolofs test-solodn test-memstg test-metastg test-solonn test-solofssdk test-sfuse

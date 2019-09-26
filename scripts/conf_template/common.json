@@ -4,5 +4,5 @@
     "DBDriver":"mysql",
     "Dsn":"root:hello@/soloos_test",
     "#DBDriver":"sqlite3",
-    "#Dsn":"/tmp/sdfs.db"
+    "#Dsn":"/tmp/solofs.db"
 }

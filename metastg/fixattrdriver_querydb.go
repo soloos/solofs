@@ -2,14 +2,14 @@ package metastg
 
 import (
 	"database/sql"
-	"soloos/common/sdbapi"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solodbapi"
+	"soloos/common/solofsapitypes"
 )
 
-func (p *FIXAttrDriver) DeleteFIXAttrInDB(nameSpaceID sdfsapitypes.NameSpaceID,
-	fsINodeID sdfsapitypes.FsINodeID) error {
+func (p *FIXAttrDriver) DeleteFIXAttrInDB(nameSpaceID solofsapitypes.NameSpaceID,
+	fsINodeID solofsapitypes.FsINodeID) error {
 	var (
-		sess sdbapi.Session
+		sess solodbapi.Session
 		err  error
 	)
 
@@ -28,11 +28,11 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(nameSpaceID sdfsapitypes.NameSpaceID,
 	return nil
 }
 
-func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nameSpaceID sdfsapitypes.NameSpaceID,
-	fsINodeID sdfsapitypes.FsINodeID,
-	xattr sdfsapitypes.FsINodeXAttr) error {
+func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nameSpaceID solofsapitypes.NameSpaceID,
+	fsINodeID solofsapitypes.FsINodeID,
+	xattr solofsapitypes.FsINodeXAttr) error {
 	var (
-		sess       sdbapi.Session
+		sess       solodbapi.Session
 		xattrBytes []byte
 		err        error
 	)
@@ -42,7 +42,7 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nameSpaceID sdfsapitypes.NameSpaceID,
 		return err
 	}
 
-	xattrBytes, err = sdfsapitypes.SerializeFIXAttr(xattr)
+	xattrBytes, err = solofsapitypes.SerializeFIXAttr(xattr)
 	if err != nil {
 		return err
 	}
@@ -58,12 +58,12 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nameSpaceID sdfsapitypes.NameSpaceID,
 	return nil
 }
 
-func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nameSpaceID sdfsapitypes.NameSpaceID,
-	fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeXAttr, error) {
+func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nameSpaceID solofsapitypes.NameSpaceID,
+	fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeXAttr, error) {
 	var (
-		sess    sdbapi.Session
+		sess    solodbapi.Session
 		sqlRows *sql.Rows
-		xattr   = sdfsapitypes.InitFsINodeXAttr()
+		xattr   = solofsapitypes.InitFsINodeXAttr()
 		bytes   []byte
 		err     error
 	)
@@ -82,7 +82,7 @@ func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nameSpaceID sdfsapitypes.NameSpace
 	}
 
 	if sqlRows.Next() == false {
-		err = sdfsapitypes.ErrObjectNotExists
+		err = solofsapitypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 
@@ -92,7 +92,7 @@ func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nameSpaceID sdfsapitypes.NameSpace
 	if err != nil {
 		goto QUERY_DONE
 	}
-	sdfsapitypes.DeserializeFIXAttr(bytes, &xattr)
+	solofsapitypes.DeserializeFIXAttr(bytes, &xattr)
 
 QUERY_DONE:
 	if sqlRows != nil {

@@ -1,0 +1,9 @@
+mv ./solofsd/sdfsd_soloboat.go ./solofsd/solofsd_soloboat.go
+mv ./scripts/start.sdfsd-fuse.sh ./scripts/start.solofsd-fuse.sh
+mv ./scripts/conf/sdfsd-fuse.json ./scripts/conf/solofsd-fuse.json
+mv ./scripts/cpu.sdfsd-fuse.sh ./scripts/cpu.solofsd-fuse.sh
+mv ./scripts/kill.sdfsd-fuse.sh ./scripts/kill.solofsd-fuse.sh
+mv ./scripts/stop.sdfsd-fuse.sh ./scripts/stop.solofsd-fuse.sh
+mv ./scripts/retest.sdfsd-fuse.sh ./scripts/retest.solofsd-fuse.sh
+mv ./scripts/restart.sdfsd-fuse.sh ./scripts/restart.solofsd-fuse.sh
+mv ./scripts/conf_template/sdfsd-fuse.json ./scripts/conf_template/solofsd-fuse.json

@@ -1,24 +1,24 @@
 package metastg
 
 import (
-	"soloos/common/sdbapi"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solodbapi"
+	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 )
 
 type PosixFS struct {
-	nameSpaceID sdfsapitypes.NameSpaceID
+	nameSpaceID solofsapitypes.NameSpaceID
 	*soloosbase.SoloOSEnv
-	dbConn        *sdbapi.Connection
+	dbConn        *solodbapi.Connection
 	FsINodeDriver FsINodeDriver
 	FIXAttrDriver FIXAttrDriver
 }
 
 func (p *PosixFS) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	dbConn *sdbapi.Connection,
-	getNetINode sdfsapitypes.GetNetINode,
-	mustGetNetINode sdfsapitypes.MustGetNetINode,
-	releaseNetINode sdfsapitypes.ReleaseNetINode,
+	dbConn *solodbapi.Connection,
+	getNetINode solofsapitypes.GetNetINode,
+	mustGetNetINode solofsapitypes.MustGetNetINode,
+	releaseNetINode solofsapitypes.ReleaseNetINode,
 ) error {
 	var err error
 

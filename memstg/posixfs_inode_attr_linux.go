@@ -2,15 +2,15 @@ package memstg
 
 import (
 	"soloos/common/fsapitypes"
-	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/sdfstypes"
+	"soloos/common/solofsapitypes"
+	"soloos/solofs/solofstypes"
 )
 
-func (p *PosixFS) SetFsAttrByFsINode(fsAttr *fsapitypes.Attr, pFsINodeMeta *sdfsapitypes.FsINodeMeta) {
+func (p *PosixFS) SetFsAttrByFsINode(fsAttr *fsapitypes.Attr, pFsINodeMeta *solofsapitypes.FsINodeMeta) {
 	fsAttr.Ino = pFsINodeMeta.Ino
 
-	if pFsINodeMeta.NetINodeID != sdfsapitypes.ZeroNetINodeID ||
-		pFsINodeMeta.Type == sdfstypes.FSINODE_TYPE_HARD_LINK {
+	if pFsINodeMeta.NetINodeID != solofsapitypes.ZeroNetINodeID ||
+		pFsINodeMeta.Type == solofstypes.FSINODE_TYPE_HARD_LINK {
 		var uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(pFsINodeMeta.Ino)
 		defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
 		var pFsINode = uFsINode.Ptr()

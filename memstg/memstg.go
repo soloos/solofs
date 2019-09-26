@@ -1,26 +1,26 @@
 package memstg
 
 import (
-	"soloos/common/sdfsapi"
+	"soloos/common/solofsapi"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
-	"soloos/common/swalapi"
+	"soloos/common/solomqapi"
 )
 
 type MemStg struct {
 	*soloosbase.SoloOSEnv
 
-	NameNodeClient sdfsapi.NameNodeClient
-	DataNodeClient sdfsapi.DataNodeClient
+	SolonnClient solofsapi.SolonnClient
+	SolodnClient solofsapi.SolodnClient
 	NetBlockDriver
 	MemBlockDriver
 	NetINodeDriver
 
-	swalClient swalapi.Client
+	solomqClient solomqapi.Client
 }
 
 func (p *MemStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	nameNodePeer snettypes.Peer,
+	solonnPeer snettypes.Peer,
 	memBlockDriverOptions MemBlockDriverOptions,
 ) error {
 	var (
@@ -29,18 +29,18 @@ func (p *MemStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 
 	p.SoloOSEnv = soloOSEnv
 
-	err = p.NameNodeClient.Init(p.SoloOSEnv, nameNodePeer.ID)
+	err = p.SolonnClient.Init(p.SoloOSEnv, solonnPeer.ID)
 	if err != nil {
 		return err
 	}
 
-	err = p.DataNodeClient.Init(p.SoloOSEnv)
+	err = p.SolodnClient.Init(p.SoloOSEnv)
 	if err != nil {
 		return err
 	}
 
 	err = p.NetBlockDriver.Init(p.SoloOSEnv,
-		&p.NameNodeClient, &p.DataNodeClient,
+		&p.SolonnClient, &p.SolodnClient,
 		p.NetBlockDriver.PrepareNetBlockMetaData,
 	)
 	if err != nil {
@@ -53,7 +53,7 @@ func (p *MemStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	}
 
 	err = p.NetINodeDriver.Init(p.SoloOSEnv, &p.NetBlockDriver, &p.MemBlockDriver,
-		&p.NameNodeClient,
+		&p.SolonnClient,
 		p.NetINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
 		p.NetINodeDriver.PrepareNetINodeMetaDataWithStorDB,
 		p.NetINodeDriver.NetINodeCommitSizeInDB,

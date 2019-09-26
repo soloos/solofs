@@ -1,13 +1,13 @@
 package memstg
 
 import (
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solofsapitypes"
 )
 
-func (p *PosixFS) GetFsINodeByID(fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeUintptr, error) {
+func (p *PosixFS) GetFsINodeByID(fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeUintptr, error) {
 	return p.FsINodeDriver.GetFsINodeByID(fsINodeID)
 }
 
-func (p *PosixFS) ReleaseFsINode(uFsINode sdfsapitypes.FsINodeUintptr) {
+func (p *PosixFS) ReleaseFsINode(uFsINode solofsapitypes.FsINodeUintptr) {
 	p.FsINodeDriver.ReleaseFsINode(uFsINode)
 }

@@ -4,7 +4,7 @@
 import os
 import stat
 
-filename = '/opt/soloos/sdfsd-fuse-mnt/testhi'
+filename = '/opt/soloos/solofsd-fuse-mnt/testhi'
 mode = 0600|stat.S_IRUSR
 
 # 文件系统节点指定不同模式

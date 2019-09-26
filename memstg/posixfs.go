@@ -2,14 +2,14 @@ package memstg
 
 import (
 	"soloos/common/fsapi"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"time"
 )
 
 type PosixFS struct {
 	*soloosbase.SoloOSEnv
-	NameSpaceID   sdfsapitypes.NameSpaceID
+	NameSpaceID   solofsapitypes.NameSpaceID
 	MemStg        *MemStg
 	FsINodeDriver FsINodeDriver
 	FdTable       FdTable
@@ -23,25 +23,25 @@ var _ = fsapi.PosixFS(&PosixFS{})
 
 func (p *PosixFS) Init(
 	soloOSEnv *soloosbase.SoloOSEnv,
-	nameSpaceID sdfsapitypes.NameSpaceID,
+	nameSpaceID solofsapitypes.NameSpaceID,
 	memStg *MemStg,
 	// FsINodeDriver
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
-	allocFsINodeID sdfsapitypes.AllocFsINodeID,
-	getNetINode sdfsapitypes.GetNetINode,
-	mustGetNetINode sdfsapitypes.MustGetNetINode,
-	releaseNetINode sdfsapitypes.ReleaseNetINode,
-	deleteFsINodeByIDInDB sdfsapitypes.DeleteFsINodeByIDInDB,
-	listFsINodeByParentIDFromDB sdfsapitypes.ListFsINodeByParentIDFromDB,
-	updateFsINodeInDB sdfsapitypes.UpdateFsINodeInDB,
-	insertFsINodeInDB sdfsapitypes.InsertFsINodeInDB,
-	fetchFsINodeByIDFromDB sdfsapitypes.FetchFsINodeByIDFromDB,
-	fetchFsINodeByNameFromDB sdfsapitypes.FetchFsINodeByNameFromDB,
+	allocFsINodeID solofsapitypes.AllocFsINodeID,
+	getNetINode solofsapitypes.GetNetINode,
+	mustGetNetINode solofsapitypes.MustGetNetINode,
+	releaseNetINode solofsapitypes.ReleaseNetINode,
+	deleteFsINodeByIDInDB solofsapitypes.DeleteFsINodeByIDInDB,
+	listFsINodeByParentIDFromDB solofsapitypes.ListFsINodeByParentIDFromDB,
+	updateFsINodeInDB solofsapitypes.UpdateFsINodeInDB,
+	insertFsINodeInDB solofsapitypes.InsertFsINodeInDB,
+	fetchFsINodeByIDFromDB solofsapitypes.FetchFsINodeByIDFromDB,
+	fetchFsINodeByNameFromDB solofsapitypes.FetchFsINodeByNameFromDB,
 	// FIXAttrDriver
-	deleteFIXAttrInDB sdfsapitypes.DeleteFIXAttrInDB,
-	replaceFIXAttrInDB sdfsapitypes.ReplaceFIXAttrInDB,
-	getFIXAttrByInoFromDB sdfsapitypes.GetFIXAttrByInoFromDB,
+	deleteFIXAttrInDB solofsapitypes.DeleteFIXAttrInDB,
+	replaceFIXAttrInDB solofsapitypes.ReplaceFIXAttrInDB,
+	getFIXAttrByInoFromDB solofsapitypes.GetFIXAttrByInoFromDB,
 ) error {
 	var err error
 
@@ -89,7 +89,7 @@ func (p *PosixFS) FsInit() {
 }
 
 func (p *PosixFS) String() string {
-	return "sdfs"
+	return "solofs"
 }
 
 // If called, provide debug output through the log package.

@@ -1,19 +1,19 @@
 package memstg
 
 import (
-	"soloos/common/sdbapitypes"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solodbapitypes"
+	"soloos/common/solofsapitypes"
 )
 
-func (p *NetINodeDriver) prepareNetINodeMetaDataCommon(pNetINode *sdfsapitypes.NetINode) {
-	pNetINode.MemBlockPlacementPolicy.SetType(sdfsapitypes.BlockPlacementPolicyDefault)
-	pNetINode.IsDBMetaDataInited.Store(sdbapitypes.MetaDataStateInited)
+func (p *NetINodeDriver) prepareNetINodeMetaDataCommon(pNetINode *solofsapitypes.NetINode) {
+	pNetINode.MemBlockPlacementPolicy.SetType(solofsapitypes.BlockPlacementPolicyDefault)
+	pNetINode.IsDBMetaDataInited.Store(solodbapitypes.MetaDataStateInited)
 }
 
-func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode sdfsapitypes.NetINodeUintptr) error {
+func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode solofsapitypes.NetINodeUintptr) error {
 	var err error
 
-	err = p.helper.NameNodeClient.GetNetINodeMetaData(uNetINode)
+	err = p.helper.SolonnClient.GetNetINodeMetaData(uNetINode)
 	if err != nil {
 		return err
 	}
@@ -23,11 +23,11 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode sdfsapitype
 	return nil
 }
 
-func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode sdfsapitypes.NetINodeUintptr,
+func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode solofsapitypes.NetINodeUintptr,
 	size uint64, netBlockCap int, memBlockCap int) error {
 	var err error
 
-	err = p.helper.NameNodeClient.MustGetNetINodeMetaData(uNetINode, size, netBlockCap, memBlockCap)
+	err = p.helper.SolonnClient.MustGetNetINodeMetaData(uNetINode, size, netBlockCap, memBlockCap)
 	if err != nil {
 		return err
 	}
@@ -37,9 +37,9 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode sdfsapitype
 	return nil
 }
 
-func (p *NetINodeDriver) NetINodeCommitSizeInDB(uNetINode sdfsapitypes.NetINodeUintptr, size uint64) error {
+func (p *NetINodeDriver) NetINodeCommitSizeInDB(uNetINode solofsapitypes.NetINodeUintptr, size uint64) error {
 	var err error
-	err = p.helper.NameNodeClient.NetINodeCommitSizeInDB(uNetINode, size)
+	err = p.helper.SolonnClient.NetINodeCommitSizeInDB(uNetINode, size)
 	if err != nil {
 		return err
 	}

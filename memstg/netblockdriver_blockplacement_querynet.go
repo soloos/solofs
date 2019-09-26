@@ -1,24 +1,24 @@
 package memstg
 
 import (
-	"soloos/common/sdfsapitypes"
-	"soloos/common/sdfsprotocol"
+	"soloos/common/solofsapitypes"
+	"soloos/common/solofsprotocol"
 	"soloos/common/snettypes"
 )
 
 // TODO make this configurable
-func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlockUintptr,
-	uNetINode sdfsapitypes.NetINodeUintptr, netblockIndex int32,
+func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlockUintptr,
+	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32,
 ) error {
 	var (
 		pNetBlock    = uNetBlock.Ptr()
-		netBlockInfo sdfsprotocol.NetINodeNetBlockInfoResponse
+		netBlockInfo solofsprotocol.NetINodeNetBlockInfoResponse
 		peerID       snettypes.PeerID
 		i            int
 		err          error
 	)
 
-	err = p.helper.NameNodeClient.PrepareNetBlockMetaData(&netBlockInfo, uNetINode, netblockIndex, uNetBlock)
+	err = p.helper.SolonnClient.PrepareNetBlockMetaData(&netBlockInfo, uNetINode, netblockIndex, uNetBlock)
 	if err != nil {
 		return err
 	}

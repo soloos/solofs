@@ -1,38 +1,38 @@
 package metastg
 
 import (
-	"soloos/common/sdbapi"
-	"soloos/common/sdbapitypes"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solodbapi"
+	"soloos/common/solodbapitypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 )
 
 type NetINodeDriverHelper struct {
-	ChooseDataNodesForNewNetBlock sdfsapitypes.ChooseDataNodesForNewNetBlock
+	ChooseSolodnsForNewNetBlock solofsapitypes.ChooseSolodnsForNewNetBlock
 }
 
 type NetINodeDriver struct {
 	*soloosbase.SoloOSEnv
-	dbConn *sdbapi.Connection
+	dbConn *solodbapi.Connection
 	helper NetINodeDriverHelper
 }
 
 func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	dbConn *sdbapi.Connection,
-	chooseOneDataNode sdfsapitypes.ChooseDataNodesForNewNetBlock,
+	dbConn *solodbapi.Connection,
+	chooseOneSolodn solofsapitypes.ChooseSolodnsForNewNetBlock,
 ) error {
 	p.dbConn = dbConn
-	p.SetHelper(chooseOneDataNode)
+	p.SetHelper(chooseOneSolodn)
 	return nil
 }
 
 func (p *NetINodeDriver) SetHelper(
-	chooseOneDataNode sdfsapitypes.ChooseDataNodesForNewNetBlock,
+	chooseOneSolodn solofsapitypes.ChooseSolodnsForNewNetBlock,
 ) {
-	p.helper.ChooseDataNodesForNewNetBlock = chooseOneDataNode
+	p.helper.ChooseSolodnsForNewNetBlock = chooseOneSolodn
 }
 
-func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode sdfsapitypes.NetINodeUintptr) error {
+func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode solofsapitypes.NetINodeUintptr) error {
 	var (
 		pNetINode = uNetINode.Ptr()
 		err       error
@@ -45,12 +45,12 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataOnlyLoadDB(uNetINode sdfsapitype
 
 PREPARE_DONE:
 	if err == nil {
-		pNetINode.IsDBMetaDataInited.Store(sdbapitypes.MetaDataStateInited)
+		pNetINode.IsDBMetaDataInited.Store(solodbapitypes.MetaDataStateInited)
 	}
 	return err
 }
 
-func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode sdfsapitypes.NetINodeUintptr,
+func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode solofsapitypes.NetINodeUintptr,
 	size uint64, netBlockCap int, memBlockCap int) error {
 	var (
 		pNetINode = uNetINode.Ptr()
@@ -59,7 +59,7 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode sdfsapitype
 
 	err = p.FetchNetINodeFromDB(pNetINode)
 	if err != nil {
-		if err != sdfsapitypes.ErrObjectNotExists {
+		if err != solofsapitypes.ErrObjectNotExists {
 			goto PREPARE_DONE
 		}
 
@@ -74,11 +74,11 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode sdfsapitype
 
 PREPARE_DONE:
 	if err == nil {
-		pNetINode.IsDBMetaDataInited.Store(sdbapitypes.MetaDataStateInited)
+		pNetINode.IsDBMetaDataInited.Store(solodbapitypes.MetaDataStateInited)
 	}
 	return err
 }
 
-func (p *NetINodeDriver) NetINodeTruncate(uNetINode sdfsapitypes.NetINodeUintptr, size uint64) error {
+func (p *NetINodeDriver) NetINodeTruncate(uNetINode solofsapitypes.NetINodeUintptr, size uint64) error {
 	return p.NetINodeCommitSizeInDB(uNetINode, size)
 }

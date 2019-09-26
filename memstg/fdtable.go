@@ -1,22 +1,22 @@
 package memstg
 
 import (
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/util"
-	"soloos/sdbone/offheap"
+	"soloos/solodb/offheap"
 )
 
 type FdTable struct {
 	fdIDsPool  offheap.NoGCUintptrPool
 	FdsRWMutex util.RWMutex
-	Fds        []sdfsapitypes.FsINodeFileHandler
+	Fds        []solofsapitypes.FsINodeFileHandler
 }
 
 func (p *FdTable) Init() error {
 	p.fdIDsPool.New = func() uintptr {
 		var (
 			fdID uintptr
-			fd   sdfsapitypes.FsINodeFileHandler
+			fd   solofsapitypes.FsINodeFileHandler
 		)
 		fd.Reset()
 		p.FdsRWMutex.Lock()
@@ -28,8 +28,8 @@ func (p *FdTable) Init() error {
 	return nil
 }
 
-func (p *FdTable) AllocFd(fsINodeID sdfsapitypes.FsINodeID) sdfsapitypes.FsINodeFileHandlerID {
-	var fdID = sdfsapitypes.FsINodeFileHandlerID(p.fdIDsPool.Get())
+func (p *FdTable) AllocFd(fsINodeID solofsapitypes.FsINodeID) solofsapitypes.FsINodeFileHandlerID {
+	var fdID = solofsapitypes.FsINodeFileHandlerID(p.fdIDsPool.Get())
 	p.FdsRWMutex.RLock()
 	p.Fds[fdID].FsINodeID = fsINodeID
 	p.FdsRWMutex.RUnlock()
@@ -37,28 +37,28 @@ func (p *FdTable) AllocFd(fsINodeID sdfsapitypes.FsINodeID) sdfsapitypes.FsINode
 
 }
 
-func (p *FdTable) FdAddAppendPosition(fdID sdfsapitypes.FsINodeFileHandlerID, delta uint64) {
+func (p *FdTable) FdAddAppendPosition(fdID solofsapitypes.FsINodeFileHandlerID, delta uint64) {
 	p.FdsRWMutex.RLock()
 	p.Fds[int(fdID)].AppendPosition += delta
 	p.FdsRWMutex.RUnlock()
 	return
 }
 
-func (p *FdTable) FdAddReadPosition(fdID sdfsapitypes.FsINodeFileHandlerID, delta uint64) {
+func (p *FdTable) FdAddReadPosition(fdID solofsapitypes.FsINodeFileHandlerID, delta uint64) {
 	p.FdsRWMutex.RLock()
 	p.Fds[int(fdID)].ReadPosition += delta
 	p.FdsRWMutex.RUnlock()
 	return
 }
 
-func (p *FdTable) GetFd(fdID sdfsapitypes.FsINodeFileHandlerID) (ret sdfsapitypes.FsINodeFileHandler) {
+func (p *FdTable) GetFd(fdID solofsapitypes.FsINodeFileHandlerID) (ret solofsapitypes.FsINodeFileHandler) {
 	p.FdsRWMutex.RLock()
 	ret = p.Fds[int(fdID)]
 	p.FdsRWMutex.RUnlock()
 	return
 }
 
-func (p *FdTable) ReleaseFd(fdID sdfsapitypes.FsINodeFileHandlerID) {
+func (p *FdTable) ReleaseFd(fdID solofsapitypes.FsINodeFileHandlerID) {
 	p.Fds[int(fdID)].Reset()
 	p.fdIDsPool.Put(uintptr(fdID))
 }

@@ -1,0 +1,13 @@
+
+{
+    "SolodnSRPCPeerID":"DATA_NODE_SRPC_0_00000000000000000000000000000000000000000000000",
+    "SRPCListenAddr":"192.168.56.100:10601",
+    "SRPCServeAddr":"192.168.56.100:10601",
+    "SolodnWebPeerID":"DATA_NODE_Web_0_000000000000000000000000000000000000000000000000",
+    "WebServer": {
+        "ServeStr":"http://192.168.56.100:10602",
+        "ListenStr":"192.168.56.100:10602"
+    },
+    "SolodnLocalFSRoot":"/tmp/soloos_test.data.00",
+    "PProfListenAddr":"192.168.56.100:10603"
+}

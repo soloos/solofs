@@ -1,0 +1,17 @@
+{
+  "SolonnSRPCPeerID": "NAME_NODE_SRPC_1_00000000000000000000000000000000000000000000000",
+  "DefaultNetBlockCap": 8388608,
+  "DefaultMemBlockCap": 2097152,
+  "DefaultMemBlocksLimit": 64,
+  "PProfListenAddr": "192.168.56.100:11501",
+  "SFuseOptions": {
+    "MountPoint": "/opt/soloos/solofsd-fuse-mnt",
+    "NodefsOptsTimeoutMs": 60000
+  },
+  "SNetDriverServeAddr": "http://192.168.56.100:20701/Api/SNet",
+  "SoloBoatWebPeerID": "SOLOBOAT_1_00000000000000000000000000000000000000000000000000000",
+  "DBDriver": "mysql",
+  "Dsn": "root:hello@/soloos_test",
+  "#DBDriver": "sqlite3",
+  "#Dsn": "/tmp/solofs.db"
+}

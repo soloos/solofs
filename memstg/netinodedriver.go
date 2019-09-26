@@ -1,18 +1,18 @@
 package memstg
 
 import (
-	"soloos/common/sdbapitypes"
-	"soloos/common/sdfsapi"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solodbapitypes"
+	"soloos/common/solofsapi"
+	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
-	"soloos/sdbone/offheap"
+	"soloos/solodb/offheap"
 )
 
 type NetINodeDriverHelper struct {
-	NameNodeClient *sdfsapi.NameNodeClient
-	sdfsapitypes.PrepareNetINodeMetaDataOnlyLoadDB
-	sdfsapitypes.PrepareNetINodeMetaDataWithStorDB
-	sdfsapitypes.NetINodeCommitSizeInDB
+	SolonnClient *solofsapi.SolonnClient
+	solofsapitypes.PrepareNetINodeMetaDataOnlyLoadDB
+	solofsapitypes.PrepareNetINodeMetaDataWithStorDB
+	solofsapitypes.NetINodeCommitSizeInDB
 }
 
 type NetINodeDriver struct {
@@ -29,15 +29,15 @@ func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	netBlockDriver *NetBlockDriver,
 	memBlockDriver *MemBlockDriver,
 	// for NetINodeDriverHelper
-	nameNodeClient *sdfsapi.NameNodeClient,
-	prepareNetINodeMetaDataOnlyLoadDB sdfsapitypes.PrepareNetINodeMetaDataOnlyLoadDB,
-	prepareNetINodeMetaDataWithStorDB sdfsapitypes.PrepareNetINodeMetaDataWithStorDB,
-	netINodeCommitSizeInDB sdfsapitypes.NetINodeCommitSizeInDB,
+	solonnClient *solofsapi.SolonnClient,
+	prepareNetINodeMetaDataOnlyLoadDB solofsapitypes.PrepareNetINodeMetaDataOnlyLoadDB,
+	prepareNetINodeMetaDataWithStorDB solofsapitypes.PrepareNetINodeMetaDataWithStorDB,
+	netINodeCommitSizeInDB solofsapitypes.NetINodeCommitSizeInDB,
 ) error {
 	var err error
 
 	p.SoloOSEnv = soloOSEnv
-	p.SetHelper(nameNodeClient,
+	p.SetHelper(solonnClient,
 		prepareNetINodeMetaDataOnlyLoadDB, prepareNetINodeMetaDataWithStorDB,
 		netINodeCommitSizeInDB)
 
@@ -45,7 +45,7 @@ func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	p.memBlockDriver = memBlockDriver
 
 	err = p.OffheapDriver.InitLKVTableWithBytes64(&p.netINodeTable, "NetINode",
-		int(sdfsapitypes.NetINodeStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
+		int(solofsapitypes.NetINodeStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 	return nil
 }
 
-func (p *NetINodeDriver) netINodeTablePrepareNewObjectFunc(uNetINode sdfsapitypes.NetINodeUintptr,
+func (p *NetINodeDriver) netINodeTablePrepareNewObjectFunc(uNetINode solofsapitypes.NetINodeUintptr,
 	afterSetNewObj offheap.KVTableAfterSetNewObj) bool {
 	var isNewObjectSetted bool
 	if afterSetNewObj != nil {
@@ -67,36 +67,36 @@ func (p *NetINodeDriver) netINodeTablePrepareNewObjectFunc(uNetINode sdfsapitype
 }
 
 func (p *NetINodeDriver) SetHelper(
-	nameNodeClient *sdfsapi.NameNodeClient,
-	prepareNetINodeMetaDataOnlyLoadDB sdfsapitypes.PrepareNetINodeMetaDataOnlyLoadDB,
-	prepareNetINodeMetaDataWithStorDB sdfsapitypes.PrepareNetINodeMetaDataWithStorDB,
-	netINodeCommitSizeInDB sdfsapitypes.NetINodeCommitSizeInDB,
+	solonnClient *solofsapi.SolonnClient,
+	prepareNetINodeMetaDataOnlyLoadDB solofsapitypes.PrepareNetINodeMetaDataOnlyLoadDB,
+	prepareNetINodeMetaDataWithStorDB solofsapitypes.PrepareNetINodeMetaDataWithStorDB,
+	netINodeCommitSizeInDB solofsapitypes.NetINodeCommitSizeInDB,
 ) {
-	p.helper.NameNodeClient = nameNodeClient
+	p.helper.SolonnClient = solonnClient
 	p.helper.PrepareNetINodeMetaDataOnlyLoadDB = prepareNetINodeMetaDataOnlyLoadDB
 	p.helper.PrepareNetINodeMetaDataWithStorDB = prepareNetINodeMetaDataWithStorDB
 	p.helper.NetINodeCommitSizeInDB = netINodeCommitSizeInDB
 }
 
-func (p *NetINodeDriver) NetINodeTruncate(uNetINode sdfsapitypes.NetINodeUintptr, size uint64) error {
+func (p *NetINodeDriver) NetINodeTruncate(uNetINode solofsapitypes.NetINodeUintptr, size uint64) error {
 	return p.helper.NetINodeCommitSizeInDB(uNetINode, size)
 }
 
-func (p *NetINodeDriver) GetNetINode(netINodeID sdfsapitypes.NetINodeID) (sdfsapitypes.NetINodeUintptr, error) {
+func (p *NetINodeDriver) GetNetINode(netINodeID solofsapitypes.NetINodeID) (solofsapitypes.NetINodeUintptr, error) {
 	var (
 		uObject        offheap.LKVTableObjectUPtrWithBytes64
-		uNetINode      sdfsapitypes.NetINodeUintptr
-		pNetINode      *sdfsapitypes.NetINode
+		uNetINode      solofsapitypes.NetINodeUintptr
+		pNetINode      *solofsapitypes.NetINode
 		afterSetNewObj offheap.KVTableAfterSetNewObj
 		err            error
 	)
 	uObject, afterSetNewObj = p.netINodeTable.MustGetObject(netINodeID)
-	p.netINodeTablePrepareNewObjectFunc(sdfsapitypes.NetINodeUintptr(uObject), afterSetNewObj)
-	uNetINode = sdfsapitypes.NetINodeUintptr(uObject)
+	p.netINodeTablePrepareNewObjectFunc(solofsapitypes.NetINodeUintptr(uObject), afterSetNewObj)
+	uNetINode = solofsapitypes.NetINodeUintptr(uObject)
 	pNetINode = uNetINode.Ptr()
-	if pNetINode.IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
+	if pNetINode.IsDBMetaDataInited.Load() == solodbapitypes.MetaDataStateUninited {
 		pNetINode.IsDBMetaDataInited.LockContext()
-		if pNetINode.IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
+		if pNetINode.IsDBMetaDataInited.Load() == solodbapitypes.MetaDataStateUninited {
 			err = p.helper.PrepareNetINodeMetaDataOnlyLoadDB(uNetINode)
 		}
 		pNetINode.IsDBMetaDataInited.UnlockContext()
@@ -110,22 +110,22 @@ func (p *NetINodeDriver) GetNetINode(netINodeID sdfsapitypes.NetINodeID) (sdfsap
 	return uNetINode, nil
 }
 
-func (p *NetINodeDriver) MustGetNetINode(netINodeID sdfsapitypes.NetINodeID,
-	size uint64, netBlockCap int, memBlockCap int) (sdfsapitypes.NetINodeUintptr, error) {
+func (p *NetINodeDriver) MustGetNetINode(netINodeID solofsapitypes.NetINodeID,
+	size uint64, netBlockCap int, memBlockCap int) (solofsapitypes.NetINodeUintptr, error) {
 	var (
 		uObject        offheap.LKVTableObjectUPtrWithBytes64
-		uNetINode      sdfsapitypes.NetINodeUintptr
-		pNetINode      *sdfsapitypes.NetINode
+		uNetINode      solofsapitypes.NetINodeUintptr
+		pNetINode      *solofsapitypes.NetINode
 		afterSetNewObj offheap.KVTableAfterSetNewObj
 		err            error
 	)
 	uObject, afterSetNewObj = p.netINodeTable.MustGetObject(netINodeID)
-	p.netINodeTablePrepareNewObjectFunc(sdfsapitypes.NetINodeUintptr(uObject), afterSetNewObj)
-	uNetINode = sdfsapitypes.NetINodeUintptr(uObject)
+	p.netINodeTablePrepareNewObjectFunc(solofsapitypes.NetINodeUintptr(uObject), afterSetNewObj)
+	uNetINode = solofsapitypes.NetINodeUintptr(uObject)
 	pNetINode = uNetINode.Ptr()
-	if pNetINode.IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
+	if pNetINode.IsDBMetaDataInited.Load() == solodbapitypes.MetaDataStateUninited {
 		pNetINode.IsDBMetaDataInited.LockContext()
-		if pNetINode.IsDBMetaDataInited.Load() == sdbapitypes.MetaDataStateUninited {
+		if pNetINode.IsDBMetaDataInited.Load() == solodbapitypes.MetaDataStateUninited {
 			err = p.helper.PrepareNetINodeMetaDataWithStorDB(uNetINode, size, netBlockCap, memBlockCap)
 		}
 		pNetINode.IsDBMetaDataInited.UnlockContext()
@@ -139,6 +139,6 @@ func (p *NetINodeDriver) MustGetNetINode(netINodeID sdfsapitypes.NetINodeID,
 	return uNetINode, nil
 }
 
-func (p *NetINodeDriver) ReleaseNetINode(uNetINode sdfsapitypes.NetINodeUintptr) {
+func (p *NetINodeDriver) ReleaseNetINode(uNetINode solofsapitypes.NetINodeUintptr) {
 	p.netINodeTable.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes64(uNetINode))
 }

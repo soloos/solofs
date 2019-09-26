@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/sdfsapi"
+	"soloos/common/solofsapi"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 )
@@ -19,25 +19,25 @@ func MemStgMakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, soloOSEnv 
 }
 
 func MemStgMakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
-	nameNodeSRPCServerAddr string,
+	solonnSRPCServerAddr string,
 	memBlockDriver *MemBlockDriver,
 	netBlockDriver *NetBlockDriver,
 	netINodeDriver *NetINodeDriver,
 	blockSize int, blocksLimit int32) {
 	var (
-		nameNodeClient sdfsapi.NameNodeClient
-		dataNodeClient sdfsapi.DataNodeClient
+		solonnClient solofsapi.SolonnClient
+		solodnClient solofsapi.SolodnClient
 	)
 
 	NetStgMakeDriversForTest(soloOSEnv,
-		nameNodeSRPCServerAddr,
-		&nameNodeClient, &dataNodeClient,
+		solonnSRPCServerAddr,
+		&solonnClient, &solodnClient,
 		netBlockDriver,
 	)
 
 	MemStgMakeMemBlockDriversForTest(memBlockDriver, soloOSEnv, blockSize, blocksLimit)
 
-	util.AssertErrIsNil(netINodeDriver.Init(soloOSEnv, netBlockDriver, memBlockDriver, &nameNodeClient,
+	util.AssertErrIsNil(netINodeDriver.Init(soloOSEnv, netBlockDriver, memBlockDriver, &solonnClient,
 		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
 		netINodeDriver.PrepareNetINodeMetaDataWithStorDB,
 		netINodeDriver.NetINodeCommitSizeInDB,
@@ -52,19 +52,19 @@ func MemStgMakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
 	netINodeDriver *NetINodeDriver,
 	blockSize int, blocksLimit int32) {
 	var (
-		nameNodeClient sdfsapi.NameNodeClient
-		dataNodeClient sdfsapi.DataNodeClient
+		solonnClient solofsapi.SolonnClient
+		solodnClient solofsapi.SolodnClient
 	)
 
 	NetStgMakeDriversWithMockServerForTest(soloOSEnv,
 		mockServerAddr, mockServer,
-		&nameNodeClient, &dataNodeClient,
+		&solonnClient, &solodnClient,
 		netBlockDriver,
 	)
 
 	MemStgMakeMemBlockDriversForTest(memBlockDriver, soloOSEnv, blockSize, blocksLimit)
 
-	util.AssertErrIsNil(netINodeDriver.Init(soloOSEnv, netBlockDriver, memBlockDriver, &nameNodeClient,
+	util.AssertErrIsNil(netINodeDriver.Init(soloOSEnv, netBlockDriver, memBlockDriver, &solonnClient,
 		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
 		netINodeDriver.PrepareNetINodeMetaDataWithStorDB,
 		netINodeDriver.NetINodeCommitSizeInDB,

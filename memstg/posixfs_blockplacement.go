@@ -1,13 +1,13 @@
 package memstg
 
 import (
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solofsapitypes"
 )
 
-func (p *PosixFS) SetNetINodeBlockPlacement(netINodeID sdfsapitypes.NetINodeID,
-	policy sdfsapitypes.MemBlockPlacementPolicy) error {
+func (p *PosixFS) SetNetINodeBlockPlacement(netINodeID solofsapitypes.NetINodeID,
+	policy solofsapitypes.MemBlockPlacementPolicy) error {
 	var (
-		uNetINode sdfsapitypes.NetINodeUintptr
+		uNetINode solofsapitypes.NetINodeUintptr
 		err       error
 	)
 	uNetINode, err = p.MemStg.NetINodeDriver.GetNetINode(netINodeID)
@@ -17,7 +17,7 @@ func (p *PosixFS) SetNetINodeBlockPlacement(netINodeID sdfsapitypes.NetINodeID,
 	}
 
 	if uNetINode == 0 {
-		return sdfsapitypes.ErrNetINodeNotExists
+		return solofsapitypes.ErrNetINodeNotExists
 	}
 
 	uNetINode.Ptr().MemBlockPlacementPolicy = policy

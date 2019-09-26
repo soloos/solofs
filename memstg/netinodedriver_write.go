@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
 )
 
@@ -12,12 +12,12 @@ type pwriteArg struct {
 	offset     uint64
 }
 
-func (p *NetINodeDriver) doPWrite(uNetINode sdfsapitypes.NetINodeUintptr,
+func (p *NetINodeDriver) doPWrite(uNetINode solofsapitypes.NetINodeUintptr,
 	arg pwriteArg) error {
 	var (
 		isSuccess           bool
-		uMemBlock           sdfsapitypes.MemBlockUintptr
-		uNetBlock           sdfsapitypes.NetBlockUintptr
+		uMemBlock           solofsapitypes.MemBlockUintptr
+		uNetBlock           solofsapitypes.NetBlockUintptr
 		memBlockIndex       int32
 		netBlockIndex       int32
 		memBlockStart       uint64
@@ -74,7 +74,7 @@ func (p *NetINodeDriver) doPWrite(uNetINode sdfsapitypes.NetINodeUintptr,
 		}
 		if isSuccess == false {
 			// TODO catch error
-			err = sdfsapitypes.ErrRetryTooManyTimes
+			err = solofsapitypes.ErrRetryTooManyTimes
 			goto WRITE_DATA_ONE_RUN_DONE
 		}
 
@@ -107,7 +107,7 @@ WRITE_DATA_DONE:
 	return err
 }
 
-func (p *NetINodeDriver) PWriteWithNetQuery(uNetINode sdfsapitypes.NetINodeUintptr,
+func (p *NetINodeDriver) PWriteWithNetQuery(uNetINode solofsapitypes.NetINodeUintptr,
 	netQuery *snettypes.NetQuery, dataLength int, offset uint64) error {
 	return p.doPWrite(uNetINode, pwriteArg{
 		netQuery:   netQuery,
@@ -117,7 +117,7 @@ func (p *NetINodeDriver) PWriteWithNetQuery(uNetINode sdfsapitypes.NetINodeUintp
 	})
 }
 
-func (p *NetINodeDriver) PWriteWithMem(uNetINode sdfsapitypes.NetINodeUintptr,
+func (p *NetINodeDriver) PWriteWithMem(uNetINode solofsapitypes.NetINodeUintptr,
 	data []byte, offset uint64) error {
 	return p.doPWrite(uNetINode, pwriteArg{
 		netQuery:   nil,
@@ -127,7 +127,7 @@ func (p *NetINodeDriver) PWriteWithMem(uNetINode sdfsapitypes.NetINodeUintptr,
 	})
 }
 
-func (p *NetINodeDriver) Sync(uNetINode sdfsapitypes.NetINodeUintptr) error {
+func (p *NetINodeDriver) Sync(uNetINode solofsapitypes.NetINodeUintptr) error {
 	// TODO commit offset in metadb
 	var (
 		pNetINode = uNetINode.Ptr()

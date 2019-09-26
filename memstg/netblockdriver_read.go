@@ -1,15 +1,15 @@
 package memstg
 
 import (
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solofsapitypes"
 )
 
-func (p *NetBlockDriver) PReadMemBlock(uNetINode sdfsapitypes.NetINodeUintptr,
-	uNetBlock sdfsapitypes.NetBlockUintptr, netBlockIndex int32,
-	uMemBlock sdfsapitypes.MemBlockUintptr, memBlockIndex int32,
+func (p *NetBlockDriver) PReadMemBlock(uNetINode solofsapitypes.NetINodeUintptr,
+	uNetBlock solofsapitypes.NetBlockUintptr, netBlockIndex int32,
+	uMemBlock solofsapitypes.MemBlockUintptr, memBlockIndex int32,
 	offset uint64, length int) (int, error) {
 	if uNetBlock.Ptr().StorDataBackends.Len == 0 {
-		return 0, sdfsapitypes.ErrBackendListIsEmpty
+		return 0, solofsapitypes.ErrBackendListIsEmpty
 	}
 
 	var (
@@ -17,8 +17,8 @@ func (p *NetBlockDriver) PReadMemBlock(uNetINode sdfsapitypes.NetINodeUintptr,
 		err       error
 	)
 
-	// TODO choose datanode to read
-	readedLen, err = p.dataNodeClient.PReadMemBlock(uNetINode,
+	// TODO choose solodn to read
+	readedLen, err = p.solodnClient.PReadMemBlock(uNetINode,
 		uNetBlock, netBlockIndex,
 		uMemBlock, memBlockIndex,
 		offset, length)

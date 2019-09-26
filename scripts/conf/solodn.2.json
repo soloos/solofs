@@ -1,0 +1,33 @@
+{
+  "SolodnSRPCPeerID": "DATA_NODE_SRPC_2_00000000000000000000000000000000000000000000000",
+  "SRPCListenAddr": "192.168.56.100:10801",
+  "SRPCServeAddr": "192.168.56.100:10801",
+  "SolodnWebPeerID": "DATA_NODE_Web_2_000000000000000000000000000000000000000000000000",
+  "WebServer": {
+    "ServeStr": "http://192.168.56.100:10802",
+    "ListenStr": "192.168.56.100:10802"
+  },
+  "SolodnLocalFSRoot": "/tmp/soloos_test.data.02",
+  "PProfListenAddr": "192.168.56.100:10803",
+  "DefaultMemBlockCap": 2097152,
+  "DefaultMemBlocksLimit": 256,
+  "Mode": "solodn",
+  "SolonnSRPCPeerID": "NAME_NODE_SRPC_1_00000000000000000000000000000000000000000000000",
+  "SolonnWebPeerID": "NAME_NODE_WEB_1_000000000000000000000000000000000000000000000000",
+  "HeartBeatServers": [
+    {
+      "PeerID": "NAME_NODE_WEB_1_000000000000000000000000000000000000000000000000",
+      "DurationMS": 180000
+    },
+    {
+      "PeerID": "SOLOBOAT_1_00000000000000000000000000000000000000000000000000000",
+      "DurationMS": 180000
+    }
+  ],
+  "SNetDriverServeAddr": "http://192.168.56.100:20701/Api/SNet",
+  "SoloBoatWebPeerID": "SOLOBOAT_1_00000000000000000000000000000000000000000000000000000",
+  "DBDriver": "mysql",
+  "Dsn": "root:hello@/soloos_test",
+  "#DBDriver": "sqlite3",
+  "#Dsn": "/tmp/solofs.db"
+}

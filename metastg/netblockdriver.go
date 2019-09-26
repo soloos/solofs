@@ -1,44 +1,44 @@
 package metastg
 
 import (
-	"soloos/common/sdbapi"
-	"soloos/common/sdbapitypes"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solodbapi"
+	"soloos/common/solodbapitypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"strings"
 )
 
 type NetBlockDriverHelper struct {
-	ChooseDataNodesForNewNetBlock sdfsapitypes.ChooseDataNodesForNewNetBlock
-	GetDataNode                   sdfsapitypes.GetDataNode
+	ChooseSolodnsForNewNetBlock solofsapitypes.ChooseSolodnsForNewNetBlock
+	GetSolodn                   solofsapitypes.GetSolodn
 }
 
 type NetBlockDriver struct {
-	dbConn *sdbapi.Connection
+	dbConn *solodbapi.Connection
 	helper NetBlockDriverHelper
 }
 
 func (p *NetBlockDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	dbConn *sdbapi.Connection,
-	getDataNode sdfsapitypes.GetDataNode,
-	chooseDataNodesForNewNetBlock sdfsapitypes.ChooseDataNodesForNewNetBlock,
+	dbConn *solodbapi.Connection,
+	getSolodn solofsapitypes.GetSolodn,
+	chooseSolodnsForNewNetBlock solofsapitypes.ChooseSolodnsForNewNetBlock,
 ) error {
 	p.dbConn = dbConn
-	p.SetHelper(getDataNode, chooseDataNodesForNewNetBlock)
+	p.SetHelper(getSolodn, chooseSolodnsForNewNetBlock)
 	return nil
 }
 
 func (p *NetBlockDriver) SetHelper(
-	getDataNode sdfsapitypes.GetDataNode,
-	chooseDataNodesForNewNetBlock sdfsapitypes.ChooseDataNodesForNewNetBlock,
+	getSolodn solofsapitypes.GetSolodn,
+	chooseSolodnsForNewNetBlock solofsapitypes.ChooseSolodnsForNewNetBlock,
 ) {
-	p.helper.GetDataNode = getDataNode
-	p.helper.ChooseDataNodesForNewNetBlock = chooseDataNodesForNewNetBlock
+	p.helper.GetSolodn = getSolodn
+	p.helper.ChooseSolodnsForNewNetBlock = chooseSolodnsForNewNetBlock
 }
 
-func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlockUintptr,
-	uNetINode sdfsapitypes.NetINodeUintptr, netBlockIndex int32) error {
+func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlockUintptr,
+	uNetINode solofsapitypes.NetINodeUintptr, netBlockIndex int32) error {
 	var (
 		pNetBlock           = uNetBlock.Ptr()
 		backendPeerIDArrStr string
@@ -55,7 +55,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlock
 		}
 
 	} else {
-		if err != sdfsapitypes.ErrObjectNotExists {
+		if err != solofsapitypes.ErrObjectNotExists {
 			goto PREPARE_DONE
 		}
 
@@ -63,7 +63,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlock
 		pNetBlock.IndexInNetINode = netBlockIndex
 		pNetBlock.Len = 0
 		pNetBlock.Cap = uNetINode.Ptr().NetBlockCap
-		pNetBlock.StorDataBackends, err = p.ChooseDataNodesForNewNetBlock(uNetINode)
+		pNetBlock.StorDataBackends, err = p.ChooseSolodnsForNewNetBlock(uNetINode)
 		if err != nil {
 			goto PREPARE_DONE
 		}
@@ -76,7 +76,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlock
 
 PREPARE_DONE:
 	if err == nil {
-		pNetBlock.IsDBMetaDataInited.Store(sdbapitypes.MetaDataStateInited)
+		pNetBlock.IsDBMetaDataInited.Store(solodbapitypes.MetaDataStateInited)
 	}
 	return err
 }

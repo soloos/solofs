@@ -3,15 +3,15 @@ package metastg
 import (
 	"bytes"
 	"database/sql"
-	"soloos/common/sdbapi"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solodbapi"
+	"soloos/common/solofsapitypes"
 )
 
-func (p *NetBlockDriver) FetchNetBlockFromDB(pNetINode *sdfsapitypes.NetINode,
-	netBlockIndex int32, pNetBlock *sdfsapitypes.NetBlock,
+func (p *NetBlockDriver) FetchNetBlockFromDB(pNetINode *solofsapitypes.NetINode,
+	netBlockIndex int32, pNetBlock *solofsapitypes.NetBlock,
 	backendPeerIDArrStr *string) (err error) {
 	var (
-		sess    sdbapi.Session
+		sess    solodbapi.Session
 		sqlRows *sql.Rows
 	)
 
@@ -30,7 +30,7 @@ func (p *NetBlockDriver) FetchNetBlockFromDB(pNetINode *sdfsapitypes.NetINode,
 	}
 
 	if sqlRows.Next() == false {
-		err = sdfsapitypes.ErrObjectNotExists
+		err = solofsapitypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 
@@ -48,9 +48,9 @@ QUERY_DONE:
 	return err
 }
 
-func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *sdfsapitypes.NetINode, pNetBlock *sdfsapitypes.NetBlock) error {
+func (p *NetBlockDriver) StoreNetBlockInDB(pNetINode *solofsapitypes.NetINode, pNetBlock *solofsapitypes.NetBlock) error {
 	var (
-		sess                sdbapi.Session
+		sess                solodbapi.Session
 		netINodeIDStr       = pNetINode.IDStr()
 		backendPeerIDArrStr bytes.Buffer
 		i                   int

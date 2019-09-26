@@ -2,74 +2,74 @@ package memstg
 
 import (
 	"soloos/common/fsapitypes"
-	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/sdfstypes"
+	"soloos/common/solofsapitypes"
+	"soloos/solofs/solofstypes"
 )
 
-func (p *PosixFS) SimpleGetXAttrSize(fsINodeID sdfsapitypes.FsINodeID, attr string) (int, fsapitypes.Status) {
+func (p *PosixFS) SimpleGetXAttrSize(fsINodeID solofsapitypes.FsINodeID, attr string) (int, fsapitypes.Status) {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta solofsapitypes.FsINodeMeta
 		sz          int
 		err         error
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
 	if err != nil {
-		return 0, sdfstypes.ErrorToFsStatus(err)
+		return 0, solofstypes.ErrorToFsStatus(err)
 	}
 
 	sz, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrSize(fsINodeMeta.Ino, attr)
 	if err != nil {
-		return 0, sdfstypes.ErrorToFsStatus(err)
+		return 0, solofstypes.ErrorToFsStatus(err)
 	}
 	return sz, fsapitypes.OK
 }
 
-func (p *PosixFS) SimpleGetXAttrData(fsINodeID sdfsapitypes.FsINodeID, attr string) ([]byte, fsapitypes.Status) {
+func (p *PosixFS) SimpleGetXAttrData(fsINodeID solofsapitypes.FsINodeID, attr string) ([]byte, fsapitypes.Status) {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta solofsapitypes.FsINodeMeta
 		data        []byte
 		err         error
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
 	if err != nil {
-		return nil, sdfstypes.ErrorToFsStatus(err)
+		return nil, solofstypes.ErrorToFsStatus(err)
 	}
 
 	data, err = p.FsINodeDriver.FIXAttrDriver.GetXAttrData(fsINodeMeta.Ino, attr)
 	if err != nil {
-		return nil, sdfstypes.ErrorToFsStatus(err)
+		return nil, solofstypes.ErrorToFsStatus(err)
 	}
 	return data, fsapitypes.OK
 }
 
-func (p *PosixFS) SimpleListXAttr(fsINodeID sdfsapitypes.FsINodeID) ([]byte, fsapitypes.Status) {
+func (p *PosixFS) SimpleListXAttr(fsINodeID solofsapitypes.FsINodeID) ([]byte, fsapitypes.Status) {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta solofsapitypes.FsINodeMeta
 		data        []byte
 		err         error
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
 	if err != nil {
-		return nil, sdfstypes.ErrorToFsStatus(err)
+		return nil, solofstypes.ErrorToFsStatus(err)
 	}
 
 	data, err = p.FsINodeDriver.FIXAttrDriver.ListXAttr(fsINodeMeta.Ino)
 	if err != nil {
-		return nil, sdfstypes.ErrorToFsStatus(err)
+		return nil, solofstypes.ErrorToFsStatus(err)
 	}
 	return data, fsapitypes.OK
 }
 
-func (p *PosixFS) SimpleSetXAttr(fsINodeID sdfsapitypes.FsINodeID, attr string, data []byte) fsapitypes.Status {
+func (p *PosixFS) SimpleSetXAttr(fsINodeID solofsapitypes.FsINodeID, attr string, data []byte) fsapitypes.Status {
 	var err error
 	err = p.FsINodeDriver.FIXAttrDriver.SetXAttr(fsINodeID, attr, data)
-	return sdfstypes.ErrorToFsStatus(err)
+	return solofstypes.ErrorToFsStatus(err)
 }
 
-func (p *PosixFS) SimpleRemoveXAttr(fsINodeID sdfsapitypes.FsINodeID, attr string) fsapitypes.Status {
+func (p *PosixFS) SimpleRemoveXAttr(fsINodeID solofsapitypes.FsINodeID, attr string) fsapitypes.Status {
 	var err error
 	err = p.FsINodeDriver.FIXAttrDriver.RemoveXAttr(fsINodeID, attr)
-	return sdfstypes.ErrorToFsStatus(err)
+	return solofstypes.ErrorToFsStatus(err)
 }
 
 // Extended attributes.

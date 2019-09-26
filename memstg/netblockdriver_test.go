@@ -1,12 +1,12 @@
 package memstg
 
 import (
-	"soloos/common/sdfsapi"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solofsapi"
+	"soloos/common/solofsapitypes"
 	"soloos/common/snet"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
-	"soloos/sdfs/sdfstypes"
+	"soloos/solofs/solofstypes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,11 +15,11 @@ import (
 func TestNetBlockDriver(t *testing.T) {
 	var (
 		soloOSEnv         soloosbase.SoloOSEnv
-		mockNetINodeTable sdfstypes.MockNetINodeTable
-		mockMemBlockTable sdfstypes.MockMemBlockTable
+		mockNetINodeTable solofstypes.MockNetINodeTable
+		mockMemBlockTable solofstypes.MockMemBlockTable
 		mockServer        MockServer
-		nameNodeClient    sdfsapi.NameNodeClient
-		dataNodeClient    sdfsapi.DataNodeClient
+		solonnClient    solofsapi.SolonnClient
+		solodnClient    solofsapi.SolodnClient
 		netBlockDriver    NetBlockDriver
 	)
 	assert.NoError(t, soloOSEnv.InitWithSNet(""))
@@ -28,19 +28,19 @@ func TestNetBlockDriver(t *testing.T) {
 	assert.NoError(t, mockMemBlockTable.Init(&soloOSEnv, 1024))
 	NetStgMakeDriversWithMockServerForTest(&soloOSEnv,
 		mockServerAddr, &mockServer,
-		&nameNodeClient, &dataNodeClient,
+		&solonnClient, &solodnClient,
 		&netBlockDriver)
 
 	var peer0 snettypes.Peer
 	peer0.ID = snet.MakeSysPeerID("Peer0ForTest")
 	peer0.SetAddress(mockServerAddr)
-	peer0.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+	peer0.ServiceProtocol = solofsapitypes.DefaultSOLOFSRPCProtocol
 	soloOSEnv.SNetDriver.RegisterPeer(peer0)
 
 	var peer1 snettypes.Peer
 	peer1.ID = snet.MakeSysPeerID("Peer0ForTest")
 	peer1.SetAddress(mockServerAddr)
-	peer1.ServiceProtocol = sdfsapitypes.DefaultSDFSRPCProtocol
+	peer1.ServiceProtocol = solofsapitypes.DefaultSOLOFSRPCProtocol
 	soloOSEnv.SNetDriver.RegisterPeer(peer1)
 
 	data := make([]byte, 8)

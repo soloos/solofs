@@ -1,18 +1,18 @@
 package memstg
 
 import (
-	"soloos/common/sdbapitypes"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solodbapitypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
 )
 
-func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *sdfsapitypes.UploadMemBlockJob,
-	uNetINode sdfsapitypes.NetINodeUintptr,
-	uNetBlock sdfsapitypes.NetBlockUintptr, netBlockIndex int32,
-	uMemBlock sdfsapitypes.MemBlockUintptr, memBlockIndex int32,
+func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *solofsapitypes.UploadMemBlockJob,
+	uNetINode solofsapitypes.NetINodeUintptr,
+	uNetBlock solofsapitypes.NetBlockUintptr, netBlockIndex int32,
+	uMemBlock solofsapitypes.MemBlockUintptr, memBlockIndex int32,
 	backends snettypes.PeerGroup) {
 	pJob.MetaDataState.LockContext()
-	if pJob.MetaDataState.Load() == sdbapitypes.MetaDataStateInited {
+	if pJob.MetaDataState.Load() == solodbapitypes.MetaDataStateInited {
 		pJob.MetaDataState.UnlockContext()
 		return
 	}
@@ -23,6 +23,6 @@ func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *sdfsapitypes.Upl
 
 	pJob.UploadBlockJob.Reset()
 
-	pJob.MetaDataState.Store(sdbapitypes.MetaDataStateInited)
+	pJob.MetaDataState.Store(solodbapitypes.MetaDataStateInited)
 	pJob.MetaDataState.UnlockContext()
 }

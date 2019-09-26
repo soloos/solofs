@@ -1,36 +1,36 @@
 export GO111MODULE=on
 
-SDFS_LDFLAGS += -X "soloos/sdfs/version.BuildTS=$(shell date -u '+%Y-%m-%d %I:%M:%S')"
-SDFS_LDFLAGS += -X "soloos/sdfs/version.GitHash=$(shell git rev-parse HEAD)"
-# SDFS_PREFIX += GOTMPDIR=./go.build/tmp GOCACHE=./go.build/cache
+SOLOFS_LDFLAGS += -X "soloos/solofs/version.BuildTS=$(shell date -u '+%Y-%m-%d %I:%M:%S')"
+SOLOFS_LDFLAGS += -X "soloos/solofs/version.GitHash=$(shell git rev-parse HEAD)"
+# SOLOFS_PREFIX += GOTMPDIR=./go.build/tmp GOCACHE=./go.build/cache
 
-SOLOOS_SDFS_PROTOS = $(shell find ./ -name '*.fbs'|grep -v vendor)
+SOLOOS_SOLOFS_PROTOS = $(shell find ./ -name '*.fbs'|grep -v vendor)
 GENERATED_PROTOS = $(shell find ./ -name "*.fbs"|grep -v vendor| sed 's/\.fbs/\.fbs\.go/g')
 SOURCES = $(shell find . -name '*.go') $(GENERATED_PROTOS)
 
-GOBUILD = $(SDFS_PREFIX) go build -i -ldflags '$(SDFS_LDFLAGS)' 
+GOBUILD = $(SOLOFS_PREFIX) go build -i -ldflags '$(SOLOFS_LDFLAGS)' 
 
 clean-test-cache:
 	go clean -testcache
 
-%.fbs.go: $(SOLOOS_SDFS_PROTOS)
-	flatc -o ./ -g $(SOLOOS_SDFS_PROTOS)
+%.fbs.go: $(SOLOOS_SOLOFS_PROTOS)
+	flatc -o ./ -g $(SOLOOS_SOLOFS_PROTOS)
 
 fbs: $(GENERATED_PROTOS)
 
-all:sdfsd sdfsd-mock sdfssdk
+all:solofsd solofsd-mock solofssdk
 
-libsdfs:
-	$(GOBUILD) -o ./bin/libsdfs.so -buildmode=c-shared ./apps/libsdfs
+libsolofs:
+	$(GOBUILD) -o ./bin/libsolofs.so -buildmode=c-shared ./apps/libsolofs
 
-sdfsd:
-	$(GOBUILD) -o ./bin/sdfsd ./apps/sdfsd
+solofsd:
+	$(GOBUILD) -o ./bin/solofsd ./apps/solofsd
 
-sdfsd-fuse:
-	rm -f bin/sdfsd-fuse
-	$(GOBUILD) -o ./bin/sdfsd-fuse ./apps/sdfsd-fuse
+solofsd-fuse:
+	rm -f bin/solofsd-fuse
+	$(GOBUILD) -o ./bin/solofsd-fuse ./apps/solofsd-fuse
 
 include ./make/test
 include ./make/bench
 
-.PHONY:all sdfsd sdfsd-fuse libsdfs test
+.PHONY:all solofsd solofsd-fuse libsolofs test

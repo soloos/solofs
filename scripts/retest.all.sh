@@ -1,9 +1,9 @@
 #!/bin/bash
-make sdfsd-fuse
-make sdfsd
+make solofsd-fuse
+make solofsd
 ./scripts/stop.cluster.sh
-./scripts/stop.sdfsd-fuse.sh
+./scripts/stop.solofsd-fuse.sh
 ./scripts/reformat.mysql.sh
 ./scripts/clean.cluster.sh
 ./scripts/start.cluster.sh
-./scripts/start.sdfsd-fuse.sh
+./scripts/start.solofsd-fuse.sh

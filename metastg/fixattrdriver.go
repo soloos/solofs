@@ -1,18 +1,18 @@
 package metastg
 
 import (
-	"soloos/common/sdbapi"
+	"soloos/common/solodbapi"
 	"soloos/common/soloosbase"
 )
 
 // FIXAttrDriver is FsINode XAttr driver
 type FIXAttrDriver struct {
 	*soloosbase.SoloOSEnv
-	dbConn *sdbapi.Connection
+	dbConn *solodbapi.Connection
 }
 
 func (p *FIXAttrDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
-	dbConn *sdbapi.Connection,
+	dbConn *solodbapi.Connection,
 ) error {
 	p.SoloOSEnv = soloOSEnv
 	p.dbConn = dbConn

@@ -1,0 +1,11 @@
+{
+    "DefaultMemBlockCap":2097152,
+    "DefaultMemBlocksLimit":256,
+	"Mode":"solonn",
+    "HeartBeatServers": [
+        {
+            "PeerID": "SOLOBOAT_1_00000000000000000000000000000000000000000000000000000",
+            "DurationMS": 180000
+        }
+    ]
+}

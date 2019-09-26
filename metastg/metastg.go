@@ -1,15 +1,15 @@
 package metastg
 
 import (
-	"soloos/common/sdbapi"
+	"soloos/common/solodbapi"
 	"soloos/common/soloosbase"
 )
 
 type MetaStg struct {
 	*soloosbase.SoloOSEnv
-	dbConn sdbapi.Connection
+	dbConn solodbapi.Connection
 
-	DataNodeDriver
+	SolodnDriver
 	NetINodeDriver
 	NetBlockDriver
 }
@@ -30,22 +30,22 @@ func (p *MetaStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		return err
 	}
 
-	err = p.DataNodeDriver.Init(p)
+	err = p.SolodnDriver.Init(p)
 	if err != nil {
 		return err
 	}
 
 	err = p.NetINodeDriver.Init(p.SoloOSEnv,
 		&p.dbConn,
-		p.DataNodeDriver.ChooseDataNodesForNewNetBlock)
+		p.SolodnDriver.ChooseSolodnsForNewNetBlock)
 	if err != nil {
 		return err
 	}
 
 	err = p.NetBlockDriver.Init(p.SoloOSEnv,
 		&p.dbConn,
-		p.DataNodeDriver.GetDataNode,
-		p.NetINodeDriver.ChooseDataNodesForNewNetBlock)
+		p.SolodnDriver.GetSolodn,
+		p.NetINodeDriver.ChooseSolodnsForNewNetBlock)
 	if err != nil {
 		return err
 	}

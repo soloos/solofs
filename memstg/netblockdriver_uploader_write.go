@@ -1,13 +1,13 @@
 package memstg
 
 import (
-	"soloos/common/sdbapitypes"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solodbapitypes"
+	"soloos/common/solofsapitypes"
 )
 
-func (p *netBlockDriverUploader) PWrite(uNetINode sdfsapitypes.NetINodeUintptr,
-	uNetBlock sdfsapitypes.NetBlockUintptr, netBlockIndex int32,
-	uMemBlock sdfsapitypes.MemBlockUintptr, memBlockIndex int32,
+func (p *netBlockDriverUploader) PWrite(uNetINode solofsapitypes.NetINodeUintptr,
+	uNetBlock solofsapitypes.NetBlockUintptr, netBlockIndex int32,
+	uMemBlock solofsapitypes.MemBlockUintptr, memBlockIndex int32,
 	offset, end int) error {
 
 	var (
@@ -19,7 +19,7 @@ func (p *netBlockDriverUploader) PWrite(uNetINode sdfsapitypes.NetINodeUintptr,
 
 	pUploadJob = pMemBlock.GetUploadMemBlockJobUintptr().Ptr()
 
-	if pUploadJob.MetaDataState.Load() == sdbapitypes.MetaDataStateUninited {
+	if pUploadJob.MetaDataState.Load() == solodbapitypes.MetaDataStateUninited {
 		// TODO: refine me
 		p.PrepareUploadMemBlockJob(pUploadJob,
 			uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, uNetBlock.Ptr().StorDataBackends)

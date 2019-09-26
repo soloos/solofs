@@ -2,14 +2,14 @@ package metastg
 
 import (
 	"database/sql"
-	"soloos/common/sdbapi"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solodbapi"
+	"soloos/common/solofsapitypes"
 )
 
-func (p *FsINodeDriver) DeleteFsINodeByIDInDB(nameSpaceID sdfsapitypes.NameSpaceID,
-	fsINodeID sdfsapitypes.FsINodeID) error {
+func (p *FsINodeDriver) DeleteFsINodeByIDInDB(nameSpaceID solofsapitypes.NameSpaceID,
+	fsINodeID solofsapitypes.FsINodeID) error {
 	var (
-		sess sdbapi.Session
+		sess solodbapi.Session
 		err  error
 	)
 
@@ -28,16 +28,16 @@ func (p *FsINodeDriver) DeleteFsINodeByIDInDB(nameSpaceID sdfsapitypes.NameSpace
 	return nil
 }
 
-func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(nameSpaceID sdfsapitypes.NameSpaceID,
-	parentID sdfsapitypes.FsINodeID,
+func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(nameSpaceID solofsapitypes.NameSpaceID,
+	parentID solofsapitypes.FsINodeID,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(sdfsapitypes.FsINodeMeta) bool,
+	literalFunc func(solofsapitypes.FsINodeMeta) bool,
 ) error {
 	var (
-		sess            sdbapi.Session
+		sess            solodbapi.Session
 		sqlRows         *sql.Rows
-		ret             sdfsapitypes.FsINodeMeta
+		ret             solofsapitypes.FsINodeMeta
 		fetchRowsLimit  uint64
 		fetchRowsOffset uint64
 		netINodeIDStr   string
@@ -143,10 +143,10 @@ QUERY_DONE:
 	return err
 }
 
-func (p *FsINodeDriver) UpdateFsINodeInDB(nameSpaceID sdfsapitypes.NameSpaceID,
-	fsINodeMeta sdfsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) UpdateFsINodeInDB(nameSpaceID solofsapitypes.NameSpaceID,
+	fsINodeMeta solofsapitypes.FsINodeMeta) error {
 	var (
-		sess sdbapi.Session
+		sess solodbapi.Session
 		err  error
 	)
 
@@ -182,10 +182,10 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(nameSpaceID sdfsapitypes.NameSpaceID,
 	return nil
 }
 
-func (p *FsINodeDriver) InsertFsINodeInDB(nameSpaceID sdfsapitypes.NameSpaceID,
-	fsINodeMeta sdfsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) InsertFsINodeInDB(nameSpaceID solofsapitypes.NameSpaceID,
+	fsINodeMeta solofsapitypes.FsINodeMeta) error {
 	var (
-		sess sdbapi.Session
+		sess solodbapi.Session
 		err  error
 	)
 
@@ -226,12 +226,12 @@ func (p *FsINodeDriver) InsertFsINodeInDB(nameSpaceID sdfsapitypes.NameSpaceID,
 	return nil
 }
 
-func (p *FsINodeDriver) FetchFsINodeByIDFromDB(nameSpaceID sdfsapitypes.NameSpaceID,
-	fsINodeID sdfsapitypes.FsINodeID) (sdfsapitypes.FsINodeMeta, error) {
+func (p *FsINodeDriver) FetchFsINodeByIDFromDB(nameSpaceID solofsapitypes.NameSpaceID,
+	fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeMeta, error) {
 	var (
-		fsINodeMeta   sdfsapitypes.FsINodeMeta
+		fsINodeMeta   solofsapitypes.FsINodeMeta
 		fsINodeName   string
-		sess          sdbapi.Session
+		sess          solodbapi.Session
 		sqlRows       *sql.Rows
 		netINodeIDStr string
 		err           error
@@ -251,7 +251,7 @@ func (p *FsINodeDriver) FetchFsINodeByIDFromDB(nameSpaceID sdfsapitypes.NameSpac
 	}
 
 	if sqlRows.Next() == false {
-		err = sdfsapitypes.ErrObjectNotExists
+		err = solofsapitypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 
@@ -289,12 +289,12 @@ QUERY_DONE:
 	return fsINodeMeta, err
 }
 
-func (p *FsINodeDriver) FetchFsINodeByNameFromDB(nameSpaceID sdfsapitypes.NameSpaceID,
-	parentID sdfsapitypes.FsINodeID,
-	fsINodeName string) (sdfsapitypes.FsINodeMeta, error) {
+func (p *FsINodeDriver) FetchFsINodeByNameFromDB(nameSpaceID solofsapitypes.NameSpaceID,
+	parentID solofsapitypes.FsINodeID,
+	fsINodeName string) (solofsapitypes.FsINodeMeta, error) {
 	var (
-		fsINodeMeta   sdfsapitypes.FsINodeMeta
-		sess          sdbapi.Session
+		fsINodeMeta   solofsapitypes.FsINodeMeta
+		sess          solodbapi.Session
 		sqlRows       *sql.Rows
 		netINodeIDStr string
 		err           error
@@ -315,7 +315,7 @@ func (p *FsINodeDriver) FetchFsINodeByNameFromDB(nameSpaceID sdfsapitypes.NameSp
 	}
 
 	if sqlRows.Next() == false {
-		err = sdfsapitypes.ErrObjectNotExists
+		err = solofsapitypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 

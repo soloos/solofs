@@ -1,12 +1,12 @@
 package memstg
 
 import (
-	"soloos/common/sdbapitypes"
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solodbapitypes"
+	"soloos/common/solofsapitypes"
 )
 
-func (p *NetBlockDriver) prepareNetBlockMetaDataWithTransfer(uNetBlock sdfsapitypes.NetBlockUintptr,
-	uNetINode sdfsapitypes.NetINodeUintptr, netblockIndex int32) error {
+func (p *NetBlockDriver) prepareNetBlockMetaDataWithTransfer(uNetBlock solofsapitypes.NetBlockUintptr,
+	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()
 	)
@@ -19,8 +19,8 @@ func (p *NetBlockDriver) prepareNetBlockMetaDataWithTransfer(uNetBlock sdfsapity
 	return nil
 }
 
-func (p *NetBlockDriver) prepareNetBlockMetaDataWithFanout(uNetBlock sdfsapitypes.NetBlockUintptr,
-	uNetINode sdfsapitypes.NetINodeUintptr, netblockIndex int32) error {
+func (p *NetBlockDriver) prepareNetBlockMetaDataWithFanout(uNetBlock solofsapitypes.NetBlockUintptr,
+	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()
 	)
@@ -32,8 +32,8 @@ func (p *NetBlockDriver) prepareNetBlockMetaDataWithFanout(uNetBlock sdfsapitype
 	return nil
 }
 
-func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlockUintptr,
-	uNetINode sdfsapitypes.NetINodeUintptr, netblockIndex int32) error {
+func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlockUintptr,
+	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()
 		pNetINode = uNetINode.Ptr()
@@ -46,17 +46,17 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock sdfsapitypes.NetBlock
 	}
 
 	switch pNetINode.MemBlockPlacementPolicy.GetType() {
-	case sdfsapitypes.BlockPlacementPolicyDefault:
+	case solofsapitypes.BlockPlacementPolicyDefault:
 		err = p.prepareNetBlockMetaDataWithFanout(uNetBlock, uNetINode, netblockIndex)
 
-	case sdfsapitypes.BlockPlacementPolicySWAL:
-		err = p.helper.SWALClient.PrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex)
+	case solofsapitypes.BlockPlacementPolicySOLOMQ:
+		err = p.helper.SOLOMQClient.PrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex)
 	}
 
 	if err != nil {
 		return err
 	}
 
-	pNetBlock.IsDBMetaDataInited.Store(sdbapitypes.MetaDataStateInited)
+	pNetBlock.IsDBMetaDataInited.Store(solodbapitypes.MetaDataStateInited)
 	return nil
 }

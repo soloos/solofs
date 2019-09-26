@@ -2,18 +2,18 @@ package memstg
 
 import (
 	"soloos/common/fsapitypes"
-	"soloos/common/sdfsapitypes"
-	"soloos/sdfs/sdfstypes"
+	"soloos/common/solofsapitypes"
+	"soloos/solofs/solofstypes"
 	"strings"
 )
 
-func (p *PosixFS) ListFsINodeByIno(ino sdfsapitypes.FsINodeID,
+func (p *PosixFS) ListFsINodeByIno(ino solofsapitypes.FsINodeID,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(sdfsapitypes.FsINodeMeta) bool,
+	literalFunc func(solofsapitypes.FsINodeMeta) bool,
 ) error {
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
+		uFsINode solofsapitypes.FsINodeUintptr
 		err      error
 	)
 
@@ -36,46 +36,46 @@ func (p *PosixFS) Rename(input *fsapitypes.RenameIn, oldName string, newName str
 	var (
 		oldDirFsINodeID = input.NodeId
 		newDirFsINodeID = input.Newdir
-		uOldFsINode     sdfsapitypes.FsINodeUintptr
-		pOldFsINode     *sdfsapitypes.FsINode
-		uCheckFsINode   sdfsapitypes.FsINodeUintptr
-		pCheckFsINode   *sdfsapitypes.FsINode
+		uOldFsINode     solofsapitypes.FsINodeUintptr
+		pOldFsINode     *solofsapitypes.FsINode
+		uCheckFsINode   solofsapitypes.FsINodeUintptr
+		pCheckFsINode   *solofsapitypes.FsINode
 		isDirEmpty      bool
 		err             error
 	)
 
-	if len([]byte(newName)) > sdfstypes.FS_MAX_NAME_LENGTH {
-		return sdfstypes.FS_ENAMETOOLONG
+	if len([]byte(newName)) > solofstypes.FS_MAX_NAME_LENGTH {
+		return solofstypes.FS_ENAMETOOLONG
 	}
 
 	uOldFsINode, err = p.FsINodeDriver.GetFsINodeByName(oldDirFsINodeID, oldName)
 	defer p.FsINodeDriver.ReleaseFsINode(uOldFsINode)
 	pOldFsINode = uOldFsINode.Ptr()
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 
 	uCheckFsINode, err = p.FsINodeDriver.GetFsINodeByName(newDirFsINodeID, newName)
 	defer p.FsINodeDriver.ReleaseFsINode(uCheckFsINode)
 	pCheckFsINode = uCheckFsINode.Ptr()
 	if err != nil {
-		if err != sdfsapitypes.ErrObjectNotExists {
-			return sdfstypes.ErrorToFsStatus(err)
+		if err != solofsapitypes.ErrObjectNotExists {
+			return solofstypes.ErrorToFsStatus(err)
 		}
 	} else {
 		// newName exists
-		if pCheckFsINode.Meta.Type == sdfstypes.FSINODE_TYPE_DIR {
-			if pOldFsINode.Meta.Type == sdfstypes.FSINODE_TYPE_DIR {
+		if pCheckFsINode.Meta.Type == solofstypes.FSINODE_TYPE_DIR {
+			if pOldFsINode.Meta.Type == solofstypes.FSINODE_TYPE_DIR {
 				isDirEmpty, err = p.checkIsDirEmpty(&pCheckFsINode.Meta)
 				if err != nil {
-					return sdfstypes.ErrorToFsStatus(err)
+					return solofstypes.ErrorToFsStatus(err)
 				}
 				if isDirEmpty == false {
-					return sdfstypes.FS_ENOTEMPTY
+					return solofstypes.FS_ENOTEMPTY
 				}
 				err = p.FsINodeDriver.UnlinkFsINode(pCheckFsINode.Meta.Ino)
 				if err != nil {
-					return sdfstypes.ErrorToFsStatus(err)
+					return solofstypes.ErrorToFsStatus(err)
 				}
 
 			} else {
@@ -84,7 +84,7 @@ func (p *PosixFS) Rename(input *fsapitypes.RenameIn, oldName string, newName str
 		} else {
 			err = p.FsINodeDriver.UnlinkFsINode(pCheckFsINode.Meta.Ino)
 			if err != nil {
-				return sdfstypes.ErrorToFsStatus(err)
+				return solofstypes.ErrorToFsStatus(err)
 			}
 		}
 	}
@@ -93,7 +93,7 @@ func (p *PosixFS) Rename(input *fsapitypes.RenameIn, oldName string, newName str
 	pOldFsINode.Meta.SetName(newName)
 	err = p.FsINodeDriver.UpdateFsINodeInDB(&pOldFsINode.Meta)
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 
 	p.FsINodeDriver.CleanFsINodeAssitCache(oldDirFsINodeID, oldName)
@@ -105,8 +105,8 @@ func (p *PosixFS) SimpleMkdirAll(perms uint32, fsINodePath string, uid uint32, g
 	var (
 		paths       []string
 		i           int
-		parentID    sdfsapitypes.FsINodeID = sdfsapitypes.RootFsINodeID
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		parentID    solofsapitypes.FsINodeID = solofsapitypes.RootFsINodeID
+		fsINodeMeta solofsapitypes.FsINodeMeta
 		code        fsapitypes.Status
 	)
 
@@ -121,15 +121,15 @@ func (p *PosixFS) SimpleMkdirAll(perms uint32, fsINodePath string, uid uint32, g
 			continue
 		}
 
-		code = p.SimpleMkdir(&fsINodeMeta, nil, parentID, perms, paths[i], uid, gid, sdfstypes.FS_RDEV)
-		if code != fsapitypes.OK && code != sdfstypes.FS_EEXIST {
+		code = p.SimpleMkdir(&fsINodeMeta, nil, parentID, perms, paths[i], uid, gid, solofstypes.FS_RDEV)
+		if code != fsapitypes.OK && code != solofstypes.FS_EEXIST {
 			goto DONE
 		}
 		parentID = fsINodeMeta.Ino
 	}
 
 DONE:
-	if code == sdfstypes.FS_EEXIST {
+	if code == solofstypes.FS_EEXIST {
 		code = fsapitypes.OK
 	}
 	return code
@@ -137,12 +137,12 @@ DONE:
 
 func (p *PosixFS) Mkdir(input *fsapitypes.MkdirIn, name string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta solofsapitypes.FsINodeMeta
 		code        fsapitypes.Status
 		err         error
 	)
 
-	code = p.SimpleMkdir(&fsINodeMeta, nil, input.NodeId, input.Mode, name, input.Uid, input.Gid, sdfstypes.FS_RDEV)
+	code = p.SimpleMkdir(&fsINodeMeta, nil, input.NodeId, input.Mode, name, input.Uid, input.Gid, solofstypes.FS_RDEV)
 	if code != fsapitypes.OK {
 		return code
 	}
@@ -151,22 +151,22 @@ func (p *PosixFS) Mkdir(input *fsapitypes.MkdirIn, name string, out *fsapitypes.
 
 	err = p.RefreshFsINodeACMtimeByIno(fsINodeMeta.ParentID)
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) SimpleMkdir(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
-	fsINodeID *sdfsapitypes.FsINodeID, parentID sdfsapitypes.FsINodeID,
+func (p *PosixFS) SimpleMkdir(pFsINodeMeta *solofsapitypes.FsINodeMeta,
+	fsINodeID *solofsapitypes.FsINodeID, parentID solofsapitypes.FsINodeID,
 	perms uint32, name string,
 	uid uint32, gid uint32, rdev uint32) fsapitypes.Status {
-	if len([]byte(name)) > sdfstypes.FS_MAX_NAME_LENGTH {
-		return sdfstypes.FS_ENAMETOOLONG
+	if len([]byte(name)) > solofstypes.FS_MAX_NAME_LENGTH {
+		return solofstypes.FS_ENAMETOOLONG
 	}
 
 	var (
-		uFsINode sdfsapitypes.FsINodeUintptr
+		uFsINode solofsapitypes.FsINodeUintptr
 		err      error
 	)
 
@@ -174,25 +174,25 @@ func (p *PosixFS) SimpleMkdir(pFsINodeMeta *sdfsapitypes.FsINodeMeta,
 	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
 	if err == nil {
 		*pFsINodeMeta = uFsINode.Ptr().Meta
-		return sdfstypes.FS_EEXIST
+		return solofstypes.FS_EEXIST
 	}
 
-	if err != nil && err != sdfsapitypes.ErrObjectNotExists {
-		return sdfstypes.ErrorToFsStatus(err)
+	if err != nil && err != solofsapitypes.ErrObjectNotExists {
+		return solofstypes.ErrorToFsStatus(err)
 	}
 
 	err = p.createFsINode(pFsINodeMeta,
 		fsINodeID, nil, parentID,
-		name, sdfstypes.FSINODE_TYPE_DIR, fsapitypes.S_IFDIR|perms,
+		name, solofstypes.FSINODE_TYPE_DIR, fsapitypes.S_IFDIR|perms,
 		uid, gid, rdev)
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) checkIsDirEmpty(pFsINodeMeta *sdfsapitypes.FsINodeMeta) (bool, error) {
+func (p *PosixFS) checkIsDirEmpty(pFsINodeMeta *solofsapitypes.FsINodeMeta) (bool, error) {
 	var (
 		isDirEmpty bool
 		err        error
@@ -203,7 +203,7 @@ func (p *PosixFS) checkIsDirEmpty(pFsINodeMeta *sdfsapitypes.FsINodeMeta) (bool,
 			isDirEmpty = (resultCount == 0)
 			return 0, 0
 		},
-		func(sdfsapitypes.FsINodeMeta) bool {
+		func(solofsapitypes.FsINodeMeta) bool {
 			return false
 		},
 	)
@@ -216,37 +216,37 @@ func (p *PosixFS) checkIsDirEmpty(pFsINodeMeta *sdfsapitypes.FsINodeMeta) (bool,
 
 func (p *PosixFS) Rmdir(header *fsapitypes.InHeader, name string) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta solofsapitypes.FsINodeMeta
 		isDirEmpty  bool
 		err         error
 	)
 
 	err = p.FetchFsINodeByName(&fsINodeMeta, header.NodeId, name)
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 
-	if fsINodeMeta.Type != sdfstypes.FSINODE_TYPE_DIR {
+	if fsINodeMeta.Type != solofstypes.FSINODE_TYPE_DIR {
 		return fsapitypes.ENOTDIR
 	}
 
 	isDirEmpty, err = p.checkIsDirEmpty(&fsINodeMeta)
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 
 	if isDirEmpty == false {
-		return sdfstypes.FS_ENOTEMPTY
+		return solofstypes.FS_ENOTEMPTY
 	}
 
 	err = p.FsINodeDriver.UnlinkFsINode(fsINodeMeta.Ino)
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 
 	err = p.RefreshFsINodeACMtimeByIno(header.NodeId)
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 
 	return fsapitypes.OK
@@ -254,24 +254,24 @@ func (p *PosixFS) Rmdir(header *fsapitypes.InHeader, name string) fsapitypes.Sta
 
 func (p *PosixFS) OpenDir(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapitypes.Status {
 	var (
-		fsINodeMeta sdfsapitypes.FsINodeMeta
+		fsINodeMeta solofsapitypes.FsINodeMeta
 		err         error
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, input.NodeId)
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 
 	err = p.SimpleOpen(&fsINodeMeta, input.Flags, out)
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 	return fsapitypes.OK
 }
 
 func (p *PosixFS) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList) fsapitypes.Status {
 	var (
-		fsINodeMetaByIDThroughHardLink sdfsapitypes.FsINodeMeta
+		fsINodeMetaByIDThroughHardLink solofsapitypes.FsINodeMeta
 		isAddDirEntrySuccess           bool
 		err                            error
 	)
@@ -279,8 +279,8 @@ func (p *PosixFS) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList
 		func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
 			return uint64(resultCount) - input.Offset, input.Offset
 		},
-		func(fsINodeMeta sdfsapitypes.FsINodeMeta) bool {
-			if fsINodeMeta.Type == sdfstypes.FSINODE_TYPE_HARD_LINK {
+		func(fsINodeMeta solofsapitypes.FsINodeMeta) bool {
+			if fsINodeMeta.Type == solofstypes.FSINODE_TYPE_HARD_LINK {
 				err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMetaByIDThroughHardLink, fsINodeMeta.Ino)
 				if err != nil {
 					return false
@@ -302,7 +302,7 @@ func (p *PosixFS) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList
 		},
 	)
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 
 	return fsapitypes.OK
@@ -310,7 +310,7 @@ func (p *PosixFS) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList
 
 func (p *PosixFS) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList) fsapitypes.Status {
 	var (
-		fsINodeMetaByIDThroughHardLink sdfsapitypes.FsINodeMeta
+		fsINodeMetaByIDThroughHardLink solofsapitypes.FsINodeMeta
 		entryOut                       *fsapitypes.EntryOut
 		err                            error
 	)
@@ -327,7 +327,7 @@ func (p *PosixFS) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEntry
 			}
 			return fetchRowsLimit, input.Offset
 		},
-		func(fsINodeMeta sdfsapitypes.FsINodeMeta) bool {
+		func(fsINodeMeta solofsapitypes.FsINodeMeta) bool {
 			err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMetaByIDThroughHardLink, fsINodeMeta.Ino)
 			if err != nil {
 				return false
@@ -347,7 +347,7 @@ func (p *PosixFS) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEntry
 		},
 	)
 	if err != nil {
-		return sdfstypes.ErrorToFsStatus(err)
+		return solofstypes.ErrorToFsStatus(err)
 	}
 	return fsapitypes.OK
 }

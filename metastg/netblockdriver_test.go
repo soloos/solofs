@@ -1,11 +1,11 @@
 package metastg
 
 import (
-	"soloos/common/sdfsapitypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
-	"soloos/sdbone/offheap"
+	"soloos/solodb/offheap"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,11 +16,11 @@ func TestMetaStgNetBlock(t *testing.T) {
 		soloOSEnv   soloosbase.SoloOSEnv
 		peerPool    offheap.LKVTableWithBytes64
 		metaStg     MetaStg
-		netINode    sdfsapitypes.NetINode
-		netBlock    sdfsapitypes.NetBlock
-		netINodeID0 sdfsapitypes.NetINodeID
-		netINodeID1 sdfsapitypes.NetINodeID
-		netINodeID2 sdfsapitypes.NetINodeID
+		netINode    solofsapitypes.NetINode
+		netBlock    solofsapitypes.NetBlock
+		netINodeID0 solofsapitypes.NetINodeID
+		netINodeID1 solofsapitypes.NetINodeID
+		netINodeID2 solofsapitypes.NetINodeID
 		peerID0     snettypes.PeerID
 		peerID1     snettypes.PeerID
 		err         error
@@ -28,9 +28,9 @@ func TestMetaStgNetBlock(t *testing.T) {
 	util.AssertErrIsNil(soloOSEnv.InitWithSNet(""))
 
 	util.AssertErrIsNil(metaStg.Init(&soloOSEnv, TestMetaStgDBDriver, TestMetaStgDBConnect))
-	sdfsapitypes.InitTmpNetINodeID(&netINodeID0)
-	sdfsapitypes.InitTmpNetINodeID(&netINodeID1)
-	sdfsapitypes.InitTmpNetINodeID(&netINodeID2)
+	solofsapitypes.InitTmpNetINodeID(&netINodeID0)
+	solofsapitypes.InitTmpNetINodeID(&netINodeID1)
+	solofsapitypes.InitTmpNetINodeID(&netINodeID2)
 
 	err = soloOSEnv.OffheapDriver.InitLKVTableWithBytes64(&peerPool, "TestMetaStgNet",
 		int(snettypes.PeerStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
@@ -54,7 +54,7 @@ func TestMetaStgNetBlock(t *testing.T) {
 		util.AssertErrIsNil(metaStg.FetchNetBlockFromDB(&netINode, 0, &netBlock, &backendPeerIDArrStr))
 	}
 	{
-		assert.Equal(t, metaStg.FetchNetBlockFromDB(&netINode, 1, &netBlock, &backendPeerIDArrStr), sdfsapitypes.ErrObjectNotExists)
+		assert.Equal(t, metaStg.FetchNetBlockFromDB(&netINode, 1, &netBlock, &backendPeerIDArrStr), solofsapitypes.ErrObjectNotExists)
 	}
 	{
 		util.AssertErrIsNil(metaStg.FetchNetBlockFromDB(&netINode, 0, &netBlock, &backendPeerIDArrStr))

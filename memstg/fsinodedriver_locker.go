@@ -1,39 +1,39 @@
 package memstg
 
 import (
-	"soloos/common/sdfsapitypes"
-	"soloos/sdbone/offheap"
-	"soloos/sdfs/sdfstypes"
+	"soloos/common/solofsapitypes"
+	"soloos/solodb/offheap"
+	"soloos/solofs/solofstypes"
 	"sync/atomic"
 )
 
-// TODO release sdfsapitypes.INodeRWMutex
+// TODO release solofsapitypes.INodeRWMutex
 // support distributed system
 
 // GetLk returns existing lock information for file
-func (p *FsINodeDriver) GetLk(fsINodeID sdfsapitypes.FsINodeID, iNodeRWMutexMeta *sdfsapitypes.INodeRWMutexMeta) error {
+func (p *FsINodeDriver) GetLk(fsINodeID solofsapitypes.FsINodeID, iNodeRWMutexMeta *solofsapitypes.INodeRWMutexMeta) error {
 	var (
 		uObject       offheap.HKVTableObjectUPtrWithUint64
-		uINodeRWMutex sdfsapitypes.INodeRWMutexUintptr
+		uINodeRWMutex solofsapitypes.INodeRWMutexUintptr
 	)
 
 	uObject, _ = p.INodeRWMutexTable.MustGetObjectWithReadAcquire(fsINodeID)
-	uINodeRWMutex = sdfsapitypes.INodeRWMutexUintptr(uObject)
+	uINodeRWMutex = solofsapitypes.INodeRWMutexUintptr(uObject)
 	defer p.INodeRWMutexTable.ReadReleaseObject(offheap.HKVTableObjectUPtrWithUint64(uINodeRWMutex))
 	*iNodeRWMutexMeta = uINodeRWMutex.Ptr().INodeRWMutexMeta
 	return nil
 }
 
-func (p *FsINodeDriver) doSetLk(fsINodeID sdfsapitypes.FsINodeID, setFlag *sdfsapitypes.INodeRWMutexMeta, isShouldBlock bool) error {
+func (p *FsINodeDriver) doSetLk(fsINodeID solofsapitypes.FsINodeID, setFlag *solofsapitypes.INodeRWMutexMeta, isShouldBlock bool) error {
 	var (
 		uObject       offheap.HKVTableObjectUPtrWithUint64
-		uINodeRWMutex sdfsapitypes.INodeRWMutexUintptr
-		pINodeRWMutex *sdfsapitypes.INodeRWMutex
+		uINodeRWMutex solofsapitypes.INodeRWMutexUintptr
+		pINodeRWMutex *solofsapitypes.INodeRWMutex
 		err           error
 	)
 
 	uObject, _ = p.INodeRWMutexTable.MustGetObjectWithReadAcquire(fsINodeID)
-	uINodeRWMutex = sdfsapitypes.INodeRWMutexUintptr(uObject)
+	uINodeRWMutex = solofsapitypes.INodeRWMutexUintptr(uObject)
 	defer p.INodeRWMutexTable.ReadReleaseObject(offheap.HKVTableObjectUPtrWithUint64(uINodeRWMutex))
 
 	pINodeRWMutex = uINodeRWMutex.Ptr()
@@ -42,48 +42,48 @@ func (p *FsINodeDriver) doSetLk(fsINodeID sdfsapitypes.FsINodeID, setFlag *sdfsa
 	pINodeRWMutex.INodeRWMutexMeta.End = setFlag.End
 	pINodeRWMutex.INodeRWMutexMeta.Pid = setFlag.Pid
 
-	if setFlag.Typ == sdfstypes.FS_INODE_LOCK_SH {
+	if setFlag.Typ == solofstypes.FS_INODE_LOCK_SH {
 		if isShouldBlock {
 			pINodeRWMutex.RLock()
-			pINodeRWMutex.INodeRWMutexMeta.Typ = sdfstypes.FS_INODE_LOCK_SH
+			pINodeRWMutex.INodeRWMutexMeta.Typ = solofstypes.FS_INODE_LOCK_SH
 			err = nil
 		} else {
-			if atomic.CompareAndSwapUint32(&pINodeRWMutex.INodeRWMutexMeta.Typ, 0, uint32(sdfstypes.FS_INODE_LOCK_SH)) ||
-				pINodeRWMutex.INodeRWMutexMeta.Typ == sdfstypes.FS_INODE_LOCK_SH {
+			if atomic.CompareAndSwapUint32(&pINodeRWMutex.INodeRWMutexMeta.Typ, 0, uint32(solofstypes.FS_INODE_LOCK_SH)) ||
+				pINodeRWMutex.INodeRWMutexMeta.Typ == solofstypes.FS_INODE_LOCK_SH {
 				go pINodeRWMutex.RLock()
 				err = nil
 			} else {
-				err = sdfsapitypes.ErrRLockFailed
+				err = solofsapitypes.ErrRLockFailed
 			}
 		}
 
-	} else if setFlag.Typ == sdfstypes.FS_INODE_LOCK_EX {
+	} else if setFlag.Typ == solofstypes.FS_INODE_LOCK_EX {
 		if isShouldBlock {
 			pINodeRWMutex.Lock()
-			pINodeRWMutex.INodeRWMutexMeta.Typ = sdfstypes.FS_INODE_LOCK_EX
+			pINodeRWMutex.INodeRWMutexMeta.Typ = solofstypes.FS_INODE_LOCK_EX
 			err = nil
 		} else {
-			if atomic.CompareAndSwapUint32(&pINodeRWMutex.INodeRWMutexMeta.Typ, 0, uint32(sdfstypes.FS_INODE_LOCK_EX)) {
+			if atomic.CompareAndSwapUint32(&pINodeRWMutex.INodeRWMutexMeta.Typ, 0, uint32(solofstypes.FS_INODE_LOCK_EX)) {
 				go pINodeRWMutex.LockSig.Lock()
 				err = nil
 			} else {
-				err = sdfsapitypes.ErrLockFailed
+				err = solofsapitypes.ErrLockFailed
 			}
 		}
 
 	} else {
-		err = sdfsapitypes.ErrInvalidArgs
+		err = solofsapitypes.ErrInvalidArgs
 	}
 
 	return err
 }
 
 // SetLk Sets or clears the lock described by lk on file.
-func (p *FsINodeDriver) SetLk(fsINodeID sdfsapitypes.FsINodeID, setFlag *sdfsapitypes.INodeRWMutexMeta) error {
+func (p *FsINodeDriver) SetLk(fsINodeID solofsapitypes.FsINodeID, setFlag *solofsapitypes.INodeRWMutexMeta) error {
 	return p.doSetLk(fsINodeID, setFlag, false)
 }
 
 // SetLkw Sets or clears the lock described by lk. This call blocks until the operation can be completed.
-func (p *FsINodeDriver) SetLkw(fsINodeID sdfsapitypes.FsINodeID, setFlag *sdfsapitypes.INodeRWMutexMeta) error {
+func (p *FsINodeDriver) SetLkw(fsINodeID solofsapitypes.FsINodeID, setFlag *solofsapitypes.INodeRWMutexMeta) error {
 	return p.doSetLk(fsINodeID, setFlag, true)
 }

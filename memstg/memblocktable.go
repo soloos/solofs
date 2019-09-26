@@ -2,8 +2,8 @@ package memstg
 
 import (
 	"math"
-	"soloos/common/sdfsapitypes"
-	"soloos/sdbone/offheap"
+	"soloos/common/solofsapitypes"
+	"soloos/solodb/offheap"
 )
 
 type MemBlockTable struct {
@@ -31,7 +31,7 @@ func (p *MemBlockTable) Init(
 	p.objectSize = objectSize
 
 	err = p.driver.OffheapDriver.InitHKVTableWithBytes12(&p.memBlockTable, "MemBlock",
-		int(sdfsapitypes.MemBlockStructSize+uintptr(p.objectSize)),
+		int(solofsapitypes.MemBlockStructSize+uintptr(p.objectSize)),
 		memBlockTableObjectsLimit,
 		offheap.DefaultKVTableSharedCount,
 		p.hkvTableInvokePrepareNewBlock,
@@ -46,7 +46,7 @@ func (p *MemBlockTable) Init(
 		tmpMemBlockTableObjectsLimit = 1
 	}
 	err = p.driver.OffheapDriver.InitHKVTableWithBytes12(&p.tmpMemBlockTable, "TmpMemBlock",
-		int(sdfsapitypes.MemBlockStructSize+uintptr(p.objectSize)),
+		int(solofsapitypes.MemBlockStructSize+uintptr(p.objectSize)),
 		tmpMemBlockTableObjectsLimit,
 		offheap.DefaultKVTableSharedCount,
 		p.hkvTableInvokePrepareNewBlock,
@@ -60,9 +60,9 @@ func (p *MemBlockTable) Init(
 }
 
 func (p *MemBlockTable) hkvTableInvokePrepareNewBlock(uMemBlock uintptr) {
-	pMemBlock := sdfsapitypes.MemBlockUintptr(uMemBlock).Ptr()
+	pMemBlock := solofsapitypes.MemBlockUintptr(uMemBlock).Ptr()
 	pMemBlock.Reset()
-	pMemBlock.Bytes.Data = uMemBlock + sdfsapitypes.MemBlockStructSize
+	pMemBlock.Bytes.Data = uMemBlock + solofsapitypes.MemBlockStructSize
 	pMemBlock.Bytes.Len = p.objectSize
 	pMemBlock.Bytes.Cap = pMemBlock.Bytes.Len
 	pMemBlock.CompleteInit()
