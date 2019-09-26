@@ -2,8 +2,8 @@ package main
 
 import (
 	"soloos/common/fsapi"
-	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/solofs/solofssdk"
@@ -15,7 +15,7 @@ var (
 
 type Env struct {
 	Options      Options
-	SoloOSEnv    soloosbase.SoloOSEnv
+	SoloosEnv    soloosbase.SoloosEnv
 	ClientDriver solofssdk.ClientDriver
 	Client       solofssdk.Client
 	PosixFS      fsapi.PosixFS
@@ -29,7 +29,7 @@ func (p *Env) Init(optionsFile string) {
 	p.Options, err = LoadOptionsFile(optionsFile)
 	util.AssertErrIsNil(err)
 
-	err = p.SoloOSEnv.InitWithSNet(p.Options.SNetDriverServeAddr)
+	err = p.SoloosEnv.InitWithSNet(p.Options.SNetDriverServeAddr)
 	util.AssertErrIsNil(err)
 
 	go func() {
@@ -38,7 +38,7 @@ func (p *Env) Init(optionsFile string) {
 
 	var solonnSRPCPeerID snettypes.PeerID
 	solonnSRPCPeerID.SetStr(p.Options.SolonnSRPCPeerID)
-	util.AssertErrIsNil(p.ClientDriver.Init(&p.SoloOSEnv,
+	util.AssertErrIsNil(p.ClientDriver.Init(&p.SoloosEnv,
 		solonnSRPCPeerID,
 		p.Options.DBDriver, p.Options.Dsn,
 	))

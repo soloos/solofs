@@ -12,7 +12,7 @@ type Options struct {
 	Mode                  string
 
 	SNetDriverServeAddr string
-	SoloBoatWebPeerID   string
+	SoloboatWebPeerID   string
 
 	SRPCServeAddr  string
 	SRPCListenAddr string

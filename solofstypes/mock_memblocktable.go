@@ -8,15 +8,15 @@ import (
 )
 
 type MockMemBlockTable struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	ichunkSize int
 	mockID     int32
 	hkvTable   offheap.HKVTableWithBytes12
 }
 
-func (p *MockMemBlockTable) Init(soloOSEnv *soloosbase.SoloOSEnv, ichunkSize int) error {
+func (p *MockMemBlockTable) Init(soloosEnv *soloosbase.SoloosEnv, ichunkSize int) error {
 	var err error
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.ichunkSize = ichunkSize
 	err = p.OffheapDriver.InitHKVTableWithBytes12(&p.hkvTable, "mock",
 		int(solofsapitypes.MemBlockStructSize+uintptr(p.ichunkSize)), -1, offheap.DefaultKVTableSharedCount,

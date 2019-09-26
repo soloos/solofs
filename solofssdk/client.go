@@ -13,7 +13,7 @@ import (
 )
 
 type Client struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 
 	memStg      *memstg.MemStg
 	metaPosixFS metastg.PosixFS
@@ -24,7 +24,7 @@ type Client struct {
 
 var _ = solofsapi.Client(&Client{})
 
-func (p *Client) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *Client) Init(soloosEnv *soloosbase.SoloosEnv,
 	nameSpaceID solofsapitypes.NameSpaceID,
 	memStg *memstg.MemStg,
 	dbConn *solodbapi.Connection,
@@ -33,21 +33,21 @@ func (p *Client) Init(soloOSEnv *soloosbase.SoloOSEnv,
 ) error {
 	var err error
 
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.memStg = memStg
 
-	err = p.metaPosixFS.Init(p.SoloOSEnv,
+	err = p.metaPosixFS.Init(p.SoloosEnv,
 		dbConn,
 		p.memStg.GetNetINode,
 		p.memStg.MustGetNetINode,
 		p.memStg.ReleaseNetINode,
 	)
 	if err != nil {
-		log.Warn("SOLOFS metaPosixFS Init error", err)
+		log.Warn("Solofs metaPosixFS Init error", err)
 		return err
 	}
 
-	err = p.memPosixFS.Init(p.SoloOSEnv,
+	err = p.memPosixFS.Init(p.SoloosEnv,
 		nameSpaceID,
 		p.memStg,
 		defaultNetBlockCap,
@@ -67,7 +67,7 @@ func (p *Client) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		p.metaPosixFS.FIXAttrDriver.GetFIXAttrByInoFromDB,
 	)
 	if err != nil {
-		log.Warn("SOLOFS metaPosixFS Init error", err)
+		log.Warn("Solofs metaPosixFS Init error", err)
 		return err
 	}
 

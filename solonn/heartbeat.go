@@ -26,8 +26,8 @@ func (p *Solonn) doHeartBeat(options snettypes.HeartBeatServerOptions) {
 	heartBeat.WebPeerID = p.webPeer.PeerID().Str()
 
 	for {
-		peer, err = p.SoloOSEnv.SNetDriver.GetPeer(options.PeerID)
-		urlPath = peer.AddressStr() + "/Api/SOLOFS/Solonn/HeartBeat"
+		peer, err = p.SoloosEnv.SNetDriver.GetPeer(options.PeerID)
+		urlPath = peer.AddressStr() + "/Api/Solofs/Solonn/HeartBeat"
 		if err != nil {
 			log.Error("Solonn HeartBeat post json error, urlPath:", urlPath, ", err:", err)
 			goto HEARTBEAT_DONE

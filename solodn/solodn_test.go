@@ -43,17 +43,17 @@ func TestBase(t *testing.T) {
 	)
 
 	var (
-		soloOSEnvForClient      soloosbase.SoloOSEnv
+		soloosEnvForClient      soloosbase.SoloosEnv
 		memBlockDriverForClient memstg.MemBlockDriver
 		netBlockDriverForClient memstg.NetBlockDriver
 		netINodeDriverForClient memstg.NetINodeDriver
 
-		soloOSEnvForSolonn      soloosbase.SoloOSEnv
+		soloosEnvForSolonn      soloosbase.SoloosEnv
 		memBlockDriverForSolonn memstg.MemBlockDriver
 		netBlockDriverForSolonn memstg.NetBlockDriver
 		netINodeDriverForSolonn memstg.NetINodeDriver
 
-		soloOSEnvForSolodns      [6]soloosbase.SoloOSEnv
+		soloosEnvForSolodns      [6]soloosbase.SoloosEnv
 		memBlockDriverForSolodns [6]memstg.MemBlockDriver
 		netBlockDriverForSolodns [6]memstg.NetBlockDriver
 		netINodeDriverForSolodns [6]memstg.NetINodeDriver
@@ -66,7 +66,7 @@ func TestBase(t *testing.T) {
 		err         error
 	)
 
-	assert.NoError(t, soloOSEnvForSolonn.InitWithSNet(""))
+	assert.NoError(t, soloosEnvForSolonn.InitWithSNet(""))
 	{
 		var webServerOptions = iron.Options{
 			ListenStr: netDriverServerListenAddr,
@@ -75,24 +75,24 @@ func TestBase(t *testing.T) {
 		util.AssertErrIsNil(netDriverWebServer.Init(webServerOptions))
 	}
 	go func() {
-		assert.NoError(t, soloOSEnvForSolonn.SNetDriver.PrepareServer("",
+		assert.NoError(t, soloosEnvForSolonn.SNetDriver.PrepareServer("",
 			&netDriverWebServer,
 			nil, nil))
-		assert.NoError(t, soloOSEnvForSolonn.SNetDriver.ServerServe())
+		assert.NoError(t, soloosEnvForSolonn.SNetDriver.ServerServe())
 	}()
 	time.Sleep(100 * time.Millisecond)
-	metastg.MakeMetaStgForTest(&soloOSEnvForSolonn, &metaStgForSolonn)
+	metastg.MakeMetaStgForTest(&soloosEnvForSolonn, &metaStgForSolonn)
 
-	assert.NoError(t, soloOSEnvForClient.InitWithSNet(netDriverServerServeAddr))
+	assert.NoError(t, soloosEnvForClient.InitWithSNet(netDriverServerServeAddr))
 
-	memstg.MemStgMakeDriversForTest(&soloOSEnvForClient,
+	memstg.MemStgMakeDriversForTest(&soloosEnvForClient,
 		solonnSRPCListenAddr,
 		&memBlockDriverForClient, &netBlockDriverForClient, &netINodeDriverForClient, memBlockCap, blocksLimit)
 
-	memstg.MemStgMakeDriversForTest(&soloOSEnvForSolonn,
+	memstg.MemStgMakeDriversForTest(&soloosEnvForSolonn,
 		solonnSRPCListenAddr,
 		&memBlockDriverForSolonn, &netBlockDriverForSolonn, &netINodeDriverForSolonn, memBlockCap, blocksLimit)
-	solonn.MakeSolonnForTest(&soloOSEnvForSolonn, &solonnIns, &metaStgForSolonn,
+	solonn.MakeSolonnForTest(&soloosEnvForSolonn, &solonnIns, &metaStgForSolonn,
 		solonnSRPCPeerID, solonnSRPCListenAddr,
 		solonnWebPeerID, solonnWebListenAddr,
 		&memBlockDriverForSolonn, &netBlockDriverForSolonn, &netINodeDriverForSolonn)
@@ -103,17 +103,17 @@ func TestBase(t *testing.T) {
 	time.Sleep(time.Millisecond * 300)
 
 	for i = 0; i < len(solodnSRPCListenAddrs); i++ {
-		assert.NoError(t, soloOSEnvForSolodns[i].InitWithSNet(netDriverServerServeAddr))
+		assert.NoError(t, soloosEnvForSolodns[i].InitWithSNet(netDriverServerServeAddr))
 		solodnSRPCPeerIDs[i] = snet.MakeSysPeerID(fmt.Sprintf("SolodnForTest_%v", i))
 
-		memstg.MemStgMakeDriversForTest(&soloOSEnvForSolodns[i],
+		memstg.MemStgMakeDriversForTest(&soloosEnvForSolodns[i],
 			solonnSRPCListenAddr,
 			&memBlockDriverForSolodns[i],
 			&netBlockDriverForSolodns[i],
 			&netINodeDriverForSolodns[i],
 			memBlockCap, blocksLimit)
 
-		MakeSolodnForTest(&soloOSEnvForSolodns[i],
+		MakeSolodnForTest(&soloosEnvForSolodns[i],
 			&solodns[i],
 			solodnSRPCPeerIDs[i], solodnSRPCListenAddrs[i],
 			solonnSRPCPeerID, solonnSRPCListenAddr,

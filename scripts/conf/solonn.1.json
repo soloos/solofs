@@ -13,12 +13,12 @@
   "Mode": "solonn",
   "HeartBeatServers": [
     {
-      "PeerID": "SOLOBOAT_1_00000000000000000000000000000000000000000000000000000",
+      "PeerID": "Soloboat_1_00000000000000000000000000000000000000000000000000000",
       "DurationMS": 180000
     }
   ],
   "SNetDriverServeAddr": "http://192.168.56.100:20701/Api/SNet",
-  "SoloBoatWebPeerID": "SOLOBOAT_1_00000000000000000000000000000000000000000000000000000",
+  "SoloboatWebPeerID": "Soloboat_1_00000000000000000000000000000000000000000000000000000",
   "DBDriver": "mysql",
   "Dsn": "root:hello@/soloos_test",
   "#DBDriver": "sqlite3",

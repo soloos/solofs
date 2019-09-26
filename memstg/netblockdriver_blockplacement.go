@@ -49,8 +49,8 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlo
 	case solofsapitypes.BlockPlacementPolicyDefault:
 		err = p.prepareNetBlockMetaDataWithFanout(uNetBlock, uNetINode, netblockIndex)
 
-	case solofsapitypes.BlockPlacementPolicySOLOMQ:
-		err = p.helper.SOLOMQClient.PrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex)
+	case solofsapitypes.BlockPlacementPolicySolomq:
+		err = p.helper.SolomqClient.PrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex)
 	}
 
 	if err != nil {

@@ -11,15 +11,15 @@ import (
 
 func TestMetaStgNetINode(t *testing.T) {
 	var (
-		soloOSEnv   soloosbase.SoloOSEnv
+		soloosEnv   soloosbase.SoloosEnv
 		metaStg     MetaStg
 		netINode    solofsapitypes.NetINode
 		netINodeID0 solofsapitypes.NetINodeID
 		netINodeID1 solofsapitypes.NetINodeID
 	)
-	util.AssertErrIsNil(soloOSEnv.InitWithSNet(""))
+	util.AssertErrIsNil(soloosEnv.InitWithSNet(""))
 
-	assert.NoError(t, metaStg.Init(&soloOSEnv, TestMetaStgDBDriver, TestMetaStgDBConnect))
+	assert.NoError(t, metaStg.Init(&soloosEnv, TestMetaStgDBDriver, TestMetaStgDBConnect))
 	solofsapitypes.InitTmpNetINodeID(&netINodeID0)
 	solofsapitypes.InitTmpNetINodeID(&netINodeID1)
 

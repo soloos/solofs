@@ -8,7 +8,7 @@ import (
 )
 
 type MemStg struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 
 	SolonnClient solofsapi.SolonnClient
 	SolodnClient solofsapi.SolodnClient
@@ -19,7 +19,7 @@ type MemStg struct {
 	solomqClient solomqapi.Client
 }
 
-func (p *MemStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *MemStg) Init(soloosEnv *soloosbase.SoloosEnv,
 	solonnPeer snettypes.Peer,
 	memBlockDriverOptions MemBlockDriverOptions,
 ) error {
@@ -27,19 +27,19 @@ func (p *MemStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		err error
 	)
 
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 
-	err = p.SolonnClient.Init(p.SoloOSEnv, solonnPeer.ID)
+	err = p.SolonnClient.Init(p.SoloosEnv, solonnPeer.ID)
 	if err != nil {
 		return err
 	}
 
-	err = p.SolodnClient.Init(p.SoloOSEnv)
+	err = p.SolodnClient.Init(p.SoloosEnv)
 	if err != nil {
 		return err
 	}
 
-	err = p.NetBlockDriver.Init(p.SoloOSEnv,
+	err = p.NetBlockDriver.Init(p.SoloosEnv,
 		&p.SolonnClient, &p.SolodnClient,
 		p.NetBlockDriver.PrepareNetBlockMetaData,
 	)
@@ -47,12 +47,12 @@ func (p *MemStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		return err
 	}
 
-	err = p.MemBlockDriver.Init(p.SoloOSEnv, memBlockDriverOptions)
+	err = p.MemBlockDriver.Init(p.SoloosEnv, memBlockDriverOptions)
 	if err != nil {
 		return err
 	}
 
-	err = p.NetINodeDriver.Init(p.SoloOSEnv, &p.NetBlockDriver, &p.MemBlockDriver,
+	err = p.NetINodeDriver.Init(p.SoloosEnv, &p.NetBlockDriver, &p.MemBlockDriver,
 		&p.SolonnClient,
 		p.NetINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
 		p.NetINodeDriver.PrepareNetINodeMetaDataWithStorDB,

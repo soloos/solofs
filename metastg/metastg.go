@@ -6,7 +6,7 @@ import (
 )
 
 type MetaStg struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	dbConn solodbapi.Connection
 
 	SolodnDriver
@@ -14,12 +14,12 @@ type MetaStg struct {
 	NetBlockDriver
 }
 
-func (p *MetaStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *MetaStg) Init(soloosEnv *soloosbase.SoloosEnv,
 	dbDriver, dsn string,
 ) error {
 	var err error
 
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	err = p.dbConn.Init(dbDriver, dsn)
 	if err != nil {
 		return err
@@ -35,14 +35,14 @@ func (p *MetaStg) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		return err
 	}
 
-	err = p.NetINodeDriver.Init(p.SoloOSEnv,
+	err = p.NetINodeDriver.Init(p.SoloosEnv,
 		&p.dbConn,
 		p.SolodnDriver.ChooseSolodnsForNewNetBlock)
 	if err != nil {
 		return err
 	}
 
-	err = p.NetBlockDriver.Init(p.SoloOSEnv,
+	err = p.NetBlockDriver.Init(p.SoloosEnv,
 		&p.dbConn,
 		p.SolodnDriver.GetSolodn,
 		p.NetINodeDriver.ChooseSolodnsForNewNetBlock)

@@ -14,7 +14,7 @@ import (
 
 func TestNetBlockDriver(t *testing.T) {
 	var (
-		soloOSEnv         soloosbase.SoloOSEnv
+		soloosEnv         soloosbase.SoloosEnv
 		mockNetINodeTable solofstypes.MockNetINodeTable
 		mockMemBlockTable solofstypes.MockMemBlockTable
 		mockServer        MockServer
@@ -22,11 +22,11 @@ func TestNetBlockDriver(t *testing.T) {
 		solodnClient    solofsapi.SolodnClient
 		netBlockDriver    NetBlockDriver
 	)
-	assert.NoError(t, soloOSEnv.InitWithSNet(""))
+	assert.NoError(t, soloosEnv.InitWithSNet(""))
 	mockServerAddr := "127.0.0.1:10021"
-	assert.NoError(t, mockNetINodeTable.Init(&soloOSEnv))
-	assert.NoError(t, mockMemBlockTable.Init(&soloOSEnv, 1024))
-	NetStgMakeDriversWithMockServerForTest(&soloOSEnv,
+	assert.NoError(t, mockNetINodeTable.Init(&soloosEnv))
+	assert.NoError(t, mockMemBlockTable.Init(&soloosEnv, 1024))
+	NetStgMakeDriversWithMockServerForTest(&soloosEnv,
 		mockServerAddr, &mockServer,
 		&solonnClient, &solodnClient,
 		&netBlockDriver)
@@ -34,14 +34,14 @@ func TestNetBlockDriver(t *testing.T) {
 	var peer0 snettypes.Peer
 	peer0.ID = snet.MakeSysPeerID("Peer0ForTest")
 	peer0.SetAddress(mockServerAddr)
-	peer0.ServiceProtocol = solofsapitypes.DefaultSOLOFSRPCProtocol
-	soloOSEnv.SNetDriver.RegisterPeer(peer0)
+	peer0.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
+	soloosEnv.SNetDriver.RegisterPeer(peer0)
 
 	var peer1 snettypes.Peer
 	peer1.ID = snet.MakeSysPeerID("Peer0ForTest")
 	peer1.SetAddress(mockServerAddr)
-	peer1.ServiceProtocol = solofsapitypes.DefaultSOLOFSRPCProtocol
-	soloOSEnv.SNetDriver.RegisterPeer(peer1)
+	peer1.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
+	soloosEnv.SNetDriver.RegisterPeer(peer1)
 
 	data := make([]byte, 8)
 	for i := 0; i < len(data); i++ {

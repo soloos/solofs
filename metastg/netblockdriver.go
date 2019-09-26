@@ -19,7 +19,7 @@ type NetBlockDriver struct {
 	helper NetBlockDriverHelper
 }
 
-func (p *NetBlockDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *NetBlockDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	dbConn *solodbapi.Connection,
 	getSolodn solofsapitypes.GetSolodn,
 	chooseSolodnsForNewNetBlock solofsapitypes.ChooseSolodnsForNewNetBlock,

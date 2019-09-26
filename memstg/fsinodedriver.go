@@ -28,7 +28,7 @@ type FsINodeDriverHelper struct {
 }
 
 type FsINodeDriver struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	posixFS *PosixFS
 	helper  FsINodeDriverHelper
 
@@ -53,7 +53,7 @@ type FsINodeDriver struct {
 }
 
 func (p *FsINodeDriver) Init(
-	soloOSEnv *soloosbase.SoloOSEnv,
+	soloosEnv *soloosbase.SoloosEnv,
 	posixFS *PosixFS,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
@@ -74,7 +74,7 @@ func (p *FsINodeDriver) Init(
 ) error {
 	var err error
 
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.posixFS = posixFS
 
 	err = p.Timer.Init()
@@ -113,7 +113,7 @@ func (p *FsINodeDriver) Init(
 	p.EntryTtl = 3 * time.Second
 	SplitDuration(p.EntryTtl, &p.EntryAttrValid, &p.EntryAttrValidNsec)
 
-	err = p.SoloOSEnv.OffheapDriver.InitHKVTableWithUint64(&p.INodeRWMutexTable, "INodeRWMutex",
+	err = p.SoloosEnv.OffheapDriver.InitHKVTableWithUint64(&p.INodeRWMutexTable, "INodeRWMutex",
 		int(solofsapitypes.INodeRWMutexStructSize), -1, offheap.DefaultKVTableSharedCount,
 		nil, nil)
 	if err != nil {

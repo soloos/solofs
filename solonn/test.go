@@ -9,7 +9,7 @@ import (
 	"soloos/solofs/metastg"
 )
 
-func MakeSolonnForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func MakeSolonnForTest(soloosEnv *soloosbase.SoloosEnv,
 	solonn *Solonn, metaStg *metastg.MetaStg,
 	solonnSRPCPeerID snettypes.PeerID,
 	solonnSRPCServerAddr string,
@@ -32,7 +32,7 @@ func MakeSolonnForTest(soloOSEnv *soloosbase.SoloOSEnv,
 		ServeStr:  solonnWebServerAddr,
 		ListenStr: solonnWebServerAddr,
 	}
-	err = solonn.Init(soloOSEnv,
+	err = solonn.Init(soloosEnv,
 		solonnSRPCPeerID, solonnSRPCServerAddr, solonnSRPCServerAddr,
 		solonnWebPeerID, webServerOptions,
 		metaStg,

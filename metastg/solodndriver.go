@@ -7,7 +7,7 @@ import (
 )
 
 type SolodnDriver struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	metaStg *MetaStg
 
 	chooseSolodnIndex         uint32
@@ -17,7 +17,7 @@ type SolodnDriver struct {
 }
 
 func (p *SolodnDriver) Init(metaStg *MetaStg) error {
-	p.SoloOSEnv = metaStg.SoloOSEnv
+	p.SoloosEnv = metaStg.SoloosEnv
 	p.metaStg = metaStg
 	p.solodnsForBlockRegistered = make(map[snettypes.PeerID]int64)
 	return nil

@@ -16,7 +16,7 @@ import (
 
 type SolofsDaemon struct {
 	options          Options
-	SoloOSEnv        soloosbase.SoloOSEnv
+	SoloosEnv        soloosbase.SoloosEnv
 	offheapDriver    *offheap.OffheapDriver
 	SNetDriver       snet.NetDriver
 	SNetClientDriver snet.SRPCClientDriver
@@ -35,7 +35,7 @@ type SolofsDaemon struct {
 }
 
 func (p *SolofsDaemon) initMetaStg() error {
-	return p.MetaStg.Init(&p.SoloOSEnv,
+	return p.MetaStg.Init(&p.SoloosEnv,
 		p.options.DBDriver, p.options.Dsn)
 }
 
@@ -48,20 +48,20 @@ func (p *SolofsDaemon) initMemStg() error {
 			},
 		},
 	}
-	return (p.MemBlockDriver.Init(&p.SoloOSEnv, memBlockDriverOptions))
+	return (p.MemBlockDriver.Init(&p.SoloosEnv, memBlockDriverOptions))
 }
 
 func (p *SolofsDaemon) Init(options Options) {
 	p.options = options
-	util.AssertErrIsNil(p.SoloOSEnv.InitWithSNet(p.options.SNetDriverServeAddr))
+	util.AssertErrIsNil(p.SoloosEnv.InitWithSNet(p.options.SNetDriverServeAddr))
 
-	p.SolodnClient.Init(&p.SoloOSEnv)
+	p.SolodnClient.Init(&p.SoloosEnv)
 
 	util.AssertErrIsNil(p.initMetaStg())
 
 	util.AssertErrIsNil(p.initMemStg())
 
-	util.AssertErrIsNil(p.initSoloBoat())
+	util.AssertErrIsNil(p.initSoloboat())
 }
 
 func (p *SolofsDaemon) startCommon() {
@@ -74,10 +74,10 @@ func (p *SolofsDaemon) startSolonn() {
 	copy(p.srpcPeerID[:], []byte(p.options.SolonnSRPCPeerID))
 	copy(p.webPeerID[:], []byte(p.options.SolonnWebPeerID))
 
-	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloOSEnv,
+	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloosEnv,
 		nil, &p.SolodnClient, p.MetaStg.PrepareNetBlockMetaData))
 
-	util.AssertErrIsNil(p.NetINodeDriver.Init(&p.SoloOSEnv,
+	util.AssertErrIsNil(p.NetINodeDriver.Init(&p.SoloosEnv,
 		&p.NetBlockDriver,
 		&p.MemBlockDriver,
 		nil,
@@ -86,7 +86,7 @@ func (p *SolofsDaemon) startSolonn() {
 		p.MetaStg.NetINodeCommitSizeInDB,
 	))
 
-	util.AssertErrIsNil(p.solonn.Init(&p.SoloOSEnv,
+	util.AssertErrIsNil(p.solonn.Init(&p.SoloosEnv,
 		p.srpcPeerID, p.options.SRPCListenAddr, p.options.SRPCServeAddr,
 		p.webPeerID, p.options.WebServer,
 		&p.MetaStg,
@@ -119,10 +119,10 @@ func (p *SolofsDaemon) startSolodn() {
 		SolonnSRPCPeerID:   solonnSRPCPeerID,
 	}
 
-	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloOSEnv,
+	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloosEnv,
 		nil, &p.SolodnClient, p.MetaStg.PrepareNetBlockMetaData))
 
-	util.AssertErrIsNil(p.NetINodeDriver.Init(&p.SoloOSEnv,
+	util.AssertErrIsNil(p.NetINodeDriver.Init(&p.SoloosEnv,
 		&p.NetBlockDriver,
 		&p.MemBlockDriver,
 		nil,
@@ -131,7 +131,7 @@ func (p *SolofsDaemon) startSolodn() {
 		p.MetaStg.NetINodeCommitSizeInDB,
 	))
 
-	util.AssertErrIsNil(p.solodn.Init(&p.SoloOSEnv, solodnOptions,
+	util.AssertErrIsNil(p.solodn.Init(&p.SoloosEnv, solodnOptions,
 		&p.MemBlockDriver,
 		&p.NetBlockDriver,
 		&p.NetINodeDriver,

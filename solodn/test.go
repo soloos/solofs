@@ -8,7 +8,7 @@ import (
 	"soloos/solofs/memstg"
 )
 
-func MakeSolodnForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func MakeSolodnForTest(soloosEnv *soloosbase.SoloosEnv,
 	solodn *Solodn,
 	solodnSRPCPeerID snettypes.PeerID, solodnSRPCServerAddr string,
 	solonnSRPCPeerID snettypes.PeerID, solonnSRPCServerAddr string,
@@ -30,7 +30,7 @@ func MakeSolodnForTest(soloOSEnv *soloosbase.SoloOSEnv,
 		SolonnSRPCPeerID:   solonnSRPCPeerID,
 	}
 
-	err = solodn.Init(soloOSEnv,
+	err = solodn.Init(soloosEnv,
 		options,
 		memBlockDriver, netBlockDriver, netINodeDriver)
 	util.AssertErrIsNil(err)

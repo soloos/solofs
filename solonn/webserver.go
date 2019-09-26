@@ -26,7 +26,7 @@ func (p *WebServer) Init(solonn *Solonn,
 }
 
 func (p *WebServer) ServerName() string {
-	return "SoloOS.SOLOFS.Solonn.WebServer"
+	return "Soloos.Solofs.Solonn.WebServer"
 }
 
 func (p *WebServer) Serve() error {

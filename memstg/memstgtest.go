@@ -6,7 +6,7 @@ import (
 	"soloos/common/util"
 )
 
-func MemStgMakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, soloOSEnv *soloosbase.SoloOSEnv,
+func MemStgMakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, soloosEnv *soloosbase.SoloosEnv,
 	blockSize int, blocksLimit int32) {
 	memBlockDriverOptions := MemBlockDriverOptions{
 		[]MemBlockTableOptions{
@@ -15,10 +15,10 @@ func MemStgMakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, soloOSEnv 
 			},
 		},
 	}
-	util.AssertErrIsNil(memBlockDriver.Init(soloOSEnv, memBlockDriverOptions))
+	util.AssertErrIsNil(memBlockDriver.Init(soloosEnv, memBlockDriverOptions))
 }
 
-func MemStgMakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func MemStgMakeDriversForTest(soloosEnv *soloosbase.SoloosEnv,
 	solonnSRPCServerAddr string,
 	memBlockDriver *MemBlockDriver,
 	netBlockDriver *NetBlockDriver,
@@ -29,22 +29,22 @@ func MemStgMakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
 		solodnClient solofsapi.SolodnClient
 	)
 
-	NetStgMakeDriversForTest(soloOSEnv,
+	NetStgMakeDriversForTest(soloosEnv,
 		solonnSRPCServerAddr,
 		&solonnClient, &solodnClient,
 		netBlockDriver,
 	)
 
-	MemStgMakeMemBlockDriversForTest(memBlockDriver, soloOSEnv, blockSize, blocksLimit)
+	MemStgMakeMemBlockDriversForTest(memBlockDriver, soloosEnv, blockSize, blocksLimit)
 
-	util.AssertErrIsNil(netINodeDriver.Init(soloOSEnv, netBlockDriver, memBlockDriver, &solonnClient,
+	util.AssertErrIsNil(netINodeDriver.Init(soloosEnv, netBlockDriver, memBlockDriver, &solonnClient,
 		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
 		netINodeDriver.PrepareNetINodeMetaDataWithStorDB,
 		netINodeDriver.NetINodeCommitSizeInDB,
 	))
 }
 
-func MemStgMakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func MemStgMakeDriversWithMockServerForTest(soloosEnv *soloosbase.SoloosEnv,
 	mockServerAddr string,
 	mockServer *MockServer,
 	netBlockDriver *NetBlockDriver,
@@ -56,15 +56,15 @@ func MemStgMakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
 		solodnClient solofsapi.SolodnClient
 	)
 
-	NetStgMakeDriversWithMockServerForTest(soloOSEnv,
+	NetStgMakeDriversWithMockServerForTest(soloosEnv,
 		mockServerAddr, mockServer,
 		&solonnClient, &solodnClient,
 		netBlockDriver,
 	)
 
-	MemStgMakeMemBlockDriversForTest(memBlockDriver, soloOSEnv, blockSize, blocksLimit)
+	MemStgMakeMemBlockDriversForTest(memBlockDriver, soloosEnv, blockSize, blocksLimit)
 
-	util.AssertErrIsNil(netINodeDriver.Init(soloOSEnv, netBlockDriver, memBlockDriver, &solonnClient,
+	util.AssertErrIsNil(netINodeDriver.Init(soloosEnv, netBlockDriver, memBlockDriver, &solonnClient,
 		netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
 		netINodeDriver.PrepareNetINodeMetaDataWithStorDB,
 		netINodeDriver.NetINodeCommitSizeInDB,

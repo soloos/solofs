@@ -18,16 +18,16 @@ const (
 )
 
 type MockServer struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	network       string
 	addr          string
 	srpcServer    snet.SRPCServer
 	solodnPeers []snettypes.Peer
 }
 
-func (p *MockServer) Init(soloOSEnv *soloosbase.SoloOSEnv, network string, addr string) error {
+func (p *MockServer) Init(soloosEnv *soloosbase.SoloosEnv, network string, addr string) error {
 	var err error
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.network = network
 	p.addr = addr
 	err = p.srpcServer.Init(p.network, p.addr)
@@ -45,7 +45,7 @@ func (p *MockServer) Init(soloOSEnv *soloosbase.SoloOSEnv, network string, addr 
 	for i := 0; i < len(p.solodnPeers); i++ {
 		p.SNetDriver.InitPeerID((*snettypes.PeerID)(&p.solodnPeers[i].ID))
 		p.solodnPeers[i].SetAddress(p.addr)
-		p.solodnPeers[i].ServiceProtocol = solofsapitypes.DefaultSOLOFSRPCProtocol
+		p.solodnPeers[i].ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
 		util.AssertErrIsNil(p.SNetDriver.RegisterPeer(p.solodnPeers[i]))
 	}
 
@@ -164,9 +164,9 @@ func (p *MockServer) Close() error {
 	return err
 }
 
-func MakeMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func MakeMockServerForTest(soloosEnv *soloosbase.SoloosEnv,
 	mockServerAddr string, mockServer *MockServer) {
-	util.AssertErrIsNil(mockServer.Init(soloOSEnv, "tcp", mockServerAddr))
+	util.AssertErrIsNil(mockServer.Init(soloosEnv, "tcp", mockServerAddr))
 	go func() {
 		util.AssertErrIsNil(mockServer.Serve())
 	}()

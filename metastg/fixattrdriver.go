@@ -7,14 +7,14 @@ import (
 
 // FIXAttrDriver is FsINode XAttr driver
 type FIXAttrDriver struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	dbConn *solodbapi.Connection
 }
 
-func (p *FIXAttrDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *FIXAttrDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	dbConn *solodbapi.Connection,
 ) error {
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.dbConn = dbConn
 	return nil
 }

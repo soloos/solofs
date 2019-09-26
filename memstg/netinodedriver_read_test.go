@@ -11,7 +11,7 @@ import (
 
 func TestNetINodeDriverNetINodeRead(t *testing.T) {
 	var (
-		soloOSEnv      soloosbase.SoloOSEnv
+		soloosEnv      soloosbase.SoloosEnv
 		mockServer     MockServer
 		netBlockDriver NetBlockDriver
 		memBlockDriver MemBlockDriver
@@ -22,8 +22,8 @@ func TestNetINodeDriverNetINodeRead(t *testing.T) {
 		uNetINode      solofsapitypes.NetINodeUintptr
 		err            error
 	)
-	util.AssertErrIsNil(soloOSEnv.InitWithSNet(""))
-	MemStgMakeDriversWithMockServerForTest(&soloOSEnv, "127.0.0.1:10022", &mockServer,
+	util.AssertErrIsNil(soloosEnv.InitWithSNet(""))
+	MemStgMakeDriversWithMockServerForTest(&soloosEnv, "127.0.0.1:10022", &mockServer,
 		&netBlockDriver, &memBlockDriver, &netINodeDriver, memBlockCap, blocksLimit)
 	var netINodeID solofsapitypes.NetINodeID
 	solofsapitypes.InitTmpNetINodeID(&netINodeID)

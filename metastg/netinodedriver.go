@@ -12,12 +12,12 @@ type NetINodeDriverHelper struct {
 }
 
 type NetINodeDriver struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	dbConn *solodbapi.Connection
 	helper NetINodeDriverHelper
 }
 
-func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *NetINodeDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	dbConn *solodbapi.Connection,
 	chooseOneSolodn solofsapitypes.ChooseSolodnsForNewNetBlock,
 ) error {

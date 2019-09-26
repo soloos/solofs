@@ -24,7 +24,7 @@ func (p *SRPCServer) Init(solodn *Solodn,
 
 	p.solodn = solodn
 	p.srpcServerListenAddr = srpcServerListenAddr
-	err = p.srpcServer.Init(solofsapitypes.DefaultSOLOFSRPCNetwork, p.srpcServerListenAddr)
+	err = p.srpcServer.Init(solofsapitypes.DefaultSolofsRPCNetwork, p.srpcServerListenAddr)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (p *SRPCServer) Init(solodn *Solodn,
 }
 
 func (p *SRPCServer) ServerName() string {
-	return "SoloOS.SOLOFS.Solodn.SRPCServer"
+	return "Soloos.Solofs.Solodn.SRPCServer"
 }
 
 func (p *SRPCServer) Serve() error {

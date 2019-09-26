@@ -2,11 +2,11 @@ package solofssdk
 
 import "soloos/common/solomqapi"
 
-func (p *Client) SetSOLOMQClient(itSOLOMQClient interface{}) error {
+func (p *Client) SetSolomqClient(itSolomqClient interface{}) error {
 	var err error
-	p.solomqClient = itSOLOMQClient.(solomqapi.Client)
+	p.solomqClient = itSolomqClient.(solomqapi.Client)
 
-	err = p.memStg.SetSOLOMQClient(p.solomqClient)
+	err = p.memStg.SetSolomqClient(p.solomqClient)
 	if err != nil {
 		return err
 	}

@@ -16,12 +16,12 @@ func main() {
 	util.AssertErrIsNil(err)
 
 	var (
-		soloOSEnv    soloosbase.SoloOSEnv
+		soloosEnv    soloosbase.SoloosEnv
 		clientDriver solofssdk.ClientDriver
 		sfuseServer  sfuse.Server
 	)
 
-	err = soloOSEnv.InitWithSNet(options.SNetDriverServeAddr)
+	err = soloosEnv.InitWithSNet(options.SNetDriverServeAddr)
 	util.AssertErrIsNil(err)
 
 	if options.PProfListenAddr != "" {
@@ -31,7 +31,7 @@ func main() {
 	{
 		var solonnSRPCPeerID snettypes.PeerID
 		solonnSRPCPeerID.SetStr(options.SolonnSRPCPeerID)
-		err = clientDriver.Init(&soloOSEnv,
+		err = clientDriver.Init(&soloosEnv,
 			solonnSRPCPeerID,
 			options.DBDriver, options.Dsn)
 		util.AssertErrIsNil(err)

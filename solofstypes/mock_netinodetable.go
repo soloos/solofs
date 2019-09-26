@@ -7,13 +7,13 @@ import (
 )
 
 type MockNetINodeTable struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	table offheap.LKVTableWithBytes64
 }
 
-func (p *MockNetINodeTable) Init(soloOSEnv *soloosbase.SoloOSEnv) error {
+func (p *MockNetINodeTable) Init(soloosEnv *soloosbase.SoloosEnv) error {
 	var err error
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 
 	err = p.OffheapDriver.InitLKVTableWithBytes64(&p.table, "MockNetINode",
 		int(solofsapitypes.NetINodeStructSize), -1, offheap.DefaultKVTableSharedCount, nil)

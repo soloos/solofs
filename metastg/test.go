@@ -5,8 +5,8 @@ import (
 	"soloos/common/util"
 )
 
-func MakeMetaStgForTest(soloOSEnv *soloosbase.SoloOSEnv, metaStg *MetaStg) {
+func MakeMetaStgForTest(soloosEnv *soloosbase.SoloosEnv, metaStg *MetaStg) {
 	var err error
-	err = metaStg.Init(soloOSEnv, TestMetaStgDBDriver, TestMetaStgDBConnect)
+	err = metaStg.Init(soloosEnv, TestMetaStgDBDriver, TestMetaStgDBConnect)
 	util.AssertErrIsNil(err)
 }

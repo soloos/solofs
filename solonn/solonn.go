@@ -10,7 +10,7 @@ import (
 )
 
 type Solonn struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	srpcPeer snettypes.Peer
 	webPeer  snettypes.Peer
 	metaStg  *metastg.MetaStg
@@ -34,7 +34,7 @@ func (p *Solonn) initSNetPeer(
 
 	p.srpcPeer.ID = srpcPeerID
 	p.srpcPeer.SetAddress(srpcServerServeAddr)
-	p.srpcPeer.ServiceProtocol = solofsapitypes.DefaultSOLOFSRPCProtocol
+	p.srpcPeer.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
 	err = p.SNetDriver.RegisterPeer(p.srpcPeer)
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func (p *Solonn) initSNetPeer(
 	return nil
 }
 
-func (p *Solonn) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *Solonn) Init(soloosEnv *soloosbase.SoloosEnv,
 	srpcPeerID snettypes.PeerID,
 	srpcServerListenAddr string,
 	srpcServerServeAddr string,
@@ -64,7 +64,7 @@ func (p *Solonn) Init(soloOSEnv *soloosbase.SoloOSEnv,
 ) error {
 	var err error
 
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.metaStg = metaStg
 	p.memBlockDriver = memBlockDriver
 	p.netBlockDriver = netBlockDriver
@@ -94,7 +94,7 @@ func (p *Solonn) Init(soloOSEnv *soloosbase.SoloOSEnv,
 }
 
 func (p *Solonn) SolodnRegister(peer snettypes.Peer) error {
-	var err = p.SoloOSEnv.SNetDriver.RegisterPeer(peer)
+	var err = p.SoloosEnv.SNetDriver.RegisterPeer(peer)
 	if err != nil {
 		return err
 	}

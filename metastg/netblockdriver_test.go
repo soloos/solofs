@@ -13,7 +13,7 @@ import (
 
 func TestMetaStgNetBlock(t *testing.T) {
 	var (
-		soloOSEnv   soloosbase.SoloOSEnv
+		soloosEnv   soloosbase.SoloosEnv
 		peerPool    offheap.LKVTableWithBytes64
 		metaStg     MetaStg
 		netINode    solofsapitypes.NetINode
@@ -25,14 +25,14 @@ func TestMetaStgNetBlock(t *testing.T) {
 		peerID1     snettypes.PeerID
 		err         error
 	)
-	util.AssertErrIsNil(soloOSEnv.InitWithSNet(""))
+	util.AssertErrIsNil(soloosEnv.InitWithSNet(""))
 
-	util.AssertErrIsNil(metaStg.Init(&soloOSEnv, TestMetaStgDBDriver, TestMetaStgDBConnect))
+	util.AssertErrIsNil(metaStg.Init(&soloosEnv, TestMetaStgDBDriver, TestMetaStgDBConnect))
 	solofsapitypes.InitTmpNetINodeID(&netINodeID0)
 	solofsapitypes.InitTmpNetINodeID(&netINodeID1)
 	solofsapitypes.InitTmpNetINodeID(&netINodeID2)
 
-	err = soloOSEnv.OffheapDriver.InitLKVTableWithBytes64(&peerPool, "TestMetaStgNet",
+	err = soloosEnv.OffheapDriver.InitLKVTableWithBytes64(&peerPool, "TestMetaStgNet",
 		int(snettypes.PeerStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	util.AssertErrIsNil(err)
 

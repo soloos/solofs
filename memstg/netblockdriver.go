@@ -14,12 +14,12 @@ type PrepareNetBlockMetaData func(uNetBlock solofsapitypes.NetBlockUintptr,
 
 type NetBlockDriverHelper struct {
 	SolonnClient *solofsapi.SolonnClient
-	SOLOMQClient     solomqapi.Client
+	SolomqClient     solomqapi.Client
 	PrepareNetBlockMetaData
 }
 
 type NetBlockDriver struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	helper NetBlockDriverHelper
 
 	netBlockTable          offheap.LKVTableWithBytes68
@@ -27,14 +27,14 @@ type NetBlockDriver struct {
 	netBlockDriverUploader netBlockDriverUploader
 }
 
-func (p *NetBlockDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *NetBlockDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	solonnClient *solofsapi.SolonnClient,
 	solodnClient *solofsapi.SolodnClient,
 	prepareNetBlockMetaData PrepareNetBlockMetaData,
 ) error {
 	var err error
 
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.SetHelper(solonnClient, prepareNetBlockMetaData)
 
 	err = p.OffheapDriver.InitLKVTableWithBytes68(&p.netBlockTable, "NetBlock",
@@ -74,8 +74,8 @@ func (p *NetBlockDriver) SetHelper(
 	p.helper.PrepareNetBlockMetaData = prepareNetBlockMetaData
 }
 
-func (p *NetBlockDriver) SetSOLOMQClient(solomqClient solomqapi.Client) {
-	p.helper.SOLOMQClient = solomqClient
+func (p *NetBlockDriver) SetSolomqClient(solomqClient solomqapi.Client) {
+	p.helper.SolomqClient = solomqClient
 }
 
 func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadWithDisk solofsapitypes.PReadMemBlockWithDisk) {
@@ -86,8 +86,8 @@ func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk solofs
 	p.solodnClient.SetUploadMemBlockWithDisk(uploadMemBlockWithDisk)
 }
 
-func (p *NetBlockDriver) SetUploadMemBlockWithSOLOMQ(uploadMemBlockWithSOLOMQ solofsapitypes.UploadMemBlockWithSOLOMQ) {
-	p.solodnClient.SetUploadMemBlockWithSOLOMQ(uploadMemBlockWithSOLOMQ)
+func (p *NetBlockDriver) SetUploadMemBlockWithSolomq(uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq) {
+	p.solodnClient.SetUploadMemBlockWithSolomq(uploadMemBlockWithSolomq)
 }
 
 // MustGetNetBlock get or init a netBlock

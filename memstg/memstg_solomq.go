@@ -2,9 +2,9 @@ package memstg
 
 import "soloos/common/solomqapi"
 
-func (p *MemStg) SetSOLOMQClient(solomqClient solomqapi.Client) error {
+func (p *MemStg) SetSolomqClient(solomqClient solomqapi.Client) error {
 	p.solomqClient = solomqClient
-	p.SolodnClient.SetUploadMemBlockWithSOLOMQ(p.solomqClient.UploadMemBlockWithSOLOMQ)
-	p.NetBlockDriver.SetSOLOMQClient(solomqClient)
+	p.SolodnClient.SetUploadMemBlockWithSolomq(p.solomqClient.UploadMemBlockWithSolomq)
+	p.NetBlockDriver.SetSolomqClient(solomqClient)
 	return nil
 }

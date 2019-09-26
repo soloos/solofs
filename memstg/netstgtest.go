@@ -8,44 +8,44 @@ import (
 	"soloos/common/util"
 )
 
-func NetStgMakeNetBlockDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func NetStgMakeNetBlockDriversForTest(soloosEnv *soloosbase.SoloosEnv,
 	netBlockDriver *NetBlockDriver,
 	solonnClient *solofsapi.SolonnClient,
 	solodnClient *solofsapi.SolodnClient,
 ) {
-	util.AssertErrIsNil(netBlockDriver.Init(soloOSEnv,
+	util.AssertErrIsNil(netBlockDriver.Init(soloosEnv,
 		solonnClient, solodnClient,
 		// TODO test netBlockDriver.PrepareNetBlockMetaDataWithTransfer,
 		netBlockDriver.PrepareNetBlockMetaData,
 	))
 }
 
-func NetStgMakeDriversForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func NetStgMakeDriversForTest(soloosEnv *soloosbase.SoloosEnv,
 	solonnSRPCServerAddr string,
 	solonnClient *solofsapi.SolonnClient,
 	solodnClient *solofsapi.SolodnClient,
 	netBlockDriver *NetBlockDriver,
 ) {
 	var solonnPeer snettypes.Peer
-	soloOSEnv.SNetDriver.InitPeerID((*snettypes.PeerID)(&solonnPeer.ID))
+	soloosEnv.SNetDriver.InitPeerID((*snettypes.PeerID)(&solonnPeer.ID))
 	solonnPeer.SetAddress(solonnSRPCServerAddr)
-	solonnPeer.ServiceProtocol = solofsapitypes.DefaultSOLOFSRPCProtocol
-	util.AssertErrIsNil(soloOSEnv.SNetDriver.RegisterPeer(solonnPeer))
+	solonnPeer.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
+	util.AssertErrIsNil(soloosEnv.SNetDriver.RegisterPeer(solonnPeer))
 
-	util.AssertErrIsNil(solonnClient.Init(soloOSEnv, solonnPeer.ID))
-	util.AssertErrIsNil(solodnClient.Init(soloOSEnv))
-	NetStgMakeNetBlockDriversForTest(soloOSEnv,
+	util.AssertErrIsNil(solonnClient.Init(soloosEnv, solonnPeer.ID))
+	util.AssertErrIsNil(solodnClient.Init(soloosEnv))
+	NetStgMakeNetBlockDriversForTest(soloosEnv,
 		netBlockDriver, solonnClient, solodnClient,
 	)
 }
 
-func NetStgMakeDriversWithMockServerForTest(soloOSEnv *soloosbase.SoloOSEnv,
+func NetStgMakeDriversWithMockServerForTest(soloosEnv *soloosbase.SoloosEnv,
 	mockServerAddr string,
 	mockServer *MockServer,
 	solonnClient *solofsapi.SolonnClient,
 	solodnClient *solofsapi.SolodnClient,
 	netBlockDriver *NetBlockDriver,
 ) {
-	NetStgMakeDriversForTest(soloOSEnv, mockServerAddr, solonnClient, solodnClient, netBlockDriver)
-	MakeMockServerForTest(soloOSEnv, mockServerAddr, mockServer)
+	NetStgMakeDriversForTest(soloosEnv, mockServerAddr, solonnClient, solodnClient, netBlockDriver)
+	MakeMockServerForTest(soloosEnv, mockServerAddr, mockServer)
 }

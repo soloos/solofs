@@ -11,7 +11,7 @@ import (
 )
 
 type ClientDriver struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 
 	memStg memstg.MemStg
 	dbConn solodbapi.Connection
@@ -19,12 +19,12 @@ type ClientDriver struct {
 
 var _ = solofsapi.ClientDriver(&ClientDriver{})
 
-func (p *ClientDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *ClientDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	solonnSRPCPeerID snettypes.PeerID,
 	dbDriver string, dsn string,
 ) error {
 	var err error
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 
 	err = p.initMemStg(solonnSRPCPeerID)
 	if err != nil {
@@ -47,13 +47,13 @@ func (p *ClientDriver) initMemStg(solonnSRPCPeerID snettypes.PeerID) error {
 	)
 
 	var solonnPeer snettypes.Peer
-	solonnPeer, err = p.SoloOSEnv.SNetDriver.GetPeer(solonnSRPCPeerID)
+	solonnPeer, err = p.SoloosEnv.SNetDriver.GetPeer(solonnSRPCPeerID)
 	if err != nil {
 		log.Warn("solofs SNetDriver get solonnPeer error", err, solonnSRPCPeerID.Str())
 		return err
 	}
 
-	err = p.memStg.Init(p.SoloOSEnv, solonnPeer, memstg.MemBlockDriverOptions{})
+	err = p.memStg.Init(p.SoloosEnv, solonnPeer, memstg.MemBlockDriverOptions{})
 	if err != nil {
 		log.Warn("solofs memstg Init error", err)
 		return err
@@ -76,18 +76,18 @@ func (p *ClientDriver) InitClient(itClient solofsapi.Client,
 		ObjectsLimit: defaultMemBlocksLimit,
 	})
 	if err != nil {
-		log.Warn("SOLOFS ClientDriver PrepareMemBlockTabl error", err)
+		log.Warn("Solofs ClientDriver PrepareMemBlockTabl error", err)
 		return err
 	}
 
-	err = client.Init(p.SoloOSEnv,
+	err = client.Init(p.SoloosEnv,
 		nameSpaceID,
 		&p.memStg, &p.dbConn,
 		defaultNetBlockCap,
 		defaultMemBlockCap,
 	)
 	if err != nil {
-		log.Warn("SOLOFS ClientDriver InitClient error", err)
+		log.Warn("Solofs ClientDriver InitClient error", err)
 		return err
 	}
 

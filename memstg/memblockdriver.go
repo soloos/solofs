@@ -6,14 +6,14 @@ import (
 )
 
 type MemBlockDriver struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	tables map[int]*MemBlockTable
 }
 
-func (p *MemBlockDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *MemBlockDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	memBlockDriverOptions MemBlockDriverOptions,
 ) error {
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.tables = make(map[int]*MemBlockTable)
 	for _, memBlockTableOptions := range memBlockDriverOptions.MemBlockTableOptionsList {
 		p.PrepareMemBlockTable(memBlockTableOptions)

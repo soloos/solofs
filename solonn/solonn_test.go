@@ -15,8 +15,8 @@ import (
 
 func TestBase(t *testing.T) {
 	var (
-		soloOSEnvForCommon     soloosbase.SoloOSEnv
-		soloOSEnvForMetaStg    soloosbase.SoloOSEnv
+		soloosEnvForCommon     soloosbase.SoloosEnv
+		soloosEnvForMetaStg    soloosbase.SoloosEnv
 		metaStg                metastg.MetaStg
 		solonn               Solonn
 		solonnSRPCPeerID     = snet.MakeSysPeerID("SolonnSRPCForTest")
@@ -26,12 +26,12 @@ func TestBase(t *testing.T) {
 		mockServerAddr         = "127.0.0.1:10302"
 		mockServer             memstg.MockServer
 
-		soloOSEnvForClient      soloosbase.SoloOSEnv
+		soloosEnvForClient      soloosbase.SoloosEnv
 		memBlockDriverForClient memstg.MemBlockDriver
 		netBlockDriverForClient memstg.NetBlockDriver
 		netINodeDriverForClient memstg.NetINodeDriver
 
-		soloOSEnvForServer      soloosbase.SoloOSEnv
+		soloosEnvForServer      soloosbase.SoloosEnv
 		memBlockDriverForServer memstg.MemBlockDriver
 		netBlockDriverForServer memstg.NetBlockDriver
 		netINodeDriverForServer memstg.NetINodeDriver
@@ -44,21 +44,21 @@ func TestBase(t *testing.T) {
 		err         error
 	)
 
-	assert.NoError(t, soloOSEnvForCommon.InitWithSNet(""))
-	assert.NoError(t, soloOSEnvForMetaStg.InitWithSNet(""))
-	metastg.MakeMetaStgForTest(&soloOSEnvForMetaStg, &metaStg)
+	assert.NoError(t, soloosEnvForCommon.InitWithSNet(""))
+	assert.NoError(t, soloosEnvForMetaStg.InitWithSNet(""))
+	metastg.MakeMetaStgForTest(&soloosEnvForMetaStg, &metaStg)
 
-	assert.NoError(t, soloOSEnvForClient.InitWithSNet(""))
-	assert.NoError(t, soloOSEnvForServer.InitWithSNet(""))
+	assert.NoError(t, soloosEnvForClient.InitWithSNet(""))
+	assert.NoError(t, soloosEnvForServer.InitWithSNet(""))
 
-	memstg.MemStgMakeDriversForTest(&soloOSEnvForClient,
+	memstg.MemStgMakeDriversForTest(&soloosEnvForClient,
 		solonnSRPCListenAddr,
 		&memBlockDriverForClient, &netBlockDriverForClient, &netINodeDriverForClient, memBlockCap, blocksLimit)
 
-	memstg.MemStgMakeDriversForTest(&soloOSEnvForServer,
+	memstg.MemStgMakeDriversForTest(&soloosEnvForServer,
 		solonnSRPCListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer, memBlockCap, blocksLimit)
-	MakeSolonnForTest(&soloOSEnvForServer, &solonn, &metaStg,
+	MakeSolonnForTest(&soloosEnvForServer, &solonn, &metaStg,
 		solonnSRPCPeerID, solonnSRPCListenAddr,
 		solonnWebPeerID, solonnWebListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer)
@@ -66,13 +66,13 @@ func TestBase(t *testing.T) {
 		assert.NoError(t, solonn.Serve())
 	}()
 	time.Sleep(time.Millisecond * 300)
-	memstg.MakeMockServerForTest(&soloOSEnvForCommon, mockServerAddr, &mockServer)
+	memstg.MakeMockServerForTest(&soloosEnvForCommon, mockServerAddr, &mockServer)
 
 	for i = 0; i < 6; i++ {
 		var peer snettypes.Peer
 		snettypes.InitTmpPeerID((*snettypes.PeerID)(&peer.ID))
 		peer.SetAddress(mockServerAddr)
-		peer.ServiceProtocol = solofsapitypes.DefaultSOLOFSRPCProtocol
+		peer.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
 		solonn.SolodnRegister(peer)
 	}
 

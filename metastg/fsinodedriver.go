@@ -15,7 +15,7 @@ type FsINodeDriverHelper struct {
 }
 
 type FsINodeDriver struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	dbConn *solodbapi.Connection
 	helper FsINodeDriverHelper
 
@@ -24,7 +24,7 @@ type FsINodeDriver struct {
 	maxFsINodeID      solofsapitypes.FsINodeID
 }
 
-func (p *FsINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *FsINodeDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	dbConn *solodbapi.Connection,
 	getNetINode solofsapitypes.GetNetINode,
 	mustGetNetINode solofsapitypes.MustGetNetINode,
@@ -32,7 +32,7 @@ func (p *FsINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 ) error {
 	var err error
 
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.dbConn = dbConn
 	p.SetHelper(
 		getNetINode,

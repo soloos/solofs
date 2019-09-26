@@ -16,7 +16,7 @@ type NetINodeDriverHelper struct {
 }
 
 type NetINodeDriver struct {
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	helper NetINodeDriverHelper
 
 	netINodeTable offheap.LKVTableWithBytes64
@@ -25,7 +25,7 @@ type NetINodeDriver struct {
 	netBlockDriver *NetBlockDriver
 }
 
-func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *NetINodeDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	netBlockDriver *NetBlockDriver,
 	memBlockDriver *MemBlockDriver,
 	// for NetINodeDriverHelper
@@ -36,7 +36,7 @@ func (p *NetINodeDriver) Init(soloOSEnv *soloosbase.SoloOSEnv,
 ) error {
 	var err error
 
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.SetHelper(solonnClient,
 		prepareNetINodeMetaDataOnlyLoadDB, prepareNetINodeMetaDataWithStorDB,
 		netINodeCommitSizeInDB)

@@ -8,13 +8,13 @@ import (
 
 type PosixFS struct {
 	nameSpaceID solofsapitypes.NameSpaceID
-	*soloosbase.SoloOSEnv
+	*soloosbase.SoloosEnv
 	dbConn        *solodbapi.Connection
 	FsINodeDriver FsINodeDriver
 	FIXAttrDriver FIXAttrDriver
 }
 
-func (p *PosixFS) Init(soloOSEnv *soloosbase.SoloOSEnv,
+func (p *PosixFS) Init(soloosEnv *soloosbase.SoloosEnv,
 	dbConn *solodbapi.Connection,
 	getNetINode solofsapitypes.GetNetINode,
 	mustGetNetINode solofsapitypes.MustGetNetINode,
@@ -22,7 +22,7 @@ func (p *PosixFS) Init(soloOSEnv *soloosbase.SoloOSEnv,
 ) error {
 	var err error
 
-	p.SoloOSEnv = soloOSEnv
+	p.SoloosEnv = soloosEnv
 	p.dbConn = dbConn
 
 	err = p.installSchema()
@@ -30,7 +30,7 @@ func (p *PosixFS) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		return err
 	}
 
-	err = p.FsINodeDriver.Init(p.SoloOSEnv, dbConn,
+	err = p.FsINodeDriver.Init(p.SoloosEnv, dbConn,
 		getNetINode,
 		mustGetNetINode,
 		releaseNetINode,
@@ -39,7 +39,7 @@ func (p *PosixFS) Init(soloOSEnv *soloosbase.SoloOSEnv,
 		return err
 	}
 
-	err = p.FIXAttrDriver.Init(p.SoloOSEnv, dbConn)
+	err = p.FIXAttrDriver.Init(p.SoloosEnv, dbConn)
 	if err != nil {
 		return err
 	}
