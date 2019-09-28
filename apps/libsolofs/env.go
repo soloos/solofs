@@ -18,7 +18,7 @@ type Env struct {
 	SoloosEnv    soloosbase.SoloosEnv
 	ClientDriver solofssdk.ClientDriver
 	Client       solofssdk.Client
-	PosixFS      fsapi.PosixFS
+	PosixFs      fsapi.PosixFs
 }
 
 func (p *Env) Init(optionsFile string) {
@@ -55,5 +55,5 @@ func (p *Env) Init(optionsFile string) {
 			p.Options.DefaultMemBlocksLimit,
 		))
 
-	p.PosixFS = p.Client.GetPosixFS()
+	p.PosixFs = p.Client.GetPosixFs()
 }

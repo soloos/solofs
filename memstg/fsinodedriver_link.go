@@ -129,7 +129,7 @@ func (p *FsINodeDriver) decreaseFsINodeNLink(uFsINode solofsapitypes.FsINodeUint
 
 	}
 
-	err = p.helper.DeleteFsINodeByIDInDB(p.posixFS.NameSpaceID, pFsINode.Meta.Ino)
+	err = p.helper.DeleteFsINodeByIDInDB(p.posixFs.NameSpaceID, pFsINode.Meta.Ino)
 	if err != nil {
 		return false, err
 	}

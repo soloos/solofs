@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (p *PosixFS) ListFsINodeByIno(ino solofsapitypes.FsINodeID,
+func (p *PosixFs) ListFsINodeByIno(ino solofsapitypes.FsINodeID,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
 	literalFunc func(solofsapitypes.FsINodeMeta) bool,
@@ -32,7 +32,7 @@ func (p *PosixFS) ListFsINodeByIno(ino solofsapitypes.FsINodeID,
 	return nil
 }
 
-func (p *PosixFS) Rename(input *fsapitypes.RenameIn, oldName string, newName string) fsapitypes.Status {
+func (p *PosixFs) Rename(input *fsapitypes.RenameIn, oldName string, newName string) fsapitypes.Status {
 	var (
 		oldDirFsINodeID = input.NodeId
 		newDirFsINodeID = input.Newdir
@@ -101,7 +101,7 @@ func (p *PosixFS) Rename(input *fsapitypes.RenameIn, oldName string, newName str
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) SimpleMkdirAll(perms uint32, fsINodePath string, uid uint32, gid uint32) fsapitypes.Status {
+func (p *PosixFs) SimpleMkdirAll(perms uint32, fsINodePath string, uid uint32, gid uint32) fsapitypes.Status {
 	var (
 		paths       []string
 		i           int
@@ -135,7 +135,7 @@ DONE:
 	return code
 }
 
-func (p *PosixFS) Mkdir(input *fsapitypes.MkdirIn, name string, out *fsapitypes.EntryOut) fsapitypes.Status {
+func (p *PosixFs) Mkdir(input *fsapitypes.MkdirIn, name string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	var (
 		fsINodeMeta solofsapitypes.FsINodeMeta
 		code        fsapitypes.Status
@@ -157,7 +157,7 @@ func (p *PosixFS) Mkdir(input *fsapitypes.MkdirIn, name string, out *fsapitypes.
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) SimpleMkdir(pFsINodeMeta *solofsapitypes.FsINodeMeta,
+func (p *PosixFs) SimpleMkdir(pFsINodeMeta *solofsapitypes.FsINodeMeta,
 	fsINodeID *solofsapitypes.FsINodeID, parentID solofsapitypes.FsINodeID,
 	perms uint32, name string,
 	uid uint32, gid uint32, rdev uint32) fsapitypes.Status {
@@ -192,7 +192,7 @@ func (p *PosixFS) SimpleMkdir(pFsINodeMeta *solofsapitypes.FsINodeMeta,
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) checkIsDirEmpty(pFsINodeMeta *solofsapitypes.FsINodeMeta) (bool, error) {
+func (p *PosixFs) checkIsDirEmpty(pFsINodeMeta *solofsapitypes.FsINodeMeta) (bool, error) {
 	var (
 		isDirEmpty bool
 		err        error
@@ -214,7 +214,7 @@ func (p *PosixFS) checkIsDirEmpty(pFsINodeMeta *solofsapitypes.FsINodeMeta) (boo
 	return isDirEmpty, nil
 }
 
-func (p *PosixFS) Rmdir(header *fsapitypes.InHeader, name string) fsapitypes.Status {
+func (p *PosixFs) Rmdir(header *fsapitypes.InHeader, name string) fsapitypes.Status {
 	var (
 		fsINodeMeta solofsapitypes.FsINodeMeta
 		isDirEmpty  bool
@@ -252,7 +252,7 @@ func (p *PosixFS) Rmdir(header *fsapitypes.InHeader, name string) fsapitypes.Sta
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) OpenDir(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapitypes.Status {
+func (p *PosixFs) OpenDir(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapitypes.Status {
 	var (
 		fsINodeMeta solofsapitypes.FsINodeMeta
 		err         error
@@ -269,7 +269,7 @@ func (p *PosixFS) OpenDir(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsa
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList) fsapitypes.Status {
+func (p *PosixFs) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList) fsapitypes.Status {
 	var (
 		fsINodeMetaByIDThroughHardLink solofsapitypes.FsINodeMeta
 		isAddDirEntrySuccess           bool
@@ -308,7 +308,7 @@ func (p *PosixFS) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList) fsapitypes.Status {
+func (p *PosixFs) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList) fsapitypes.Status {
 	var (
 		fsINodeMetaByIDThroughHardLink solofsapitypes.FsINodeMeta
 		entryOut                       *fsapitypes.EntryOut
@@ -352,11 +352,11 @@ func (p *PosixFS) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEntry
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) ReleaseDir(input *fsapitypes.ReleaseIn) {
+func (p *PosixFs) ReleaseDir(input *fsapitypes.ReleaseIn) {
 	// TODO make sure releaable
 	p.FdTable.ReleaseFd(input.Fh)
 }
 
-func (p *PosixFS) FsyncDir(input *fsapitypes.FsyncIn) fsapitypes.Status {
+func (p *PosixFs) FsyncDir(input *fsapitypes.FsyncIn) fsapitypes.Status {
 	return fsapitypes.OK
 }

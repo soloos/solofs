@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type PosixFS struct {
+type PosixFs struct {
 	*soloosbase.SoloosEnv
 	NameSpaceID   solofsapitypes.NameSpaceID
 	MemStg        *MemStg
@@ -19,9 +19,9 @@ type PosixFS struct {
 	EntryAttrValidNsec uint32
 }
 
-var _ = fsapi.PosixFS(&PosixFS{})
+var _ = fsapi.PosixFs(&PosixFs{})
 
-func (p *PosixFS) Init(
+func (p *PosixFs) Init(
 	soloosEnv *soloosbase.SoloosEnv,
 	nameSpaceID solofsapitypes.NameSpaceID,
 	memStg *MemStg,
@@ -85,18 +85,18 @@ func (p *PosixFS) Init(
 // This is called on processing the first request. The
 // filesystem implementation can use the server argument to
 // talk back to the kernel (through notify methods).
-func (p *PosixFS) FsInit() {
+func (p *PosixFs) FsInit() {
 }
 
-func (p *PosixFS) String() string {
+func (p *PosixFs) String() string {
 	return "solofs"
 }
 
 // If called, provide debug output through the log package.
-func (p *PosixFS) SetDebug(debug bool) {
+func (p *PosixFs) SetDebug(debug bool) {
 }
 
-func (p *PosixFS) refreshEntryTtl() {
+func (p *PosixFs) refreshEntryTtl() {
 	p.EntryTtl = p.FsINodeDriver.EntryTtl
 	p.EntryAttrValid = p.FsINodeDriver.EntryAttrValid
 	p.EntryAttrValidNsec = p.FsINodeDriver.EntryAttrValidNsec

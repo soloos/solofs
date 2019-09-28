@@ -6,7 +6,7 @@ import (
 	"soloos/solofs/solofstypes"
 )
 
-func (p *PosixFS) SetFsAttrByFsINode(fsAttr *fsapitypes.Attr, pFsINodeMeta *solofsapitypes.FsINodeMeta) {
+func (p *PosixFs) SetFsAttrByFsINode(fsAttr *fsapitypes.Attr, pFsINodeMeta *solofsapitypes.FsINodeMeta) {
 	fsAttr.Ino = pFsINodeMeta.Ino
 
 	if pFsINodeMeta.NetINodeID != solofsapitypes.ZeroNetINodeID ||

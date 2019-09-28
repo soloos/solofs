@@ -115,7 +115,7 @@ func (p *SolofsDaemon) startSolodn() {
 		SRPCServerServeAddr:  p.options.SRPCServeAddr,
 		WebPeerID:            p.webPeerID,
 		WebServer:            p.options.WebServer,
-		LocalFSRoot:          p.options.SolodnLocalFSRoot,
+		LocalFsRoot:          p.options.SolodnLocalFsRoot,
 		SolonnSRPCPeerID:   solonnSRPCPeerID,
 	}
 

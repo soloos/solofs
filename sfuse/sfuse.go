@@ -34,10 +34,10 @@ func (p *Server) Init(options Options,
 
 	p.MountOpts.AllowOther = true
 	// p.MountOpts.MaxWrite = 0
-	p.MountOpts.Name = p.Client.GetPosixFS().String() + "-fuse"
+	p.MountOpts.Name = p.Client.GetPosixFs().String() + "-fuse"
 	p.MountOpts.Options = append(p.MountOpts.Options, "default_permissions")
 
-	p.FuseServer, err = fuse.NewServer(p.Client.GetPosixFS(),
+	p.FuseServer, err = fuse.NewServer(p.Client.GetPosixFs(),
 		p.options.MountPoint,
 		&p.MountOpts)
 	if err != nil {

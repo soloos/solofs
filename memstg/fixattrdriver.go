@@ -14,7 +14,7 @@ type FIXAttrDriverHelper struct {
 
 // FIXAttrDriver is FsINode XAttr driver
 type FIXAttrDriver struct {
-	posixFS *PosixFS
+	posixFs *PosixFs
 	helper  FIXAttrDriverHelper
 
 	xattrsRWMutex util.RWMutex
@@ -22,12 +22,12 @@ type FIXAttrDriver struct {
 }
 
 func (p *FIXAttrDriver) Init(
-	posixFS *PosixFS,
+	posixFs *PosixFs,
 	deleteFIXAttrInDB solofsapitypes.DeleteFIXAttrInDB,
 	replaceFIXAttrInDB solofsapitypes.ReplaceFIXAttrInDB,
 	getFIXAttrByInoFromDB solofsapitypes.GetFIXAttrByInoFromDB,
 ) error {
-	p.posixFS = posixFS
+	p.posixFs = posixFs
 	p.SetHelper(
 		deleteFIXAttrInDB,
 		replaceFIXAttrInDB,
@@ -101,7 +101,7 @@ func (p *FIXAttrDriver) getXAttr(fsINodeID solofsapitypes.FsINodeID) (solofsapit
 		return xattr, nil
 	}
 
-	xattr, err = p.helper.GetFIXAttrByInoFromDB(p.posixFS.NameSpaceID, fsINodeID)
+	xattr, err = p.helper.GetFIXAttrByInoFromDB(p.posixFs.NameSpaceID, fsINodeID)
 	if err != nil && err != solofsapitypes.ErrObjectNotExists {
 		return xattr, err
 	}
@@ -169,7 +169,7 @@ func (p *FIXAttrDriver) SetXAttr(fsINodeID solofsapitypes.FsINodeID, attr string
 
 	p.xAttrSetAttr(xattr, attr, data)
 
-	err = p.helper.ReplaceFIXAttrInDB(p.posixFS.NameSpaceID, fsINodeID, xattr)
+	err = p.helper.ReplaceFIXAttrInDB(p.posixFs.NameSpaceID, fsINodeID, xattr)
 	if err != nil {
 		return err
 	}
@@ -191,7 +191,7 @@ func (p *FIXAttrDriver) RemoveXAttr(fsINodeID solofsapitypes.FsINodeID, attr str
 	}
 
 	p.xAttrRemoveAttr(xattr, attr)
-	err = p.helper.ReplaceFIXAttrInDB(p.posixFS.NameSpaceID, fsINodeID, xattr)
+	err = p.helper.ReplaceFIXAttrInDB(p.posixFs.NameSpaceID, fsINodeID, xattr)
 	if err != nil {
 		return err
 	}

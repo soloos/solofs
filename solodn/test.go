@@ -20,13 +20,13 @@ func MakeSolodnForTest(soloosEnv *soloosbase.SoloosEnv,
 		err error
 	)
 
-	var localFSRoot = filepath.Join("/tmp/soloos_test.data", solodnSRPCPeerID.Str())
+	var localFsRoot = filepath.Join("/tmp/soloos_test.data", solodnSRPCPeerID.Str())
 
 	var options = SolodnOptions{
 		SRPCPeerID:           solodnSRPCPeerID,
 		SRPCServerListenAddr: solodnSRPCServerAddr,
 		SRPCServerServeAddr:  solodnSRPCServerAddr,
-		LocalFSRoot:          localFSRoot,
+		LocalFsRoot:          localFsRoot,
 		SolonnSRPCPeerID:   solonnSRPCPeerID,
 	}
 

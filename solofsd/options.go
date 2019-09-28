@@ -20,7 +20,7 @@ type Options struct {
 
 	SolodnSRPCPeerID  string
 	SolodnWebPeerID   string
-	SolodnLocalFSRoot string
+	SolodnLocalFsRoot string
 
 	SolonnSRPCPeerID string
 	SolonnWebPeerID  string

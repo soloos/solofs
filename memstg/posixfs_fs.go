@@ -5,7 +5,7 @@ import (
 	"soloos/solofs/solofstypes"
 )
 
-func (p *PosixFS) StatLimits() (uint64, uint64) {
+func (p *PosixFs) StatLimits() (uint64, uint64) {
 	var (
 		capacity uint64 = 1024 * 1024 * 1024 * 1024 * 1024 * 100
 		files    uint64 = 1024 * 1024 * 1024 * 100
@@ -13,7 +13,7 @@ func (p *PosixFS) StatLimits() (uint64, uint64) {
 	return capacity, files
 }
 
-func (p *PosixFS) BlkSize() uint32 {
+func (p *PosixFs) BlkSize() uint32 {
 	// TODO return real result
 	var (
 		blksize uint32 = 1024 * 4
@@ -21,7 +21,7 @@ func (p *PosixFS) BlkSize() uint32 {
 	return blksize
 }
 
-func (p *PosixFS) StatFs(input *fsapitypes.InHeader, out *fsapitypes.StatfsOut) (code fsapitypes.Status) {
+func (p *PosixFs) StatFs(input *fsapitypes.InHeader, out *fsapitypes.StatfsOut) (code fsapitypes.Status) {
 	// TODO return real result
 	var (
 		usedSize   uint64 = 1024 * 1024 * 100

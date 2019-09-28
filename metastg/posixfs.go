@@ -6,7 +6,7 @@ import (
 	"soloos/common/soloosbase"
 )
 
-type PosixFS struct {
+type PosixFs struct {
 	nameSpaceID solofsapitypes.NameSpaceID
 	*soloosbase.SoloosEnv
 	dbConn        *solodbapi.Connection
@@ -14,7 +14,7 @@ type PosixFS struct {
 	FIXAttrDriver FIXAttrDriver
 }
 
-func (p *PosixFS) Init(soloosEnv *soloosbase.SoloosEnv,
+func (p *PosixFs) Init(soloosEnv *soloosbase.SoloosEnv,
 	dbConn *solodbapi.Connection,
 	getNetINode solofsapitypes.GetNetINode,
 	mustGetNetINode solofsapitypes.MustGetNetINode,
@@ -47,7 +47,7 @@ func (p *PosixFS) Init(soloosEnv *soloosbase.SoloosEnv,
 	return nil
 }
 
-func (p *PosixFS) Close() error {
+func (p *PosixFs) Close() error {
 	var err error
 	err = p.dbConn.Close()
 	if err != nil {

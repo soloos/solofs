@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (p *PosixFS) SimpleOpenFile(fsINodePath string,
+func (p *PosixFs) SimpleOpenFile(fsINodePath string,
 	netBlockCap int, memBlockCap int) (solofsapitypes.FsINodeMeta, error) {
 	var (
 		paths       []string
@@ -54,7 +54,7 @@ OPEN_FILE_DONE:
 	return fsINodeMeta, err
 }
 
-func (p *PosixFS) Create(input *fsapitypes.CreateIn, name string, out *fsapitypes.CreateOut) fsapitypes.Status {
+func (p *PosixFs) Create(input *fsapitypes.CreateIn, name string, out *fsapitypes.CreateOut) fsapitypes.Status {
 	var (
 		fsINodeMeta solofsapitypes.FsINodeMeta
 		err         error
@@ -88,7 +88,7 @@ func (p *PosixFS) Create(input *fsapitypes.CreateIn, name string, out *fsapitype
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapitypes.Status {
+func (p *PosixFs) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapitypes.Status {
 	var (
 		uFsINode solofsapitypes.FsINodeUintptr
 		err      error
@@ -118,7 +118,7 @@ func (p *PosixFS) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapit
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) Fallocate(input *fsapitypes.FallocateIn) fsapitypes.Status {
+func (p *PosixFs) Fallocate(input *fsapitypes.FallocateIn) fsapitypes.Status {
 	// TODO maybe should support
 	// not support
 	return fsapitypes.ENODATA

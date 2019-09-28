@@ -6,7 +6,7 @@ import (
 	"soloos/solofs/solofstypes"
 )
 
-func (p *PosixFS) Link(input *fsapitypes.LinkIn, filename string, out *fsapitypes.EntryOut) fsapitypes.Status {
+func (p *PosixFs) Link(input *fsapitypes.LinkIn, filename string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	var (
 		srcFsINodeMeta     solofsapitypes.FsINodeMeta
 		srcFsINodeID       = input.Oldnodeid
@@ -40,7 +40,7 @@ func (p *PosixFS) Link(input *fsapitypes.LinkIn, filename string, out *fsapitype
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) Symlink(header *fsapitypes.InHeader, pointedTo string, linkName string, out *fsapitypes.EntryOut) fsapitypes.Status {
+func (p *PosixFs) Symlink(header *fsapitypes.InHeader, pointedTo string, linkName string, out *fsapitypes.EntryOut) fsapitypes.Status {
 	var (
 		fsINodeMeta solofsapitypes.FsINodeMeta
 		err         error
@@ -60,7 +60,7 @@ func (p *PosixFS) Symlink(header *fsapitypes.InHeader, pointedTo string, linkNam
 	return fsapitypes.OK
 }
 
-func (p *PosixFS) Readlink(header *fsapitypes.InHeader) ([]byte, fsapitypes.Status) {
+func (p *PosixFs) Readlink(header *fsapitypes.InHeader) ([]byte, fsapitypes.Status) {
 	var (
 		out []byte
 		err error

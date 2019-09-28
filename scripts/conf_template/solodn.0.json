@@ -8,6 +8,6 @@
         "ServeStr":"http://192.168.56.100:10602",
         "ListenStr":"192.168.56.100:10602"
     },
-    "SolodnLocalFSRoot":"/tmp/soloos_test.data.00",
+    "SolodnLocalFsRoot":"/tmp/soloos_test.data.00",
     "PProfListenAddr":"192.168.56.100:10603"
 }

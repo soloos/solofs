@@ -4,7 +4,7 @@ import (
 	"soloos/common/solofsapitypes"
 )
 
-func (p *LocalFS) PReadMemBlockWithDisk(uNetINode solofsapitypes.NetINodeUintptr,
+func (p *LocalFs) PReadMemBlockWithDisk(uNetINode solofsapitypes.NetINodeUintptr,
 	uNetBlock solofsapitypes.NetBlockUintptr, netBlockIndex int32,
 	uMemBlock solofsapitypes.MemBlockUintptr, memBlockIndex int32,
 	offset uint64, length int) (int, error) {

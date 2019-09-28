@@ -7,7 +7,7 @@
     "ServeStr": "http://192.168.56.100:10802",
     "ListenStr": "192.168.56.100:10802"
   },
-  "SolodnLocalFSRoot": "/tmp/soloos_test.data.02",
+  "SolodnLocalFsRoot": "/tmp/soloos_test.data.02",
   "PProfListenAddr": "192.168.56.100:10803",
   "DefaultMemBlockCap": 2097152,
   "DefaultMemBlocksLimit": 256,

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (p *PosixFS) DeleteFsINodeByPath(fsINodePath string) error {
+func (p *PosixFs) DeleteFsINodeByPath(fsINodePath string) error {
 	var (
 		fsINodeMeta solofsapitypes.FsINodeMeta
 		err         error
@@ -27,7 +27,7 @@ func (p *PosixFS) DeleteFsINodeByPath(fsINodePath string) error {
 	return err
 }
 
-func (p *PosixFS) RenameWithFullPath(oldFsINodeName, newFsINodePath string) error {
+func (p *PosixFs) RenameWithFullPath(oldFsINodeName, newFsINodePath string) error {
 	var (
 		fsINodeMeta                   solofsapitypes.FsINodeMeta
 		oldFsINodeMeta                solofsapitypes.FsINodeMeta
@@ -90,7 +90,7 @@ PREPARE_PARENT_FSINODE_DONE:
 	return nil
 }
 
-func (p *PosixFS) ListFsINodeByParentPath(parentPath string,
+func (p *PosixFs) ListFsINodeByParentPath(parentPath string,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
 	literalFunc func(solofsapitypes.FsINodeMeta) bool,
@@ -115,7 +115,7 @@ func (p *PosixFS) ListFsINodeByParentPath(parentPath string,
 	return nil
 }
 
-func (p *PosixFS) FetchFsINodeByPath(fsINodeMeta *solofsapitypes.FsINodeMeta, fsINodePath string) error {
+func (p *PosixFs) FetchFsINodeByPath(fsINodeMeta *solofsapitypes.FsINodeMeta, fsINodePath string) error {
 	var (
 		paths    []string
 		i        int

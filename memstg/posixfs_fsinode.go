@@ -4,10 +4,10 @@ import (
 	"soloos/common/solofsapitypes"
 )
 
-func (p *PosixFS) GetFsINodeByID(fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeUintptr, error) {
+func (p *PosixFs) GetFsINodeByID(fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeUintptr, error) {
 	return p.FsINodeDriver.GetFsINodeByID(fsINodeID)
 }
 
-func (p *PosixFS) ReleaseFsINode(uFsINode solofsapitypes.FsINodeUintptr) {
+func (p *PosixFs) ReleaseFsINode(uFsINode solofsapitypes.FsINodeUintptr) {
 	p.FsINodeDriver.ReleaseFsINode(uFsINode)
 }

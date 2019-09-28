@@ -6,8 +6,8 @@ import (
 	"soloos/common/solodbapi"
 	"soloos/common/solofsapi"
 	"soloos/common/solofsapitypes"
-	"soloos/common/soloosbase"
 	"soloos/common/solomqapi"
+	"soloos/common/soloosbase"
 	"soloos/solofs/memstg"
 	"soloos/solofs/metastg"
 )
@@ -16,8 +16,8 @@ type Client struct {
 	*soloosbase.SoloosEnv
 
 	memStg      *memstg.MemStg
-	metaPosixFS metastg.PosixFS
-	memPosixFS  memstg.PosixFS
+	metaPosixFs metastg.PosixFs
+	memPosixFs  memstg.PosixFs
 
 	solomqClient solomqapi.Client
 }
@@ -36,38 +36,38 @@ func (p *Client) Init(soloosEnv *soloosbase.SoloosEnv,
 	p.SoloosEnv = soloosEnv
 	p.memStg = memStg
 
-	err = p.metaPosixFS.Init(p.SoloosEnv,
+	err = p.metaPosixFs.Init(p.SoloosEnv,
 		dbConn,
 		p.memStg.GetNetINode,
 		p.memStg.MustGetNetINode,
 		p.memStg.ReleaseNetINode,
 	)
 	if err != nil {
-		log.Warn("Solofs metaPosixFS Init error", err)
+		log.Warn("Solofs metaPosixFs Init error", err)
 		return err
 	}
 
-	err = p.memPosixFS.Init(p.SoloosEnv,
+	err = p.memPosixFs.Init(p.SoloosEnv,
 		nameSpaceID,
 		p.memStg,
 		defaultNetBlockCap,
 		defaultMemBlockCap,
-		p.metaPosixFS.FsINodeDriver.AllocFsINodeID,
+		p.metaPosixFs.FsINodeDriver.AllocFsINodeID,
 		p.memStg.GetNetINode,
 		p.memStg.MustGetNetINode,
 		p.memStg.ReleaseNetINode,
-		p.metaPosixFS.FsINodeDriver.DeleteFsINodeByIDInDB,
-		p.metaPosixFS.FsINodeDriver.ListFsINodeByParentIDFromDB,
-		p.metaPosixFS.FsINodeDriver.UpdateFsINodeInDB,
-		p.metaPosixFS.FsINodeDriver.InsertFsINodeInDB,
-		p.metaPosixFS.FsINodeDriver.FetchFsINodeByIDFromDB,
-		p.metaPosixFS.FsINodeDriver.FetchFsINodeByNameFromDB,
-		p.metaPosixFS.FIXAttrDriver.DeleteFIXAttrInDB,
-		p.metaPosixFS.FIXAttrDriver.ReplaceFIXAttrInDB,
-		p.metaPosixFS.FIXAttrDriver.GetFIXAttrByInoFromDB,
+		p.metaPosixFs.FsINodeDriver.DeleteFsINodeByIDInDB,
+		p.metaPosixFs.FsINodeDriver.ListFsINodeByParentIDFromDB,
+		p.metaPosixFs.FsINodeDriver.UpdateFsINodeInDB,
+		p.metaPosixFs.FsINodeDriver.InsertFsINodeInDB,
+		p.metaPosixFs.FsINodeDriver.FetchFsINodeByIDFromDB,
+		p.metaPosixFs.FsINodeDriver.FetchFsINodeByNameFromDB,
+		p.metaPosixFs.FIXAttrDriver.DeleteFIXAttrInDB,
+		p.metaPosixFs.FIXAttrDriver.ReplaceFIXAttrInDB,
+		p.metaPosixFs.FIXAttrDriver.GetFIXAttrByInoFromDB,
 	)
 	if err != nil {
-		log.Warn("Solofs metaPosixFS Init error", err)
+		log.Warn("Solofs metaPosixFs Init error", err)
 		return err
 	}
 
@@ -76,7 +76,7 @@ func (p *Client) Init(soloosEnv *soloosbase.SoloosEnv,
 
 func (p *Client) Close() error {
 	var err error
-	err = p.metaPosixFS.Close()
+	err = p.metaPosixFs.Close()
 	if err != nil {
 		return err
 	}
@@ -84,6 +84,6 @@ func (p *Client) Close() error {
 	return nil
 }
 
-func (p *Client) GetPosixFS() fsapi.PosixFS {
-	return &p.memPosixFS
+func (p *Client) GetPosixFs() fsapi.PosixFs {
+	return &p.memPosixFs
 }

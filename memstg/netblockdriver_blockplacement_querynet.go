@@ -1,9 +1,9 @@
 package memstg
 
 import (
+	"soloos/common/snettypes"
 	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
-	"soloos/common/snettypes"
 )
 
 // TODO make this configurable

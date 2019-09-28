@@ -4,7 +4,7 @@ import (
 	"soloos/common/solofsapitypes"
 )
 
-func (p *PosixFS) SetNetINodeBlockPlacement(netINodeID solofsapitypes.NetINodeID,
+func (p *PosixFs) SetNetINodeBlockPlacement(netINodeID solofsapitypes.NetINodeID,
 	policy solofsapitypes.MemBlockPlacementPolicy) error {
 	var (
 		uNetINode solofsapitypes.NetINodeUintptr

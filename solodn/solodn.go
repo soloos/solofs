@@ -23,7 +23,7 @@ type Solodn struct {
 	netINodeDriver *memstg.NetINodeDriver
 	solonnClient solofsapi.SolonnClient
 
-	localFS         localfs.LocalFS
+	localFs         localfs.LocalFs
 	localFsSNetPeer snettypes.Peer
 
 	heartBeatServerOptionsArr []snettypes.HeartBeatServerOptions
@@ -34,14 +34,14 @@ type Solodn struct {
 
 func (p *Solodn) initLocalFs(options SolodnOptions) error {
 	var err error
-	err = p.localFS.Init(options.LocalFSRoot)
+	err = p.localFs.Init(options.LocalFsRoot)
 	if err != nil {
 		return err
 	}
 
 	p.localFsSNetPeer.ID = snet.MakeSysPeerID(fmt.Sprintf("SOLODN_LOCAL_FS"))
 	p.localFsSNetPeer.SetAddress("LocalFs")
-	p.localFsSNetPeer.ServiceProtocol = snettypes.ProtocolLocalFS
+	p.localFsSNetPeer.ServiceProtocol = snettypes.ProtocolLocalFs
 	err = p.SNetDriver.RegisterPeer(p.localFsSNetPeer)
 	if err != nil {
 		return err
@@ -73,8 +73,8 @@ func (p *Solodn) initSNetPeer(options SolodnOptions) error {
 }
 
 func (p *Solodn) initNetBlockDriver() error {
-	p.netBlockDriver.SetPReadMemBlockWithDisk(p.localFS.PReadMemBlockWithDisk)
-	p.netBlockDriver.SetUploadMemBlockWithDisk(p.localFS.UploadMemBlockWithDisk)
+	p.netBlockDriver.SetPReadMemBlockWithDisk(p.localFs.PReadMemBlockWithDisk)
+	p.netBlockDriver.SetUploadMemBlockWithDisk(p.localFs.UploadMemBlockWithDisk)
 	p.netBlockDriver.SetHelper(&p.solonnClient, p.netBlockDriver.PrepareNetBlockMetaData)
 	return nil
 }

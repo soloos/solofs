@@ -6,14 +6,14 @@ import (
 	"soloos/solofs/solofstypes"
 )
 
-func (p *PosixFS) setLKOutByMeta(out *fsapitypes.LkOut, meta *solofsapitypes.INodeRWMutexMeta) {
+func (p *PosixFs) setLKOutByMeta(out *fsapitypes.LkOut, meta *solofsapitypes.INodeRWMutexMeta) {
 	out.Lk.Start = meta.Start
 	out.Lk.End = meta.End
 	out.Lk.Typ = meta.Typ
 	out.Lk.Pid = meta.Pid
 }
 
-func (p *PosixFS) setMetaByLKIn(lkIn *fsapitypes.LkIn, meta *solofsapitypes.INodeRWMutexMeta) {
+func (p *PosixFs) setMetaByLKIn(lkIn *fsapitypes.LkIn, meta *solofsapitypes.INodeRWMutexMeta) {
 	meta.Start = lkIn.Lk.Start
 	meta.End = lkIn.Lk.End
 	meta.Typ = lkIn.Lk.Typ
@@ -21,7 +21,7 @@ func (p *PosixFS) setMetaByLKIn(lkIn *fsapitypes.LkIn, meta *solofsapitypes.INod
 }
 
 // GetLk returns existing lock information for file
-func (p *PosixFS) GetLk(input *fsapitypes.LkIn, out *fsapitypes.LkOut) fsapitypes.Status {
+func (p *PosixFs) GetLk(input *fsapitypes.LkIn, out *fsapitypes.LkOut) fsapitypes.Status {
 	var (
 		meta solofsapitypes.INodeRWMutexMeta
 		err  error
@@ -35,7 +35,7 @@ func (p *PosixFS) GetLk(input *fsapitypes.LkIn, out *fsapitypes.LkOut) fsapitype
 }
 
 // SetLk Sets or clears the lock described by lk on file.
-func (p *PosixFS) SetLk(input *fsapitypes.LkIn) fsapitypes.Status {
+func (p *PosixFs) SetLk(input *fsapitypes.LkIn) fsapitypes.Status {
 	var (
 		meta solofsapitypes.INodeRWMutexMeta
 		err  error
@@ -49,7 +49,7 @@ func (p *PosixFS) SetLk(input *fsapitypes.LkIn) fsapitypes.Status {
 }
 
 // SetLkw Sets or clears the lock described by lk. This call blocks until the operation can be completed.
-func (p *PosixFS) SetLkw(input *fsapitypes.LkIn) fsapitypes.Status {
+func (p *PosixFs) SetLkw(input *fsapitypes.LkIn) fsapitypes.Status {
 	var (
 		meta solofsapitypes.INodeRWMutexMeta
 		err  error

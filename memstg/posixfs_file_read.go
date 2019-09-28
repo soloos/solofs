@@ -23,7 +23,7 @@ func (p ReadResult) Size() int {
 func (p ReadResult) Done() {
 }
 
-func (p *PosixFS) SimpleReadWithMem(fsINodeID solofsapitypes.FsINodeID,
+func (p *PosixFs) SimpleReadWithMem(fsINodeID solofsapitypes.FsINodeID,
 	data []byte, offset uint64) (int, error) {
 	var (
 		uFsINode solofsapitypes.FsINodeUintptr
@@ -42,7 +42,7 @@ func (p *PosixFS) SimpleReadWithMem(fsINodeID solofsapitypes.FsINodeID,
 	return p.MemStg.NetINodeDriver.PReadWithMem(uFsINode.Ptr().UNetINode, data, offset)
 }
 
-func (p *PosixFS) Read(input *fsapitypes.ReadIn, buf []byte) (fsapitypes.ReadResult, fsapitypes.Status) {
+func (p *PosixFs) Read(input *fsapitypes.ReadIn, buf []byte) (fsapitypes.ReadResult, fsapitypes.Status) {
 	var (
 		ret ReadResult
 		err error

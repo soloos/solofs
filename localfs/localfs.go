@@ -1,10 +1,10 @@
 package localfs
 
-type LocalFS struct {
+type LocalFs struct {
 	fdDriver FdDriver
 }
 
-func (p *LocalFS) Init(dataPathPrefix string) error {
+func (p *LocalFs) Init(dataPathPrefix string) error {
 	var (
 		err error
 	)

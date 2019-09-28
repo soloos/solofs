@@ -6,7 +6,7 @@ import (
 	"soloos/solofs/solofstypes"
 )
 
-func (p *PosixFS) SimpleGetXAttrSize(fsINodeID solofsapitypes.FsINodeID, attr string) (int, fsapitypes.Status) {
+func (p *PosixFs) SimpleGetXAttrSize(fsINodeID solofsapitypes.FsINodeID, attr string) (int, fsapitypes.Status) {
 	var (
 		fsINodeMeta solofsapitypes.FsINodeMeta
 		sz          int
@@ -24,7 +24,7 @@ func (p *PosixFS) SimpleGetXAttrSize(fsINodeID solofsapitypes.FsINodeID, attr st
 	return sz, fsapitypes.OK
 }
 
-func (p *PosixFS) SimpleGetXAttrData(fsINodeID solofsapitypes.FsINodeID, attr string) ([]byte, fsapitypes.Status) {
+func (p *PosixFs) SimpleGetXAttrData(fsINodeID solofsapitypes.FsINodeID, attr string) ([]byte, fsapitypes.Status) {
 	var (
 		fsINodeMeta solofsapitypes.FsINodeMeta
 		data        []byte
@@ -42,7 +42,7 @@ func (p *PosixFS) SimpleGetXAttrData(fsINodeID solofsapitypes.FsINodeID, attr st
 	return data, fsapitypes.OK
 }
 
-func (p *PosixFS) SimpleListXAttr(fsINodeID solofsapitypes.FsINodeID) ([]byte, fsapitypes.Status) {
+func (p *PosixFs) SimpleListXAttr(fsINodeID solofsapitypes.FsINodeID) ([]byte, fsapitypes.Status) {
 	var (
 		fsINodeMeta solofsapitypes.FsINodeMeta
 		data        []byte
@@ -60,35 +60,35 @@ func (p *PosixFS) SimpleListXAttr(fsINodeID solofsapitypes.FsINodeID) ([]byte, f
 	return data, fsapitypes.OK
 }
 
-func (p *PosixFS) SimpleSetXAttr(fsINodeID solofsapitypes.FsINodeID, attr string, data []byte) fsapitypes.Status {
+func (p *PosixFs) SimpleSetXAttr(fsINodeID solofsapitypes.FsINodeID, attr string, data []byte) fsapitypes.Status {
 	var err error
 	err = p.FsINodeDriver.FIXAttrDriver.SetXAttr(fsINodeID, attr, data)
 	return solofstypes.ErrorToFsStatus(err)
 }
 
-func (p *PosixFS) SimpleRemoveXAttr(fsINodeID solofsapitypes.FsINodeID, attr string) fsapitypes.Status {
+func (p *PosixFs) SimpleRemoveXAttr(fsINodeID solofsapitypes.FsINodeID, attr string) fsapitypes.Status {
 	var err error
 	err = p.FsINodeDriver.FIXAttrDriver.RemoveXAttr(fsINodeID, attr)
 	return solofstypes.ErrorToFsStatus(err)
 }
 
 // Extended attributes.
-func (p *PosixFS) GetXAttrSize(header *fsapitypes.InHeader, attr string) (int, fsapitypes.Status) {
+func (p *PosixFs) GetXAttrSize(header *fsapitypes.InHeader, attr string) (int, fsapitypes.Status) {
 	return p.SimpleGetXAttrSize(header.NodeId, attr)
 }
 
-func (p *PosixFS) GetXAttrData(header *fsapitypes.InHeader, attr string) ([]byte, fsapitypes.Status) {
+func (p *PosixFs) GetXAttrData(header *fsapitypes.InHeader, attr string) ([]byte, fsapitypes.Status) {
 	return p.SimpleGetXAttrData(header.NodeId, attr)
 }
 
-func (p *PosixFS) ListXAttr(header *fsapitypes.InHeader) ([]byte, fsapitypes.Status) {
+func (p *PosixFs) ListXAttr(header *fsapitypes.InHeader) ([]byte, fsapitypes.Status) {
 	return p.SimpleListXAttr(header.NodeId)
 }
 
-func (p *PosixFS) SetXAttr(input *fsapitypes.SetXAttrIn, attr string, data []byte) fsapitypes.Status {
+func (p *PosixFs) SetXAttr(input *fsapitypes.SetXAttrIn, attr string, data []byte) fsapitypes.Status {
 	return p.SimpleSetXAttr(input.NodeId, attr, data)
 }
 
-func (p *PosixFS) RemoveXAttr(header *fsapitypes.InHeader, attr string) fsapitypes.Status {
+func (p *PosixFs) RemoveXAttr(header *fsapitypes.InHeader, attr string) fsapitypes.Status {
 	return p.SimpleRemoveXAttr(header.NodeId, attr)
 }

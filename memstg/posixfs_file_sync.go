@@ -6,7 +6,7 @@ import (
 	"soloos/solofs/solofstypes"
 )
 
-func (p *PosixFS) SimpleFlush(fsINodeID solofsapitypes.FsINodeID) error {
+func (p *PosixFs) SimpleFlush(fsINodeID solofsapitypes.FsINodeID) error {
 	var (
 		uFsINode solofsapitypes.FsINodeUintptr
 		pFsINode *solofsapitypes.FsINode
@@ -30,7 +30,7 @@ func (p *PosixFS) SimpleFlush(fsINodeID solofsapitypes.FsINodeID) error {
 	return nil
 }
 
-func (p *PosixFS) Flush(input *fsapitypes.FlushIn) fsapitypes.Status {
+func (p *PosixFs) Flush(input *fsapitypes.FlushIn) fsapitypes.Status {
 	var err = p.SimpleFlush(input.NodeId)
 	return solofstypes.ErrorToFsStatus(err)
 }

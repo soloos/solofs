@@ -6,7 +6,7 @@ import (
 	"soloos/solofs/solofstypes"
 )
 
-func (p *PosixFS) SimpleWriteWithMem(fsINodeID solofsapitypes.FsINodeID,
+func (p *PosixFs) SimpleWriteWithMem(fsINodeID solofsapitypes.FsINodeID,
 	data []byte, offset uint64) error {
 
 	var (
@@ -25,7 +25,7 @@ func (p *PosixFS) SimpleWriteWithMem(fsINodeID solofsapitypes.FsINodeID,
 	return p.MemStg.NetINodeDriver.PWriteWithMem(pFsINode.UNetINode, data, offset)
 }
 
-func (p *PosixFS) Write(input *fsapitypes.WriteIn, data []byte) (uint32, fsapitypes.Status) {
+func (p *PosixFs) Write(input *fsapitypes.WriteIn, data []byte) (uint32, fsapitypes.Status) {
 	var err error
 	err = p.SimpleWriteWithMem(input.NodeId, data[:input.Size], input.Offset)
 	if err != nil {

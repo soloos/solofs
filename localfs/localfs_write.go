@@ -2,7 +2,7 @@ package localfs
 
 import "soloos/common/solofsapitypes"
 
-func (p *LocalFS) UploadMemBlockWithDisk(uJob solofsapitypes.UploadMemBlockJobUintptr,
+func (p *LocalFs) UploadMemBlockWithDisk(uJob solofsapitypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int,
 ) error {
 	var (

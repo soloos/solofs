@@ -10,7 +10,7 @@ import "soloos/common/log"
 // return sql
 // }
 
-func (p *PosixFS) installSchema() error {
+func (p *PosixFs) installSchema() error {
 	var (
 		sqls []string
 		err  error
@@ -27,7 +27,7 @@ func (p *PosixFS) installSchema() error {
 	return nil
 }
 
-func (p *PosixFS) prepareDirTreeSqls() []string {
+func (p *PosixFs) prepareDirTreeSqls() []string {
 	var sql []string
 
 	// sql = append(sql, `

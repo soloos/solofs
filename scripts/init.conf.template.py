@@ -11,7 +11,7 @@ temp = '''
         "ServeStr":"http://192.168.56.100:{PortPrefix}02",
         "ListenStr":"192.168.56.100:{PortPrefix}02"
     }},
-    "SolodnLocalFSRoot":"/tmp/soloos_test.data.0{Index}",
+    "SolodnLocalFsRoot":"/tmp/soloos_test.data.0{Index}",
     "PProfListenAddr":"192.168.56.100:{PortPrefix}03"
 }}
 '''
