@@ -1,10 +1,10 @@
 package memstg
 
 import (
-	"soloos/common/solofsapi"
 	"soloos/common/snettypes"
-	"soloos/common/soloosbase"
+	"soloos/common/solofsapi"
 	"soloos/common/solomqapi"
+	"soloos/common/soloosbase"
 )
 
 type MemStg struct {

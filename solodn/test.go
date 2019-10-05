@@ -27,7 +27,7 @@ func MakeSolodnForTest(soloosEnv *soloosbase.SoloosEnv,
 		SrpcServerListenAddr: solodnSrpcServerAddr,
 		SrpcServerServeAddr:  solodnSrpcServerAddr,
 		LocalFsRoot:          localFsRoot,
-		SolonnSrpcPeerID:   solonnSrpcPeerID,
+		SolonnSrpcPeerID:     solonnSrpcPeerID,
 	}
 
 	err = solodn.Init(soloosEnv,

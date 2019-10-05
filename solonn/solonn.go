@@ -2,8 +2,8 @@ package solonn
 
 import (
 	"soloos/common/iron"
-	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/solofs/memstg"
 	"soloos/solofs/metastg"

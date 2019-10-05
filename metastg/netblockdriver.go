@@ -1,10 +1,10 @@
 package metastg
 
 import (
+	"soloos/common/snettypes"
 	"soloos/common/solodbapi"
 	"soloos/common/solodbapitypes"
 	"soloos/common/solofsapitypes"
-	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"strings"
 )

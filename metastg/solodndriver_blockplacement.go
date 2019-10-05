@@ -1,14 +1,14 @@
 package metastg
 
 import (
-	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 	"sync/atomic"
 )
 
 func (p *SolodnDriver) ChooseSolodnsForNewNetBlock(uNetINode solofsapitypes.NetINodeUintptr) (snettypes.PeerGroup, error) {
 	var (
-		backends      snettypes.PeerGroup
+		backends    snettypes.PeerGroup
 		solodnIndex uint32
 	)
 	solodnIndex = atomic.AddUint32(&p.chooseSolodnIndex, 1)

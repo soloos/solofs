@@ -4,7 +4,7 @@ import "soloos/common/iron"
 
 type WebServer struct {
 	solodn *Solodn
-	server   iron.Server
+	server iron.Server
 }
 
 var _ = iron.IServer(&WebServer{})

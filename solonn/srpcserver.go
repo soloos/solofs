@@ -3,12 +3,12 @@ package solonn
 import (
 	"soloos/common/iron"
 	"soloos/common/log"
-	"soloos/common/solofsapitypes"
 	"soloos/common/snet"
+	"soloos/common/solofsapitypes"
 )
 
 type SrpcServer struct {
-	solonn             *Solonn
+	solonn               *Solonn
 	srpcServerListenAddr string
 	srpcServerServeAddr  string
 	srpcServer           snet.SrpcServer

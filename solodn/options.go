@@ -12,5 +12,5 @@ type SolodnOptions struct {
 	WebPeerID            snettypes.PeerID
 	WebServer            iron.Options
 	LocalFsRoot          string
-	SolonnSrpcPeerID   snettypes.PeerID
+	SolonnSrpcPeerID     snettypes.PeerID
 }

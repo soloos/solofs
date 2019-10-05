@@ -5,8 +5,8 @@ import (
 	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
-	"soloos/solofs/solofssdk"
 	"soloos/solofs/sfuse"
+	"soloos/solofs/solofssdk"
 )
 
 func main() {

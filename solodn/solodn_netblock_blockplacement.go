@@ -1,9 +1,9 @@
 package solodn
 
 import (
+	"soloos/common/snettypes"
 	"soloos/common/solodbapitypes"
 	"soloos/common/solofsapitypes"
-	"soloos/common/snettypes"
 )
 
 func (p *Solodn) doPrepareNetBlockSyncDataBackendsWithFanout(uNetBlock solofsapitypes.NetBlockUintptr,

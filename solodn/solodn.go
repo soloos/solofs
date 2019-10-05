@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"soloos/common/iron"
 	"soloos/common/log"
-	"soloos/common/solofsapi"
-	"soloos/common/solofsapitypes"
 	"soloos/common/snet"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapi"
+	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/solofs/localfs"
 	"soloos/solofs/memstg"
@@ -21,7 +21,7 @@ type Solodn struct {
 	memBlockDriver *memstg.MemBlockDriver
 	netBlockDriver *memstg.NetBlockDriver
 	netINodeDriver *memstg.NetINodeDriver
-	solonnClient solofsapi.SolonnClient
+	solonnClient   solofsapi.SolonnClient
 
 	localFs         localfs.LocalFs
 	localFsSNetPeer snettypes.Peer

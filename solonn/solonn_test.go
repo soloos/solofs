@@ -1,9 +1,9 @@
 package solonn
 
 import (
-	"soloos/common/solofsapitypes"
 	"soloos/common/snet"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/solofs/memstg"
 	"soloos/solofs/metastg"
@@ -15,16 +15,16 @@ import (
 
 func TestBase(t *testing.T) {
 	var (
-		soloosEnvForCommon     soloosbase.SoloosEnv
-		soloosEnvForMetaStg    soloosbase.SoloosEnv
-		metaStg                metastg.MetaStg
+		soloosEnvForCommon   soloosbase.SoloosEnv
+		soloosEnvForMetaStg  soloosbase.SoloosEnv
+		metaStg              metastg.MetaStg
 		solonn               Solonn
 		solonnSrpcPeerID     = snet.MakeSysPeerID("SolonnSrpcForTest")
 		solonnSrpcListenAddr = "127.0.0.1:10300"
 		solonnWebPeerID      = snet.MakeSysPeerID("SolonnWebForTest")
 		solonnWebListenAddr  = "127.0.0.1:10301"
-		mockServerAddr         = "127.0.0.1:10302"
-		mockServer             memstg.MockServer
+		mockServerAddr       = "127.0.0.1:10302"
+		mockServer           memstg.MockServer
 
 		soloosEnvForClient      soloosbase.SoloosEnv
 		memBlockDriverForClient memstg.MemBlockDriver

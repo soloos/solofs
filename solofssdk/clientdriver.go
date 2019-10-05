@@ -2,10 +2,10 @@ package solofssdk
 
 import (
 	"soloos/common/log"
+	"soloos/common/snettypes"
 	"soloos/common/solodbapi"
 	"soloos/common/solofsapi"
 	"soloos/common/solofsapitypes"
-	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/solofs/memstg"
 )

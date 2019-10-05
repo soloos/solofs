@@ -1,8 +1,8 @@
 package metastg
 
 import (
-	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/solodb/offheap"

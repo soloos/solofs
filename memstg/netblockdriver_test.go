@@ -1,10 +1,10 @@
 package memstg
 
 import (
-	"soloos/common/solofsapi"
-	"soloos/common/solofsapitypes"
 	"soloos/common/snet"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapi"
+	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/solofs/solofstypes"
 	"testing"
@@ -18,8 +18,8 @@ func TestNetBlockDriver(t *testing.T) {
 		mockNetINodeTable solofstypes.MockNetINodeTable
 		mockMemBlockTable solofstypes.MockMemBlockTable
 		mockServer        MockServer
-		solonnClient    solofsapi.SolonnClient
-		solodnClient    solofsapi.SolodnClient
+		solonnClient      solofsapi.SolonnClient
+		solodnClient      solofsapi.SolodnClient
 		netBlockDriver    NetBlockDriver
 	)
 	assert.NoError(t, soloosEnv.InitWithSNet(""))

@@ -1,9 +1,9 @@
 package memstg
 
 import (
+	"soloos/common/snettypes"
 	"soloos/common/solofsapi"
 	"soloos/common/solofsapitypes"
-	"soloos/common/snettypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 )

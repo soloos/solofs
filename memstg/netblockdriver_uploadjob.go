@@ -1,9 +1,9 @@
 package memstg
 
 import (
+	"soloos/common/snettypes"
 	"soloos/common/solodbapitypes"
 	"soloos/common/solofsapitypes"
-	"soloos/common/snettypes"
 )
 
 func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *solofsapitypes.UploadMemBlockJob,
