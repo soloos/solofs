@@ -36,10 +36,10 @@ func (p *Env) Init(optionsFile string) {
 		util.PProfServe(p.Options.PProfListenAddr)
 	}()
 
-	var solonnSRPCPeerID snettypes.PeerID
-	solonnSRPCPeerID.SetStr(p.Options.SolonnSRPCPeerID)
+	var solonnSrpcPeerID snettypes.PeerID
+	solonnSrpcPeerID.SetStr(p.Options.SolonnSrpcPeerID)
 	util.AssertErrIsNil(p.ClientDriver.Init(&p.SoloosEnv,
-		solonnSRPCPeerID,
+		solonnSrpcPeerID,
 		p.Options.DBDriver, p.Options.Dsn,
 	))
 

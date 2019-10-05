@@ -6,11 +6,11 @@ import (
 )
 
 type SolodnOptions struct {
-	SRPCPeerID           snettypes.PeerID
-	SRPCServerListenAddr string
-	SRPCServerServeAddr  string
+	SrpcPeerID           snettypes.PeerID
+	SrpcServerListenAddr string
+	SrpcServerServeAddr  string
 	WebPeerID            snettypes.PeerID
 	WebServer            iron.Options
 	LocalFsRoot          string
-	SolonnSRPCPeerID   snettypes.PeerID
+	SolonnSrpcPeerID   snettypes.PeerID
 }

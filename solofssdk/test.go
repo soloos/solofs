@@ -24,8 +24,8 @@ func MakeClientForTest(client *Client) {
 	)
 
 	var (
-		solonnSRPCPeerID          snettypes.PeerID = snet.MakeSysPeerID("SolonnSRPCForTest")
-		solonnSRPCListenAddr                       = "127.0.0.1:10300"
+		solonnSrpcPeerID          snettypes.PeerID = snet.MakeSysPeerID("SolonnSrpcForTest")
+		solonnSrpcListenAddr                       = "127.0.0.1:10300"
 		solonnWebPeerID           snettypes.PeerID = snet.MakeSysPeerID("SolonnWebForTest")
 		solonnWebListenAddr                        = "127.0.0.1:10301"
 		netDriverWebServer        iron.Server
@@ -73,16 +73,16 @@ func MakeClientForTest(client *Client) {
 	util.AssertErrIsNil(soloosEnv.InitWithSNet(netDriverServerServeAddr))
 
 	memstg.MemStgMakeDriversForTest(&soloosEnv,
-		solonnSRPCListenAddr,
+		solonnSrpcListenAddr,
 		memBlockDriverForClient, netBlockDriverForClient, netINodeDriverForClient, memBlockCap, blocksLimit)
 
 	memstg.MemStgMakeDriversForTest(&soloosEnv,
-		solonnSRPCListenAddr,
+		solonnSrpcListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer, memBlockCap, blocksLimit)
 
 	metastg.MakeMetaStgForTest(&soloosEnv, &metaStg)
 	solonn.MakeSolonnForTest(&soloosEnv, &solonnIns, &metaStg,
-		solonnSRPCPeerID, solonnSRPCListenAddr,
+		solonnSrpcPeerID, solonnSrpcListenAddr,
 		solonnWebPeerID, solonnWebListenAddr,
 		&memBlockDriverForServer, &netBlockDriverForServer, &netINodeDriverForServer)
 

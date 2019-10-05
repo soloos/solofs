@@ -7,7 +7,7 @@ import (
 
 type Options struct {
 	SNetDriverServeAddr   string
-	SolonnSRPCPeerID        string
+	SolonnSrpcPeerID        string
 	NameSpaceID           int64
 	DefaultNetBlockCap    int
 	DefaultMemBlockCap    int

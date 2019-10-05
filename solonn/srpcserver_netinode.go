@@ -1,37 +1,26 @@
 package solonn
 
 import (
-	"soloos/common/log"
-	"soloos/common/solofsapi"
-	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
-
-	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *SRPCServer) doNetINodeGet(isMustGet bool, serviceReq *snettypes.NetQuery) error {
+func (p *SrpcServer) doNetINodeGet(isMustGet bool,
+	reqCtx *snettypes.SNetReqContext,
+	req *solofsprotocol.NetINodeInfoReq,
+) (solofsprotocol.NetINodeInfoResp, error) {
 	var (
-		param           = make([]byte, serviceReq.BodySize)
-		req             solofsprotocol.NetINodeInfoRequest
-		uNetINode       solofsapitypes.NetINodeUintptr
-		netINodeID      solofsapitypes.NetINodeID
-		protocolBuilder flatbuffers.Builder
-		err             error
+		uNetINode  solofsapitypes.NetINodeUintptr
+		netINodeID solofsapitypes.NetINodeID
+		resp       solofsprotocol.NetINodeInfoResp
+		err        error
 	)
 
-	err = serviceReq.ReadAll(param)
-	if err != nil {
-		return err
-	}
-
-	// request
-	req.Init(param, flatbuffers.GetUOffsetT(param))
-
-	copy(netINodeID[:], req.NetINodeID())
+	netINodeID = req.NetINodeID
 	if isMustGet {
 		uNetINode, err = p.solonn.netINodeDriver.MustGetNetINode(netINodeID,
-			req.Size(), int(req.NetBlockCap()), int(req.MemBlockCap()))
+			req.Size, int(req.NetBlockCap), int(req.MemBlockCap))
 	} else {
 		uNetINode, err = p.solonn.netINodeDriver.GetNetINode(netINodeID)
 	}
@@ -39,77 +28,51 @@ func (p *SRPCServer) doNetINodeGet(isMustGet bool, serviceReq *snettypes.NetQuer
 
 	if err != nil {
 		if err == solofsapitypes.ErrObjectNotExists {
-			solofsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
-			serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
-			err = nil
-			goto SERVICE_DONE
+			return resp, nil
 		}
-
-		log.Info("get netinode from db error:", err, string(netINodeID[:]))
-		solofsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
-		goto SERVICE_DONE
+		return resp, err
 	}
 
 	// response
-	solofsapi.SetNetINodeInfoResponse(&protocolBuilder,
-		uNetINode.Ptr().Size, int32(uNetINode.Ptr().NetBlockCap), int32(uNetINode.Ptr().MemBlockCap))
-	serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
-	err = nil
+	resp.Size = uNetINode.Ptr().Size
+	resp.NetBlockCap = int32(uNetINode.Ptr().NetBlockCap)
+	resp.MemBlockCap = int32(uNetINode.Ptr().MemBlockCap)
 
-SERVICE_DONE:
-	return err
+	return resp, nil
 }
 
-func (p *SRPCServer) NetINodeGet(serviceReq *snettypes.NetQuery) error {
-	return p.doNetINodeGet(false, serviceReq)
+func (p *SrpcServer) NetINodeGet(reqCtx *snettypes.SNetReqContext,
+	req solofsprotocol.NetINodeInfoReq,
+) (solofsprotocol.NetINodeInfoResp, error) {
+	return p.doNetINodeGet(false, reqCtx, &req)
 }
 
-func (p *SRPCServer) NetINodeMustGet(serviceReq *snettypes.NetQuery) error {
-	return p.doNetINodeGet(true, serviceReq)
+func (p *SrpcServer) NetINodeMustGet(reqCtx *snettypes.SNetReqContext,
+	req solofsprotocol.NetINodeInfoReq,
+) (solofsprotocol.NetINodeInfoResp, error) {
+	return p.doNetINodeGet(true, reqCtx, &req)
 }
 
-func (p *SRPCServer) NetINodeCommitSizeInDB(serviceReq *snettypes.NetQuery) error {
+func (p *SrpcServer) NetINodeCommitSizeInDB(reqCtx *snettypes.SNetReqContext,
+	req solofsprotocol.NetINodeCommitSizeInDBReq,
+) error {
 	var (
-		param           = make([]byte, serviceReq.BodySize)
-		req             solofsprotocol.NetINodeCommitSizeInDBRequest
-		uNetINode       solofsapitypes.NetINodeUintptr
-		netINodeID      solofsapitypes.NetINodeID
-		protocolBuilder flatbuffers.Builder
-		err             error
+		uNetINode  solofsapitypes.NetINodeUintptr
+		netINodeID solofsapitypes.NetINodeID
+		err        error
 	)
 
-	err = serviceReq.ReadAll(param)
+	netINodeID = req.NetINodeID
+	uNetINode, err = p.solonn.netINodeDriver.GetNetINode(netINodeID)
+	defer p.solonn.netINodeDriver.ReleaseNetINode(uNetINode)
 	if err != nil {
 		return err
 	}
 
-	// request
-	req.Init(param, flatbuffers.GetUOffsetT(param))
-
-	copy(netINodeID[:], req.NetINodeID())
-	uNetINode, err = p.solonn.netINodeDriver.GetNetINode(netINodeID)
-	defer p.solonn.netINodeDriver.ReleaseNetINode(uNetINode)
-
+	err = p.solonn.metaStg.NetINodeDriver.NetINodeTruncate(uNetINode, req.Size)
 	if err != nil {
-		solofsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
-		err = nil
-		goto SERVICE_DONE
+		return err
 	}
 
-	err = p.solonn.metaStg.NetINodeDriver.NetINodeTruncate(uNetINode, req.Size())
-	if err != nil {
-		solofsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
-		err = nil
-		goto SERVICE_DONE
-	}
-
-	// response
-	solofsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
-	serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
-
-SERVICE_DONE:
-	return err
+	return nil
 }

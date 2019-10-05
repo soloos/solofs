@@ -39,6 +39,7 @@ func (p *netBlockDriverUploader) cronUpload() error {
 			i += int(pNetBlock.SyncDataBackends.Arr[i].TransferCount + 1)
 			uploadJobNum++
 		}
+
 		uploadRetArr = make(chan error, uploadJobNum)
 
 		for i = 0; i < pNetBlock.SyncDataBackends.Len; {

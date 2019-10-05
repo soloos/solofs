@@ -3,8 +3,8 @@ package solodn
 import (
 	"soloos/common/iron"
 	"soloos/common/log"
-	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 	"time"
 )
 
@@ -16,13 +16,13 @@ func (p *Solodn) SetHeartBeatServers(heartBeatServerOptionsArr []snettypes.Heart
 func (p *Solodn) doHeartBeat(options snettypes.HeartBeatServerOptions) {
 	var (
 		heartBeat solofsapitypes.SolodnHeartBeat
-		webret    iron.ApiOutputResult
+		webret    iron.ResponseJSON
 		peer      snettypes.Peer
 		urlPath   string
 		err       error
 	)
 
-	heartBeat.SRPCPeerID = p.srpcPeer.PeerID().Str()
+	heartBeat.SrpcPeerID = p.srpcPeer.PeerID().Str()
 	heartBeat.WebPeerID = p.webPeer.PeerID().Str()
 
 	for {

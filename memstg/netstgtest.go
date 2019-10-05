@@ -21,14 +21,14 @@ func NetStgMakeNetBlockDriversForTest(soloosEnv *soloosbase.SoloosEnv,
 }
 
 func NetStgMakeDriversForTest(soloosEnv *soloosbase.SoloosEnv,
-	solonnSRPCServerAddr string,
+	solonnSrpcServerAddr string,
 	solonnClient *solofsapi.SolonnClient,
 	solodnClient *solofsapi.SolodnClient,
 	netBlockDriver *NetBlockDriver,
 ) {
 	var solonnPeer snettypes.Peer
 	soloosEnv.SNetDriver.InitPeerID((*snettypes.PeerID)(&solonnPeer.ID))
-	solonnPeer.SetAddress(solonnSRPCServerAddr)
+	solonnPeer.SetAddress(solonnSrpcServerAddr)
 	solonnPeer.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
 	util.AssertErrIsNil(soloosEnv.SNetDriver.RegisterPeer(solonnPeer))
 

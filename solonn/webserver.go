@@ -4,7 +4,7 @@ import "soloos/common/iron"
 
 type WebServer struct {
 	solonn *Solonn
-	server   iron.Server
+	server iron.Server
 }
 
 var _ = iron.IServer(&WebServer{})
@@ -20,7 +20,7 @@ func (p *WebServer) Init(solonn *Solonn,
 		return err
 	}
 
-	p.server.Router("/Solodn/HeartBeat", p.ctrSolodnHeartBeat)
+	p.server.Router("/Api/Solofs/Solodn/HeartBeat", p.ctrSolodnHeartBeat)
 
 	return nil
 }

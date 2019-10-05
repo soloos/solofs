@@ -29,10 +29,10 @@ func main() {
 	}
 
 	{
-		var solonnSRPCPeerID snettypes.PeerID
-		solonnSRPCPeerID.SetStr(options.SolonnSRPCPeerID)
+		var solonnSrpcPeerID snettypes.PeerID
+		solonnSrpcPeerID.SetStr(options.SolonnSrpcPeerID)
 		err = clientDriver.Init(&soloosEnv,
-			solonnSRPCPeerID,
+			solonnSrpcPeerID,
 			options.DBDriver, options.Dsn)
 		util.AssertErrIsNil(err)
 	}

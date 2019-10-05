@@ -21,7 +21,7 @@ type Solonn struct {
 
 	heartBeatServerOptionsArr []snettypes.HeartBeatServerOptions
 	serverCount               int
-	srpcServer                SRPCServer
+	srpcServer                SrpcServer
 	webServer                 WebServer
 	serverDriver              iron.ServerDriver
 }

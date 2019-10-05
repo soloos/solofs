@@ -1,14 +1,14 @@
 package localfs
 
 import (
-	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 	"soloos/solodb/offheap"
 )
 
 func (p *Fd) Upload(uJob solofsapitypes.UploadMemBlockJobUintptr) error {
 	var (
-		req                 snettypes.Request
+		req                 snettypes.SNetReq
 		netINodeWriteOffset int64
 		memBlockCap         int
 		uploadChunkMask     offheap.ChunkMask

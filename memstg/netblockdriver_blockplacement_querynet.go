@@ -12,7 +12,7 @@ func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock solofsapitypes.NetB
 ) error {
 	var (
 		pNetBlock    = uNetBlock.Ptr()
-		netBlockInfo solofsprotocol.NetINodeNetBlockInfoResponse
+		netBlockInfo solofsprotocol.NetINodeNetBlockInfoResp
 		peerID       snettypes.PeerID
 		i            int
 		err          error
@@ -24,8 +24,8 @@ func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock solofsapitypes.NetB
 	}
 
 	pNetBlock.StorDataBackends.Reset()
-	for i = 0; i < netBlockInfo.BackendsLength(); i++ {
-		copy(peerID[:], netBlockInfo.Backends(i))
+	for i = 0; i < len(netBlockInfo.Backends); i++ {
+		copy(peerID[:], netBlockInfo.Backends[i])
 		pNetBlock.StorDataBackends.Append(peerID)
 	}
 

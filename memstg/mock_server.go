@@ -1,16 +1,13 @@
 package memstg
 
 import (
-	"soloos/common/solofsapi"
-	"soloos/common/solofsapitypes"
-	"soloos/common/solofsprotocol"
 	"soloos/common/snet"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
+	"soloos/common/solofsprotocol"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"time"
-
-	flatbuffers "github.com/google/flatbuffers/go"
 )
 
 const (
@@ -19,9 +16,9 @@ const (
 
 type MockServer struct {
 	*soloosbase.SoloosEnv
-	network       string
-	addr          string
-	srpcServer    snet.SRPCServer
+	network     string
+	addr        string
+	srpcServer  snet.SrpcServer
 	solodnPeers []snettypes.Peer
 }
 
@@ -52,105 +49,56 @@ func (p *MockServer) Init(soloosEnv *soloosbase.SoloosEnv, network string, addr 
 	return nil
 }
 
-func (p *MockServer) SolodnRegister(serviceReq *snettypes.NetQuery) error {
-
-	var param = make([]byte, serviceReq.BodySize)
-	util.AssertErrIsNil(serviceReq.ReadAll(param))
-
-	var protocolBuilder flatbuffers.Builder
-	solofsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
-	util.AssertErrIsNil(
-		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
-
+func (p *MockServer) SolodnRegister(reqCtx *snettypes.SNetReqContext) error {
 	return nil
 }
 
-func (p *MockServer) NetINodeMustGet(serviceReq *snettypes.NetQuery) error {
+func (p *MockServer) NetINodeMustGet(reqCtx *snettypes.SNetReqContext,
+	req solofsprotocol.NetINodeInfoReq,
+) solofsprotocol.NetINodeInfoResp {
+	util.AssertErrIsNil(reqCtx.SkipReadRemaining())
 
-	var blockData = make([]byte, serviceReq.BodySize)
-	util.AssertErrIsNil(serviceReq.ReadAll(blockData))
+	var resp solofsprotocol.NetINodeInfoResp
+	resp.Size = req.Size
+	resp.NetBlockCap = req.NetBlockCap
+	resp.MemBlockCap = req.MemBlockCap
 
-	// request
-	var req solofsprotocol.NetINodeInfoRequest
-	req.Init(blockData[:serviceReq.ParamSize], flatbuffers.GetUOffsetT(blockData[:serviceReq.ParamSize]))
+	return resp
+}
 
-	// response
-	var protocolBuilder flatbuffers.Builder
-	solofsapi.SetNetINodeInfoResponse(&protocolBuilder, req.Size(), req.NetBlockCap(), req.MemBlockCap())
-	util.AssertErrIsNil(
-		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
-
+func (p *MockServer) NetINodePWrite(reqCtx *snettypes.SNetReqContext,
+	req solofsprotocol.NetINodePWriteReq,
+) error {
+	util.AssertErrIsNil(reqCtx.SkipReadRemaining())
 	return nil
 }
 
-func (p *MockServer) NetINodePWrite(serviceReq *snettypes.NetQuery) error {
+func (p *MockServer) NetINodePRead(reqCtx *snettypes.SNetReqContext,
+	req solofsprotocol.NetINodePReadReq,
+) solofsprotocol.NetINodePReadResp {
+	util.AssertErrIsNil(reqCtx.SkipReadRemaining())
+	return solofsprotocol.NetINodePReadResp{Length: req.Length}
+}
 
-	var reqBody = make([]byte, serviceReq.BodySize)
-	util.AssertErrIsNil(serviceReq.ReadAll(reqBody))
+func (p *MockServer) NetINodeCommitSizeInDB(reqCtx *snettypes.SNetReqContext) error {
+	util.AssertErrIsNil(reqCtx.SkipReadRemaining())
+	return nil
+}
 
-	var req solofsprotocol.NetINodePWriteRequest
-	req.Init(reqBody[:serviceReq.ParamSize], flatbuffers.GetUOffsetT(reqBody[:serviceReq.ParamSize]))
-	var backends = make([]string, req.TransferBackendsLength())
-	for i := 0; i < len(backends); i++ {
-		backends[i] = string(req.TransferBackends(i))
+func (p *MockServer) NetBlockPrepareMetaData(reqCtx *snettypes.SNetReqContext,
+	req solofsprotocol.NetINodeNetBlockInfoReq,
+) solofsprotocol.NetINodeNetBlockInfoResp {
+	util.AssertErrIsNil(reqCtx.SkipReadRemaining())
+
+	var resp solofsprotocol.NetINodeNetBlockInfoResp
+	resp.Cap = req.Cap
+	resp.Len = req.Cap
+	resp.Backends = resp.Backends[:0]
+	for _, peer := range p.solodnPeers {
+		resp.Backends = append(resp.Backends, peer.PeerID().Str())
 	}
 
-	var protocolBuilder flatbuffers.Builder
-	solofsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
-	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
-	util.AssertErrIsNil(serviceReq.SimpleResponse(serviceReq.ReqID, respBody))
-
-	return nil
-}
-
-func (p *MockServer) NetINodePRead(serviceReq *snettypes.NetQuery) error {
-
-	var reqData = make([]byte, serviceReq.BodySize)
-	util.AssertErrIsNil(serviceReq.ReadAll(reqData))
-
-	var req solofsprotocol.NetINodePReadRequest
-	req.Init(reqData[:serviceReq.ParamSize], flatbuffers.GetUOffsetT(reqData[:serviceReq.ParamSize]))
-
-	var protocolBuilder flatbuffers.Builder
-	solofsapi.SetNetINodePReadResponse(&protocolBuilder, req.Length())
-
-	respBody := protocolBuilder.Bytes[protocolBuilder.Head():]
-	util.AssertErrIsNil(serviceReq.Response(serviceReq.ReqID, respBody, make([]byte, req.Length())))
-	return nil
-}
-
-func (p *MockServer) NetINodeCommitSizeInDB(serviceReq *snettypes.NetQuery) error {
-
-	var reqData = make([]byte, serviceReq.BodySize)
-	util.AssertErrIsNil(serviceReq.ReadAll(reqData))
-
-	// response
-	var protocolBuilder flatbuffers.Builder
-	solofsapi.SetCommonResponseCode(&protocolBuilder, snettypes.CODE_OK)
-	serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
-
-	return nil
-}
-
-func (p *MockServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQuery) error {
-
-	var blockData = make([]byte, serviceReq.BodySize)
-	util.AssertErrIsNil(serviceReq.ReadAll(blockData))
-
-	// request
-	var req solofsprotocol.NetINodeNetBlockInfoRequest
-	req.Init(blockData[:serviceReq.ParamSize], flatbuffers.GetUOffsetT(blockData[:serviceReq.ParamSize]))
-
-	// response
-	var protocolBuilder flatbuffers.Builder
-	var peerIDs = make([]snettypes.PeerID, len(p.solodnPeers))
-	for index, _ := range peerIDs {
-		peerIDs[index] = p.solodnPeers[index].PeerID()
-	}
-	solofsapi.SetNetINodeNetBlockInfoResponse(&protocolBuilder, peerIDs, req.Cap(), req.Cap())
-	util.AssertErrIsNil(serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():]))
-
-	return nil
+	return resp
 }
 
 func (p *MockServer) Serve() error {

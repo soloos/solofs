@@ -14,15 +14,15 @@ type Options struct {
 	SNetDriverServeAddr string
 	SoloboatWebPeerID   string
 
-	SRPCServeAddr  string
-	SRPCListenAddr string
+	SrpcServeAddr  string
+	SrpcListenAddr string
 	WebServer      iron.Options
 
-	SolodnSRPCPeerID  string
+	SolodnSrpcPeerID  string
 	SolodnWebPeerID   string
 	SolodnLocalFsRoot string
 
-	SolonnSRPCPeerID string
+	SolonnSrpcPeerID string
 	SolonnWebPeerID  string
 
 	PProfListenAddr string

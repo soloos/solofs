@@ -4,8 +4,8 @@ import (
 	"soloos/common/solodbapitypes"
 	"soloos/common/solofsapi"
 	"soloos/common/solofsapitypes"
-	"soloos/common/soloosbase"
 	"soloos/common/solomqapi"
+	"soloos/common/soloosbase"
 	"soloos/solodb/offheap"
 )
 
@@ -14,7 +14,7 @@ type PrepareNetBlockMetaData func(uNetBlock solofsapitypes.NetBlockUintptr,
 
 type NetBlockDriverHelper struct {
 	SolonnClient *solofsapi.SolonnClient
-	SolomqClient     solomqapi.Client
+	SolomqClient solomqapi.Client
 	PrepareNetBlockMetaData
 }
 
@@ -23,7 +23,7 @@ type NetBlockDriver struct {
 	helper NetBlockDriverHelper
 
 	netBlockTable          offheap.LKVTableWithBytes68
-	solodnClient         *solofsapi.SolodnClient
+	solodnClient           *solofsapi.SolodnClient
 	netBlockDriverUploader netBlockDriverUploader
 }
 

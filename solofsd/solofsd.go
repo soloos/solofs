@@ -1,33 +1,32 @@
 package solofsd
 
 import (
-	"soloos/common/solofsapi"
 	"soloos/common/snet"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapi"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
+	"soloos/soloboat/soloboatsdk"
 	"soloos/solodb/offheap"
-	"soloos/solofs/solodn"
 	"soloos/solofs/memstg"
 	"soloos/solofs/metastg"
+	"soloos/solofs/solodn"
 	"soloos/solofs/solonn"
-	"soloos/soloboat/soloboatsdk"
 )
 
 type SolofsDaemon struct {
-	options          Options
-	SoloosEnv        soloosbase.SoloosEnv
-	offheapDriver    *offheap.OffheapDriver
-	SNetDriver       snet.NetDriver
-	SNetClientDriver snet.SRPCClientDriver
-	MetaStg          metastg.MetaStg
+	options        Options
+	SoloosEnv      soloosbase.SoloosEnv
+	offheapDriver  *offheap.OffheapDriver
+	SNetDriver     snet.NetDriver
+	MetaStg        metastg.MetaStg
 	SolodnClient   solofsapi.SolodnClient
-	MemBlockDriver   memstg.MemBlockDriver
-	NetBlockDriver   memstg.NetBlockDriver
-	NetINodeDriver   memstg.NetINodeDriver
+	MemBlockDriver memstg.MemBlockDriver
+	NetBlockDriver memstg.NetBlockDriver
+	NetINodeDriver memstg.NetINodeDriver
 
-	solonn   solonn.Solonn
-	solodn   solodn.Solodn
+	solonn     solonn.Solonn
+	solodn     solodn.Solodn
 	srpcPeerID snettypes.PeerID
 	webPeerID  snettypes.PeerID
 
@@ -71,7 +70,7 @@ func (p *SolofsDaemon) startCommon() {
 }
 
 func (p *SolofsDaemon) startSolonn() {
-	copy(p.srpcPeerID[:], []byte(p.options.SolonnSRPCPeerID))
+	copy(p.srpcPeerID[:], []byte(p.options.SolonnSrpcPeerID))
 	copy(p.webPeerID[:], []byte(p.options.SolonnWebPeerID))
 
 	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloosEnv,
@@ -87,7 +86,7 @@ func (p *SolofsDaemon) startSolonn() {
 	))
 
 	util.AssertErrIsNil(p.solonn.Init(&p.SoloosEnv,
-		p.srpcPeerID, p.options.SRPCListenAddr, p.options.SRPCServeAddr,
+		p.srpcPeerID, p.options.SrpcListenAddr, p.options.SrpcServeAddr,
 		p.webPeerID, p.options.WebServer,
 		&p.MetaStg,
 		&p.MemBlockDriver,
@@ -101,22 +100,22 @@ func (p *SolofsDaemon) startSolonn() {
 
 func (p *SolofsDaemon) startSolodn() {
 	var (
-		solonnSRPCPeerID snettypes.PeerID
+		solonnSrpcPeerID snettypes.PeerID
 		solodnOptions    solodn.SolodnOptions
 	)
 
-	copy(p.srpcPeerID[:], []byte(p.options.SolodnSRPCPeerID))
+	copy(p.srpcPeerID[:], []byte(p.options.SolodnSrpcPeerID))
 	copy(p.webPeerID[:], []byte(p.options.SolodnWebPeerID))
-	copy(solonnSRPCPeerID[:], []byte(p.options.SolonnSRPCPeerID))
+	copy(solonnSrpcPeerID[:], []byte(p.options.SolonnSrpcPeerID))
 
 	solodnOptions = solodn.SolodnOptions{
-		SRPCPeerID:           p.srpcPeerID,
-		SRPCServerListenAddr: p.options.SRPCListenAddr,
-		SRPCServerServeAddr:  p.options.SRPCServeAddr,
+		SrpcPeerID:           p.srpcPeerID,
+		SrpcServerListenAddr: p.options.SrpcListenAddr,
+		SrpcServerServeAddr:  p.options.SrpcServeAddr,
 		WebPeerID:            p.webPeerID,
 		WebServer:            p.options.WebServer,
 		LocalFsRoot:          p.options.SolodnLocalFsRoot,
-		SolonnSRPCPeerID:   solonnSRPCPeerID,
+		SolonnSrpcPeerID:     solonnSrpcPeerID,
 	}
 
 	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloosEnv,

@@ -1,59 +1,45 @@
 package solonn
 
 import (
-	"soloos/common/solofsapi"
+	"soloos/common/snettypes"
 	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
-	"soloos/common/snettypes"
-
-	flatbuffers "github.com/google/flatbuffers/go"
 )
 
-func (p *SRPCServer) NetBlockPrepareMetaData(serviceReq *snettypes.NetQuery) error {
+func (p *SrpcServer) NetBlockPrepareMetaData(reqCtx *snettypes.SNetReqContext,
+	req solofsprotocol.NetINodeNetBlockInfoReq,
+) (solofsprotocol.NetINodeNetBlockInfoResp, error) {
 	var (
-		param           = make([]byte, serviceReq.BodySize)
-		req             solofsprotocol.NetINodeNetBlockInfoRequest
-		uNetINode       solofsapitypes.NetINodeUintptr
-		netINodeID      solofsapitypes.NetINodeID
-		uNetBlock       solofsapitypes.NetBlockUintptr
-		protocolBuilder flatbuffers.Builder
-		err             error
+		resp       solofsprotocol.NetINodeNetBlockInfoResp
+		uNetINode  solofsapitypes.NetINodeUintptr
+		netINodeID solofsapitypes.NetINodeID
+		uNetBlock  solofsapitypes.NetBlockUintptr
+		err        error
 	)
 
-	err = serviceReq.ReadAll(param)
-	if err != nil {
-		return err
-	}
-
 	// request
-	req.Init(param, flatbuffers.GetUOffsetT(param))
-	copy(netINodeID[:], req.NetINodeID())
+	netINodeID = req.NetINodeID
 	uNetINode, err = p.solonn.netINodeDriver.GetNetINode(netINodeID)
 	defer p.solonn.netINodeDriver.ReleaseNetINode(uNetINode)
 
 	if err != nil {
-		if err == solofsapitypes.ErrObjectNotExists {
-			solofsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_404, err.Error())
-		} else {
-			solofsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		}
-		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
-		goto SERVICE_DONE
+		return resp, err
 	}
 
 	// response
-	uNetBlock, err = p.solonn.netBlockDriver.MustGetNetBlock(uNetINode, req.NetBlockIndex())
+	uNetBlock, err = p.solonn.netBlockDriver.MustGetNetBlock(uNetINode, req.NetBlockIndex)
 	defer p.solonn.netBlockDriver.ReleaseNetBlock(uNetBlock)
 	if err != nil {
-		solofsapi.SetNetINodeNetBlockInfoResponseError(&protocolBuilder, snettypes.CODE_502, err.Error())
-		serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
-		goto SERVICE_DONE
+		return resp, err
 	}
 
-	solofsapi.SetNetINodeNetBlockInfoResponse(&protocolBuilder,
-		uNetBlock.Ptr().StorDataBackends.Slice(), req.Cap(), req.Cap())
-	err = serviceReq.SimpleResponse(serviceReq.ReqID, protocolBuilder.Bytes[protocolBuilder.Head():])
+	resp.Len = req.Cap
+	resp.Cap = req.Cap
+	resp.Backends = resp.Backends[:0]
+	var peerIDs = uNetBlock.Ptr().StorDataBackends.Slice()
+	for i, _ := range peerIDs {
+		resp.Backends = append(resp.Backends, peerIDs[i].Str())
+	}
 
-SERVICE_DONE:
-	return err
+	return resp, nil
 }

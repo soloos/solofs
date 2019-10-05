@@ -4,19 +4,20 @@ SOLOFS_LDFLAGS += -X "soloos/solofs/version.BuildTS=$(shell date -u '+%Y-%m-%d %
 SOLOFS_LDFLAGS += -X "soloos/solofs/version.GitHash=$(shell git rev-parse HEAD)"
 # SOLOFS_PREFIX += GOTMPDIR=./go.build/tmp GOCACHE=./go.build/cache
 
-SOLOOS_SOLOFS_PROTOS = $(shell find ./ -name '*.fbs'|grep -v vendor)
-GENERATED_PROTOS = $(shell find ./ -name "*.fbs"|grep -v vendor| sed 's/\.fbs/\.fbs\.go/g')
-SOURCES = $(shell find . -name '*.go') $(GENERATED_PROTOS)
+
+# SOLOOS_SOLOFS_PROTOS = $(shell find ./ -name '*.fbs'|grep -v vendor)
+# GENERATED_PROTOS = $(shell find ./ -name "*.fbs"|grep -v vendor| sed 's/\.fbs/\.fbs\.go/g')
+# SOURCES = $(shell find . -name '*.go') $(GENERATED_PROTOS)
+
+# %.fbs.go: $(SOLOOS_SOLOFS_PROTOS)
+	# flatc -o ./ -g $(SOLOOS_SOLOFS_PROTOS)
+
+# fbs: $(GENERATED_PROTOS)
 
 GOBUILD = $(SOLOFS_PREFIX) go build -i -ldflags '$(SOLOFS_LDFLAGS)' 
 
 clean-test-cache:
 	go clean -testcache
-
-%.fbs.go: $(SOLOOS_SOLOFS_PROTOS)
-	flatc -o ./ -g $(SOLOOS_SOLOFS_PROTOS)
-
-fbs: $(GENERATED_PROTOS)
 
 all:solofsd solofsd-mock solofssdk
 

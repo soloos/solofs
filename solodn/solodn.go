@@ -27,7 +27,7 @@ type Solodn struct {
 	localFsSNetPeer snettypes.Peer
 
 	heartBeatServerOptionsArr []snettypes.HeartBeatServerOptions
-	srpcServer                SRPCServer
+	srpcServer                SrpcServer
 	webServer                 WebServer
 	serverDriver              iron.ServerDriver
 }
@@ -53,8 +53,8 @@ func (p *Solodn) initLocalFs(options SolodnOptions) error {
 func (p *Solodn) initSNetPeer(options SolodnOptions) error {
 	var err error
 
-	p.srpcPeer.ID = options.SRPCPeerID
-	p.srpcPeer.SetAddress(options.SRPCServerServeAddr)
+	p.srpcPeer.ID = options.SrpcPeerID
+	p.srpcPeer.SetAddress(options.SrpcServerServeAddr)
 	p.srpcPeer.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
 	err = p.SNetDriver.RegisterPeer(p.srpcPeer)
 	if err != nil {
@@ -107,9 +107,9 @@ func (p *Solodn) Init(soloosEnv *soloosbase.SoloosEnv,
 		return err
 	}
 
-	err = p.srpcServer.Init(p, options.SRPCServerListenAddr, options.SRPCServerServeAddr)
+	err = p.srpcServer.Init(p, options.SrpcServerListenAddr, options.SrpcServerServeAddr)
 	if err != nil {
-		log.Warn("Solodn Init SRPCServer.Init failed, err:", err)
+		log.Warn("Solodn Init SrpcServer.Init failed, err:", err)
 		return err
 	}
 
@@ -142,7 +142,7 @@ func (p *Solodn) Init(soloosEnv *soloosbase.SoloosEnv,
 		return err
 	}
 
-	err = p.solonnClient.Init(p.SoloosEnv, options.SolonnSRPCPeerID)
+	err = p.solonnClient.Init(p.SoloosEnv, options.SolonnSrpcPeerID)
 	if err != nil {
 		log.Warn("Solodn Init solonnClient.Init failed, err:", err)
 		return err

@@ -1,8 +1,8 @@
 package memstg
 
 import (
-	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 )
 
 type pwriteArg struct {

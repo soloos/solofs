@@ -3,9 +3,9 @@
 
 temp = '''
 {{
-    "SolodnSRPCPeerID":"DATA_NODE_SRPC_{Index}_00000000000000000000000000000000000000000000000",
-    "SRPCListenAddr":"192.168.56.100:{PortPrefix}01",
-    "SRPCServeAddr":"192.168.56.100:{PortPrefix}01",
+    "SolodnSrpcPeerID":"DATA_NODE_SRPC_{Index}_00000000000000000000000000000000000000000000000",
+    "SrpcListenAddr":"192.168.56.100:{PortPrefix}01",
+    "SrpcServeAddr":"192.168.56.100:{PortPrefix}01",
     "SolodnWebPeerID":"DATA_NODE_Web_{Index}_000000000000000000000000000000000000000000000000",
     "WebServer": {{
         "ServeStr":"http://192.168.56.100:{PortPrefix}02",

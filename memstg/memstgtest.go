@@ -19,7 +19,7 @@ func MemStgMakeMemBlockDriversForTest(memBlockDriver *MemBlockDriver, soloosEnv 
 }
 
 func MemStgMakeDriversForTest(soloosEnv *soloosbase.SoloosEnv,
-	solonnSRPCServerAddr string,
+	solonnSrpcServerAddr string,
 	memBlockDriver *MemBlockDriver,
 	netBlockDriver *NetBlockDriver,
 	netINodeDriver *NetINodeDriver,
@@ -30,7 +30,7 @@ func MemStgMakeDriversForTest(soloosEnv *soloosbase.SoloosEnv,
 	)
 
 	NetStgMakeDriversForTest(soloosEnv,
-		solonnSRPCServerAddr,
+		solonnSrpcServerAddr,
 		&solonnClient, &solodnClient,
 		netBlockDriver,
 	)

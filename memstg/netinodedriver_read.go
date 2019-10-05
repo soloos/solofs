@@ -2,8 +2,8 @@ package memstg
 
 import (
 	"io"
-	"soloos/common/solofsapitypes"
 	"soloos/common/snettypes"
+	"soloos/common/solofsapitypes"
 )
 
 type preadArg struct {

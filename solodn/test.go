@@ -10,8 +10,8 @@ import (
 
 func MakeSolodnForTest(soloosEnv *soloosbase.SoloosEnv,
 	solodn *Solodn,
-	solodnSRPCPeerID snettypes.PeerID, solodnSRPCServerAddr string,
-	solonnSRPCPeerID snettypes.PeerID, solonnSRPCServerAddr string,
+	solodnSrpcPeerID snettypes.PeerID, solodnSrpcServerAddr string,
+	solonnSrpcPeerID snettypes.PeerID, solonnSrpcServerAddr string,
 	memBlockDriver *memstg.MemBlockDriver,
 	netBlockDriver *memstg.NetBlockDriver,
 	netINodeDriver *memstg.NetINodeDriver,
@@ -20,14 +20,14 @@ func MakeSolodnForTest(soloosEnv *soloosbase.SoloosEnv,
 		err error
 	)
 
-	var localFsRoot = filepath.Join("/tmp/soloos_test.data", solodnSRPCPeerID.Str())
+	var localFsRoot = filepath.Join("/tmp/soloos_test.data", solodnSrpcPeerID.Str())
 
 	var options = SolodnOptions{
-		SRPCPeerID:           solodnSRPCPeerID,
-		SRPCServerListenAddr: solodnSRPCServerAddr,
-		SRPCServerServeAddr:  solodnSRPCServerAddr,
+		SrpcPeerID:           solodnSrpcPeerID,
+		SrpcServerListenAddr: solodnSrpcServerAddr,
+		SrpcServerServeAddr:  solodnSrpcServerAddr,
 		LocalFsRoot:          localFsRoot,
-		SolonnSRPCPeerID:   solonnSRPCPeerID,
+		SolonnSrpcPeerID:   solonnSrpcPeerID,
 	}
 
 	err = solodn.Init(soloosEnv,

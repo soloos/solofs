@@ -3,20 +3,20 @@ package solodn
 import (
 	"soloos/common/iron"
 	"soloos/common/log"
-	"soloos/common/solofsapitypes"
 	"soloos/common/snet"
+	"soloos/common/solofsapitypes"
 )
 
-type SRPCServer struct {
-	solodn             *Solodn
+type SrpcServer struct {
+	solodn               *Solodn
 	srpcServerListenAddr string
 	srpcServerServeAddr  string
-	srpcServer           snet.SRPCServer
+	srpcServer           snet.SrpcServer
 }
 
-var _ = iron.IServer(&SRPCServer{})
+var _ = iron.IServer(&SrpcServer{})
 
-func (p *SRPCServer) Init(solodn *Solodn,
+func (p *SrpcServer) Init(solodn *Solodn,
 	srpcServerListenAddr string,
 	srpcServerServeAddr string,
 ) error {
@@ -36,16 +36,16 @@ func (p *SRPCServer) Init(solodn *Solodn,
 	return nil
 }
 
-func (p *SRPCServer) ServerName() string {
-	return "Soloos.Solofs.Solodn.SRPCServer"
+func (p *SrpcServer) ServerName() string {
+	return "Soloos.Solofs.Solodn.SrpcServer"
 }
 
-func (p *SRPCServer) Serve() error {
+func (p *SrpcServer) Serve() error {
 	log.Info("solodn srpcserver serve at:", p.srpcServerListenAddr)
 	return p.srpcServer.Serve()
 }
 
-func (p *SRPCServer) Close() error {
+func (p *SrpcServer) Close() error {
 	log.Info("solodn srpcserver stop at:", p.srpcServerListenAddr)
 	return p.srpcServer.Close()
 }
