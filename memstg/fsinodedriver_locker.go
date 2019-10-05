@@ -13,28 +13,28 @@ import (
 // GetLk returns existing lock information for file
 func (p *FsINodeDriver) GetLk(fsINodeID solofsapitypes.FsINodeID, iNodeRWMutexMeta *solofsapitypes.INodeRWMutexMeta) error {
 	var (
-		uObject       offheap.HKVTableObjectUPtrWithUint64
+		uObject       offheap.LKVTableObjectUPtrWithUint64
 		uINodeRWMutex solofsapitypes.INodeRWMutexUintptr
 	)
 
-	uObject, _ = p.INodeRWMutexTable.MustGetObjectWithReadAcquire(fsINodeID)
+	uObject, _ = p.INodeRWMutexTable.MustGetObject(fsINodeID)
 	uINodeRWMutex = solofsapitypes.INodeRWMutexUintptr(uObject)
-	defer p.INodeRWMutexTable.ReadReleaseObject(offheap.HKVTableObjectUPtrWithUint64(uINodeRWMutex))
+	defer p.INodeRWMutexTable.ReleaseObject(offheap.LKVTableObjectUPtrWithUint64(uINodeRWMutex))
 	*iNodeRWMutexMeta = uINodeRWMutex.Ptr().INodeRWMutexMeta
 	return nil
 }
 
 func (p *FsINodeDriver) doSetLk(fsINodeID solofsapitypes.FsINodeID, setFlag *solofsapitypes.INodeRWMutexMeta, isShouldBlock bool) error {
 	var (
-		uObject       offheap.HKVTableObjectUPtrWithUint64
+		uObject       offheap.LKVTableObjectUPtrWithUint64
 		uINodeRWMutex solofsapitypes.INodeRWMutexUintptr
 		pINodeRWMutex *solofsapitypes.INodeRWMutex
 		err           error
 	)
 
-	uObject, _ = p.INodeRWMutexTable.MustGetObjectWithReadAcquire(fsINodeID)
+	uObject, _ = p.INodeRWMutexTable.MustGetObject(fsINodeID)
 	uINodeRWMutex = solofsapitypes.INodeRWMutexUintptr(uObject)
-	defer p.INodeRWMutexTable.ReadReleaseObject(offheap.HKVTableObjectUPtrWithUint64(uINodeRWMutex))
+	defer p.INodeRWMutexTable.ReleaseObject(offheap.LKVTableObjectUPtrWithUint64(uINodeRWMutex))
 
 	pINodeRWMutex = uINodeRWMutex.Ptr()
 

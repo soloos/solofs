@@ -44,7 +44,7 @@ type FsINodeDriver struct {
 	EntryAttrValid     uint64
 	EntryAttrValidNsec uint32
 
-	INodeRWMutexTable offheap.HKVTableWithUint64
+	INodeRWMutexTable offheap.LKVTableWithUint64
 
 	FIXAttrDriver FIXAttrDriver
 
@@ -113,9 +113,9 @@ func (p *FsINodeDriver) Init(
 	p.EntryTtl = 3 * time.Second
 	SplitDuration(p.EntryTtl, &p.EntryAttrValid, &p.EntryAttrValidNsec)
 
-	err = p.SoloosEnv.OffheapDriver.InitHKVTableWithUint64(&p.INodeRWMutexTable, "INodeRWMutex",
+	err = p.SoloosEnv.OffheapDriver.InitLKVTableWithUint64(&p.INodeRWMutexTable, "INodeRWMutex",
 		int(solofsapitypes.INodeRWMutexStructSize), -1, offheap.DefaultKVTableSharedCount,
-		nil, nil)
+		nil)
 	if err != nil {
 		return err
 	}
