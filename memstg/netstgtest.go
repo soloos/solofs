@@ -17,6 +17,7 @@ func NetStgMakeNetBlockDriversForTest(soloosEnv *soloosbase.SoloosEnv,
 		solonnClient, solodnClient,
 		// TODO test netBlockDriver.PrepareNetBlockMetaDataWithTransfer,
 		netBlockDriver.PrepareNetBlockMetaData,
+		nil, nil, nil,
 	))
 }
 

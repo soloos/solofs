@@ -31,10 +31,14 @@ type NetBlockDriver struct {
 	netBlockDriverUploader netBlockDriverUploader
 }
 
-func (p *NetBlockDriver) Init(soloosEnv *soloosbase.SoloosEnv,
+func (p *NetBlockDriver) Init(
+	soloosEnv *soloosbase.SoloosEnv,
 	solonnClient *solofsapi.SolonnClient,
 	solodnClient *solofsapi.SolodnClient,
 	prepareNetBlockMetaData PrepareNetBlockMetaData,
+	preadMemBlockWithDisk solofsapitypes.PReadMemBlockWithDisk,
+	uploadMemBlockWithDisk solofsapitypes.UploadMemBlockWithDisk,
+	uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq,
 ) error {
 	var err error
 
@@ -42,7 +46,9 @@ func (p *NetBlockDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 
 	p.SetHelper(
 		prepareNetBlockMetaData,
-		nil, nil, nil,
+		preadMemBlockWithDisk,
+		uploadMemBlockWithDisk,
+		uploadMemBlockWithSolomq,
 	)
 
 	p.solonnClient = solonnClient

@@ -18,10 +18,10 @@ type Solodn struct {
 	srpcPeer snettypes.Peer
 	webPeer  snettypes.Peer
 
+	solonnClient   solofsapi.SolonnClient
 	memBlockDriver *memstg.MemBlockDriver
 	netBlockDriver *memstg.NetBlockDriver
 	netINodeDriver *memstg.NetINodeDriver
-	solonnClient   solofsapi.SolonnClient
 
 	localFs         localfs.LocalFs
 	localFsSNetPeer snettypes.Peer
@@ -102,9 +102,28 @@ func (p *Solodn) Init(soloosEnv *soloosbase.SoloosEnv,
 	var err error
 
 	p.SoloosEnv = soloosEnv
-	p.netBlockDriver = netBlockDriver
+
+	err = p.solonnClient.Init(p.SoloosEnv, options.SolonnSrpcPeerID)
+	if err != nil {
+		log.Warn("Solodn Init solonnClient.Init failed, err:", err)
+		return err
+	}
+
 	p.memBlockDriver = memBlockDriver
+
+	p.netBlockDriver = netBlockDriver
+	err = p.initNetBlockDriver()
+	if err != nil {
+		log.Warn("Solodn Init initNetBlockDriver failed, err:", err)
+		return err
+	}
+
 	p.netINodeDriver = netINodeDriver
+	err = p.initNetINodeDriver()
+	if err != nil {
+		log.Warn("Solodn Init initNetINodeDriver failed, err:", err)
+		return err
+	}
 
 	err = p.initSNetPeer(options)
 	if err != nil {
@@ -132,24 +151,6 @@ func (p *Solodn) Init(soloosEnv *soloosbase.SoloosEnv,
 	err = p.initLocalFs(options)
 	if err != nil {
 		log.Warn("Solodn Init initLocalFs failed, err:", err)
-		return err
-	}
-
-	err = p.initNetBlockDriver()
-	if err != nil {
-		log.Warn("Solodn Init initNetBlockDriver failed, err:", err)
-		return err
-	}
-
-	err = p.initNetINodeDriver()
-	if err != nil {
-		log.Warn("Solodn Init initNetINodeDriver failed, err:", err)
-		return err
-	}
-
-	err = p.solonnClient.Init(p.SoloosEnv, options.SolonnSrpcPeerID)
-	if err != nil {
-		log.Warn("Solodn Init solonnClient.Init failed, err:", err)
 		return err
 	}
 

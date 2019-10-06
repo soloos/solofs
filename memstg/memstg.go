@@ -42,6 +42,7 @@ func (p *MemStg) Init(soloosEnv *soloosbase.SoloosEnv,
 	err = p.NetBlockDriver.Init(p.SoloosEnv,
 		&p.SolonnClient, &p.SolodnClient,
 		p.NetBlockDriver.PrepareNetBlockMetaData,
+		nil, nil, nil,
 	)
 	if err != nil {
 		return err

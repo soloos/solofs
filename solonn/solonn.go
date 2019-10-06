@@ -93,15 +93,6 @@ func (p *Solonn) Init(soloosEnv *soloosbase.SoloosEnv,
 	return nil
 }
 
-func (p *Solonn) SolodnRegister(peer snettypes.Peer) error {
-	var err = p.SoloosEnv.SNetDriver.RegisterPeer(peer)
-	if err != nil {
-		return err
-	}
-
-	return p.metaStg.SolodnRegister(peer)
-}
-
 func (p *Solonn) Serve() error {
 	var err error
 

@@ -7,7 +7,7 @@ func (p *SolofsDaemon) startSolonn() {
 	copy(p.webPeerID[:], []byte(p.options.SolonnWebPeerID))
 
 	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloosEnv,
-		nil, &p.SolodnClient, p.MetaStg.PrepareNetBlockMetaData))
+		nil, nil, p.MetaStg.PrepareNetBlockMetaData))
 
 	util.AssertErrIsNil(p.NetINodeDriver.Init(&p.SoloosEnv,
 		&p.NetBlockDriver,
