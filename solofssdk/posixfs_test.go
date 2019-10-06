@@ -49,7 +49,7 @@ func TestMetaStgPosixFsBase(t *testing.T) {
 	assert.NoError(t, err)
 
 	err = posixFs.ListFsINodeByParentPath("/test", true,
-		func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
+		func(resultCount int64) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
 			return uint64(resultCount), uint64(0)
 		},
 		func(fsINodeMeta solofsapitypes.FsINodeMeta) bool {
@@ -58,5 +58,5 @@ func TestMetaStgPosixFsBase(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, err = posixFs.SimpleOpenFile("/noexists/hi5", netBlockCap, memBlockCap)
-	assert.Equal(t, err, solofsapitypes.ErrObjectNotExists)
+	assert.Equal(t, err.Error(), solofsapitypes.ErrObjectNotExists.Error())
 }

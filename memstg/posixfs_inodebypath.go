@@ -92,7 +92,7 @@ PREPARE_PARENT_FSINODE_DONE:
 
 func (p *PosixFs) ListFsINodeByParentPath(parentPath string,
 	isFetchAllCols bool,
-	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
+	beforeLiteralFunc func(resultCount int64) (fetchRowsLimit uint64, fetchRowsOffset uint64),
 	literalFunc func(solofsapitypes.FsINodeMeta) bool,
 ) error {
 	var (

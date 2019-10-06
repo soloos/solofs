@@ -9,7 +9,7 @@ import (
 
 func (p *PosixFs) ListFsINodeByIno(ino solofsapitypes.FsINodeID,
 	isFetchAllCols bool,
-	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
+	beforeLiteralFunc func(resultCount int64) (fetchRowsLimit uint64, fetchRowsOffset uint64),
 	literalFunc func(solofsapitypes.FsINodeMeta) bool,
 ) error {
 	var (
@@ -199,7 +199,7 @@ func (p *PosixFs) checkIsDirEmpty(pFsINodeMeta *solofsapitypes.FsINodeMeta) (boo
 	)
 
 	err = p.ListFsINodeByIno(pFsINodeMeta.Ino, false,
-		func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
+		func(resultCount int64) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
 			isDirEmpty = (resultCount == 0)
 			return 0, 0
 		},
@@ -276,7 +276,7 @@ func (p *PosixFs) ReadDir(input *fsapitypes.ReadIn, out *fsapitypes.DirEntryList
 		err                            error
 	)
 	err = p.ListFsINodeByIno(input.NodeId, false,
-		func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
+		func(resultCount int64) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
 			return uint64(resultCount) - input.Offset, input.Offset
 		},
 		func(fsINodeMeta solofsapitypes.FsINodeMeta) bool {
@@ -315,7 +315,7 @@ func (p *PosixFs) ReadDirPlus(input *fsapitypes.ReadIn, out *fsapitypes.DirEntry
 		err                            error
 	)
 	err = p.ListFsINodeByIno(input.NodeId, true,
-		func(resultCount int) (uint64, uint64) {
+		func(resultCount int64) (uint64, uint64) {
 			var fetchRowsLimit uint64
 			if uint64(resultCount) > input.Offset {
 				fetchRowsLimit = uint64(resultCount) - input.Offset

@@ -154,7 +154,7 @@ func (p *Solodn) Init(soloosEnv *soloosbase.SoloosEnv,
 func (p *Solodn) Serve() error {
 	var err error
 
-	err = p.solonnClient.SolodnRegister(p.srpcPeer.ID, p.srpcPeer.AddressStr(), p.srpcPeer.ServiceProtocol)
+	err = p.RegisterInSolonn()
 	if err != nil {
 		return err
 	}

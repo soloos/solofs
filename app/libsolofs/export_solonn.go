@@ -52,7 +52,7 @@ func GoSolofsListDirectory(cInodePath *C.char, ret *unsafe.Pointer, num *C.int) 
 	)
 
 	err = env.PosixFs.ListFsINodeByParentPath(fsINodePath, false,
-		func(resultCount int) (uint64, uint64) {
+		func(resultCount int64) (uint64, uint64) {
 			*ret = C.malloc(C.size_t(resultCount) * C.size_t(unsafe.Sizeof(uintptr(0))))
 			*num = C.int(resultCount)
 			arr = (*[1<<30 - 1]*C.char)(*ret)

@@ -49,10 +49,10 @@ func (p *MetaStg) prepareNetINodesSqls() []string {
 	on b_fsinode(namespace_id, parent_fsinode_ino, fsinode_name);
 `)
 
-	sql = append(sql, `
-	create unique index if not exists i_b_fsinode_netinode_id
-	on b_fsinode(netinode_id);
-`)
+	// sql = append(sql, `
+	// create unique index if not exists i_b_fsinode_netinode_id
+	// on b_fsinode(netinode_id);
+	// `)
 
 	sql = append(sql, `
 	create table if not exists b_fsinode_xattr (

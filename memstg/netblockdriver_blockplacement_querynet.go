@@ -8,20 +8,31 @@ import (
 
 // TODO make this configurable
 func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlockUintptr,
-	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32,
+	uNetINode solofsapitypes.NetINodeUintptr, netBlockIndex int32,
 ) error {
 	var (
-		pNetBlock    = uNetBlock.Ptr()
-		netBlockInfo solofsprotocol.NetINodeNetBlockInfoResp
-		peerID       snettypes.PeerID
-		i            int
-		err          error
+		pNetBlock = uNetBlock.Ptr()
+		peerID    snettypes.PeerID
+		req       solofsprotocol.NetINodeNetBlockInfoReq
+		i         int
+		err       error
 	)
 
-	err = p.helper.SolonnClient.PrepareNetBlockMetaData(&netBlockInfo, uNetINode, netblockIndex, uNetBlock)
+	req.NetINodeID = uNetINode.Ptr().ID
+	req.NetBlockIndex = int32(netBlockIndex)
+	req.Cap = int32(uNetINode.Ptr().NetBlockCap)
+
+	// TODO choose solonn
+	var netBlockInfo solofsprotocol.NetINodeNetBlockInfoResp
+	err = p.helper.SolonnClient.Dispatch("/NetBlock/PrepareMetaData", &netBlockInfo, req)
 	if err != nil {
 		return err
 	}
+
+	pNetBlock.NetINodeID = uNetINode.Ptr().ID
+	pNetBlock.IndexInNetINode = netBlockIndex
+	pNetBlock.Len = int(netBlockInfo.Len)
+	pNetBlock.Cap = int(netBlockInfo.Cap)
 
 	pNetBlock.StorDataBackends.Reset()
 	for i = 0; i < len(netBlockInfo.Backends); i++ {

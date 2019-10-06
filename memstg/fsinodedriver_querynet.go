@@ -26,17 +26,6 @@ func (p *FsINodeDriver) DeleteFsINodeByIDInDB(
 	return nil
 }
 
-func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(
-	nsID solofsapitypes.NameSpaceID,
-	parentID solofsapitypes.FsINodeID,
-	isFetchAllCols bool,
-	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(solofsapitypes.FsINodeMeta) bool,
-) error {
-	panic("shit")
-	return nil
-}
-
 func (p *FsINodeDriver) UpdateFsINodeInDB(
 	nsID solofsapitypes.NameSpaceID,
 	fsINodeMeta solofsapitypes.FsINodeMeta) error {
@@ -82,4 +71,44 @@ func (p *FsINodeDriver) FetchFsINodeByNameFromDB(
 		return solofsapitypes.FsINodeMeta{}, err
 	}
 	return ret.RespData.(solofsapitypes.FsINodeMeta), nil
+}
+
+func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(nsID solofsapitypes.NameSpaceID,
+	parentID solofsapitypes.FsINodeID,
+	isFetchAllCols bool,
+	beforeLiteralFunc func(resultCount int64) (fetchRowsLimit uint64, fetchRowsOffset uint64),
+	literalFunc func(solofsapitypes.FsINodeMeta) bool,
+) error {
+	var (
+		fetchRowsLimit  uint64
+		fetchRowsOffset uint64
+		err             error
+	)
+
+	var retRowsCount = snettypes.Response{RespData: int64(0)}
+	err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/ListFsINodeByParentIDSelectCountFromDB",
+		&retRowsCount, nsID, parentID)
+	if err != nil {
+		return err
+	}
+
+	fetchRowsLimit, fetchRowsOffset = beforeLiteralFunc(retRowsCount.RespData.(int64))
+	if fetchRowsLimit == 0 {
+		return nil
+	}
+
+	var iretRows = snettypes.Response{RespData: []solofsapitypes.FsINodeMeta{}}
+	err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/ListFsINodeByParentIDSelectDataFromDB",
+		&iretRows, nsID, parentID, fetchRowsLimit, fetchRowsOffset, isFetchAllCols)
+	if err != nil {
+		return err
+	}
+	var retRows = iretRows.RespData.([]solofsapitypes.FsINodeMeta)
+	for i, _ := range retRows {
+		if literalFunc(retRows[i]) == false {
+			break
+		}
+	}
+
+	return nil
 }

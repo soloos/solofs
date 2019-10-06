@@ -6,7 +6,8 @@ import (
 	"soloos/common/solofsapitypes"
 )
 
-func (p *FsINodeDriver) DeleteFsINodeByIDInDB(nsID solofsapitypes.NameSpaceID,
+func (p *FsINodeDriver) DeleteFsINodeByIDInDB(
+	nsID solofsapitypes.NameSpaceID,
 	fsINodeID solofsapitypes.FsINodeID) error {
 	var (
 		sess solodbapi.Session
@@ -28,122 +29,8 @@ func (p *FsINodeDriver) DeleteFsINodeByIDInDB(nsID solofsapitypes.NameSpaceID,
 	return nil
 }
 
-func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(nsID solofsapitypes.NameSpaceID,
-	parentID solofsapitypes.FsINodeID,
-	isFetchAllCols bool,
-	beforeLiteralFunc func(resultCount int) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(solofsapitypes.FsINodeMeta) bool,
-) error {
-	var (
-		sess            solodbapi.Session
-		sqlRows         *sql.Rows
-		ret             solofsapitypes.FsINodeMeta
-		fetchRowsLimit  uint64
-		fetchRowsOffset uint64
-		netINodeIDStr   string
-		resultCount     int
-		fsINodeName     string
-		err             error
-	)
-
-	err = p.dbConn.InitSession(&sess)
-	if err != nil {
-		goto QUERY_DONE
-	}
-
-	sqlRows, err = sess.Select("count(fsinode_ino) as result").
-		From("b_fsinode").
-		Where("namespace_id=? and parent_fsinode_ino=?", nsID, parentID).Rows()
-	if err != nil {
-		goto QUERY_DONE
-	}
-	if sqlRows.Next() {
-		err = sqlRows.Scan(&resultCount)
-		if err != nil {
-			goto QUERY_DONE
-		}
-	}
-	sqlRows.Close()
-
-	fetchRowsLimit, fetchRowsOffset = beforeLiteralFunc(resultCount)
-	if fetchRowsLimit == 0 {
-		goto QUERY_DONE
-	}
-
-	{
-		var schemaAttr []string
-		if isFetchAllCols == false {
-			schemaAttr = schemaDirTreeFsINodeBasicAttr
-
-		} else {
-			schemaAttr = schemaDirTreeFsINodeAttr
-		}
-		sqlRows, err = sess.Select(schemaAttr...).
-			From("b_fsinode").
-			Where("namespace_id=? and parent_fsinode_ino=?", nsID, parentID).
-			OrderDesc("fsinode_ino").
-			Limit(fetchRowsLimit).
-			Offset(fetchRowsOffset).
-			Rows()
-	}
-
-	if err != nil {
-		goto QUERY_DONE
-	}
-
-	for sqlRows.Next() {
-		if isFetchAllCols == false {
-			err = sqlRows.Scan(
-				&ret.NameSpaceID,
-				&ret.Ino,
-				&ret.HardLinkIno,
-				&netINodeIDStr,
-				&ret.ParentID,
-				&fsINodeName,
-				&ret.Type,
-				&ret.Mode,
-			)
-		} else {
-			err = sqlRows.Scan(
-				&ret.NameSpaceID,
-				&ret.Ino,
-				&ret.HardLinkIno,
-				&netINodeIDStr,
-				&ret.ParentID,
-				&fsINodeName,
-				&ret.Type,
-				&ret.Atime,
-				&ret.Ctime,
-				&ret.Mtime,
-				&ret.Atimensec,
-				&ret.Ctimensec,
-				&ret.Mtimensec,
-				&ret.Mode,
-				&ret.Nlink,
-				&ret.Uid,
-				&ret.Gid,
-				&ret.Rdev,
-			)
-		}
-		ret.SetName(fsINodeName)
-
-		if err != nil {
-			goto QUERY_DONE
-		}
-		copy(ret.NetINodeID[:], []byte(netINodeIDStr))
-		if literalFunc(ret) == false {
-			break
-		}
-	}
-
-QUERY_DONE:
-	if sqlRows != nil {
-		sqlRows.Close()
-	}
-	return err
-}
-
-func (p *FsINodeDriver) UpdateFsINodeInDB(nsID solofsapitypes.NameSpaceID,
+func (p *FsINodeDriver) UpdateFsINodeInDB(
+	nsID solofsapitypes.NameSpaceID,
 	fsINodeMeta solofsapitypes.FsINodeMeta) error {
 	var (
 		sess solodbapi.Session
@@ -182,7 +69,8 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(nsID solofsapitypes.NameSpaceID,
 	return nil
 }
 
-func (p *FsINodeDriver) InsertFsINodeInDB(nsID solofsapitypes.NameSpaceID,
+func (p *FsINodeDriver) InsertFsINodeInDB(
+	nsID solofsapitypes.NameSpaceID,
 	fsINodeMeta solofsapitypes.FsINodeMeta) error {
 	var (
 		sess solodbapi.Session
@@ -226,7 +114,8 @@ func (p *FsINodeDriver) InsertFsINodeInDB(nsID solofsapitypes.NameSpaceID,
 	return nil
 }
 
-func (p *FsINodeDriver) FetchFsINodeByIDFromDB(nsID solofsapitypes.NameSpaceID,
+func (p *FsINodeDriver) FetchFsINodeByIDFromDB(
+	nsID solofsapitypes.NameSpaceID,
 	fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeMeta, error) {
 	var (
 		fsINodeMeta   solofsapitypes.FsINodeMeta
@@ -289,7 +178,8 @@ QUERY_DONE:
 	return fsINodeMeta, err
 }
 
-func (p *FsINodeDriver) FetchFsINodeByNameFromDB(nsID solofsapitypes.NameSpaceID,
+func (p *FsINodeDriver) FetchFsINodeByNameFromDB(
+	nsID solofsapitypes.NameSpaceID,
 	parentID solofsapitypes.FsINodeID,
 	fsINodeName string) (solofsapitypes.FsINodeMeta, error) {
 	var (
@@ -354,4 +244,137 @@ QUERY_DONE:
 		sqlRows.Close()
 	}
 	return fsINodeMeta, err
+}
+
+func (p *FsINodeDriver) ListFsINodeByParentIDSelectCountFromDB(
+	nsID solofsapitypes.NameSpaceID,
+	parentID solofsapitypes.FsINodeID,
+) (int64, error) {
+	var (
+		sess        solodbapi.Session
+		sqlRows     *sql.Rows
+		resultCount int64
+		err         error
+	)
+
+	err = p.dbConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
+	sqlRows, err = sess.Select("count(fsinode_ino) as result").
+		From("b_fsinode").
+		Where("namespace_id=? and parent_fsinode_ino=?", nsID, parentID).Rows()
+	if err != nil {
+		goto QUERY_DONE
+	}
+	if sqlRows.Next() {
+		err = sqlRows.Scan(&resultCount)
+		if err != nil {
+			goto QUERY_DONE
+		}
+	}
+
+QUERY_DONE:
+	if sqlRows != nil {
+		sqlRows.Close()
+	}
+	return resultCount, err
+}
+
+func (p *FsINodeDriver) ListFsINodeByParentIDSelectDataFromDB(
+	nsID solofsapitypes.NameSpaceID,
+	parentID solofsapitypes.FsINodeID,
+	fetchRowsLimit uint64,
+	fetchRowsOffset uint64,
+	isFetchAllCols bool,
+) ([]solofsapitypes.FsINodeMeta, error) {
+	var (
+		sess          solodbapi.Session
+		sqlRows       *sql.Rows
+		ret           []solofsapitypes.FsINodeMeta
+		retRow        solofsapitypes.FsINodeMeta
+		netINodeIDStr string
+		fsINodeName   string
+		err           error
+	)
+
+	if fetchRowsLimit == 0 {
+		goto QUERY_DONE
+	}
+
+	err = p.dbConn.InitSession(&sess)
+	if err != nil {
+		goto QUERY_DONE
+	}
+
+	{
+		var schemaAttr []string
+		if isFetchAllCols == false {
+			schemaAttr = schemaDirTreeFsINodeBasicAttr
+
+		} else {
+			schemaAttr = schemaDirTreeFsINodeAttr
+		}
+		sqlRows, err = sess.Select(schemaAttr...).
+			From("b_fsinode").
+			Where("namespace_id=? and parent_fsinode_ino=?", nsID, parentID).
+			OrderDesc("fsinode_ino").
+			Limit(fetchRowsLimit).
+			Offset(fetchRowsOffset).
+			Rows()
+	}
+
+	if err != nil {
+		goto QUERY_DONE
+	}
+
+	for sqlRows.Next() {
+		if isFetchAllCols == false {
+			err = sqlRows.Scan(
+				&retRow.NameSpaceID,
+				&retRow.Ino,
+				&retRow.HardLinkIno,
+				&netINodeIDStr,
+				&retRow.ParentID,
+				&fsINodeName,
+				&retRow.Type,
+				&retRow.Mode,
+			)
+		} else {
+			err = sqlRows.Scan(
+				&retRow.NameSpaceID,
+				&retRow.Ino,
+				&retRow.HardLinkIno,
+				&netINodeIDStr,
+				&retRow.ParentID,
+				&fsINodeName,
+				&retRow.Type,
+				&retRow.Atime,
+				&retRow.Ctime,
+				&retRow.Mtime,
+				&retRow.Atimensec,
+				&retRow.Ctimensec,
+				&retRow.Mtimensec,
+				&retRow.Mode,
+				&retRow.Nlink,
+				&retRow.Uid,
+				&retRow.Gid,
+				&retRow.Rdev,
+			)
+		}
+		retRow.SetName(fsINodeName)
+
+		if err != nil {
+			goto QUERY_DONE
+		}
+		copy(retRow.NetINodeID[:], []byte(netINodeIDStr))
+		ret = append(ret, retRow)
+	}
+
+QUERY_DONE:
+	if sqlRows != nil {
+		sqlRows.Close()
+	}
+	return ret, err
 }

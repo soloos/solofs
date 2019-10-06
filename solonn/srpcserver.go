@@ -40,11 +40,14 @@ func (p *SrpcServer) Init(solonn *Solonn,
 
 	p.srpcServer.RegisterService("/FsINode/AllocFsINodeID", p.solonn.metaStg.AllocFsINodeID)
 	p.srpcServer.RegisterService("/FsINode/DeleteFsINodeByIDInDB", p.solonn.metaStg.DeleteFsINodeByIDInDB)
-	p.srpcServer.RegisterService("/FsINode/ListFsINodeByParentIDFromDB", p.solonn.metaStg.ListFsINodeByParentIDFromDB)
 	p.srpcServer.RegisterService("/FsINode/UpdateFsINodeInDB", p.solonn.metaStg.UpdateFsINodeInDB)
 	p.srpcServer.RegisterService("/FsINode/InsertFsINodeInDB", p.solonn.metaStg.InsertFsINodeInDB)
 	p.srpcServer.RegisterService("/FsINode/FetchFsINodeByIDFromDB", p.solonn.metaStg.FetchFsINodeByIDFromDB)
 	p.srpcServer.RegisterService("/FsINode/FetchFsINodeByNameFromDB", p.solonn.metaStg.FetchFsINodeByNameFromDB)
+	p.srpcServer.RegisterService("/FsINode/ListFsINodeByParentIDSelectCountFromDB",
+		p.solonn.metaStg.ListFsINodeByParentIDSelectCountFromDB)
+	p.srpcServer.RegisterService("/FsINode/ListFsINodeByParentIDSelectDataFromDB",
+		p.solonn.metaStg.ListFsINodeByParentIDSelectDataFromDB)
 
 	p.srpcServer.RegisterService("/FIXAttr/DeleteFIXAttrInDB", p.solonn.metaStg.DeleteFIXAttrInDB)
 	p.srpcServer.RegisterService("/FIXAttr/ReplaceFIXAttrInDB", p.solonn.metaStg.ReplaceFIXAttrInDB)
