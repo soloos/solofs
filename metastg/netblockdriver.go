@@ -55,7 +55,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlo
 		}
 
 	} else {
-		if err != solofsapitypes.ErrObjectNotExists {
+		if err.Error() != solofsapitypes.ErrObjectNotExists.Error() {
 			goto PREPARE_DONE
 		}
 

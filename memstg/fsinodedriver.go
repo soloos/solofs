@@ -46,8 +46,6 @@ type FsINodeDriver struct {
 
 	INodeRWMutexTable offheap.LKVTableWithUint64
 
-	FIXAttrDriver
-
 	DefaultNetBlockCap int
 	DefaultMemBlockCap int
 }
@@ -67,10 +65,6 @@ func (p *FsINodeDriver) Init(
 	insertFsINodeInDB solofsapitypes.InsertFsINodeInDB,
 	fetchFsINodeByIDFromDB solofsapitypes.FetchFsINodeByIDFromDB,
 	fetchFsINodeByNameFromDB solofsapitypes.FetchFsINodeByNameFromDB,
-	// FIXAttrDriver
-	deleteFIXAttrInDB solofsapitypes.DeleteFIXAttrInDB,
-	replaceFIXAttrInDB solofsapitypes.ReplaceFIXAttrInDB,
-	getFIXAttrByInoFromDB solofsapitypes.GetFIXAttrByInoFromDB,
 ) error {
 	var err error
 
@@ -116,16 +110,6 @@ func (p *FsINodeDriver) Init(
 	err = p.SoloosEnv.OffheapDriver.InitLKVTableWithUint64(&p.INodeRWMutexTable, "INodeRWMutex",
 		int(solofsapitypes.INodeRWMutexStructSize), -1, offheap.DefaultKVTableSharedCount,
 		nil)
-	if err != nil {
-		return err
-	}
-
-	err = p.FIXAttrDriver.Init(
-		p.posixFs,
-		deleteFIXAttrInDB,
-		replaceFIXAttrInDB,
-		getFIXAttrByInoFromDB,
-	)
 	if err != nil {
 		return err
 	}
@@ -196,13 +180,19 @@ func (p *FsINodeDriver) prepareBaseDir() error {
 		log.Warn("mkdir root error ", code)
 	}
 
-	ino = p.helper.AllocFsINodeID()
+	ino, err = p.helper.AllocFsINodeID(p.posixFs.NameSpaceID)
+	if err != nil {
+		return err
+	}
 	code = p.posixFs.SimpleMkdir(&fsINodeMeta, &ino, solofsapitypes.RootFsINodeID, 0777, "tmp", 0, 0, solofstypes.FS_RDEV)
 	if code != fsapitypes.OK {
 		log.Warn("mkdir tmp error", code)
 	}
 	uFsINode, err = p.GetFsINodeByName(solofsapitypes.RootFsINodeParentID, "")
 	// no need release: defer p.ReleaseFsINode(uFsINode)
+	if err != nil {
+		return err
+	}
 	p.RootFsINode = uFsINode
 	p.RootFsINode.Ptr().Acquire()
 	if err != nil {
@@ -500,7 +490,10 @@ func (p *FsINodeDriver) PrepareFsINodeForCreate(fsINodeMeta *solofsapitypes.FsIN
 	if fsINodeID != nil {
 		fsINodeMeta.Ino = *fsINodeID
 	} else {
-		fsINodeMeta.Ino = p.helper.AllocFsINodeID()
+		fsINodeMeta.Ino, err = p.helper.AllocFsINodeID(p.posixFs.NameSpaceID)
+		if err != nil {
+			return err
+		}
 	}
 
 	if netINodeID == nil {

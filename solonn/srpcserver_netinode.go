@@ -27,7 +27,7 @@ func (p *SrpcServer) doNetINodeGet(isMustGet bool,
 	defer p.solonn.netINodeDriver.ReleaseNetINode(uNetINode)
 
 	if err != nil {
-		if err == solofsapitypes.ErrObjectNotExists {
+		if err.Error() == solofsapitypes.ErrObjectNotExists.Error() {
 			return resp, nil
 		}
 		return resp, err

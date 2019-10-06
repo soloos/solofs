@@ -10,10 +10,10 @@ func (p *PosixFs) SetFsEntryOutByFsINode(fsEntryOut *fsapitypes.EntryOut,
 	pFsINodeMeta *solofsapitypes.FsINodeMeta) {
 
 	fsEntryOut.NodeId = pFsINodeMeta.Ino
-	fsEntryOut.EntryValid = p.EntryAttrValid
-	fsEntryOut.EntryValidNsec = p.EntryAttrValidNsec
-	fsEntryOut.AttrValid = p.EntryAttrValid
-	fsEntryOut.AttrValidNsec = p.EntryAttrValidNsec
+	fsEntryOut.EntryValid = p.FsINodeDriver.EntryAttrValid
+	fsEntryOut.EntryValidNsec = p.FsINodeDriver.EntryAttrValidNsec
+	fsEntryOut.AttrValid = p.FsINodeDriver.EntryAttrValid
+	fsEntryOut.AttrValidNsec = p.FsINodeDriver.EntryAttrValidNsec
 	p.SetFsAttrByFsINode(&fsEntryOut.Attr, pFsINodeMeta)
 }
 
@@ -77,8 +77,8 @@ func (p *PosixFs) SetFsINodeByFsAttr(pFsINodeMeta *solofsapitypes.FsINodeMeta,
 func (p *PosixFs) SetFsAttrOutByFsINode(fsAttrOut *fsapitypes.AttrOut,
 	pFsINodeMeta *solofsapitypes.FsINodeMeta) {
 
-	fsAttrOut.AttrValid = p.EntryAttrValid
-	fsAttrOut.AttrValidNsec = p.EntryAttrValidNsec
+	fsAttrOut.AttrValid = p.FsINodeDriver.EntryAttrValid
+	fsAttrOut.AttrValidNsec = p.FsINodeDriver.EntryAttrValidNsec
 	p.SetFsAttrByFsINode(&fsAttrOut.Attr, pFsINodeMeta)
 }
 

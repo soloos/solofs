@@ -102,7 +102,7 @@ func (p *FIXAttrDriver) getXAttr(fsINodeID solofsapitypes.FsINodeID) (solofsapit
 	}
 
 	xattr, err = p.helper.GetFIXAttrByInoFromDB(p.posixFs.NameSpaceID, fsINodeID)
-	if err != nil && err != solofsapitypes.ErrObjectNotExists {
+	if err != nil && err.Error() != solofsapitypes.ErrObjectNotExists.Error() {
 		return xattr, err
 	}
 

@@ -63,7 +63,7 @@ func (p *ClientDriver) initMemStg(solonnSrpcPeerID snettypes.PeerID) error {
 }
 
 func (p *ClientDriver) InitClient(itClient solofsapi.Client,
-	nameSpaceID solofsapitypes.NameSpaceID,
+	nsID solofsapitypes.NameSpaceID,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
 	defaultMemBlocksLimit int32,
@@ -81,7 +81,7 @@ func (p *ClientDriver) InitClient(itClient solofsapi.Client,
 	}
 
 	err = client.Init(p.SoloosEnv,
-		nameSpaceID,
+		nsID,
 		&p.memStg, &p.dbConn,
 		defaultNetBlockCap,
 		defaultMemBlockCap,

@@ -59,7 +59,7 @@ func (p *PosixFs) Rename(input *fsapitypes.RenameIn, oldName string, newName str
 	defer p.FsINodeDriver.ReleaseFsINode(uCheckFsINode)
 	pCheckFsINode = uCheckFsINode.Ptr()
 	if err != nil {
-		if err != solofsapitypes.ErrObjectNotExists {
+		if err.Error() != solofsapitypes.ErrObjectNotExists.Error() {
 			return solofstypes.ErrorToFsStatus(err)
 		}
 	} else {
@@ -177,7 +177,7 @@ func (p *PosixFs) SimpleMkdir(pFsINodeMeta *solofsapitypes.FsINodeMeta,
 		return solofstypes.FS_EEXIST
 	}
 
-	if err != nil && err != solofsapitypes.ErrObjectNotExists {
+	if err != nil && err.Error() != solofsapitypes.ErrObjectNotExists.Error() {
 		return solofstypes.ErrorToFsStatus(err)
 	}
 

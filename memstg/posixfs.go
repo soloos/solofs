@@ -4,7 +4,6 @@ import (
 	"soloos/common/fsapi"
 	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
-	"time"
 )
 
 type PosixFs struct {
@@ -13,18 +12,15 @@ type PosixFs struct {
 	MemStg      *MemStg
 
 	FsINodeDriver
+	FIXAttrDriver
 	FdTable
-
-	EntryTtl           time.Duration
-	EntryAttrValid     uint64
-	EntryAttrValidNsec uint32
 }
 
 var _ = fsapi.PosixFs(&PosixFs{})
 
 func (p *PosixFs) Init(
 	soloosEnv *soloosbase.SoloosEnv,
-	nameSpaceID solofsapitypes.NameSpaceID,
+	nsID solofsapitypes.NameSpaceID,
 	memStg *MemStg,
 	// FsINodeDriver
 	defaultNetBlockCap int,
@@ -47,7 +43,7 @@ func (p *PosixFs) Init(
 	var err error
 
 	p.SoloosEnv = soloosEnv
-	p.NameSpaceID = nameSpaceID
+	p.NameSpaceID = nsID
 	p.MemStg = memStg
 
 	err = p.FsINodeDriver.Init(p.SoloosEnv,
@@ -64,7 +60,13 @@ func (p *PosixFs) Init(
 		insertFsINodeInDB,
 		fetchFsINodeByIDFromDB,
 		fetchFsINodeByNameFromDB,
-		// FIXAttrDriver
+	)
+	if err != nil {
+		return err
+	}
+
+	err = p.FIXAttrDriver.Init(
+		p,
 		deleteFIXAttrInDB,
 		replaceFIXAttrInDB,
 		getFIXAttrByInoFromDB,
@@ -72,8 +74,6 @@ func (p *PosixFs) Init(
 	if err != nil {
 		return err
 	}
-
-	p.refreshEntryTtl()
 
 	err = p.FdTable.Init()
 	if err != nil {
@@ -97,8 +97,6 @@ func (p *PosixFs) String() string {
 func (p *PosixFs) SetDebug(debug bool) {
 }
 
-func (p *PosixFs) refreshEntryTtl() {
-	p.EntryTtl = p.FsINodeDriver.EntryTtl
-	p.EntryAttrValid = p.FsINodeDriver.EntryAttrValid
-	p.EntryAttrValidNsec = p.FsINodeDriver.EntryAttrValidNsec
+func (p *PosixFs) Close() error {
+	return nil
 }

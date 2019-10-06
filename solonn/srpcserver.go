@@ -31,10 +31,24 @@ func (p *SrpcServer) Init(solonn *Solonn,
 	}
 
 	p.srpcServer.RegisterService("/Solodn/Register", p.SolodnRegister)
+
 	p.srpcServer.RegisterService("/NetINode/Get", p.NetINodeGet)
 	p.srpcServer.RegisterService("/NetINode/MustGet", p.NetINodeMustGet)
 	p.srpcServer.RegisterService("/NetINode/CommitSizeInDB", p.NetINodeCommitSizeInDB)
+
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
+
+	p.srpcServer.RegisterService("/FsINode/AllocFsINodeID", p.solonn.metaStg.AllocFsINodeID)
+	p.srpcServer.RegisterService("/FsINode/DeleteFsINodeByIDInDB", p.solonn.metaStg.DeleteFsINodeByIDInDB)
+	p.srpcServer.RegisterService("/FsINode/ListFsINodeByParentIDFromDB", p.solonn.metaStg.ListFsINodeByParentIDFromDB)
+	p.srpcServer.RegisterService("/FsINode/UpdateFsINodeInDB", p.solonn.metaStg.UpdateFsINodeInDB)
+	p.srpcServer.RegisterService("/FsINode/InsertFsINodeInDB", p.solonn.metaStg.InsertFsINodeInDB)
+	p.srpcServer.RegisterService("/FsINode/FetchFsINodeByIDFromDB", p.solonn.metaStg.FetchFsINodeByIDFromDB)
+	p.srpcServer.RegisterService("/FsINode/FetchFsINodeByNameFromDB", p.solonn.metaStg.FetchFsINodeByNameFromDB)
+
+	p.srpcServer.RegisterService("/FIXAttr/DeleteFIXAttrInDB", p.solonn.metaStg.DeleteFIXAttrInDB)
+	p.srpcServer.RegisterService("/FIXAttr/ReplaceFIXAttrInDB", p.solonn.metaStg.ReplaceFIXAttrInDB)
+	p.srpcServer.RegisterService("/FIXAttr/GetFIXAttrByInoFromDB", p.solonn.metaStg.GetFIXAttrByInoFromDB)
 
 	return nil
 }

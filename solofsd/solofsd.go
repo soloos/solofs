@@ -38,7 +38,7 @@ func (p *SolofsDaemon) initMetaStg() error {
 		p.options.DBDriver, p.options.Dsn)
 }
 
-func (p *SolofsDaemon) initMemStg() error {
+func (p *SolofsDaemon) initMemBlockDriver() error {
 	var memBlockDriverOptions = memstg.MemBlockDriverOptions{
 		[]memstg.MemBlockTableOptions{
 			memstg.MemBlockTableOptions{
@@ -58,7 +58,7 @@ func (p *SolofsDaemon) Init(options Options) error {
 
 	util.AssertErrIsNil(p.initMetaStg())
 
-	util.AssertErrIsNil(p.initMemStg())
+	util.AssertErrIsNil(p.initMemBlockDriver())
 
 	util.AssertErrIsNil(p.initSoloboat())
 	return nil
@@ -155,4 +155,5 @@ func (p *SolofsDaemon) Serve() error {
 }
 
 func (p *SolofsDaemon) Close() error {
+	return nil
 }

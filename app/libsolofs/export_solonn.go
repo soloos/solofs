@@ -36,7 +36,7 @@ func GoSolofsExists(cInodePath *C.char) C.int {
 	)
 	err = env.PosixFs.FetchFsINodeByPath(&fsINodeMeta, fsINodePath)
 	if err != nil {
-		// contains err == solofsapitypes.ErrObjectNotExists
+		// contains err.Error() == solofsapitypes.ErrObjectNotExists.Error()
 		return solofsapi.CODE_ERR
 	}
 	return solofsapi.CODE_OK

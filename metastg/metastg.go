@@ -12,6 +12,8 @@ type MetaStg struct {
 	SolodnDriver
 	NetINodeDriver
 	NetBlockDriver
+	FsINodeDriver
+	FIXAttrDriver
 }
 
 func (p *MetaStg) Init(soloosEnv *soloosbase.SoloosEnv,
@@ -46,6 +48,16 @@ func (p *MetaStg) Init(soloosEnv *soloosbase.SoloosEnv,
 		&p.dbConn,
 		p.SolodnDriver.GetSolodn,
 		p.NetINodeDriver.ChooseSolodnsForNewNetBlock)
+	if err != nil {
+		return err
+	}
+
+	err = p.FsINodeDriver.Init(p.SoloosEnv, &p.dbConn)
+	if err != nil {
+		return err
+	}
+
+	err = p.FIXAttrDriver.Init(p.SoloosEnv, &p.dbConn)
 	if err != nil {
 		return err
 	}

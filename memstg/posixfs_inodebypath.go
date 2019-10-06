@@ -15,7 +15,7 @@ func (p *PosixFs) DeleteFsINodeByPath(fsINodePath string) error {
 
 	err = p.FetchFsINodeByPath(&fsINodeMeta, fsINodePath)
 	if err != nil {
-		if err == solofsapitypes.ErrObjectNotExists {
+		if err.Error() == solofsapitypes.ErrObjectNotExists.Error() {
 			return nil
 		} else {
 			return err
@@ -61,7 +61,7 @@ func (p *PosixFs) RenameWithFullPath(oldFsINodeName, newFsINodePath string) erro
 
 	err = p.FetchFsINodeByPath(&tmpFsINodeMeta, newFsINodePath)
 	if err != nil {
-		if err == solofsapitypes.ErrObjectNotExists {
+		if err.Error() == solofsapitypes.ErrObjectNotExists.Error() {
 			fsINodeMeta.ParentID = parentFsINodeMeta.Ino
 			fsINodeMeta.SetName(tmpFileName)
 			goto PREPARE_PARENT_FSINODE_DONE

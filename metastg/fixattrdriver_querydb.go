@@ -6,7 +6,7 @@ import (
 	"soloos/common/solofsapitypes"
 )
 
-func (p *FIXAttrDriver) DeleteFIXAttrInDB(nameSpaceID solofsapitypes.NameSpaceID,
+func (p *FIXAttrDriver) DeleteFIXAttrInDB(nsID solofsapitypes.NameSpaceID,
 	fsINodeID solofsapitypes.FsINodeID) error {
 	var (
 		sess solodbapi.Session
@@ -19,7 +19,7 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(nameSpaceID solofsapitypes.NameSpaceID
 	}
 
 	_, err = sess.DeleteFrom("b_fsinode_xattr").
-		Where("namespace_id=? and fsinode_ino=?", nameSpaceID, fsINodeID).
+		Where("namespace_id=? and fsinode_ino=?", nsID, fsINodeID).
 		Exec()
 	if err != nil {
 		return err
@@ -28,7 +28,7 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(nameSpaceID solofsapitypes.NameSpaceID
 	return nil
 }
 
-func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nameSpaceID solofsapitypes.NameSpaceID,
+func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nsID solofsapitypes.NameSpaceID,
 	fsINodeID solofsapitypes.FsINodeID,
 	xattr solofsapitypes.FsINodeXAttr) error {
 	var (
@@ -48,7 +48,7 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nameSpaceID solofsapitypes.NameSpaceI
 	}
 
 	err = sess.ReplaceInto("b_fsinode_xattr").
-		PrimaryColumns("namespace_id", "fsinode_ino").PrimaryValues(nameSpaceID, fsINodeID).
+		PrimaryColumns("namespace_id", "fsinode_ino").PrimaryValues(nsID, fsINodeID).
 		Columns("xattr").Values(xattrBytes).
 		Exec()
 	if err != nil {
@@ -58,7 +58,7 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nameSpaceID solofsapitypes.NameSpaceI
 	return nil
 }
 
-func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nameSpaceID solofsapitypes.NameSpaceID,
+func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nsID solofsapitypes.NameSpaceID,
 	fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeXAttr, error) {
 	var (
 		sess    solodbapi.Session
@@ -75,7 +75,7 @@ func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nameSpaceID solofsapitypes.NameSpa
 
 	sqlRows, err = sess.Select("xattr").
 		From("b_fsinode_xattr").
-		Where("namespace_id=? and fsinode_ino=?", nameSpaceID, fsINodeID).
+		Where("namespace_id=? and fsinode_ino=?", nsID, fsINodeID).
 		Limit(1).Rows()
 	if err != nil {
 		goto QUERY_DONE

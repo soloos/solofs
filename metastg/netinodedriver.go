@@ -59,7 +59,7 @@ func (p *NetINodeDriver) PrepareNetINodeMetaDataWithStorDB(uNetINode solofsapity
 
 	err = p.FetchNetINodeFromDB(pNetINode)
 	if err != nil {
-		if err != solofsapitypes.ErrObjectNotExists {
+		if err.Error() != solofsapitypes.ErrObjectNotExists.Error() {
 			goto PREPARE_DONE
 		}
 

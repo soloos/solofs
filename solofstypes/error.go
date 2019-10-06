@@ -6,20 +6,22 @@ import (
 )
 
 func ErrorToFsStatus(err error) fsapitypes.Status {
-	switch err {
-	case nil:
+	if err == nil {
 		return fsapitypes.OK
-	case solofsapitypes.ErrObjectNotExists:
+	}
+
+	switch err.Error() {
+	case solofsapitypes.ErrObjectNotExists.Error():
 		return fsapitypes.ENOENT
-	case solofsapitypes.ErrObjectExists:
+	case solofsapitypes.ErrObjectExists.Error():
 		return FS_EEXIST
-	case solofsapitypes.ErrRLockFailed:
+	case solofsapitypes.ErrRLockFailed.Error():
 		return fsapitypes.EAGAIN
-	case solofsapitypes.ErrLockFailed:
+	case solofsapitypes.ErrLockFailed.Error():
 		return fsapitypes.EAGAIN
-	case solofsapitypes.ErrObjectHasChildren:
+	case solofsapitypes.ErrObjectHasChildren.Error():
 		return FS_ENOTEMPTY
-	case solofsapitypes.ErrHasNotPermission:
+	case solofsapitypes.ErrHasNotPermission.Error():
 		return fsapitypes.EPERM
 	}
 

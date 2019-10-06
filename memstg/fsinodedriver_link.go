@@ -63,7 +63,7 @@ func (p *FsINodeDriver) Symlink(parentID solofsapitypes.FsINodeID, pointedTo str
 		return err
 	}
 
-	err = p.FIXAttrDriver.SetXAttr(retFsINodeMeta.Ino, solofstypes.FS_XATTR_SOFT_LNKMETA_KEY, []byte(pointedTo))
+	err = p.posixFs.FIXAttrDriver.SetXAttr(retFsINodeMeta.Ino, solofstypes.FS_XATTR_SOFT_LNKMETA_KEY, []byte(pointedTo))
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (p *FsINodeDriver) Symlink(parentID solofsapitypes.FsINodeID, pointedTo str
 }
 
 func (p *FsINodeDriver) Readlink(fsINodeID solofsapitypes.FsINodeID) ([]byte, error) {
-	return p.FIXAttrDriver.GetXAttrData(fsINodeID, solofstypes.FS_XATTR_SOFT_LNKMETA_KEY)
+	return p.posixFs.FIXAttrDriver.GetXAttrData(fsINodeID, solofstypes.FS_XATTR_SOFT_LNKMETA_KEY)
 }
 
 func (p *FsINodeDriver) deleteFsINodeHardLinked(fsINodeID solofsapitypes.FsINodeID) error {
@@ -153,7 +153,7 @@ func (p *FsINodeDriver) UnlinkFsINode(fsINodeID solofsapitypes.FsINodeID) error 
 	pFsINode = uFsINode.Ptr()
 
 	if err != nil {
-		if err == solofsapitypes.ErrObjectNotExists {
+		if err.Error() == solofsapitypes.ErrObjectNotExists.Error() {
 			err = nil
 			goto DONE
 		} else {

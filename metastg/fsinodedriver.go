@@ -8,16 +8,9 @@ import (
 	"sync/atomic"
 )
 
-type FsINodeDriverHelper struct {
-	GetNetINode     solofsapitypes.GetNetINode
-	MustGetNetINode solofsapitypes.MustGetNetINode
-	ReleaseNetINode solofsapitypes.ReleaseNetINode
-}
-
 type FsINodeDriver struct {
 	*soloosbase.SoloosEnv
 	dbConn *solodbapi.Connection
-	helper FsINodeDriverHelper
 
 	allocINodeIDDalta solofsapitypes.FsINodeID
 	lastFsINodeIDInDB solofsapitypes.FsINodeID
@@ -26,19 +19,11 @@ type FsINodeDriver struct {
 
 func (p *FsINodeDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	dbConn *solodbapi.Connection,
-	getNetINode solofsapitypes.GetNetINode,
-	mustGetNetINode solofsapitypes.MustGetNetINode,
-	releaseNetINode solofsapitypes.ReleaseNetINode,
 ) error {
 	var err error
 
 	p.SoloosEnv = soloosEnv
 	p.dbConn = dbConn
-	p.SetHelper(
-		getNetINode,
-		mustGetNetINode,
-		releaseNetINode,
-	)
 
 	err = p.prepareINodes()
 	if err != nil {
@@ -46,16 +31,6 @@ func (p *FsINodeDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	}
 
 	return nil
-}
-
-func (p *FsINodeDriver) SetHelper(
-	getNetINode solofsapitypes.GetNetINode,
-	mustGetNetINode solofsapitypes.MustGetNetINode,
-	ReleaseNetINode solofsapitypes.ReleaseNetINode,
-) {
-	p.helper.GetNetINode = getNetINode
-	p.helper.MustGetNetINode = mustGetNetINode
-	p.helper.ReleaseNetINode = ReleaseNetINode
 }
 
 func (p *FsINodeDriver) prepareINodes() error {

@@ -26,7 +26,7 @@ func TestMetaStgPosixFsBase(t *testing.T) {
 
 	code = posixFs.SimpleMkdir(&fsINodeMeta, nil, solofsapitypes.RootFsINodeID, 0777, "test", 0, 0, solofstypes.FS_RDEV)
 	if code != fsapitypes.OK {
-		assert.Equal(t, code, solofstypes.FS_EEXIST)
+		util.AssertTrue(code == solofstypes.FS_EEXIST)
 	}
 
 	util.Ignore(fsINodeMeta)

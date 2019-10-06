@@ -40,7 +40,7 @@ func (p *PosixFs) SimpleOpenFile(fsINodePath string,
 		goto OPEN_FILE_DONE
 	}
 
-	if err == solofsapitypes.ErrObjectNotExists {
+	if err.Error() == solofsapitypes.ErrObjectNotExists.Error() {
 		err = p.createFsINode(&fsINodeMeta,
 			nil, nil, parentID,
 			paths[i], solofstypes.FSINODE_TYPE_FILE, fsapitypes.S_IFREG|0777,

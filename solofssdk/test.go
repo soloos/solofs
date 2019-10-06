@@ -51,6 +51,9 @@ func MakeClientForTest(client *Client) {
 		i           int
 	)
 
+	memStg.SoloosEnv = &soloosEnv
+	util.AssertErrIsNil(memStg.SolonnClient.Init(memStg.SoloosEnv, solonnSrpcPeerID))
+
 	util.AssertErrIsNil(netDriverSoloosEnv.InitWithSNet(""))
 	util.AssertErrIsNil(netDriverSoloosEnv.SNetDriver.Init(&netDriverSoloosEnv.OffheapDriver))
 	{
