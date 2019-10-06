@@ -50,7 +50,7 @@ func (p *SolofsDaemon) initMemStg() error {
 	return (p.MemBlockDriver.Init(&p.SoloosEnv, memBlockDriverOptions))
 }
 
-func (p *SolofsDaemon) Init(options Options) {
+func (p *SolofsDaemon) Init(options Options) error {
 	p.options = options
 	util.AssertErrIsNil(p.SoloosEnv.InitWithSNet(p.options.SNetDriverServeAddr))
 
@@ -61,6 +61,7 @@ func (p *SolofsDaemon) Init(options Options) {
 	util.AssertErrIsNil(p.initMemStg())
 
 	util.AssertErrIsNil(p.initSoloboat())
+	return nil
 }
 
 func (p *SolofsDaemon) startCommon() {
@@ -140,7 +141,7 @@ func (p *SolofsDaemon) startSolodn() {
 	util.AssertErrIsNil(p.solodn.Close())
 }
 
-func (p *SolofsDaemon) Start() {
+func (p *SolofsDaemon) Serve() error {
 	if p.options.Mode == "solonn" {
 		p.startCommon()
 		p.startSolonn()
@@ -150,4 +151,8 @@ func (p *SolofsDaemon) Start() {
 		p.startCommon()
 		p.startSolodn()
 	}
+	return nil
+}
+
+func (p *SolofsDaemon) Close() error {
 }

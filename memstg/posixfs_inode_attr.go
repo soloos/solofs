@@ -114,7 +114,7 @@ func (p *PosixFs) SetAttr(input *fsapitypes.SetAttrIn, out *fsapitypes.AttrOut) 
 		return code
 	}
 
-	err = p.FsINodeDriver.UpdateFsINodeInDB(&fsINodeMeta)
+	err = p.FsINodeDriver.UpdateFsINode(&fsINodeMeta)
 	if err != nil {
 		return solofstypes.ErrorToFsStatus(err)
 	}

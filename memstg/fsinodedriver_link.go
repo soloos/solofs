@@ -37,7 +37,7 @@ func (p *FsINodeDriver) Link(srcFsINodeID solofsapitypes.FsINodeID,
 	}
 
 	atomic.AddInt32(&pSrcFsINode.Meta.Nlink, 1)
-	err = p.UpdateFsINodeInDB(&pSrcFsINode.Meta)
+	err = p.UpdateFsINode(&pSrcFsINode.Meta)
 	if err != nil {
 		return err
 	}
@@ -113,7 +113,7 @@ func (p *FsINodeDriver) decreaseFsINodeNLink(uFsINode solofsapitypes.FsINodeUint
 	)
 
 	if atomic.AddInt32(&pFsINode.Meta.Nlink, -1) > 0 {
-		err = p.UpdateFsINodeInDB(&pFsINode.Meta)
+		err = p.UpdateFsINode(&pFsINode.Meta)
 		if err != nil {
 			return false, err
 		}
@@ -169,7 +169,7 @@ func (p *FsINodeDriver) UnlinkFsINode(fsINodeID solofsapitypes.FsINodeID) error 
 
 	if isFsINodeDeleted == false {
 		pFsINode.Meta.ParentID = solofsapitypes.ZombieFsINodeParentID
-		err = p.UpdateFsINodeInDB(&pFsINode.Meta)
+		err = p.UpdateFsINode(&pFsINode.Meta)
 		if err != nil {
 			goto DONE
 		}

@@ -47,6 +47,26 @@ func (p *Client) Init(soloosEnv *soloosbase.SoloosEnv,
 		return err
 	}
 
+	// err = p.memPosixFs.Init(p.SoloosEnv,
+	// nameSpaceID,
+	// p.memStg,
+	// defaultNetBlockCap,
+	// defaultMemBlockCap,
+	// p.memPosixFs.AllocFsINodeID,
+	// p.memStg.GetNetINode,
+	// p.memStg.MustGetNetINode,
+	// p.memStg.ReleaseNetINode,
+	// p.memPosixFs.DeleteFsINodeByIDInDB,
+	// p.memPosixFs.ListFsINodeByParentIDFromDB,
+	// p.memPosixFs.UpdateFsINodeInDB,
+	// p.memPosixFs.InsertFsINodeInDB,
+	// p.memPosixFs.FetchFsINodeByIDFromDB,
+	// p.memPosixFs.FetchFsINodeByNameFromDB,
+	// p.memPosixFs.DeleteFIXAttrInDB,
+	// p.memPosixFs.ReplaceFIXAttrInDB,
+	// p.memPosixFs.GetFIXAttrByInoFromDB,
+	// )
+
 	err = p.memPosixFs.Init(p.SoloosEnv,
 		nameSpaceID,
 		p.memStg,

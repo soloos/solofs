@@ -9,10 +9,11 @@ import (
 
 type PosixFs struct {
 	*soloosbase.SoloosEnv
-	NameSpaceID   solofsapitypes.NameSpaceID
-	MemStg        *MemStg
-	FsINodeDriver FsINodeDriver
-	FdTable       FdTable
+	NameSpaceID solofsapitypes.NameSpaceID
+	MemStg      *MemStg
+
+	FsINodeDriver
+	FdTable
 
 	EntryTtl           time.Duration
 	EntryAttrValid     uint64

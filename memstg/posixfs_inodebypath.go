@@ -80,7 +80,7 @@ func (p *PosixFs) RenameWithFullPath(oldFsINodeName, newFsINodePath string) erro
 	}
 PREPARE_PARENT_FSINODE_DONE:
 
-	err = p.FsINodeDriver.UpdateFsINodeInDB(&fsINodeMeta)
+	err = p.FsINodeDriver.UpdateFsINode(&fsINodeMeta)
 	if err != nil {
 		return err
 	}

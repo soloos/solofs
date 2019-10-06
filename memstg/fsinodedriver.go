@@ -46,7 +46,7 @@ type FsINodeDriver struct {
 
 	INodeRWMutexTable offheap.LKVTableWithUint64
 
-	FIXAttrDriver FIXAttrDriver
+	FIXAttrDriver
 
 	DefaultNetBlockCap int
 	DefaultMemBlockCap int
@@ -388,7 +388,7 @@ func (p *FsINodeDriver) ReleaseFsINode(uFsINode solofsapitypes.FsINodeUintptr) {
 	p.fsINodesByIDTable.ReleaseObject(offheap.LKVTableObjectUPtrWithUint64(uFsINode))
 }
 
-func (p *FsINodeDriver) UpdateFsINodeInDB(pFsINodeMeta *solofsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) UpdateFsINode(pFsINodeMeta *solofsapitypes.FsINodeMeta) error {
 	var err error
 	pFsINodeMeta.Ctime = solofsapitypes.DirTreeTime(p.Timer.Now().Unix())
 	err = p.helper.UpdateFsINodeInDB(p.posixFs.NameSpaceID, *pFsINodeMeta)

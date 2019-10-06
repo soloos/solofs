@@ -18,6 +18,7 @@ func main() {
 	err = util.LoadOptionsFile(optionsFile, &options)
 	util.AssertErrIsNil(err)
 
-	solofsdIns.Init(options)
-	solofsdIns.Start()
+	util.AssertErrIsNil(solofsdIns.Init(options))
+	util.AssertErrIsNil(solofsdIns.Serve())
+	util.AssertErrIsNil(solofsdIns.Close())
 }

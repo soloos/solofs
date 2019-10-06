@@ -7,7 +7,6 @@ import (
 )
 
 type PosixFs struct {
-	nameSpaceID solofsapitypes.NameSpaceID
 	*soloosbase.SoloosEnv
 	dbConn        *solodbapi.Connection
 	FsINodeDriver FsINodeDriver

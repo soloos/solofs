@@ -91,7 +91,7 @@ func (p *PosixFs) Rename(input *fsapitypes.RenameIn, oldName string, newName str
 
 	pOldFsINode.Meta.ParentID = newDirFsINodeID
 	pOldFsINode.Meta.SetName(newName)
-	err = p.FsINodeDriver.UpdateFsINodeInDB(&pOldFsINode.Meta)
+	err = p.FsINodeDriver.UpdateFsINode(&pOldFsINode.Meta)
 	if err != nil {
 		return solofstypes.ErrorToFsStatus(err)
 	}

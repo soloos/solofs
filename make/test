@@ -1,9 +1,6 @@
 
-test-apps-libsolofs:
-	go test .//apps/libsolofs
-
-test-solodn:
-	go test .//solodn
+test-app-libsolofs:
+	go test .//app/libsolofs
 
 test-memstg:
 	go test .//memstg
@@ -11,13 +8,16 @@ test-memstg:
 test-metastg:
 	go test .//metastg
 
-test-solonn:
-	go test .//solonn
+test-sfuse:
+	go test .//sfuse
+
+test-solodn:
+	go test .//solodn
 
 test-solofssdk:
 	go test .//solofssdk
 
-test-sfuse:
-	go test .//sfuse
+test-solonn:
+	go test .//solonn
 
-test: test-apps-libsolofs test-solodn test-memstg test-metastg test-solonn test-solofssdk test-sfuse
+test: test-app-libsolofs test-memstg test-metastg test-sfuse test-solodn test-solofssdk test-solonn

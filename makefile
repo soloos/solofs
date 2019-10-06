@@ -22,14 +22,14 @@ clean-test-cache:
 all:solofsd solofsd-mock solofssdk
 
 libsolofs:
-	$(GOBUILD) -o ./bin/libsolofs.so -buildmode=c-shared ./apps/libsolofs
+	$(GOBUILD) -o ./bin/libsolofs.so -buildmode=c-shared ./app/libsolofs
 
 solofsd:
-	$(GOBUILD) -o ./bin/solofsd ./apps/solofsd
+	$(GOBUILD) -o ./bin/solofsd ./app/solofsd
 
 solofsd-fuse:
 	rm -f bin/solofsd-fuse
-	$(GOBUILD) -o ./bin/solofsd-fuse ./apps/solofsd-fuse
+	$(GOBUILD) -o ./bin/solofsd-fuse ./app/solofsd-fuse
 
 include ./make/test
 include ./make/bench

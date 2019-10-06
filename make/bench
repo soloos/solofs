@@ -1,9 +1,6 @@
 
-bench-apps-libsolofs:
-	cd src/.//apps/libsolofs/ && go test -bench=. -benchmem 
-
-bench-solodn:
-	cd src/.//solodn/ && go test -bench=. -benchmem 
+bench-app-libsolofs:
+	cd src/.//app/libsolofs/ && go test -bench=. -benchmem 
 
 bench-memstg:
 	cd src/.//memstg/ && go test -bench=. -benchmem 
@@ -11,13 +8,16 @@ bench-memstg:
 bench-metastg:
 	cd src/.//metastg/ && go test -bench=. -benchmem 
 
-bench-solonn:
-	cd src/.//solonn/ && go test -bench=. -benchmem 
+bench-sfuse:
+	cd src/.//sfuse/ && go test -bench=. -benchmem 
+
+bench-solodn:
+	cd src/.//solodn/ && go test -bench=. -benchmem 
 
 bench-solofssdk:
 	cd src/.//solofssdk/ && go test -bench=. -benchmem 
 
-bench-sfuse:
-	cd src/.//sfuse/ && go test -bench=. -benchmem 
+bench-solonn:
+	cd src/.//solonn/ && go test -bench=. -benchmem 
 
-bench: bench-apps-libsolofs bench-solodn bench-memstg bench-metastg bench-solonn bench-solofssdk bench-sfuse
+bench: bench-app-libsolofs bench-memstg bench-metastg bench-sfuse bench-solodn bench-solofssdk bench-solonn
