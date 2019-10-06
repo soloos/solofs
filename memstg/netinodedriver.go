@@ -9,7 +9,6 @@ import (
 )
 
 type NetINodeDriverHelper struct {
-	SolonnClient *solofsapi.SolonnClient
 	solofsapitypes.PrepareNetINodeMetaDataOnlyLoadDB
 	solofsapitypes.PrepareNetINodeMetaDataWithStorDB
 	solofsapitypes.NetINodeCommitSizeInDB
@@ -18,6 +17,8 @@ type NetINodeDriverHelper struct {
 type NetINodeDriver struct {
 	*soloosbase.SoloosEnv
 	helper NetINodeDriverHelper
+
+	solonnClient *solofsapi.SolonnClient
 
 	netINodeTable offheap.LKVTableWithBytes64
 
@@ -37,9 +38,12 @@ func (p *NetINodeDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	var err error
 
 	p.SoloosEnv = soloosEnv
-	p.SetHelper(solonnClient,
+
+	p.SetHelper(
 		prepareNetINodeMetaDataOnlyLoadDB, prepareNetINodeMetaDataWithStorDB,
 		netINodeCommitSizeInDB)
+
+	p.solonnClient = solonnClient
 
 	p.netBlockDriver = netBlockDriver
 	p.memBlockDriver = memBlockDriver
@@ -67,15 +71,17 @@ func (p *NetINodeDriver) netINodeTablePrepareNewObjectFunc(uNetINode solofsapity
 }
 
 func (p *NetINodeDriver) SetHelper(
-	solonnClient *solofsapi.SolonnClient,
 	prepareNetINodeMetaDataOnlyLoadDB solofsapitypes.PrepareNetINodeMetaDataOnlyLoadDB,
 	prepareNetINodeMetaDataWithStorDB solofsapitypes.PrepareNetINodeMetaDataWithStorDB,
 	netINodeCommitSizeInDB solofsapitypes.NetINodeCommitSizeInDB,
 ) {
-	p.helper.SolonnClient = solonnClient
 	p.helper.PrepareNetINodeMetaDataOnlyLoadDB = prepareNetINodeMetaDataOnlyLoadDB
 	p.helper.PrepareNetINodeMetaDataWithStorDB = prepareNetINodeMetaDataWithStorDB
 	p.helper.NetINodeCommitSizeInDB = netINodeCommitSizeInDB
+}
+
+func (p *NetINodeDriver) SetSolonnClient(solonnClient *solofsapi.SolonnClient) {
+	p.solonnClient = solonnClient
 }
 
 func (p *NetINodeDriver) NetINodeTruncate(uNetINode solofsapitypes.NetINodeUintptr, size uint64) error {

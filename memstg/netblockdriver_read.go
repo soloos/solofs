@@ -18,7 +18,7 @@ func (p *NetBlockDriver) PReadMemBlock(uNetINode solofsapitypes.NetINodeUintptr,
 	)
 
 	// TODO choose solodn to read
-	readedLen, err = p.solodnClient.PReadMemBlock(uNetINode,
+	readedLen, err = p.PReadMemBlockFromNet(uNetINode,
 		uNetBlock, netBlockIndex,
 		uMemBlock, memBlockIndex,
 		offset, length)

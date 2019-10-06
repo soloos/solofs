@@ -22,9 +22,9 @@ func (p *NetINodeDriver) doGetNetINodeMetaData(isMustGet bool,
 	req.MemBlockCap = int32(memBlockCap)
 
 	if isMustGet {
-		err = p.helper.SolonnClient.Dispatch("/NetINode/MustGet", &resp, &req)
+		err = p.solonnClient.Dispatch("/NetINode/MustGet", &resp, &req)
 	} else {
-		err = p.helper.SolonnClient.Dispatch("/NetINode/Get", &resp, &req)
+		err = p.solonnClient.Dispatch("/NetINode/Get", &resp, &req)
 	}
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func (p *NetINodeDriver) NetINodeCommitSizeInDB(uNetINode solofsapitypes.NetINod
 		Size:       size,
 	}
 
-	err = p.helper.SolonnClient.Dispatch("/NetINode/CommitSizeInDB", nil, req)
+	err = p.solonnClient.Dispatch("/NetINode/CommitSizeInDB", nil, req)
 	if err != nil {
 		return err
 	}

@@ -24,7 +24,7 @@ func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock solofsapitypes.NetB
 
 	// TODO choose solonn
 	var netBlockInfo solofsprotocol.NetINodeNetBlockInfoResp
-	err = p.helper.SolonnClient.Dispatch("/NetBlock/PrepareMetaData", &netBlockInfo, req)
+	err = p.solonnClient.Dispatch("/NetBlock/PrepareMetaData", &netBlockInfo, req)
 	if err != nil {
 		return err
 	}

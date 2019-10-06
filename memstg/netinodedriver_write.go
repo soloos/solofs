@@ -144,7 +144,7 @@ func (p *NetINodeDriver) Sync(uNetINode solofsapitypes.NetINodeUintptr) error {
 	}
 
 	// TODO improve me
-	err = p.NetINodeCommitSizeInDB(uNetINode, pNetINode.Size)
+	err = p.helper.NetINodeCommitSizeInDB(uNetINode, pNetINode.Size)
 	if err != nil {
 		return err
 	}

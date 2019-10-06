@@ -44,7 +44,7 @@ func (p *netBlockDriverUploader) cronUpload() error {
 
 		for i = 0; i < pNetBlock.SyncDataBackends.Len; {
 			go func(uploadRetArr chan error, i int, uJob solofsapitypes.UploadMemBlockJobUintptr) {
-				uploadRetArr <- p.driver.solodnClient.UploadMemBlock(uJob, i)
+				uploadRetArr <- p.driver.UploadMemBlockToNet(uJob, i)
 			}(uploadRetArr, i, uJob)
 			i += int(pNetBlock.SyncDataBackends.Arr[i].TransferCount + 1)
 		}
