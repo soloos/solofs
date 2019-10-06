@@ -21,7 +21,7 @@ func MakeSolonnForTest(soloosEnv *soloosbase.SoloosEnv,
 ) {
 	var err error
 
-	netBlockDriver.SetHelper(metaStg.PrepareNetBlockMetaData)
+	netBlockDriver.SetHelper(metaStg.PrepareNetBlockMetaData, nil, nil, nil)
 	netINodeDriver.SetHelper(
 		metaStg.PrepareNetINodeMetaDataOnlyLoadDB,
 		metaStg.PrepareNetINodeMetaDataWithStorDB,

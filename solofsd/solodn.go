@@ -27,15 +27,12 @@ func (p *SolofsDaemon) startSolodn() {
 	}
 
 	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloosEnv,
-		nil, &p.SolodnClient, p.MetaStg.PrepareNetBlockMetaData))
+		nil, &p.SolodnClient, nil))
 
 	util.AssertErrIsNil(p.NetINodeDriver.Init(&p.SoloosEnv,
 		&p.NetBlockDriver,
 		&p.MemBlockDriver,
-		nil,
-		p.MetaStg.PrepareNetINodeMetaDataOnlyLoadDB,
-		p.MetaStg.PrepareNetINodeMetaDataWithStorDB,
-		p.MetaStg.NetINodeCommitSizeInDB,
+		nil, nil, nil, nil,
 	))
 
 	util.AssertErrIsNil(p.solodn.Init(&p.SoloosEnv, solodnOptions,

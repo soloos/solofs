@@ -14,7 +14,8 @@ func (p *NetBlockDriver) PReadMemBlockFromNet(uNetINode solofsapitypes.NetINodeU
 	offset uint64, length int,
 ) (int, error) {
 	if uNetBlock.Ptr().IsLocalDataBackendExists {
-		return p.preadMemBlockWithDisk(uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
+		return p.helper.PreadMemBlockWithDisk(
+			uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}
 
 	var peer snettypes.Peer

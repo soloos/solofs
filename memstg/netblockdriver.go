@@ -14,6 +14,9 @@ type PrepareNetBlockMetaData func(uNetBlock solofsapitypes.NetBlockUintptr,
 
 type NetBlockDriverHelper struct {
 	PrepareNetBlockMetaData
+	PreadMemBlockWithDisk    solofsapitypes.PReadMemBlockWithDisk
+	UploadMemBlockWithDisk   solofsapitypes.UploadMemBlockWithDisk
+	UploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq
 }
 
 type NetBlockDriver struct {
@@ -26,10 +29,6 @@ type NetBlockDriver struct {
 
 	netBlockTable          offheap.LKVTableWithBytes68
 	netBlockDriverUploader netBlockDriverUploader
-
-	preadMemBlockWithDisk    solofsapitypes.PReadMemBlockWithDisk
-	uploadMemBlockWithDisk   solofsapitypes.UploadMemBlockWithDisk
-	uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq
 }
 
 func (p *NetBlockDriver) Init(soloosEnv *soloosbase.SoloosEnv,
@@ -41,7 +40,10 @@ func (p *NetBlockDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 
 	p.SoloosEnv = soloosEnv
 
-	p.SetHelper(prepareNetBlockMetaData)
+	p.SetHelper(
+		prepareNetBlockMetaData,
+		nil, nil, nil,
+	)
 
 	p.solonnClient = solonnClient
 	p.solodnClient = solodnClient
@@ -75,8 +77,14 @@ func (p *NetBlockDriver) netBlockTablePrepareNewObjectFunc(uNetBlock solofsapity
 
 func (p *NetBlockDriver) SetHelper(
 	prepareNetBlockMetaData PrepareNetBlockMetaData,
+	preadMemBlockWithDisk solofsapitypes.PReadMemBlockWithDisk,
+	uploadMemBlockWithDisk solofsapitypes.UploadMemBlockWithDisk,
+	uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq,
 ) {
 	p.helper.PrepareNetBlockMetaData = prepareNetBlockMetaData
+	p.helper.PreadMemBlockWithDisk = preadMemBlockWithDisk
+	p.helper.UploadMemBlockWithDisk = uploadMemBlockWithDisk
+	p.helper.UploadMemBlockWithSolomq = uploadMemBlockWithSolomq
 }
 
 func (p *NetBlockDriver) SetSolomqClient(solomqClient solomqapi.Client) {
@@ -88,15 +96,15 @@ func (p *NetBlockDriver) SetSolonnClient(solonnClient *solofsapi.SolonnClient) {
 }
 
 func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadMemBlockWithDisk solofsapitypes.PReadMemBlockWithDisk) {
-	p.preadMemBlockWithDisk = preadMemBlockWithDisk
+	p.helper.PreadMemBlockWithDisk = preadMemBlockWithDisk
 }
 
 func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk solofsapitypes.UploadMemBlockWithDisk) {
-	p.uploadMemBlockWithDisk = uploadMemBlockWithDisk
+	p.helper.UploadMemBlockWithDisk = uploadMemBlockWithDisk
 }
 
 func (p *NetBlockDriver) SetUploadMemBlockWithSolomq(uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq) {
-	p.uploadMemBlockWithSolomq = uploadMemBlockWithSolomq
+	p.helper.UploadMemBlockWithSolomq = uploadMemBlockWithSolomq
 }
 
 // MustGetNetBlock get or init a netBlock

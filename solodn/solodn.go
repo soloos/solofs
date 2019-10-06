@@ -73,10 +73,13 @@ func (p *Solodn) initSNetPeer(options SolodnOptions) error {
 }
 
 func (p *Solodn) initNetBlockDriver() error {
-	p.netBlockDriver.SetPReadMemBlockWithDisk(p.localFs.PReadMemBlockWithDisk)
-	p.netBlockDriver.SetUploadMemBlockWithDisk(p.localFs.UploadMemBlockWithDisk)
 	p.netBlockDriver.SetSolonnClient(&p.solonnClient)
-	p.netBlockDriver.SetHelper(p.netBlockDriver.PrepareNetBlockMetaData)
+	p.netBlockDriver.SetHelper(
+		p.netBlockDriver.PrepareNetBlockMetaData,
+		p.localFs.PReadMemBlockWithDisk,
+		p.localFs.UploadMemBlockWithDisk,
+		nil,
+	)
 	return nil
 }
 
