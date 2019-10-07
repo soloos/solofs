@@ -2,8 +2,8 @@ package solonn
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
+	"soloos/common/solofstypes"
 )
 
 func (p *SrpcServer) doNetINodeGet(isMustGet bool,
@@ -11,8 +11,8 @@ func (p *SrpcServer) doNetINodeGet(isMustGet bool,
 	req *solofsprotocol.NetINodeInfoReq,
 ) (solofsprotocol.NetINodeInfoResp, error) {
 	var (
-		uNetINode  solofsapitypes.NetINodeUintptr
-		netINodeID solofsapitypes.NetINodeID
+		uNetINode  solofstypes.NetINodeUintptr
+		netINodeID solofstypes.NetINodeID
 		resp       solofsprotocol.NetINodeInfoResp
 		err        error
 	)
@@ -27,7 +27,7 @@ func (p *SrpcServer) doNetINodeGet(isMustGet bool,
 	defer p.solonn.netINodeDriver.ReleaseNetINode(uNetINode)
 
 	if err != nil {
-		if err.Error() == solofsapitypes.ErrObjectNotExists.Error() {
+		if err.Error() == solofstypes.ErrObjectNotExists.Error() {
 			return resp, nil
 		}
 		return resp, err
@@ -57,8 +57,8 @@ func (p *SrpcServer) NetINodeCommitSizeInDB(reqCtx *snet.SNetReqContext,
 	req solofsprotocol.NetINodeCommitSizeInDBReq,
 ) error {
 	var (
-		uNetINode  solofsapitypes.NetINodeUintptr
-		netINodeID solofsapitypes.NetINodeID
+		uNetINode  solofstypes.NetINodeUintptr
+		netINodeID solofstypes.NetINodeID
 		err        error
 	)
 

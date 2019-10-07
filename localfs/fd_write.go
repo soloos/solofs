@@ -2,11 +2,11 @@ package localfs
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/solodb/offheap"
 )
 
-func (p *Fd) Upload(uJob solofsapitypes.UploadMemBlockJobUintptr) error {
+func (p *Fd) Upload(uJob solofstypes.UploadMemBlockJobUintptr) error {
 	var (
 		req                 snet.SNetReq
 		netINodeWriteOffset int64

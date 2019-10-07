@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 	"soloos/solodb/offheap"
 )
@@ -21,7 +21,7 @@ func (p *FsMutexDriver) Init(
 	p.posixFs = posixFs
 
 	err = p.SoloosEnv.OffheapDriver.InitLKVTableWithUint64(&p.INodeRWMutexTable, "INodeRWMutex",
-		int(solofsapitypes.INodeRWMutexStructSize), -1, offheap.DefaultKVTableSharedCount,
+		int(solofstypes.INodeRWMutexStructSize), -1, offheap.DefaultKVTableSharedCount,
 		nil)
 	if err != nil {
 		return err

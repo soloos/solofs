@@ -2,14 +2,13 @@ package memstg
 
 import (
 	"soloos/common/fsapitypes"
-	"soloos/common/solofsapitypes"
-	"soloos/solofs/solofstypes"
+	"soloos/common/solofstypes"
 )
 
-func (p *PosixFs) SimpleFlush(fsINodeID solofsapitypes.FsINodeID) error {
+func (p *PosixFs) SimpleFlush(fsINodeID solofstypes.FsINodeID) error {
 	var (
-		uFsINode solofsapitypes.FsINodeUintptr
-		pFsINode *solofsapitypes.FsINode
+		uFsINode solofstypes.FsINodeUintptr
+		pFsINode *solofstypes.FsINode
 		err      error
 	)
 
@@ -32,5 +31,5 @@ func (p *PosixFs) SimpleFlush(fsINodeID solofsapitypes.FsINodeID) error {
 
 func (p *PosixFs) Flush(input *fsapitypes.FlushIn) fsapitypes.Status {
 	var err = p.SimpleFlush(input.NodeId)
-	return solofstypes.ErrorToFsStatus(err)
+	return ErrorToFsStatus(err)
 }

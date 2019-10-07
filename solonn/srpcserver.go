@@ -4,7 +4,7 @@ import (
 	"soloos/common/iron"
 	"soloos/common/log"
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
 type SrpcServer struct {
@@ -25,7 +25,7 @@ func (p *SrpcServer) Init(solonn *Solonn,
 	p.solonn = solonn
 	p.srpcServerListenAddr = srpcServerListenAddr
 	p.srpcServerServeAddr = srpcServerServeAddr
-	err = p.srpcServer.Init(solofsapitypes.DefaultSolofsRPCNetwork, p.srpcServerListenAddr)
+	err = p.srpcServer.Init(solofstypes.DefaultSolofsRPCNetwork, p.srpcServerListenAddr)
 	if err != nil {
 		return err
 	}

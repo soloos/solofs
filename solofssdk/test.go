@@ -4,12 +4,11 @@ import (
 	"soloos/common/iron"
 	"soloos/common/snet"
 	"soloos/common/solodbapi"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/solofs/memstg"
 	"soloos/solofs/metastg"
-	"soloos/solofs/solofstypes"
 	"soloos/solofs/solonn"
 	"time"
 )
@@ -33,7 +32,7 @@ func MakeClientForTest(client *Client) {
 		solonnIns                 solonn.Solonn
 		mockServerAddr            = "127.0.0.1:10302"
 		mockServer                memstg.MockServer
-		mockMemBlockTable         solofstypes.MockMemBlockTable
+		mockMemBlockTable         memstg.MockMemBlockTable
 
 		memBlockDriverForClient *memstg.MemBlockDriver = &memStg.MemBlockDriver
 		netBlockDriverForClient *memstg.NetBlockDriver = &memStg.NetBlockDriver
@@ -100,7 +99,7 @@ func MakeClientForTest(client *Client) {
 	for i = 0; i < 6; i++ {
 		snet.InitTmpPeerID((*snet.PeerID)(&peer.ID))
 		peer.SetAddress(mockServerAddr)
-		peer.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
+		peer.ServiceProtocol = solofstypes.DefaultSolofsRPCProtocol
 		solonnIns.SolodnRegister(peer)
 	}
 
@@ -110,6 +109,6 @@ func MakeClientForTest(client *Client) {
 	)
 	err = dbConn.Init(metastg.TestMetaStgDBDriver, metastg.TestMetaStgDBConnect)
 	util.AssertErrIsNil(err)
-	util.AssertErrIsNil(client.Init(&soloosEnv, solofsapitypes.DefaultNameSpaceID,
+	util.AssertErrIsNil(client.Init(&soloosEnv, solofstypes.DefaultNameSpaceID,
 		&memStg, &dbConn, netBlockCap, memBlockCap))
 }

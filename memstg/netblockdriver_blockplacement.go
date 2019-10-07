@@ -1,12 +1,12 @@
 package memstg
 
 import (
-	"soloos/common/solodbapitypes"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solodbtypes"
+	"soloos/common/solofstypes"
 )
 
-func (p *NetBlockDriver) prepareNetBlockMetaDataWithTransfer(uNetBlock solofsapitypes.NetBlockUintptr,
-	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32) error {
+func (p *NetBlockDriver) prepareNetBlockMetaDataWithTransfer(uNetBlock solofstypes.NetBlockUintptr,
+	uNetINode solofstypes.NetINodeUintptr, netblockIndex int32) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()
 	)
@@ -19,8 +19,8 @@ func (p *NetBlockDriver) prepareNetBlockMetaDataWithTransfer(uNetBlock solofsapi
 	return nil
 }
 
-func (p *NetBlockDriver) prepareNetBlockMetaDataWithFanout(uNetBlock solofsapitypes.NetBlockUintptr,
-	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32) error {
+func (p *NetBlockDriver) prepareNetBlockMetaDataWithFanout(uNetBlock solofstypes.NetBlockUintptr,
+	uNetINode solofstypes.NetINodeUintptr, netblockIndex int32) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()
 	)
@@ -32,8 +32,8 @@ func (p *NetBlockDriver) prepareNetBlockMetaDataWithFanout(uNetBlock solofsapity
 	return nil
 }
 
-func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlockUintptr,
-	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32) error {
+func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofstypes.NetBlockUintptr,
+	uNetINode solofstypes.NetINodeUintptr, netblockIndex int32) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()
 		pNetINode = uNetINode.Ptr()
@@ -46,10 +46,10 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlo
 	}
 
 	switch pNetINode.MemBlockPlacementPolicy.GetType() {
-	case solofsapitypes.BlockPlacementPolicyDefault:
+	case solofstypes.BlockPlacementPolicyDefault:
 		err = p.prepareNetBlockMetaDataWithFanout(uNetBlock, uNetINode, netblockIndex)
 
-	case solofsapitypes.BlockPlacementPolicySolomq:
+	case solofstypes.BlockPlacementPolicySolomq:
 		err = p.solomqClient.PrepareNetBlockMetaData(uNetBlock, uNetINode, netblockIndex)
 	}
 
@@ -57,6 +57,6 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlo
 		return err
 	}
 
-	pNetBlock.IsDBMetaDataInited.Store(solodbapitypes.MetaDataStateInited)
+	pNetBlock.IsDBMetaDataInited.Store(solodbtypes.MetaDataStateInited)
 	return nil
 }

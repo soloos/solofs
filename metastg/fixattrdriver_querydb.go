@@ -3,11 +3,11 @@ package metastg
 import (
 	"database/sql"
 	"soloos/common/solodbapi"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
-func (p *FIXAttrDriver) DeleteFIXAttrInDB(nsID solofsapitypes.NameSpaceID,
-	fsINodeID solofsapitypes.FsINodeID) error {
+func (p *FIXAttrDriver) DeleteFIXAttrInDB(nsID solofstypes.NameSpaceID,
+	fsINodeID solofstypes.FsINodeID) error {
 	var (
 		sess solodbapi.Session
 		err  error
@@ -28,9 +28,9 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(nsID solofsapitypes.NameSpaceID,
 	return nil
 }
 
-func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nsID solofsapitypes.NameSpaceID,
-	fsINodeID solofsapitypes.FsINodeID,
-	xattr solofsapitypes.FsINodeXAttr) error {
+func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nsID solofstypes.NameSpaceID,
+	fsINodeID solofstypes.FsINodeID,
+	xattr solofstypes.FsINodeXAttr) error {
 	var (
 		sess       solodbapi.Session
 		xattrBytes []byte
@@ -42,7 +42,7 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nsID solofsapitypes.NameSpaceID,
 		return err
 	}
 
-	xattrBytes, err = solofsapitypes.SerializeFIXAttr(xattr)
+	xattrBytes, err = solofstypes.SerializeFIXAttr(xattr)
 	if err != nil {
 		return err
 	}
@@ -58,12 +58,12 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nsID solofsapitypes.NameSpaceID,
 	return nil
 }
 
-func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nsID solofsapitypes.NameSpaceID,
-	fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeXAttr, error) {
+func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nsID solofstypes.NameSpaceID,
+	fsINodeID solofstypes.FsINodeID) (solofstypes.FsINodeXAttr, error) {
 	var (
 		sess    solodbapi.Session
 		sqlRows *sql.Rows
-		xattr   = solofsapitypes.InitFsINodeXAttr()
+		xattr   = solofstypes.InitFsINodeXAttr()
 		bytes   []byte
 		err     error
 	)
@@ -82,7 +82,7 @@ func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nsID solofsapitypes.NameSpaceID,
 	}
 
 	if sqlRows.Next() == false {
-		err = solofsapitypes.ErrObjectNotExists
+		err = solofstypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 
@@ -92,7 +92,7 @@ func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nsID solofsapitypes.NameSpaceID,
 	if err != nil {
 		goto QUERY_DONE
 	}
-	solofsapitypes.DeserializeFIXAttr(bytes, &xattr)
+	solofstypes.DeserializeFIXAttr(bytes, &xattr)
 
 QUERY_DONE:
 	if sqlRows != nil {

@@ -2,16 +2,15 @@ package memstg
 
 import (
 	"soloos/common/fsapitypes"
-	"soloos/common/solofsapitypes"
-	"soloos/solofs/solofstypes"
+	"soloos/common/solofstypes"
 )
 
-func (p *PosixFs) SimpleWriteWithMem(fsINodeID solofsapitypes.FsINodeID,
+func (p *PosixFs) SimpleWriteWithMem(fsINodeID solofstypes.FsINodeID,
 	data []byte, offset uint64) error {
 
 	var (
-		uFsINode solofsapitypes.FsINodeUintptr
-		pFsINode *solofsapitypes.FsINode
+		uFsINode solofstypes.FsINodeUintptr
+		pFsINode *solofstypes.FsINode
 		err      error
 	)
 
@@ -29,7 +28,7 @@ func (p *PosixFs) Write(input *fsapitypes.WriteIn, data []byte) (uint32, fsapity
 	var err error
 	err = p.SimpleWriteWithMem(input.NodeId, data[:input.Size], input.Offset)
 	if err != nil {
-		return 0, solofstypes.ErrorToFsStatus(err)
+		return 0, ErrorToFsStatus(err)
 	}
 
 	return input.Size, fsapitypes.OK

@@ -1,12 +1,12 @@
 package memstg
 
 import (
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
-func (p *NetBlockDriver) PWrite(uNetINode solofsapitypes.NetINodeUintptr,
-	uNetBlock solofsapitypes.NetBlockUintptr, netBlockIndex int32,
-	uMemBlock solofsapitypes.MemBlockUintptr, memBlockIndex int32,
+func (p *NetBlockDriver) PWrite(uNetINode solofstypes.NetINodeUintptr,
+	uNetBlock solofstypes.NetBlockUintptr, netBlockIndex int32,
+	uMemBlock solofstypes.MemBlockUintptr, memBlockIndex int32,
 	offset, end int) error {
 	var (
 		err error

@@ -1,16 +1,16 @@
 package memstg
 
 import (
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/util"
 )
 
 func (p *netBlockDriverUploader) cronUpload() error {
 	var (
-		uJob         solofsapitypes.UploadMemBlockJobUintptr
-		pJob         *solofsapitypes.UploadMemBlockJob
-		pNetINode    *solofsapitypes.NetINode
-		pNetBlock    *solofsapitypes.NetBlock
+		uJob         solofstypes.UploadMemBlockJobUintptr
+		pJob         *solofstypes.UploadMemBlockJob
+		pNetINode    *solofstypes.NetINode
+		pNetBlock    *solofstypes.NetBlock
 		uploadJobNum int
 		uploadRetArr chan error
 		i            int
@@ -43,7 +43,7 @@ func (p *netBlockDriverUploader) cronUpload() error {
 		uploadRetArr = make(chan error, uploadJobNum)
 
 		for i = 0; i < pNetBlock.SyncDataBackends.Len; {
-			go func(uploadRetArr chan error, i int, uJob solofsapitypes.UploadMemBlockJobUintptr) {
+			go func(uploadRetArr chan error, i int, uJob solofstypes.UploadMemBlockJobUintptr) {
 				uploadRetArr <- p.driver.UploadMemBlockToNet(uJob, i)
 			}(uploadRetArr, i, uJob)
 			i += int(pNetBlock.SyncDataBackends.Arr[i].TransferCount + 1)

@@ -2,12 +2,12 @@ package memstg
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
 func (p *FIXAttrDriver) DeleteFIXAttrInDB(
-	nsID solofsapitypes.NameSpaceID,
-	fsINodeID solofsapitypes.FsINodeID) error {
+	nsID solofstypes.NameSpaceID,
+	fsINodeID solofstypes.FsINodeID) error {
 	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FIXAttr/DeleteFIXAttrInDB", nil,
 		nsID, fsINodeID)
 	if err != nil {
@@ -17,9 +17,9 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(
 }
 
 func (p *FIXAttrDriver) ReplaceFIXAttrInDB(
-	nsID solofsapitypes.NameSpaceID,
-	fsINodeID solofsapitypes.FsINodeID,
-	xattr solofsapitypes.FsINodeXAttr) error {
+	nsID solofstypes.NameSpaceID,
+	fsINodeID solofstypes.FsINodeID,
+	xattr solofstypes.FsINodeXAttr) error {
 	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FIXAttr/ReplaceFIXAttrInDB", nil,
 		nsID, fsINodeID, xattr)
 	if err != nil {
@@ -29,13 +29,13 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(
 }
 
 func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(
-	nsID solofsapitypes.NameSpaceID,
-	fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeXAttr, error) {
-	var ret = snet.Response{RespData: solofsapitypes.FsINodeXAttr{}}
+	nsID solofstypes.NameSpaceID,
+	fsINodeID solofstypes.FsINodeID) (solofstypes.FsINodeXAttr, error) {
+	var ret = snet.Response{RespData: solofstypes.FsINodeXAttr{}}
 	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FIXAttr/GetFIXAttrByInoFromDB", &ret,
 		nsID, fsINodeID)
 	if err != nil {
-		return solofsapitypes.FsINodeXAttr{}, err
+		return solofstypes.FsINodeXAttr{}, err
 	}
-	return ret.RespData.(solofsapitypes.FsINodeXAttr), nil
+	return ret.RespData.(solofstypes.FsINodeXAttr), nil
 }

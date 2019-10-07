@@ -2,16 +2,16 @@ package solodn
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
+	"soloos/common/solofstypes"
 )
 
 func (p *SrpcServer) NetINodeSync(reqCtx *snet.SNetReqContext,
 	req solofsprotocol.NetINodePWriteReq,
 ) error {
 	var (
-		netINodeID solofsapitypes.NetINodeID
-		uNetINode  solofsapitypes.NetINodeUintptr
+		netINodeID solofstypes.NetINodeID
+		uNetINode  solofstypes.NetINodeUintptr
 		err        error
 	)
 	netINodeID = req.NetINodeID

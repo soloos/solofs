@@ -2,14 +2,13 @@ package memstg
 
 import (
 	"soloos/common/fsapitypes"
-	"soloos/common/solofsapitypes"
-	"soloos/solofs/solofstypes"
+	"soloos/common/solofstypes"
 )
 
-func (p *PosixFs) FetchFsINodeByID(pFsINodeMeta *solofsapitypes.FsINodeMeta,
-	fsINodeID solofsapitypes.FsINodeID) error {
+func (p *PosixFs) FetchFsINodeByID(pFsINodeMeta *solofstypes.FsINodeMeta,
+	fsINodeID solofstypes.FsINodeID) error {
 	var (
-		uFsINode solofsapitypes.FsINodeUintptr
+		uFsINode solofstypes.FsINodeUintptr
 		err      error
 	)
 	uFsINode, err = p.FsINodeDriver.GetFsINodeByID(fsINodeID)
@@ -22,10 +21,10 @@ func (p *PosixFs) FetchFsINodeByID(pFsINodeMeta *solofsapitypes.FsINodeMeta,
 	return nil
 }
 
-func (p *PosixFs) FetchFsINodeByName(pFsINodeMeta *solofsapitypes.FsINodeMeta,
-	parentID solofsapitypes.FsINodeID, fsINodeName string) error {
+func (p *PosixFs) FetchFsINodeByName(pFsINodeMeta *solofstypes.FsINodeMeta,
+	parentID solofstypes.FsINodeID, fsINodeName string) error {
 	var (
-		uFsINode solofsapitypes.FsINodeUintptr
+		uFsINode solofstypes.FsINodeUintptr
 		err      error
 	)
 	uFsINode, err = p.FsINodeDriver.GetFsINodeByName(parentID, fsINodeName)
@@ -38,10 +37,10 @@ func (p *PosixFs) FetchFsINodeByName(pFsINodeMeta *solofsapitypes.FsINodeMeta,
 	return nil
 }
 
-func (p *PosixFs) FetchFsINodeByIDThroughHardLink(pFsINodeMeta *solofsapitypes.FsINodeMeta,
-	fsINodeID solofsapitypes.FsINodeID) error {
+func (p *PosixFs) FetchFsINodeByIDThroughHardLink(pFsINodeMeta *solofstypes.FsINodeMeta,
+	fsINodeID solofstypes.FsINodeID) error {
 	var (
-		uFsINode solofsapitypes.FsINodeUintptr
+		uFsINode solofstypes.FsINodeUintptr
 		err      error
 	)
 	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeID)
@@ -54,9 +53,9 @@ func (p *PosixFs) FetchFsINodeByIDThroughHardLink(pFsINodeMeta *solofsapitypes.F
 	return nil
 }
 
-func (p *PosixFs) createFsINode(pFsINodeMeta *solofsapitypes.FsINodeMeta,
-	fsINodeID *solofsapitypes.FsINodeID,
-	netINodeID *solofsapitypes.NetINodeID, parentID solofsapitypes.FsINodeID,
+func (p *PosixFs) createFsINode(pFsINodeMeta *solofstypes.FsINodeMeta,
+	fsINodeID *solofstypes.FsINodeID,
+	netINodeID *solofstypes.NetINodeID, parentID solofstypes.FsINodeID,
 	name string, fsINodeType int, mode uint32,
 	uid uint32, gid uint32, rdev uint32,
 ) error {
@@ -79,7 +78,7 @@ func (p *PosixFs) createFsINode(pFsINodeMeta *solofsapitypes.FsINodeMeta,
 	return nil
 }
 
-func (p *PosixFs) SimpleOpen(fsINodeMeta *solofsapitypes.FsINodeMeta,
+func (p *PosixFs) SimpleOpen(fsINodeMeta *solofstypes.FsINodeMeta,
 	flags uint32, out *fsapitypes.OpenOut) error {
 	out.Fh = p.FdTable.AllocFd(fsINodeMeta.Ino)
 	out.OpenFlags = flags
@@ -92,20 +91,20 @@ func (p *PosixFs) Mknod(input *fsapitypes.MknodIn, name string, out *fsapitypes.
 	}
 
 	var (
-		parentFsINodeMeta solofsapitypes.FsINodeMeta
-		fsINodeMeta       solofsapitypes.FsINodeMeta
+		parentFsINodeMeta solofstypes.FsINodeMeta
+		fsINodeMeta       solofstypes.FsINodeMeta
 		fsINodeType       int
 		err               error
 	)
 
-	fsINodeType = solofstypes.FsModeToFsINodeType(input.Mode)
+	fsINodeType = FsModeToFsINodeType(input.Mode)
 	if fsINodeType == solofstypes.FSINODE_TYPE_UNKOWN {
 		return fsapitypes.EIO
 	}
 
 	err = p.FetchFsINodeByIDThroughHardLink(&parentFsINodeMeta, input.NodeId)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	err = p.createFsINode(&fsINodeMeta,
@@ -113,12 +112,12 @@ func (p *PosixFs) Mknod(input *fsapitypes.MknodIn, name string, out *fsapitypes.
 		name, fsINodeType, input.Mode,
 		input.Uid, input.Gid, input.Rdev)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	err = p.RefreshFsINodeACMtimeByIno(input.NodeId)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	p.SetFsEntryOutByFsINode(out, &fsINodeMeta)
@@ -128,23 +127,23 @@ func (p *PosixFs) Mknod(input *fsapitypes.MknodIn, name string, out *fsapitypes.
 
 func (p *PosixFs) Unlink(header *fsapitypes.InHeader, name string) fsapitypes.Status {
 	var (
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 	)
 
 	err = p.FetchFsINodeByName(&fsINodeMeta, header.NodeId, name)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	err = p.FsINodeDriver.UnlinkFsINode(fsINodeMeta.Ino)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	err = p.RefreshFsINodeACMtimeByIno(header.NodeId)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	return fsapitypes.OK
@@ -152,13 +151,13 @@ func (p *PosixFs) Unlink(header *fsapitypes.InHeader, name string) fsapitypes.St
 
 func (p *PosixFs) Fsync(input *fsapitypes.FsyncIn) fsapitypes.Status {
 	var (
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 	)
 
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, input.NodeId)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	// TODO flush metadata
@@ -172,18 +171,18 @@ func (p *PosixFs) Lookup(header *fsapitypes.InHeader, name string, out *fsapityp
 	}
 
 	var (
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 	)
 
 	err = p.FetchFsINodeByName(&fsINodeMeta, header.NodeId, name)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeMeta.Ino)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	p.SetFsEntryOutByFsINode(out, &fsINodeMeta)
@@ -201,7 +200,7 @@ func (p *PosixFs) Release(input *fsapitypes.ReleaseIn) {
 }
 
 func (p *PosixFs) CheckPermissionChmod(uid uint32, gid uint32,
-	fsINodeMeta *solofsapitypes.FsINodeMeta) bool {
+	fsINodeMeta *solofstypes.FsINodeMeta) bool {
 
 	if uid == 0 || uid == fsINodeMeta.Uid {
 		return true
@@ -211,7 +210,7 @@ func (p *PosixFs) CheckPermissionChmod(uid uint32, gid uint32,
 }
 
 func (p *PosixFs) CheckPermissionRead(uid uint32, gid uint32,
-	fsINodeMeta *solofsapitypes.FsINodeMeta) bool {
+	fsINodeMeta *solofstypes.FsINodeMeta) bool {
 
 	perm := uint32(07777) & fsINodeMeta.Mode
 	if uid == fsINodeMeta.Uid {
@@ -234,7 +233,7 @@ func (p *PosixFs) CheckPermissionRead(uid uint32, gid uint32,
 }
 
 func (p *PosixFs) CheckPermissionWrite(uid uint32, gid uint32,
-	fsINodeMeta *solofsapitypes.FsINodeMeta) bool {
+	fsINodeMeta *solofstypes.FsINodeMeta) bool {
 
 	perm := uint32(07777) & fsINodeMeta.Mode
 	if uid == fsINodeMeta.Uid {
@@ -257,7 +256,7 @@ func (p *PosixFs) CheckPermissionWrite(uid uint32, gid uint32,
 }
 
 func (p *PosixFs) CheckPermissionExecute(uid uint32, gid uint32,
-	fsINodeMeta *solofsapitypes.FsINodeMeta) bool {
+	fsINodeMeta *solofstypes.FsINodeMeta) bool {
 
 	perm := uint32(07777) & fsINodeMeta.Mode
 	if uid == fsINodeMeta.Uid {
@@ -279,13 +278,13 @@ func (p *PosixFs) CheckPermissionExecute(uid uint32, gid uint32,
 	return false
 }
 
-func (p *PosixFs) RefreshFsINodeACMtimeByIno(fsINodeID solofsapitypes.FsINodeID) error {
+func (p *PosixFs) RefreshFsINodeACMtimeByIno(fsINodeID solofstypes.FsINodeID) error {
 	return p.FsINodeDriver.RefreshFsINodeACMtimeByIno(fsINodeID)
 }
 
-func (p *PosixFs) TruncateINode(pFsINode *solofsapitypes.FsINodeMeta, size uint64) error {
+func (p *PosixFs) TruncateINode(pFsINode *solofstypes.FsINodeMeta, size uint64) error {
 	var (
-		uFsINode solofsapitypes.FsINodeUintptr
+		uFsINode solofstypes.FsINodeUintptr
 		err      error
 	)
 	uFsINode, err = p.FsINodeDriver.GetFsINodeByID(pFsINode.Ino)

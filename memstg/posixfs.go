@@ -2,13 +2,13 @@ package memstg
 
 import (
 	"soloos/common/fsapi"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 )
 
 type PosixFs struct {
 	*soloosbase.SoloosEnv
-	NameSpaceID solofsapitypes.NameSpaceID
+	NameSpaceID solofstypes.NameSpaceID
 	MemStg      *MemStg
 
 	FsINodeDriver FsINodeDriver
@@ -21,25 +21,25 @@ var _ = fsapi.PosixFs(&PosixFs{})
 
 func (p *PosixFs) Init(
 	soloosEnv *soloosbase.SoloosEnv,
-	nsID solofsapitypes.NameSpaceID,
+	nsID solofstypes.NameSpaceID,
 	memStg *MemStg,
 	// FsINodeDriver
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
-	getNetINode solofsapitypes.GetNetINode,
-	mustGetNetINode solofsapitypes.MustGetNetINode,
-	releaseNetINode solofsapitypes.ReleaseNetINode,
-	allocFsINodeID solofsapitypes.AllocFsINodeID,
-	deleteFsINodeByIDInDB solofsapitypes.DeleteFsINodeByIDInDB,
-	listFsINodeByParentIDFromDB solofsapitypes.ListFsINodeByParentIDFromDB,
-	updateFsINodeInDB solofsapitypes.UpdateFsINodeInDB,
-	insertFsINodeInDB solofsapitypes.InsertFsINodeInDB,
-	fetchFsINodeByIDFromDB solofsapitypes.FetchFsINodeByIDFromDB,
-	fetchFsINodeByNameFromDB solofsapitypes.FetchFsINodeByNameFromDB,
+	getNetINode solofstypes.GetNetINode,
+	mustGetNetINode solofstypes.MustGetNetINode,
+	releaseNetINode solofstypes.ReleaseNetINode,
+	allocFsINodeID solofstypes.AllocFsINodeID,
+	deleteFsINodeByIDInDB solofstypes.DeleteFsINodeByIDInDB,
+	listFsINodeByParentIDFromDB solofstypes.ListFsINodeByParentIDFromDB,
+	updateFsINodeInDB solofstypes.UpdateFsINodeInDB,
+	insertFsINodeInDB solofstypes.InsertFsINodeInDB,
+	fetchFsINodeByIDFromDB solofstypes.FetchFsINodeByIDFromDB,
+	fetchFsINodeByNameFromDB solofstypes.FetchFsINodeByNameFromDB,
 	// FIXAttrDriver
-	deleteFIXAttrInDB solofsapitypes.DeleteFIXAttrInDB,
-	replaceFIXAttrInDB solofsapitypes.ReplaceFIXAttrInDB,
-	getFIXAttrByInoFromDB solofsapitypes.GetFIXAttrByInoFromDB,
+	deleteFIXAttrInDB solofstypes.DeleteFIXAttrInDB,
+	replaceFIXAttrInDB solofstypes.ReplaceFIXAttrInDB,
+	getFIXAttrByInoFromDB solofstypes.GetFIXAttrByInoFromDB,
 ) error {
 	var err error
 

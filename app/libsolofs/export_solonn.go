@@ -4,7 +4,7 @@ import "C"
 import (
 	"soloos/common/fsapitypes"
 	"soloos/common/solofsapi"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"unsafe"
 )
 
@@ -13,7 +13,7 @@ func GoSolofsOpenFile(cInodePath *C.char, flags,
 	bufferSize C.int, replication C.short, blocksize C.long) (uint64, C.int) {
 	var (
 		fsINodePath = C.GoString(cInodePath)
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 	)
 
@@ -31,12 +31,12 @@ func GoSolofsOpenFile(cInodePath *C.char, flags,
 func GoSolofsExists(cInodePath *C.char) C.int {
 	var (
 		fsINodePath = C.GoString(cInodePath)
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 	)
 	err = env.PosixFs.FetchFsINodeByPath(&fsINodeMeta, fsINodePath)
 	if err != nil {
-		// contains err.Error() == solofsapitypes.ErrObjectNotExists.Error()
+		// contains err.Error() == solofstypes.ErrObjectNotExists.Error()
 		return solofsapi.CODE_ERR
 	}
 	return solofsapi.CODE_OK
@@ -59,7 +59,7 @@ func GoSolofsListDirectory(cInodePath *C.char, ret *unsafe.Pointer, num *C.int) 
 			index = 0
 			return uint64(resultCount), 0
 		},
-		func(fsINodeMeta solofsapitypes.FsINodeMeta) bool {
+		func(fsINodeMeta solofstypes.FsINodeMeta) bool {
 			arr[index] = C.CString(fsINodeMeta.Name())
 			index += 1
 			return true
@@ -114,7 +114,7 @@ func GoSolofsRename(oldINodePath, newINodePath *C.char) C.int {
 //export GoSolofsGetPathInfo
 func GoSolofsGetPathInfo(cInodePath *C.char) (inodeID uint64, size uint64, mTime uint64, code C.int) {
 	var (
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 		status      fsapitypes.Status
 	)

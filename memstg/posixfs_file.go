@@ -3,18 +3,17 @@ package memstg
 import (
 	"os"
 	"soloos/common/fsapitypes"
-	"soloos/common/solofsapitypes"
-	"soloos/solofs/solofstypes"
+	"soloos/common/solofstypes"
 	"strings"
 )
 
 func (p *PosixFs) SimpleOpenFile(fsINodePath string,
-	netBlockCap int, memBlockCap int) (solofsapitypes.FsINodeMeta, error) {
+	netBlockCap int, memBlockCap int) (solofstypes.FsINodeMeta, error) {
 	var (
 		paths       []string
 		i           int
-		parentID    solofsapitypes.FsINodeID = solofsapitypes.RootFsINodeID
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		parentID    solofstypes.FsINodeID = solofstypes.RootFsINodeID
+		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 	)
 
@@ -40,7 +39,7 @@ func (p *PosixFs) SimpleOpenFile(fsINodePath string,
 		goto OPEN_FILE_DONE
 	}
 
-	if err.Error() == solofsapitypes.ErrObjectNotExists.Error() {
+	if err.Error() == solofstypes.ErrObjectNotExists.Error() {
 		err = p.createFsINode(&fsINodeMeta,
 			nil, nil, parentID,
 			paths[i], solofstypes.FSINODE_TYPE_FILE, fsapitypes.S_IFREG|0777,
@@ -56,7 +55,7 @@ OPEN_FILE_DONE:
 
 func (p *PosixFs) Create(input *fsapitypes.CreateIn, name string, out *fsapitypes.CreateOut) fsapitypes.Status {
 	var (
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 	)
 
@@ -70,17 +69,17 @@ func (p *PosixFs) Create(input *fsapitypes.CreateIn, name string, out *fsapitype
 		uint32(0777)&input.Mode|uint32(fsapitypes.S_IFREG),
 		input.Uid, input.Gid, solofstypes.FS_RDEV)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	err = p.SimpleOpen(&fsINodeMeta, input.Flags, &out.OpenOut)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	err = p.RefreshFsINodeACMtimeByIno(fsINodeMeta.ParentID)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	p.SetFsEntryOutByFsINode(&out.EntryOut, &fsINodeMeta)
@@ -90,19 +89,19 @@ func (p *PosixFs) Create(input *fsapitypes.CreateIn, name string, out *fsapitype
 
 func (p *PosixFs) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapitypes.Status {
 	var (
-		uFsINode solofsapitypes.FsINodeUintptr
+		uFsINode solofstypes.FsINodeUintptr
 		err      error
 	)
 
 	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(input.NodeId)
 	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	err = p.SimpleOpen(&uFsINode.Ptr().Meta, input.Flags, out)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	openFlags := int(input.Flags)
@@ -111,7 +110,7 @@ func (p *PosixFs) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapit
 		(openFlags&os.O_APPEND != 0) {
 		err = p.FsINodeDriver.RefreshFsINodeACMtime(uFsINode)
 		if err != nil {
-			return solofstypes.ErrorToFsStatus(err)
+			return ErrorToFsStatus(err)
 		}
 	}
 

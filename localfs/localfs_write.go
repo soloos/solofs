@@ -1,8 +1,8 @@
 package localfs
 
-import "soloos/common/solofsapitypes"
+import "soloos/common/solofstypes"
 
-func (p *LocalFs) UploadMemBlockWithDisk(uJob solofsapitypes.UploadMemBlockJobUintptr,
+func (p *LocalFs) UploadMemBlockWithDisk(uJob solofstypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int,
 ) error {
 	var (

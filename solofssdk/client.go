@@ -5,7 +5,7 @@ import (
 	"soloos/common/log"
 	"soloos/common/solodbapi"
 	"soloos/common/solofsapi"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/solomqapi"
 	"soloos/common/soloosbase"
 	"soloos/solofs/memstg"
@@ -23,7 +23,7 @@ type Client struct {
 var _ = solofsapi.Client(&Client{})
 
 func (p *Client) Init(soloosEnv *soloosbase.SoloosEnv,
-	nsID solofsapitypes.NameSpaceID,
+	nsID solofstypes.NameSpaceID,
 	memStg *memstg.MemStg,
 	dbConn *solodbapi.Connection,
 	defaultNetBlockCap int,

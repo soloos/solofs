@@ -1,14 +1,14 @@
 package memstg
 
 import (
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
-func (p *PosixFs) MustGetMemBlockWithReadAcquire(uNetINode solofsapitypes.NetINodeUintptr,
-	memBlockIndex int32) (solofsapitypes.MemBlockUintptr, bool) {
+func (p *PosixFs) MustGetMemBlockWithReadAcquire(uNetINode solofstypes.NetINodeUintptr,
+	memBlockIndex int32) (solofstypes.MemBlockUintptr, bool) {
 	return p.MemStg.MemBlockDriver.MustGetMemBlockWithReadAcquire(uNetINode, memBlockIndex)
 }
 
-func (p *PosixFs) ReleaseMemBlockWithReadRelease(uMemBlock solofsapitypes.MemBlockUintptr) {
+func (p *PosixFs) ReleaseMemBlockWithReadRelease(uMemBlock solofstypes.MemBlockUintptr) {
 	p.MemStg.MemBlockDriver.ReleaseMemBlockWithReadRelease(uMemBlock)
 }

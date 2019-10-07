@@ -5,7 +5,7 @@ import (
 	"soloos/common/snet"
 	"soloos/common/solodbapi"
 	"soloos/common/solofsapi"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 	"soloos/solofs/memstg"
 )
@@ -63,7 +63,7 @@ func (p *ClientDriver) initMemStg(solonnSrpcPeerID snet.PeerID) error {
 }
 
 func (p *ClientDriver) InitClient(itClient solofsapi.Client,
-	nsID solofsapitypes.NameSpaceID,
+	nsID solofstypes.NameSpaceID,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
 	defaultMemBlocksLimit int32,

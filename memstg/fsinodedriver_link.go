@@ -2,17 +2,16 @@ package memstg
 
 import (
 	"soloos/common/fsapitypes"
-	"soloos/common/solofsapitypes"
-	"soloos/solofs/solofstypes"
+	"soloos/common/solofstypes"
 	"sync/atomic"
 )
 
-func (p *FsINodeDriver) Link(srcFsINodeID solofsapitypes.FsINodeID,
-	parentID solofsapitypes.FsINodeID, filename string,
-	retFsINode *solofsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) Link(srcFsINodeID solofstypes.FsINodeID,
+	parentID solofstypes.FsINodeID, filename string,
+	retFsINode *solofstypes.FsINodeMeta) error {
 	var (
-		uSrcFsINode solofsapitypes.FsINodeUintptr
-		pSrcFsINode *solofsapitypes.FsINode
+		uSrcFsINode solofstypes.FsINodeUintptr
+		pSrcFsINode *solofstypes.FsINode
 		err         error
 	)
 
@@ -45,8 +44,8 @@ func (p *FsINodeDriver) Link(srcFsINodeID solofsapitypes.FsINodeID,
 	return nil
 }
 
-func (p *FsINodeDriver) Symlink(parentID solofsapitypes.FsINodeID, pointedTo string, linkName string,
-	retFsINodeMeta *solofsapitypes.FsINodeMeta) error {
+func (p *FsINodeDriver) Symlink(parentID solofstypes.FsINodeID, pointedTo string, linkName string,
+	retFsINodeMeta *solofstypes.FsINodeMeta) error {
 	var (
 		err error
 	)
@@ -71,13 +70,13 @@ func (p *FsINodeDriver) Symlink(parentID solofsapitypes.FsINodeID, pointedTo str
 	return nil
 }
 
-func (p *FsINodeDriver) Readlink(fsINodeID solofsapitypes.FsINodeID) ([]byte, error) {
+func (p *FsINodeDriver) Readlink(fsINodeID solofstypes.FsINodeID) ([]byte, error) {
 	return p.posixFs.FIXAttrDriver.GetXAttrData(fsINodeID, solofstypes.FS_XATTR_SOFT_LNKMETA_KEY)
 }
 
-func (p *FsINodeDriver) deleteFsINodeHardLinked(fsINodeID solofsapitypes.FsINodeID) error {
+func (p *FsINodeDriver) deleteFsINodeHardLinked(fsINodeID solofstypes.FsINodeID) error {
 	var (
-		uFsINode                solofsapitypes.FsINodeUintptr
+		uFsINode                solofstypes.FsINodeUintptr
 		isFsINodeDeleted        bool
 		isShouldReleaseUFsINode bool
 		err                     error
@@ -106,7 +105,7 @@ func (p *FsINodeDriver) deleteFsINodeHardLinked(fsINodeID solofsapitypes.FsINode
 
 // decreaseFsINodeNLink return isFsINodeDeleted, decreaseError
 // if FsINodeMeta.Nlink == 0 then delete FsINode else decrease(FsINode.Nlink)
-func (p *FsINodeDriver) decreaseFsINodeNLink(uFsINode solofsapitypes.FsINodeUintptr) (bool, error) {
+func (p *FsINodeDriver) decreaseFsINodeNLink(uFsINode solofstypes.FsINodeUintptr) (bool, error) {
 	var (
 		pFsINode = uFsINode.Ptr()
 		err      error
@@ -139,11 +138,11 @@ func (p *FsINodeDriver) decreaseFsINodeNLink(uFsINode solofsapitypes.FsINodeUint
 	return true, nil
 }
 
-func (p *FsINodeDriver) UnlinkFsINode(fsINodeID solofsapitypes.FsINodeID) error {
+func (p *FsINodeDriver) UnlinkFsINode(fsINodeID solofstypes.FsINodeID) error {
 	var (
-		uFsINode                solofsapitypes.FsINodeUintptr
-		pFsINode                *solofsapitypes.FsINode
-		oldFsINodeParentID      solofsapitypes.FsINodeID
+		uFsINode                solofstypes.FsINodeUintptr
+		pFsINode                *solofstypes.FsINode
+		oldFsINodeParentID      solofstypes.FsINodeID
 		isFsINodeDeleted        bool
 		isShouldReleaseUFsINode bool
 		err                     error
@@ -153,7 +152,7 @@ func (p *FsINodeDriver) UnlinkFsINode(fsINodeID solofsapitypes.FsINodeID) error 
 	pFsINode = uFsINode.Ptr()
 
 	if err != nil {
-		if err.Error() == solofsapitypes.ErrObjectNotExists.Error() {
+		if err.Error() == solofstypes.ErrObjectNotExists.Error() {
 			err = nil
 			goto DONE
 		} else {
@@ -168,7 +167,7 @@ func (p *FsINodeDriver) UnlinkFsINode(fsINodeID solofsapitypes.FsINodeID) error 
 	}
 
 	if isFsINodeDeleted == false {
-		pFsINode.Meta.ParentID = solofsapitypes.ZombieFsINodeParentID
+		pFsINode.Meta.ParentID = solofstypes.ZombieFsINodeParentID
 		err = p.UpdateFsINode(&pFsINode.Meta)
 		if err != nil {
 			goto DONE

@@ -2,8 +2,8 @@ package memstg
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"time"
@@ -41,7 +41,7 @@ func (p *MockServer) Init(soloosEnv *soloosbase.SoloosEnv, network string, addr 
 	for i := 0; i < len(p.solodnPeers); i++ {
 		p.SNetDriver.InitPeerID((*snet.PeerID)(&p.solodnPeers[i].ID))
 		p.solodnPeers[i].SetAddress(p.addr)
-		p.solodnPeers[i].ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
+		p.solodnPeers[i].ServiceProtocol = solofstypes.DefaultSolofsRPCProtocol
 		util.AssertErrIsNil(p.SNetDriver.RegisterPeer(p.solodnPeers[i]))
 	}
 

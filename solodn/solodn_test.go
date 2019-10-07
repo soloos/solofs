@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"soloos/common/iron"
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/solofs/memstg"
@@ -60,7 +60,7 @@ func TestBase(t *testing.T) {
 		netBlockCap int   = 32
 		memBlockCap int   = 16
 		blocksLimit int32 = 4
-		uNetINode   solofsapitypes.NetINodeUintptr
+		uNetINode   solofstypes.NetINodeUintptr
 		i           int
 		err         error
 	)
@@ -126,9 +126,9 @@ func TestBase(t *testing.T) {
 	time.Sleep(time.Millisecond * 300)
 
 	var (
-		netINodeID solofsapitypes.NetINodeID
+		netINodeID solofstypes.NetINodeID
 	)
-	solofsapitypes.InitTmpNetINodeID(&netINodeID)
+	solofstypes.InitTmpNetINodeID(&netINodeID)
 	uNetINode, err = netINodeDriverForClient.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
 	defer netINodeDriverForClient.ReleaseNetINode(uNetINode)
 	assert.NoError(t, err)

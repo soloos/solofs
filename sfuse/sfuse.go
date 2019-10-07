@@ -3,7 +3,7 @@ package sfuse
 import (
 	"os"
 	"soloos/common/go-fuse/fuse"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/solofs/solofssdk"
 )
 
@@ -26,7 +26,7 @@ func (p *Server) Init(options Options,
 	os.MkdirAll(options.MountPoint, 0777)
 
 	err = clientDriver.InitClient(&p.Client,
-		solofsapitypes.NameSpaceID(options.NameSpaceID),
+		solofstypes.NameSpaceID(options.NameSpaceID),
 		defaultNetBlockCap, defaultMemBlockCap, defaultMemBlocksLimit)
 	if err != nil {
 		return err

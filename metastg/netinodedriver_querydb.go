@@ -3,10 +3,10 @@ package metastg
 import (
 	"database/sql"
 	"soloos/common/solodbapi"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
-func (p *NetINodeDriver) NetINodeCommitSizeInDB(uNetINode solofsapitypes.NetINodeUintptr, size uint64) error {
+func (p *NetINodeDriver) NetINodeCommitSizeInDB(uNetINode solofstypes.NetINodeUintptr, size uint64) error {
 	var (
 		sess solodbapi.Session
 		err  error
@@ -34,7 +34,7 @@ func (p *NetINodeDriver) NetINodeCommitSizeInDB(uNetINode solofsapitypes.NetINod
 	return nil
 }
 
-func (p *NetINodeDriver) FetchNetINodeFromDB(pNetINode *solofsapitypes.NetINode) error {
+func (p *NetINodeDriver) FetchNetINodeFromDB(pNetINode *solofstypes.NetINode) error {
 	var (
 		sess    solodbapi.Session
 		sqlRows *sql.Rows
@@ -54,7 +54,7 @@ func (p *NetINodeDriver) FetchNetINodeFromDB(pNetINode *solofsapitypes.NetINode)
 	}
 
 	if sqlRows.Next() == false {
-		err = solofsapitypes.ErrObjectNotExists
+		err = solofstypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 
@@ -70,7 +70,7 @@ QUERY_DONE:
 	return err
 }
 
-func (p *NetINodeDriver) StoreNetINodeInDB(pNetINode *solofsapitypes.NetINode) error {
+func (p *NetINodeDriver) StoreNetINodeInDB(pNetINode *solofstypes.NetINode) error {
 	var (
 		sess          solodbapi.Session
 		netINodeIDStr = pNetINode.IDStr()

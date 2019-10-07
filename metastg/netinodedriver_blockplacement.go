@@ -2,9 +2,9 @@ package metastg
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
-func (p *NetINodeDriver) ChooseSolodnsForNewNetBlock(uNetINode solofsapitypes.NetINodeUintptr) (snet.PeerGroup, error) {
+func (p *NetINodeDriver) ChooseSolodnsForNewNetBlock(uNetINode solofstypes.NetINodeUintptr) (snet.PeerGroup, error) {
 	return p.helper.ChooseSolodnsForNewNetBlock(uNetINode)
 }

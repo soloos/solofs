@@ -2,9 +2,9 @@ package solodn
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solodbapitypes"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solodbtypes"
 	"soloos/common/solofsprotocol"
+	"soloos/common/solofstypes"
 )
 
 func (p *SrpcServer) NetINodePWrite(reqCtx *snet.SNetReqContext,
@@ -13,14 +13,14 @@ func (p *SrpcServer) NetINodePWrite(reqCtx *snet.SNetReqContext,
 	var (
 		syncDataBackends snet.PeerGroup
 		peerID           snet.PeerID
-		uNetBlock        solofsapitypes.NetBlockUintptr
+		uNetBlock        solofstypes.NetBlockUintptr
 		err              error
 	)
 
 	// get uNetINode
 	var (
-		netINodeID         solofsapitypes.NetINodeID
-		uNetINode          solofsapitypes.NetINodeUintptr
+		netINodeID         solofstypes.NetINodeID
+		uNetINode          solofstypes.NetINodeUintptr
 		firstNetBlockIndex int32
 		lastNetBlockIndex  int32
 		netBlockIndex      int32
@@ -50,7 +50,7 @@ func (p *SrpcServer) NetINodePWrite(reqCtx *snet.SNetReqContext,
 			return err
 		}
 
-		if uNetBlock.Ptr().IsSyncDataBackendsInited.Load() == solodbapitypes.MetaDataStateUninited {
+		if uNetBlock.Ptr().IsSyncDataBackendsInited.Load() == solodbtypes.MetaDataStateUninited {
 			p.solodn.PrepareNetBlockSyncDataBackends(uNetBlock, syncDataBackends)
 		}
 	}

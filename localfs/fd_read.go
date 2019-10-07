@@ -2,10 +2,10 @@ package localfs
 
 import (
 	"io"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
-func (p *Fd) PReadMemBlock(uMemBlock solofsapitypes.MemBlockUintptr,
+func (p *Fd) PReadMemBlock(uMemBlock solofstypes.MemBlockUintptr,
 	memBlockReadOffset int,
 	memBlockReadEnd int,
 	netINodeOffset uint64,

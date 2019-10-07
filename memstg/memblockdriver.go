@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 )
 
@@ -42,31 +42,31 @@ func (p *MemBlockDriver) PrepareMemBlockTable(memBlockTableOptions MemBlockTable
 }
 
 // MustGetMemBlockWithReadAcquire get or init a memblock's offheap
-func (p *MemBlockDriver) MustGetMemBlockWithReadAcquire(uNetINode solofsapitypes.NetINodeUintptr,
-	memBlockIndex int32) (solofsapitypes.MemBlockUintptr, bool) {
+func (p *MemBlockDriver) MustGetMemBlockWithReadAcquire(uNetINode solofstypes.NetINodeUintptr,
+	memBlockIndex int32) (solofstypes.MemBlockUintptr, bool) {
 	var memBlockID soloosbase.PtrBindIndex
 	soloosbase.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
 	return p.tables[uNetINode.Ptr().MemBlockCap].MustGetMemBlockWithReadAcquire(memBlockID)
 }
 
-func (p *MemBlockDriver) TryGetMemBlockWithReadAcquire(uNetINode solofsapitypes.NetINodeUintptr,
-	memBlockIndex int32) solofsapitypes.MemBlockUintptr {
+func (p *MemBlockDriver) TryGetMemBlockWithReadAcquire(uNetINode solofstypes.NetINodeUintptr,
+	memBlockIndex int32) solofstypes.MemBlockUintptr {
 	var memBlockID soloosbase.PtrBindIndex
 	soloosbase.EncodePtrBindIndex(&memBlockID, uintptr(uNetINode), memBlockIndex)
 	return p.tables[uNetINode.Ptr().MemBlockCap].TryGetMemBlockWithReadAcquire(memBlockID)
 }
 
-func (p *MemBlockDriver) ReleaseMemBlockWithReadRelease(uMemBlock solofsapitypes.MemBlockUintptr) {
+func (p *MemBlockDriver) ReleaseMemBlockWithReadRelease(uMemBlock solofstypes.MemBlockUintptr) {
 	if uMemBlock != 0 {
 		p.tables[uMemBlock.Ptr().Bytes.Cap].ReleaseMemBlockWithReadRelease(uMemBlock)
 	}
 }
 
-func (p *MemBlockDriver) MustGetTmpMemBlockWithReadAcquire(uNetINode solofsapitypes.NetINodeUintptr,
-	memBlockID soloosbase.PtrBindIndex) solofsapitypes.MemBlockUintptr {
+func (p *MemBlockDriver) MustGetTmpMemBlockWithReadAcquire(uNetINode solofstypes.NetINodeUintptr,
+	memBlockID soloosbase.PtrBindIndex) solofstypes.MemBlockUintptr {
 	return p.tables[uNetINode.Ptr().MemBlockCap].MustGetTmpMemBlockWithReadAcquire(memBlockID)
 }
 
-func (p *MemBlockDriver) ReleaseTmpMemBlock(uMemBlock solofsapitypes.MemBlockUintptr) {
+func (p *MemBlockDriver) ReleaseTmpMemBlock(uMemBlock solofstypes.MemBlockUintptr) {
 	p.tables[uMemBlock.Ptr().Bytes.Cap].ReleaseTmpMemBlock(uMemBlock)
 }

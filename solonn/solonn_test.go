@@ -2,7 +2,7 @@ package solonn
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 	"soloos/solofs/memstg"
 	"soloos/solofs/metastg"
@@ -38,7 +38,7 @@ func TestBase(t *testing.T) {
 		netBlockCap int   = 1024
 		memBlockCap int   = 128
 		blocksLimit int32 = 4
-		uNetINode   solofsapitypes.NetINodeUintptr
+		uNetINode   solofstypes.NetINodeUintptr
 		i           int
 		err         error
 	)
@@ -71,12 +71,12 @@ func TestBase(t *testing.T) {
 		var peer snet.Peer
 		snet.InitTmpPeerID((*snet.PeerID)(&peer.ID))
 		peer.SetAddress(mockServerAddr)
-		peer.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
+		peer.ServiceProtocol = solofstypes.DefaultSolofsRPCProtocol
 		solonn.SolodnRegister(peer)
 	}
 
-	var netINodeID solofsapitypes.NetINodeID
-	solofsapitypes.InitTmpNetINodeID(&netINodeID)
+	var netINodeID solofstypes.NetINodeID
+	solofstypes.InitTmpNetINodeID(&netINodeID)
 	uNetINode, err = netINodeDriverForClient.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
 	defer netINodeDriverForClient.ReleaseNetINode(uNetINode)
 	assert.NoError(t, err)

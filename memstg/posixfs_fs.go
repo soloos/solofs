@@ -2,7 +2,7 @@ package memstg
 
 import (
 	"soloos/common/fsapitypes"
-	"soloos/solofs/solofstypes"
+	"soloos/common/solofstypes"
 )
 
 func (p *PosixFs) StatLimits() (uint64, uint64) {

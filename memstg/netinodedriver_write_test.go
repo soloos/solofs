@@ -1,10 +1,9 @@
 package memstg
 
 import (
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
-	"soloos/solofs/solofstypes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +13,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 	var (
 		soloosEnv         soloosbase.SoloosEnv
 		mockServer        MockServer
-		mockNetINodeTable solofstypes.MockNetINodeTable
+		mockNetINodeTable MockNetINodeTable
 		netBlockDriver    NetBlockDriver
 		memBlockDriver    MemBlockDriver
 		netINodeDriver    NetINodeDriver
@@ -23,7 +22,7 @@ func TestNetINodeDriverNetINodeWrite(t *testing.T) {
 		netBlockCap       int   = 4
 		memBlockCap       int   = 4
 		blocksLimit       int32 = 2
-		uNetINode         solofsapitypes.NetINodeUintptr
+		uNetINode         solofstypes.NetINodeUintptr
 	)
 	util.AssertErrIsNil(soloosEnv.InitWithSNet(""))
 

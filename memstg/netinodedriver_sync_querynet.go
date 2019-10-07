@@ -2,12 +2,12 @@ package memstg
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
+	"soloos/common/solofstypes"
 )
 
 func (p *NetINodeDriver) NetINodeSyncToNet(peerID snet.PeerID,
-	uNetINode solofsapitypes.NetINodeUintptr) error {
+	uNetINode solofstypes.NetINodeUintptr) error {
 	var req = solofsprotocol.NetINodeSyncReq{
 		NetINodeID: uNetINode.Ptr().ID,
 	}

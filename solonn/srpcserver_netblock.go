@@ -2,8 +2,8 @@ package solonn
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
+	"soloos/common/solofstypes"
 )
 
 func (p *SrpcServer) NetBlockPrepareMetaData(reqCtx *snet.SNetReqContext,
@@ -11,9 +11,9 @@ func (p *SrpcServer) NetBlockPrepareMetaData(reqCtx *snet.SNetReqContext,
 ) (solofsprotocol.NetINodeNetBlockInfoResp, error) {
 	var (
 		resp       solofsprotocol.NetINodeNetBlockInfoResp
-		uNetINode  solofsapitypes.NetINodeUintptr
-		netINodeID solofsapitypes.NetINodeID
-		uNetBlock  solofsapitypes.NetBlockUintptr
+		uNetINode  solofstypes.NetINodeUintptr
+		netINodeID solofstypes.NetINodeID
+		uNetBlock  solofstypes.NetBlockUintptr
 		err        error
 	)
 

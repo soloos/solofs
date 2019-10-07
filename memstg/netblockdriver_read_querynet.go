@@ -2,14 +2,14 @@ package memstg
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
+	"soloos/common/solofstypes"
 )
 
-func (p *NetBlockDriver) PReadMemBlockFromNet(uNetINode solofsapitypes.NetINodeUintptr,
-	uNetBlock solofsapitypes.NetBlockUintptr,
+func (p *NetBlockDriver) PReadMemBlockFromNet(uNetINode solofstypes.NetINodeUintptr,
+	uNetBlock solofstypes.NetBlockUintptr,
 	netBlockIndex int32,
-	uMemBlock solofsapitypes.MemBlockUintptr,
+	uMemBlock solofstypes.MemBlockUintptr,
 	memBlockIndex int32,
 	offset uint64, length int,
 ) (int, error) {
@@ -31,14 +31,14 @@ func (p *NetBlockDriver) PReadMemBlockFromNet(uNetINode solofsapitypes.NetINodeU
 			uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}
 
-	return 0, solofsapitypes.ErrServiceNotExists
+	return 0, solofstypes.ErrServiceNotExists
 }
 
 func (p *NetBlockDriver) doPReadMemBlockWithSrpc(peerID snet.PeerID,
-	uNetINode solofsapitypes.NetINodeUintptr,
-	uNetBlock solofsapitypes.NetBlockUintptr,
+	uNetINode solofstypes.NetINodeUintptr,
+	uNetBlock solofstypes.NetBlockUintptr,
 	netBlockIndex int32,
-	uMemBlock solofsapitypes.MemBlockUintptr,
+	uMemBlock solofstypes.MemBlockUintptr,
 	memBlockIndex int32,
 	offset uint64, length int,
 ) (int, error) {

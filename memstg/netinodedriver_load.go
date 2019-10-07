@@ -1,19 +1,19 @@
 package memstg
 
 import (
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/solodb/offheap"
 )
 
-func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode solofsapitypes.NetINodeUintptr,
-	uNetBlock solofsapitypes.NetBlockUintptr,
+func (p *NetINodeDriver) unsafeMemBlockRebaseNetBlock(uNetINode solofstypes.NetINodeUintptr,
+	uNetBlock solofstypes.NetBlockUintptr,
 	netBlockIndex int32,
-	uMemBlock solofsapitypes.MemBlockUintptr,
+	uMemBlock solofstypes.MemBlockUintptr,
 	memBlockIndex int32) error {
 	var (
 		chunkMaskEntry offheap.ChunkMaskEntry
-		pMemBlock      *solofsapitypes.MemBlock
-		uTmpMemBlock   solofsapitypes.MemBlockUintptr
+		pMemBlock      *solofstypes.MemBlock
+		uTmpMemBlock   solofstypes.MemBlockUintptr
 		err            error
 	)
 

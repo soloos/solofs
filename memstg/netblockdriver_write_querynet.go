@@ -2,13 +2,13 @@ package memstg
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
+	"soloos/common/solofstypes"
 	"soloos/common/util"
 	"soloos/solodb/offheap"
 )
 
-func (p *NetBlockDriver) doUploadMemBlockWithSolofs(uJob solofsapitypes.UploadMemBlockJobUintptr,
+func (p *NetBlockDriver) doUploadMemBlockWithSolofs(uJob solofstypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int,
 ) error {
 	var (
@@ -68,7 +68,7 @@ PWRITE_DONE:
 	return err
 }
 
-func (p *NetBlockDriver) UploadMemBlockToNet(uJob solofsapitypes.UploadMemBlockJobUintptr,
+func (p *NetBlockDriver) UploadMemBlockToNet(uJob solofstypes.UploadMemBlockJobUintptr,
 	uploadPeerIndex int,
 ) error {
 	var solodn, _ = p.SoloosEnv.SNetDriver.GetPeer(

@@ -2,13 +2,13 @@ package memstg
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
+	"soloos/common/solofstypes"
 )
 
 // TODO make this configurable
-func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlockUintptr,
-	uNetINode solofsapitypes.NetINodeUintptr, netBlockIndex int32,
+func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock solofstypes.NetBlockUintptr,
+	uNetINode solofstypes.NetINodeUintptr, netBlockIndex int32,
 ) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()

@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"testing"
@@ -19,14 +19,14 @@ func TestNetINodeDriverNetINodeRead(t *testing.T) {
 		netBlockCap    int   = 128
 		memBlockCap    int   = 64
 		blocksLimit    int32 = 4
-		uNetINode      solofsapitypes.NetINodeUintptr
+		uNetINode      solofstypes.NetINodeUintptr
 		err            error
 	)
 	util.AssertErrIsNil(soloosEnv.InitWithSNet(""))
 	MemStgMakeDriversWithMockServerForTest(&soloosEnv, "127.0.0.1:10022", &mockServer,
 		&netBlockDriver, &memBlockDriver, &netINodeDriver, memBlockCap, blocksLimit)
-	var netINodeID solofsapitypes.NetINodeID
-	solofsapitypes.InitTmpNetINodeID(&netINodeID)
+	var netINodeID solofstypes.NetINodeID
+	solofstypes.InitTmpNetINodeID(&netINodeID)
 	uNetINode, err = netINodeDriver.MustGetNetINode(netINodeID, 0, netBlockCap, memBlockCap)
 	defer netINodeDriver.ReleaseNetINode(uNetINode)
 	assert.NoError(t, err)

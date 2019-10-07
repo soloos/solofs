@@ -3,15 +3,15 @@ package metastg
 import (
 	"soloos/common/snet"
 	"soloos/common/solodbapi"
-	"soloos/common/solodbapitypes"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solodbtypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 	"strings"
 )
 
 type NetBlockDriverHelper struct {
-	ChooseSolodnsForNewNetBlock solofsapitypes.ChooseSolodnsForNewNetBlock
-	GetSolodn                   solofsapitypes.GetSolodn
+	ChooseSolodnsForNewNetBlock solofstypes.ChooseSolodnsForNewNetBlock
+	GetSolodn                   solofstypes.GetSolodn
 }
 
 type NetBlockDriver struct {
@@ -21,8 +21,8 @@ type NetBlockDriver struct {
 
 func (p *NetBlockDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	dbConn *solodbapi.Connection,
-	getSolodn solofsapitypes.GetSolodn,
-	chooseSolodnsForNewNetBlock solofsapitypes.ChooseSolodnsForNewNetBlock,
+	getSolodn solofstypes.GetSolodn,
+	chooseSolodnsForNewNetBlock solofstypes.ChooseSolodnsForNewNetBlock,
 ) error {
 	p.dbConn = dbConn
 	p.SetHelper(getSolodn, chooseSolodnsForNewNetBlock)
@@ -30,15 +30,15 @@ func (p *NetBlockDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 }
 
 func (p *NetBlockDriver) SetHelper(
-	getSolodn solofsapitypes.GetSolodn,
-	chooseSolodnsForNewNetBlock solofsapitypes.ChooseSolodnsForNewNetBlock,
+	getSolodn solofstypes.GetSolodn,
+	chooseSolodnsForNewNetBlock solofstypes.ChooseSolodnsForNewNetBlock,
 ) {
 	p.helper.GetSolodn = getSolodn
 	p.helper.ChooseSolodnsForNewNetBlock = chooseSolodnsForNewNetBlock
 }
 
-func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlockUintptr,
-	uNetINode solofsapitypes.NetINodeUintptr, netBlockIndex int32) error {
+func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofstypes.NetBlockUintptr,
+	uNetINode solofstypes.NetINodeUintptr, netBlockIndex int32) error {
 	var (
 		pNetBlock           = uNetBlock.Ptr()
 		backendPeerIDArrStr string
@@ -55,7 +55,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlo
 		}
 
 	} else {
-		if err.Error() != solofsapitypes.ErrObjectNotExists.Error() {
+		if err.Error() != solofstypes.ErrObjectNotExists.Error() {
 			goto PREPARE_DONE
 		}
 
@@ -76,7 +76,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlo
 
 PREPARE_DONE:
 	if err == nil {
-		pNetBlock.IsDBMetaDataInited.Store(solodbapitypes.MetaDataStateInited)
+		pNetBlock.IsDBMetaDataInited.Store(solodbtypes.MetaDataStateInited)
 	}
 	return err
 }

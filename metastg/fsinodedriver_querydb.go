@@ -3,12 +3,12 @@ package metastg
 import (
 	"database/sql"
 	"soloos/common/solodbapi"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 )
 
 func (p *FsINodeDriver) DeleteFsINodeByIDInDB(
-	nsID solofsapitypes.NameSpaceID,
-	fsINodeID solofsapitypes.FsINodeID) error {
+	nsID solofstypes.NameSpaceID,
+	fsINodeID solofstypes.FsINodeID) error {
 	var (
 		sess solodbapi.Session
 		err  error
@@ -30,8 +30,8 @@ func (p *FsINodeDriver) DeleteFsINodeByIDInDB(
 }
 
 func (p *FsINodeDriver) UpdateFsINodeInDB(
-	nsID solofsapitypes.NameSpaceID,
-	fsINodeMeta solofsapitypes.FsINodeMeta) error {
+	nsID solofstypes.NameSpaceID,
+	fsINodeMeta solofstypes.FsINodeMeta) error {
 	var (
 		sess solodbapi.Session
 		err  error
@@ -70,8 +70,8 @@ func (p *FsINodeDriver) UpdateFsINodeInDB(
 }
 
 func (p *FsINodeDriver) InsertFsINodeInDB(
-	nsID solofsapitypes.NameSpaceID,
-	fsINodeMeta solofsapitypes.FsINodeMeta) error {
+	nsID solofstypes.NameSpaceID,
+	fsINodeMeta solofstypes.FsINodeMeta) error {
 	var (
 		sess solodbapi.Session
 		err  error
@@ -115,10 +115,10 @@ func (p *FsINodeDriver) InsertFsINodeInDB(
 }
 
 func (p *FsINodeDriver) FetchFsINodeByIDFromDB(
-	nsID solofsapitypes.NameSpaceID,
-	fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeMeta, error) {
+	nsID solofstypes.NameSpaceID,
+	fsINodeID solofstypes.FsINodeID) (solofstypes.FsINodeMeta, error) {
 	var (
-		fsINodeMeta   solofsapitypes.FsINodeMeta
+		fsINodeMeta   solofstypes.FsINodeMeta
 		fsINodeName   string
 		sess          solodbapi.Session
 		sqlRows       *sql.Rows
@@ -140,7 +140,7 @@ func (p *FsINodeDriver) FetchFsINodeByIDFromDB(
 	}
 
 	if sqlRows.Next() == false {
-		err = solofsapitypes.ErrObjectNotExists
+		err = solofstypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 
@@ -179,11 +179,11 @@ QUERY_DONE:
 }
 
 func (p *FsINodeDriver) FetchFsINodeByNameFromDB(
-	nsID solofsapitypes.NameSpaceID,
-	parentID solofsapitypes.FsINodeID,
-	fsINodeName string) (solofsapitypes.FsINodeMeta, error) {
+	nsID solofstypes.NameSpaceID,
+	parentID solofstypes.FsINodeID,
+	fsINodeName string) (solofstypes.FsINodeMeta, error) {
 	var (
-		fsINodeMeta   solofsapitypes.FsINodeMeta
+		fsINodeMeta   solofstypes.FsINodeMeta
 		sess          solodbapi.Session
 		sqlRows       *sql.Rows
 		netINodeIDStr string
@@ -205,7 +205,7 @@ func (p *FsINodeDriver) FetchFsINodeByNameFromDB(
 	}
 
 	if sqlRows.Next() == false {
-		err = solofsapitypes.ErrObjectNotExists
+		err = solofstypes.ErrObjectNotExists
 		goto QUERY_DONE
 	}
 
@@ -247,8 +247,8 @@ QUERY_DONE:
 }
 
 func (p *FsINodeDriver) ListFsINodeByParentIDSelectCountFromDB(
-	nsID solofsapitypes.NameSpaceID,
-	parentID solofsapitypes.FsINodeID,
+	nsID solofstypes.NameSpaceID,
+	parentID solofstypes.FsINodeID,
 ) (int64, error) {
 	var (
 		sess        solodbapi.Session
@@ -283,17 +283,17 @@ QUERY_DONE:
 }
 
 func (p *FsINodeDriver) ListFsINodeByParentIDSelectDataFromDB(
-	nsID solofsapitypes.NameSpaceID,
-	parentID solofsapitypes.FsINodeID,
+	nsID solofstypes.NameSpaceID,
+	parentID solofstypes.FsINodeID,
 	fetchRowsLimit uint64,
 	fetchRowsOffset uint64,
 	isFetchAllCols bool,
-) ([]solofsapitypes.FsINodeMeta, error) {
+) ([]solofstypes.FsINodeMeta, error) {
 	var (
 		sess          solodbapi.Session
 		sqlRows       *sql.Rows
-		ret           []solofsapitypes.FsINodeMeta
-		retRow        solofsapitypes.FsINodeMeta
+		ret           []solofstypes.FsINodeMeta
+		retRow        solofstypes.FsINodeMeta
 		netINodeIDStr string
 		fsINodeName   string
 		err           error

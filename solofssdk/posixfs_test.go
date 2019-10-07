@@ -3,9 +3,8 @@ package solofssdk
 import (
 	"soloos/common/fsapi"
 	"soloos/common/fsapitypes"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/util"
-	"soloos/solofs/solofstypes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,9 +13,9 @@ import (
 func TestMetaStgPosixFsBase(t *testing.T) {
 	var (
 		client      Client
-		fsINodeMeta solofsapitypes.FsINodeMeta
-		netBlockCap = solofstypes.DefaultNetBlockCap
-		memBlockCap = solofstypes.DefaultMemBlockCap
+		fsINodeMeta solofstypes.FsINodeMeta
+		netBlockCap = 1024 * 1024 * 8
+		memBlockCap = 1024 * 1024 * 2
 		posixFs     fsapi.PosixFs
 		code        fsapitypes.Status
 		err         error
@@ -24,7 +23,7 @@ func TestMetaStgPosixFsBase(t *testing.T) {
 	MakeClientForTest(&client)
 	posixFs = client.GetPosixFs()
 
-	code = posixFs.SimpleMkdir(&fsINodeMeta, nil, solofsapitypes.RootFsINodeID, 0777, "test", 0, 0, solofstypes.FS_RDEV)
+	code = posixFs.SimpleMkdir(&fsINodeMeta, nil, solofstypes.RootFsINodeID, 0777, "test", 0, 0, solofstypes.FS_RDEV)
 	if code != fsapitypes.OK {
 		util.AssertTrue(code == solofstypes.FS_EEXIST)
 	}
@@ -52,11 +51,11 @@ func TestMetaStgPosixFsBase(t *testing.T) {
 		func(resultCount int64) (fetchRowsLimit uint64, fetchRowsOffset uint64) {
 			return uint64(resultCount), uint64(0)
 		},
-		func(fsINodeMeta solofsapitypes.FsINodeMeta) bool {
+		func(fsINodeMeta solofstypes.FsINodeMeta) bool {
 			return true
 		})
 	assert.NoError(t, err)
 
 	_, err = posixFs.SimpleOpenFile("/noexists/hi5", netBlockCap, memBlockCap)
-	assert.Equal(t, err.Error(), solofsapitypes.ErrObjectNotExists.Error())
+	assert.Equal(t, err.Error(), solofstypes.ErrObjectNotExists.Error())
 }

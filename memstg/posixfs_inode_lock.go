@@ -2,18 +2,17 @@ package memstg
 
 import (
 	"soloos/common/fsapitypes"
-	"soloos/common/solofsapitypes"
-	"soloos/solofs/solofstypes"
+	"soloos/common/solofstypes"
 )
 
-func (p *PosixFs) setLKOutByMeta(out *fsapitypes.LkOut, meta *solofsapitypes.INodeRWMutexMeta) {
+func (p *PosixFs) setLKOutByMeta(out *fsapitypes.LkOut, meta *solofstypes.INodeRWMutexMeta) {
 	out.Lk.Start = meta.Start
 	out.Lk.End = meta.End
 	out.Lk.Typ = meta.Typ
 	out.Lk.Pid = meta.Pid
 }
 
-func (p *PosixFs) setMetaByLKIn(lkIn *fsapitypes.LkIn, meta *solofsapitypes.INodeRWMutexMeta) {
+func (p *PosixFs) setMetaByLKIn(lkIn *fsapitypes.LkIn, meta *solofstypes.INodeRWMutexMeta) {
 	meta.Start = lkIn.Lk.Start
 	meta.End = lkIn.Lk.End
 	meta.Typ = lkIn.Lk.Typ
@@ -23,12 +22,12 @@ func (p *PosixFs) setMetaByLKIn(lkIn *fsapitypes.LkIn, meta *solofsapitypes.INod
 // GetLk returns existing lock information for file
 func (p *PosixFs) GetLk(input *fsapitypes.LkIn, out *fsapitypes.LkOut) fsapitypes.Status {
 	var (
-		meta solofsapitypes.INodeRWMutexMeta
+		meta solofstypes.INodeRWMutexMeta
 		err  error
 	)
 	err = p.FsMutexDriver.GetLk(input.NodeId, &meta)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 	p.setLKOutByMeta(out, &meta)
 	return fsapitypes.OK
@@ -37,13 +36,13 @@ func (p *PosixFs) GetLk(input *fsapitypes.LkIn, out *fsapitypes.LkOut) fsapitype
 // SetLk Sets or clears the lock described by lk on file.
 func (p *PosixFs) SetLk(input *fsapitypes.LkIn) fsapitypes.Status {
 	var (
-		meta solofsapitypes.INodeRWMutexMeta
+		meta solofstypes.INodeRWMutexMeta
 		err  error
 	)
 	p.setMetaByLKIn(input, &meta)
 	err = p.FsMutexDriver.SetLk(input.NodeId, &meta)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 	return fsapitypes.OK
 }
@@ -51,13 +50,13 @@ func (p *PosixFs) SetLk(input *fsapitypes.LkIn) fsapitypes.Status {
 // SetLkw Sets or clears the lock described by lk. This call blocks until the operation can be completed.
 func (p *PosixFs) SetLkw(input *fsapitypes.LkIn) fsapitypes.Status {
 	var (
-		meta solofsapitypes.INodeRWMutexMeta
+		meta solofstypes.INodeRWMutexMeta
 		err  error
 	)
 	p.setMetaByLKIn(input, &meta)
 	err = p.FsMutexDriver.SetLkw(input.NodeId, &meta)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 	return fsapitypes.OK
 }

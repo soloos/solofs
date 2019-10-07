@@ -2,12 +2,11 @@ package memstg
 
 import (
 	"soloos/common/fsapitypes"
-	"soloos/common/solofsapitypes"
-	"soloos/solofs/solofstypes"
+	"soloos/common/solofstypes"
 )
 
 func (p *PosixFs) SetFsEntryOutByFsINode(fsEntryOut *fsapitypes.EntryOut,
-	pFsINodeMeta *solofsapitypes.FsINodeMeta) {
+	pFsINodeMeta *solofstypes.FsINodeMeta) {
 
 	fsEntryOut.NodeId = pFsINodeMeta.Ino
 	fsEntryOut.EntryValid = p.FsINodeDriver.EntryAttrValid
@@ -17,11 +16,11 @@ func (p *PosixFs) SetFsEntryOutByFsINode(fsEntryOut *fsapitypes.EntryOut,
 	p.SetFsAttrByFsINode(&fsEntryOut.Attr, pFsINodeMeta)
 }
 
-func (p *PosixFs) SetFsINodeByFsAttr(pFsINodeMeta *solofsapitypes.FsINodeMeta,
+func (p *PosixFs) SetFsINodeByFsAttr(pFsINodeMeta *solofstypes.FsINodeMeta,
 	input *fsapitypes.SetAttrIn) fsapitypes.Status {
 
 	if input.Valid&fsapitypes.FATTR_MODE != 0 {
-		// pFsINodeMeta.Mode = uint32(0777)&input.Mode | uint32(solofsapitypes.FsINodeTypeToFsType(pFsINodeMeta.Type))
+		// pFsINodeMeta.Mode = uint32(0777)&input.Mode | uint32(solofstypes.FsINodeTypeToFsType(pFsINodeMeta.Type))
 		pFsINodeMeta.Mode = input.Mode
 	}
 
@@ -43,8 +42,8 @@ func (p *PosixFs) SetFsINodeByFsAttr(pFsINodeMeta *solofsapitypes.FsINodeMeta,
 	}
 
 	now := p.FsINodeDriver.Timer.Now()
-	nowt := solofsapitypes.DirTreeTime(now.Unix())
-	nowtnsec := solofsapitypes.DirTreeTimeNsec(now.UnixNano())
+	nowt := solofstypes.DirTreeTime(now.Unix())
+	nowtnsec := solofstypes.DirTreeTimeNsec(now.UnixNano())
 
 	if input.Valid&(fsapitypes.FATTR_ATIME|fsapitypes.FATTR_MTIME|fsapitypes.FATTR_ATIME_NOW|fsapitypes.FATTR_MTIME_NOW) != 0 {
 		if input.Valid&fsapitypes.FATTR_ATIME != 0 {
@@ -75,7 +74,7 @@ func (p *PosixFs) SetFsINodeByFsAttr(pFsINodeMeta *solofsapitypes.FsINodeMeta,
 }
 
 func (p *PosixFs) SetFsAttrOutByFsINode(fsAttrOut *fsapitypes.AttrOut,
-	pFsINodeMeta *solofsapitypes.FsINodeMeta) {
+	pFsINodeMeta *solofstypes.FsINodeMeta) {
 
 	fsAttrOut.AttrValid = p.FsINodeDriver.EntryAttrValid
 	fsAttrOut.AttrValidNsec = p.FsINodeDriver.EntryAttrValidNsec
@@ -84,12 +83,12 @@ func (p *PosixFs) SetFsAttrOutByFsINode(fsAttrOut *fsapitypes.AttrOut,
 
 func (p *PosixFs) GetAttr(input *fsapitypes.GetAttrIn, out *fsapitypes.AttrOut) fsapitypes.Status {
 	var (
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 	)
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, input.NodeId)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	p.SetFsAttrOutByFsINode(out, &fsINodeMeta)
@@ -99,14 +98,14 @@ func (p *PosixFs) GetAttr(input *fsapitypes.GetAttrIn, out *fsapitypes.AttrOut) 
 
 func (p *PosixFs) SetAttr(input *fsapitypes.SetAttrIn, out *fsapitypes.AttrOut) fsapitypes.Status {
 	var (
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		fsINodeMeta solofstypes.FsINodeMeta
 		code        fsapitypes.Status
 		err         error
 	)
 
 	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, input.NodeId)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	code = p.SetFsINodeByFsAttr(&fsINodeMeta, input)
@@ -116,7 +115,7 @@ func (p *PosixFs) SetAttr(input *fsapitypes.SetAttrIn, out *fsapitypes.AttrOut) 
 
 	err = p.FsINodeDriver.UpdateFsINode(&fsINodeMeta)
 	if err != nil {
-		return solofstypes.ErrorToFsStatus(err)
+		return ErrorToFsStatus(err)
 	}
 
 	p.SetFsAttrOutByFsINode(out, &fsINodeMeta)

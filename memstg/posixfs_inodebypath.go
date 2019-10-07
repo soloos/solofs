@@ -2,20 +2,19 @@ package memstg
 
 import (
 	"path/filepath"
-	"soloos/common/solofsapitypes"
-	"soloos/solofs/solofstypes"
+	"soloos/common/solofstypes"
 	"strings"
 )
 
 func (p *PosixFs) DeleteFsINodeByPath(fsINodePath string) error {
 	var (
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 	)
 
 	err = p.FetchFsINodeByPath(&fsINodeMeta, fsINodePath)
 	if err != nil {
-		if err.Error() == solofsapitypes.ErrObjectNotExists.Error() {
+		if err.Error() == solofstypes.ErrObjectNotExists.Error() {
 			return nil
 		} else {
 			return err
@@ -29,10 +28,10 @@ func (p *PosixFs) DeleteFsINodeByPath(fsINodePath string) error {
 
 func (p *PosixFs) RenameWithFullPath(oldFsINodeName, newFsINodePath string) error {
 	var (
-		fsINodeMeta                   solofsapitypes.FsINodeMeta
-		oldFsINodeMeta                solofsapitypes.FsINodeMeta
-		parentFsINodeMeta             solofsapitypes.FsINodeMeta
-		tmpFsINodeMeta                solofsapitypes.FsINodeMeta
+		fsINodeMeta                   solofstypes.FsINodeMeta
+		oldFsINodeMeta                solofstypes.FsINodeMeta
+		parentFsINodeMeta             solofstypes.FsINodeMeta
+		tmpFsINodeMeta                solofstypes.FsINodeMeta
 		tmpParentDirPath, tmpFileName string
 		err                           error
 	)
@@ -50,7 +49,7 @@ func (p *PosixFs) RenameWithFullPath(oldFsINodeName, newFsINodePath string) erro
 	}
 
 	if parentFsINodeMeta.Type != solofstypes.FSINODE_TYPE_DIR {
-		return solofsapitypes.ErrObjectNotExists
+		return solofstypes.ErrObjectNotExists
 	}
 
 	if tmpFileName == "" {
@@ -61,12 +60,12 @@ func (p *PosixFs) RenameWithFullPath(oldFsINodeName, newFsINodePath string) erro
 
 	err = p.FetchFsINodeByPath(&tmpFsINodeMeta, newFsINodePath)
 	if err != nil {
-		if err.Error() == solofsapitypes.ErrObjectNotExists.Error() {
+		if err.Error() == solofstypes.ErrObjectNotExists.Error() {
 			fsINodeMeta.ParentID = parentFsINodeMeta.Ino
 			fsINodeMeta.SetName(tmpFileName)
 			goto PREPARE_PARENT_FSINODE_DONE
 		} else {
-			return solofsapitypes.ErrObjectNotExists
+			return solofstypes.ErrObjectNotExists
 		}
 	}
 
@@ -76,7 +75,7 @@ func (p *PosixFs) RenameWithFullPath(oldFsINodeName, newFsINodePath string) erro
 		// keep fsINodeMeta.Name
 		goto PREPARE_PARENT_FSINODE_DONE
 	} else {
-		return solofsapitypes.ErrObjectNotExists
+		return solofstypes.ErrObjectNotExists
 	}
 PREPARE_PARENT_FSINODE_DONE:
 
@@ -93,10 +92,10 @@ PREPARE_PARENT_FSINODE_DONE:
 func (p *PosixFs) ListFsINodeByParentPath(parentPath string,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int64) (fetchRowsLimit uint64, fetchRowsOffset uint64),
-	literalFunc func(solofsapitypes.FsINodeMeta) bool,
+	literalFunc func(solofstypes.FsINodeMeta) bool,
 ) error {
 	var (
-		fsINodeMeta solofsapitypes.FsINodeMeta
+		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 	)
 
@@ -115,11 +114,11 @@ func (p *PosixFs) ListFsINodeByParentPath(parentPath string,
 	return nil
 }
 
-func (p *PosixFs) FetchFsINodeByPath(fsINodeMeta *solofsapitypes.FsINodeMeta, fsINodePath string) error {
+func (p *PosixFs) FetchFsINodeByPath(fsINodeMeta *solofstypes.FsINodeMeta, fsINodePath string) error {
 	var (
 		paths    []string
 		i        int
-		parentID solofsapitypes.FsINodeID = solofsapitypes.RootFsINodeID
+		parentID solofstypes.FsINodeID = solofstypes.RootFsINodeID
 		err      error
 	)
 

@@ -6,7 +6,7 @@ import (
 	"soloos/common/log"
 	"soloos/common/snet"
 	"soloos/common/solofsapi"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
 	"soloos/solofs/localfs"
 	"soloos/solofs/memstg"
@@ -55,7 +55,7 @@ func (p *Solodn) initSNetPeer(options SolodnOptions) error {
 
 	p.srpcPeer.ID = options.SrpcPeerID
 	p.srpcPeer.SetAddress(options.SrpcServerServeAddr)
-	p.srpcPeer.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
+	p.srpcPeer.ServiceProtocol = solofstypes.DefaultSolofsRPCProtocol
 	err = p.SNetDriver.RegisterPeer(p.srpcPeer)
 	if err != nil {
 		return err

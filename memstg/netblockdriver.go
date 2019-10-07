@@ -1,22 +1,22 @@
 package memstg
 
 import (
-	"soloos/common/solodbapitypes"
+	"soloos/common/solodbtypes"
 	"soloos/common/solofsapi"
-	"soloos/common/solofsapitypes"
+	"soloos/common/solofstypes"
 	"soloos/common/solomqapi"
 	"soloos/common/soloosbase"
 	"soloos/solodb/offheap"
 )
 
-type PrepareNetBlockMetaData func(uNetBlock solofsapitypes.NetBlockUintptr,
-	uNetINode solofsapitypes.NetINodeUintptr, netblockIndex int32) error
+type PrepareNetBlockMetaData func(uNetBlock solofstypes.NetBlockUintptr,
+	uNetINode solofstypes.NetINodeUintptr, netblockIndex int32) error
 
 type NetBlockDriverHelper struct {
 	PrepareNetBlockMetaData
-	PreadMemBlockWithDisk    solofsapitypes.PReadMemBlockWithDisk
-	UploadMemBlockWithDisk   solofsapitypes.UploadMemBlockWithDisk
-	UploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq
+	PreadMemBlockWithDisk    solofstypes.PReadMemBlockWithDisk
+	UploadMemBlockWithDisk   solofstypes.UploadMemBlockWithDisk
+	UploadMemBlockWithSolomq solofstypes.UploadMemBlockWithSolomq
 }
 
 type NetBlockDriver struct {
@@ -36,9 +36,9 @@ func (p *NetBlockDriver) Init(
 	solonnClient *solofsapi.SolonnClient,
 	solodnClient *solofsapi.SolodnClient,
 	prepareNetBlockMetaData PrepareNetBlockMetaData,
-	preadMemBlockWithDisk solofsapitypes.PReadMemBlockWithDisk,
-	uploadMemBlockWithDisk solofsapitypes.UploadMemBlockWithDisk,
-	uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq,
+	preadMemBlockWithDisk solofstypes.PReadMemBlockWithDisk,
+	uploadMemBlockWithDisk solofstypes.UploadMemBlockWithDisk,
+	uploadMemBlockWithSolomq solofstypes.UploadMemBlockWithSolomq,
 ) error {
 	var err error
 
@@ -55,7 +55,7 @@ func (p *NetBlockDriver) Init(
 	p.solodnClient = solodnClient
 
 	err = p.OffheapDriver.InitLKVTableWithBytes68(&p.netBlockTable, "NetBlock",
-		int(solofsapitypes.NetBlockStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
+		int(solofstypes.NetBlockStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func (p *NetBlockDriver) Init(
 	return nil
 }
 
-func (p *NetBlockDriver) netBlockTablePrepareNewObjectFunc(uNetBlock solofsapitypes.NetBlockUintptr,
+func (p *NetBlockDriver) netBlockTablePrepareNewObjectFunc(uNetBlock solofstypes.NetBlockUintptr,
 	afterSetNewObj offheap.KVTableAfterSetNewObj) bool {
 	var isNewObjectSetted bool
 	if afterSetNewObj != nil {
@@ -83,9 +83,9 @@ func (p *NetBlockDriver) netBlockTablePrepareNewObjectFunc(uNetBlock solofsapity
 
 func (p *NetBlockDriver) SetHelper(
 	prepareNetBlockMetaData PrepareNetBlockMetaData,
-	preadMemBlockWithDisk solofsapitypes.PReadMemBlockWithDisk,
-	uploadMemBlockWithDisk solofsapitypes.UploadMemBlockWithDisk,
-	uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq,
+	preadMemBlockWithDisk solofstypes.PReadMemBlockWithDisk,
+	uploadMemBlockWithDisk solofstypes.UploadMemBlockWithDisk,
+	uploadMemBlockWithSolomq solofstypes.UploadMemBlockWithSolomq,
 ) {
 	p.helper.PrepareNetBlockMetaData = prepareNetBlockMetaData
 	p.helper.PreadMemBlockWithDisk = preadMemBlockWithDisk
@@ -105,38 +105,38 @@ func (p *NetBlockDriver) SetSolodnClient(solodnClient *solofsapi.SolodnClient) {
 	p.solodnClient = solodnClient
 }
 
-func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadMemBlockWithDisk solofsapitypes.PReadMemBlockWithDisk) {
+func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadMemBlockWithDisk solofstypes.PReadMemBlockWithDisk) {
 	p.helper.PreadMemBlockWithDisk = preadMemBlockWithDisk
 }
 
-func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk solofsapitypes.UploadMemBlockWithDisk) {
+func (p *NetBlockDriver) SetUploadMemBlockWithDisk(uploadMemBlockWithDisk solofstypes.UploadMemBlockWithDisk) {
 	p.helper.UploadMemBlockWithDisk = uploadMemBlockWithDisk
 }
 
-func (p *NetBlockDriver) SetUploadMemBlockWithSolomq(uploadMemBlockWithSolomq solofsapitypes.UploadMemBlockWithSolomq) {
+func (p *NetBlockDriver) SetUploadMemBlockWithSolomq(uploadMemBlockWithSolomq solofstypes.UploadMemBlockWithSolomq) {
 	p.helper.UploadMemBlockWithSolomq = uploadMemBlockWithSolomq
 }
 
 // MustGetNetBlock get or init a netBlock
-func (p *NetBlockDriver) MustGetNetBlock(uNetINode solofsapitypes.NetINodeUintptr,
-	netBlockIndex solofsapitypes.NetBlockIndex) (solofsapitypes.NetBlockUintptr, error) {
+func (p *NetBlockDriver) MustGetNetBlock(uNetINode solofstypes.NetINodeUintptr,
+	netBlockIndex solofstypes.NetBlockIndex) (solofstypes.NetBlockUintptr, error) {
 	var (
-		uNetBlock       solofsapitypes.NetBlockUintptr
-		pNetBlock       *solofsapitypes.NetBlock
+		uNetBlock       solofstypes.NetBlockUintptr
+		pNetBlock       *solofstypes.NetBlock
 		uObject         offheap.LKVTableObjectUPtrWithBytes68
-		netINodeBlockID solofsapitypes.NetINodeBlockID
+		netINodeBlockID solofstypes.NetINodeBlockID
 		afterSetNewObj  offheap.KVTableAfterSetNewObj
 		err             error
 	)
 
-	solofsapitypes.EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
+	solofstypes.EncodeNetINodeBlockID(&netINodeBlockID, uNetINode.Ptr().ID, netBlockIndex)
 	uObject, afterSetNewObj = p.netBlockTable.MustGetObject(netINodeBlockID)
-	p.netBlockTablePrepareNewObjectFunc(solofsapitypes.NetBlockUintptr(uObject), afterSetNewObj)
-	uNetBlock = solofsapitypes.NetBlockUintptr(uObject)
+	p.netBlockTablePrepareNewObjectFunc(solofstypes.NetBlockUintptr(uObject), afterSetNewObj)
+	uNetBlock = solofstypes.NetBlockUintptr(uObject)
 	pNetBlock = uNetBlock.Ptr()
-	if uNetBlock.Ptr().IsDBMetaDataInited.Load() == solodbapitypes.MetaDataStateUninited {
+	if uNetBlock.Ptr().IsDBMetaDataInited.Load() == solodbtypes.MetaDataStateUninited {
 		pNetBlock.IsDBMetaDataInited.LockContext()
-		if pNetBlock.IsDBMetaDataInited.Load() == solodbapitypes.MetaDataStateUninited {
+		if pNetBlock.IsDBMetaDataInited.Load() == solodbtypes.MetaDataStateUninited {
 			err = p.helper.PrepareNetBlockMetaData(uNetBlock, uNetINode, netBlockIndex)
 		}
 		pNetBlock.IsDBMetaDataInited.UnlockContext()
@@ -150,6 +150,6 @@ func (p *NetBlockDriver) MustGetNetBlock(uNetINode solofsapitypes.NetINodeUintpt
 	return uNetBlock, nil
 }
 
-func (p *NetBlockDriver) ReleaseNetBlock(uNetBlock solofsapitypes.NetBlockUintptr) {
+func (p *NetBlockDriver) ReleaseNetBlock(uNetBlock solofstypes.NetBlockUintptr) {
 	p.netBlockTable.ReleaseObject(offheap.LKVTableObjectUPtrWithBytes68(uNetBlock))
 }
