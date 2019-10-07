@@ -12,7 +12,7 @@ import (
 //export GoSolofsPappend
 func GoSolofsPappend(fdID uint64, buffer unsafe.Pointer, bufferLen, offset int32) (int32, C.int) {
 	var (
-		fd  = env.PosixFs.FdTableGetFd(fdID)
+		fd  = env.solofsClient.FdTableGetFd(fdID)
 		err error
 	)
 
@@ -22,7 +22,7 @@ func GoSolofsPappend(fdID uint64, buffer unsafe.Pointer, bufferLen, offset int32
 		Cap:  int(bufferLen),
 	}))
 
-	err = env.PosixFs.SimpleWriteWithMem(fd.FsINodeID, data, uint64(offset))
+	err = env.solofsClient.SimpleWriteWithMem(fd.FsINodeID, data, uint64(offset))
 	if err != nil {
 		return 0, solofsapi.CODE_ERR
 	}
@@ -33,7 +33,7 @@ func GoSolofsPappend(fdID uint64, buffer unsafe.Pointer, bufferLen, offset int32
 //export GoSolofsAppend
 func GoSolofsAppend(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C.int) {
 	var (
-		fd  = env.PosixFs.FdTableGetFd(fdID)
+		fd  = env.solofsClient.FdTableGetFd(fdID)
 		err error
 	)
 
@@ -42,13 +42,13 @@ func GoSolofsAppend(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32,
 		Len:  int(bufferLen),
 		Cap:  int(bufferLen),
 	}))
-	err = env.PosixFs.SimpleWriteWithMem(fd.FsINodeID, data, fd.AppendPosition)
+	err = env.solofsClient.SimpleWriteWithMem(fd.FsINodeID, data, fd.AppendPosition)
 	if err != nil {
 		log.Warn(err)
 		return 0, solofsapi.CODE_ERR
 	}
 
-	env.PosixFs.FdTableFdAddAppendPosition(fdID, uint64(bufferLen))
+	env.solofsClient.FdTableFdAddAppendPosition(fdID, uint64(bufferLen))
 
 	return bufferLen, solofsapi.CODE_OK
 }
@@ -56,7 +56,7 @@ func GoSolofsAppend(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32,
 //export GoSolofsRead
 func GoSolofsRead(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C.int) {
 	var (
-		fd             = env.PosixFs.FdTableGetFd(fdID)
+		fd             = env.solofsClient.FdTableGetFd(fdID)
 		readDataLength int
 		err            error
 	)
@@ -66,13 +66,13 @@ func GoSolofsRead(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C
 		Len:  int(bufferLen),
 		Cap:  int(bufferLen),
 	}))
-	readDataLength, err = env.PosixFs.SimpleReadWithMem(fd.FsINodeID, data, fd.ReadPosition)
+	readDataLength, err = env.solofsClient.SimpleReadWithMem(fd.FsINodeID, data, fd.ReadPosition)
 	if err != nil && err != io.EOF {
 		log.Warn(err, readDataLength)
 		return int32(readDataLength), solofsapi.CODE_ERR
 	}
 
-	env.PosixFs.FdTableFdAddReadPosition(fdID, uint64(bufferLen))
+	env.solofsClient.FdTableFdAddReadPosition(fdID, uint64(bufferLen))
 
 	return int32(readDataLength), solofsapi.CODE_OK
 }
@@ -80,7 +80,7 @@ func GoSolofsRead(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C
 //export GoSolofsPread
 func GoSolofsPread(fdID uint64, buffer unsafe.Pointer, bufferLen int32, position uint64) (int32, C.int) {
 	var (
-		fd             = env.PosixFs.FdTableGetFd(fdID)
+		fd             = env.solofsClient.FdTableGetFd(fdID)
 		readDataLength int
 		err            error
 	)
@@ -91,7 +91,7 @@ func GoSolofsPread(fdID uint64, buffer unsafe.Pointer, bufferLen int32, position
 		Cap:  int(bufferLen),
 	}))
 
-	readDataLength, err = env.PosixFs.SimpleReadWithMem(fd.FsINodeID, data, position)
+	readDataLength, err = env.solofsClient.SimpleReadWithMem(fd.FsINodeID, data, position)
 	if err != nil {
 		return int32(readDataLength), solofsapi.CODE_ERR
 	}
@@ -102,7 +102,7 @@ func GoSolofsPread(fdID uint64, buffer unsafe.Pointer, bufferLen int32, position
 //export GoSolofsCloseFile
 func GoSolofsCloseFile(fdID uint64) C.int {
 	ret := doFlushINode(fdID)
-	// env.PosixFs.FdTableReleaseFd(fdID)
+	// env.solofsClient.FdTableReleaseFd(fdID)
 	return ret
 }
 
@@ -123,10 +123,10 @@ func GoSolofsHSyncINode(fdID uint64) C.int {
 
 func doFlushINode(fdID uint64) C.int {
 	var (
-		fd = env.PosixFs.FdTableGetFd(fdID)
+		fd = env.solofsClient.FdTableGetFd(fdID)
 	)
 
-	env.PosixFs.SimpleFlush(fd.FsINodeID)
+	env.solofsClient.SimpleFlush(fd.FsINodeID)
 
 	return solofsapi.CODE_OK
 }

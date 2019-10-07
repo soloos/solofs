@@ -1,7 +1,6 @@
 package solofssdk
 
 import (
-	"soloos/common/fsapi"
 	"soloos/common/fsapitypes"
 	"soloos/common/solofstypes"
 	"soloos/common/util"
@@ -16,12 +15,11 @@ func TestMetaStgPosixFsBase(t *testing.T) {
 		fsINodeMeta solofstypes.FsINodeMeta
 		netBlockCap = 1024 * 1024 * 8
 		memBlockCap = 1024 * 1024 * 2
-		posixFs     fsapi.PosixFs
 		code        fsapitypes.Status
 		err         error
 	)
 	MakeClientForTest(&client)
-	posixFs = client.GetPosixFs()
+	var posixFs = &client.PosixFs
 
 	code = posixFs.SimpleMkdir(&fsINodeMeta, nil, solofstypes.RootFsINodeID, 0777, "test", 0, 0, solofstypes.FS_RDEV)
 	if code != fsapitypes.OK {

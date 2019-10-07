@@ -14,8 +14,8 @@ import (
 type Client struct {
 	*soloosbase.SoloosEnv
 
-	memStg     *memstg.MemStg
-	memPosixFs memstg.PosixFs
+	memStg *memstg.MemStg
+	memstg.PosixFs
 
 	solomqClient solomqapi.Client
 }
@@ -34,7 +34,7 @@ func (p *Client) Init(soloosEnv *soloosbase.SoloosEnv,
 	p.SoloosEnv = soloosEnv
 	p.memStg = memStg
 
-	err = p.memPosixFs.Init(p.SoloosEnv,
+	err = p.PosixFs.Init(p.SoloosEnv,
 		nsID,
 		p.memStg,
 		defaultNetBlockCap,
@@ -42,19 +42,19 @@ func (p *Client) Init(soloosEnv *soloosbase.SoloosEnv,
 		p.memStg.GetNetINode,
 		p.memStg.MustGetNetINode,
 		p.memStg.ReleaseNetINode,
-		p.memPosixFs.FsINodeDriver.AllocFsINodeID,
-		p.memPosixFs.FsINodeDriver.DeleteFsINodeByIDInDB,
-		p.memPosixFs.FsINodeDriver.ListFsINodeByParentIDFromDB,
-		p.memPosixFs.FsINodeDriver.UpdateFsINodeInDB,
-		p.memPosixFs.FsINodeDriver.InsertFsINodeInDB,
-		p.memPosixFs.FsINodeDriver.FetchFsINodeByIDFromDB,
-		p.memPosixFs.FsINodeDriver.FetchFsINodeByNameFromDB,
-		p.memPosixFs.FIXAttrDriver.DeleteFIXAttrInDB,
-		p.memPosixFs.FIXAttrDriver.ReplaceFIXAttrInDB,
-		p.memPosixFs.FIXAttrDriver.GetFIXAttrByInoFromDB,
+		p.PosixFs.FsINodeDriver.AllocFsINodeID,
+		p.PosixFs.FsINodeDriver.DeleteFsINodeByIDInDB,
+		p.PosixFs.FsINodeDriver.ListFsINodeByParentIDFromDB,
+		p.PosixFs.FsINodeDriver.UpdateFsINodeInDB,
+		p.PosixFs.FsINodeDriver.InsertFsINodeInDB,
+		p.PosixFs.FsINodeDriver.FetchFsINodeByIDFromDB,
+		p.PosixFs.FsINodeDriver.FetchFsINodeByNameFromDB,
+		p.PosixFs.FIXAttrDriver.DeleteFIXAttrInDB,
+		p.PosixFs.FIXAttrDriver.ReplaceFIXAttrInDB,
+		p.PosixFs.FIXAttrDriver.GetFIXAttrByInoFromDB,
 	)
 	if err != nil {
-		log.Warn("Solofs memPosixFs Init error", err)
+		log.Warn("Solofs MemPosixFs Init error", err)
 		return err
 	}
 
@@ -63,7 +63,7 @@ func (p *Client) Init(soloosEnv *soloosbase.SoloosEnv,
 
 func (p *Client) Close() error {
 	var err error
-	err = p.memPosixFs.Close()
+	err = p.PosixFs.Close()
 	if err != nil {
 		return err
 	}
@@ -72,5 +72,5 @@ func (p *Client) Close() error {
 }
 
 func (p *Client) GetPosixFs() fsapi.PosixFs {
-	return &p.memPosixFs
+	return &p.PosixFs
 }

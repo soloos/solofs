@@ -1,7 +1,6 @@
 package main
 
 import (
-	"soloos/common/fsapi"
 	"soloos/common/snet"
 	"soloos/common/solofstypes"
 	"soloos/common/soloosbase"
@@ -14,11 +13,10 @@ var (
 )
 
 type Env struct {
-	Options      Options
-	SoloosEnv    soloosbase.SoloosEnv
-	ClientDriver solofssdk.ClientDriver
-	Client       solofssdk.Client
-	PosixFs      fsapi.PosixFs
+	Options            Options
+	SoloosEnv          soloosbase.SoloosEnv
+	solofsClientDriver solofssdk.ClientDriver
+	solofsClient       solofssdk.Client
 }
 
 func (p *Env) Init(optionsFile string) {
@@ -38,7 +36,7 @@ func (p *Env) Init(optionsFile string) {
 
 	var solonnSrpcPeerID snet.PeerID
 	solonnSrpcPeerID.SetStr(p.Options.SolonnSrpcPeerID)
-	util.AssertErrIsNil(p.ClientDriver.Init(&p.SoloosEnv,
+	util.AssertErrIsNil(p.solofsClientDriver.Init(&p.SoloosEnv,
 		solonnSrpcPeerID,
 		p.Options.DBDriver, p.Options.Dsn,
 	))
@@ -48,12 +46,10 @@ func (p *Env) Init(optionsFile string) {
 	}
 
 	util.AssertErrIsNil(
-		p.ClientDriver.InitClient(&p.Client,
+		p.solofsClientDriver.InitClient(&p.solofsClient,
 			solofstypes.NameSpaceID(p.Options.NameSpaceID),
 			p.Options.DefaultNetBlockCap,
 			p.Options.DefaultMemBlockCap,
 			p.Options.DefaultMemBlocksLimit,
 		))
-
-	p.PosixFs = p.Client.GetPosixFs()
 }
