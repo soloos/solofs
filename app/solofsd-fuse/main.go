@@ -2,7 +2,7 @@ package main
 
 import (
 	"os"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/solofs/sfuse"
@@ -29,7 +29,7 @@ func main() {
 	}
 
 	{
-		var solonnSrpcPeerID snettypes.PeerID
+		var solonnSrpcPeerID snet.PeerID
 		solonnSrpcPeerID.SetStr(options.SolonnSrpcPeerID)
 		err = clientDriver.Init(&soloosEnv,
 			solonnSrpcPeerID,

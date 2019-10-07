@@ -5,7 +5,6 @@ import (
 	"soloos/common/iron"
 	"soloos/common/log"
 	"soloos/common/snet"
-	"soloos/common/snettypes"
 	"soloos/common/solofsapi"
 	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
@@ -15,8 +14,8 @@ import (
 
 type Solodn struct {
 	*soloosbase.SoloosEnv
-	srpcPeer snettypes.Peer
-	webPeer  snettypes.Peer
+	srpcPeer snet.Peer
+	webPeer  snet.Peer
 
 	solonnClient   solofsapi.SolonnClient
 	memBlockDriver *memstg.MemBlockDriver
@@ -24,9 +23,9 @@ type Solodn struct {
 	netINodeDriver *memstg.NetINodeDriver
 
 	localFs         localfs.LocalFs
-	localFsSNetPeer snettypes.Peer
+	localFsSNetPeer snet.Peer
 
-	heartBeatServerOptionsArr []snettypes.HeartBeatServerOptions
+	heartBeatServerOptionsArr []snet.HeartBeatServerOptions
 	srpcServer                SrpcServer
 	webServer                 WebServer
 	serverDriver              iron.ServerDriver
@@ -41,7 +40,7 @@ func (p *Solodn) initLocalFs(options SolodnOptions) error {
 
 	p.localFsSNetPeer.ID = snet.MakeSysPeerID(fmt.Sprintf("SOLODN_LOCAL_FS"))
 	p.localFsSNetPeer.SetAddress("LocalFs")
-	p.localFsSNetPeer.ServiceProtocol = snettypes.ProtocolLocalFs
+	p.localFsSNetPeer.ServiceProtocol = snet.ProtocolLocalFs
 	err = p.SNetDriver.RegisterPeer(p.localFsSNetPeer)
 	if err != nil {
 		return err
@@ -63,7 +62,7 @@ func (p *Solodn) initSNetPeer(options SolodnOptions) error {
 
 	p.webPeer.ID = options.WebPeerID
 	p.webPeer.SetAddress(options.WebServer.ServeStr)
-	p.webPeer.ServiceProtocol = snettypes.ProtocolWeb
+	p.webPeer.ServiceProtocol = snet.ProtocolWeb
 	err = p.SNetDriver.RegisterPeer(p.webPeer)
 	if err != nil {
 		return err

@@ -2,7 +2,7 @@ package solodn
 
 import (
 	"path/filepath"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/solofs/memstg"
@@ -10,8 +10,8 @@ import (
 
 func MakeSolodnForTest(soloosEnv *soloosbase.SoloosEnv,
 	solodn *Solodn,
-	solodnSrpcPeerID snettypes.PeerID, solodnSrpcServerAddr string,
-	solonnSrpcPeerID snettypes.PeerID, solonnSrpcServerAddr string,
+	solodnSrpcPeerID snet.PeerID, solodnSrpcServerAddr string,
+	solonnSrpcPeerID snet.PeerID, solonnSrpcServerAddr string,
 	memBlockDriver *memstg.MemBlockDriver,
 	netBlockDriver *memstg.NetBlockDriver,
 	netINodeDriver *memstg.NetINodeDriver,

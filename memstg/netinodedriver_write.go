@@ -1,12 +1,12 @@
 package memstg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 )
 
 type pwriteArg struct {
-	netQuery   *snettypes.NetQuery
+	netQuery   *snet.NetQuery
 	dataLength int
 	data       []byte
 	offset     uint64
@@ -108,7 +108,7 @@ WRITE_DATA_DONE:
 }
 
 func (p *NetINodeDriver) PWriteWithNetQuery(uNetINode solofsapitypes.NetINodeUintptr,
-	netQuery *snettypes.NetQuery, dataLength int, offset uint64) error {
+	netQuery *snet.NetQuery, dataLength int, offset uint64) error {
 	return p.doPWrite(uNetINode, pwriteArg{
 		netQuery:   netQuery,
 		data:       nil,

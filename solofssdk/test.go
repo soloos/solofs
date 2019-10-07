@@ -3,7 +3,6 @@ package solofssdk
 import (
 	"soloos/common/iron"
 	"soloos/common/snet"
-	"soloos/common/snettypes"
 	"soloos/common/solodbapi"
 	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
@@ -24,10 +23,10 @@ func MakeClientForTest(client *Client) {
 	)
 
 	var (
-		solonnSrpcPeerID          snettypes.PeerID = snet.MakeSysPeerID("SolonnSrpcForTest")
-		solonnSrpcListenAddr                       = "127.0.0.1:10300"
-		solonnWebPeerID           snettypes.PeerID = snet.MakeSysPeerID("SolonnWebForTest")
-		solonnWebListenAddr                        = "127.0.0.1:10301"
+		solonnSrpcPeerID          snet.PeerID = snet.MakeSysPeerID("SolonnSrpcForTest")
+		solonnSrpcListenAddr                  = "127.0.0.1:10300"
+		solonnWebPeerID           snet.PeerID = snet.MakeSysPeerID("SolonnWebForTest")
+		solonnWebListenAddr                   = "127.0.0.1:10301"
 		netDriverWebServer        iron.Server
 		netDriverServerListenAddr = "127.0.0.1:10402"
 		netDriverServerServeAddr  = "http://127.0.0.1:10402"
@@ -47,7 +46,7 @@ func MakeClientForTest(client *Client) {
 		netBlockCap int   = 1280
 		memBlockCap int   = 128
 		blocksLimit int32 = 4
-		peer        snettypes.Peer
+		peer        snet.Peer
 		i           int
 	)
 
@@ -99,7 +98,7 @@ func MakeClientForTest(client *Client) {
 	mockMemBlockTable.Init(&soloosEnv, 1024)
 
 	for i = 0; i < 6; i++ {
-		snettypes.InitTmpPeerID((*snettypes.PeerID)(&peer.ID))
+		snet.InitTmpPeerID((*snet.PeerID)(&peer.ID))
 		peer.SetAddress(mockServerAddr)
 		peer.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
 		solonnIns.SolodnRegister(peer)

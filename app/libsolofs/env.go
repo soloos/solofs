@@ -2,7 +2,7 @@ package main
 
 import (
 	"soloos/common/fsapi"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
@@ -36,7 +36,7 @@ func (p *Env) Init(optionsFile string) {
 		util.PProfServe(p.Options.PProfListenAddr)
 	}()
 
-	var solonnSrpcPeerID snettypes.PeerID
+	var solonnSrpcPeerID snet.PeerID
 	solonnSrpcPeerID.SetStr(p.Options.SolonnSrpcPeerID)
 	util.AssertErrIsNil(p.ClientDriver.Init(&p.SoloosEnv,
 		solonnSrpcPeerID,

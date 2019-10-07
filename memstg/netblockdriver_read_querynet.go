@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
 )
@@ -18,7 +18,7 @@ func (p *NetBlockDriver) PReadMemBlockFromNet(uNetINode solofsapitypes.NetINodeU
 			uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}
 
-	var peer snettypes.Peer
+	var peer snet.Peer
 	var err error
 	peer, err = p.SNetDriver.GetPeer(uNetBlock.Ptr().StorDataBackends.Arr[0])
 	if err != nil {
@@ -26,7 +26,7 @@ func (p *NetBlockDriver) PReadMemBlockFromNet(uNetINode solofsapitypes.NetINodeU
 	}
 
 	switch peer.ServiceProtocol {
-	case snettypes.ProtocolSolofs:
+	case snet.ProtocolSolofs:
 		return p.doPReadMemBlockWithSrpc(peer.ID,
 			uNetINode, uNetBlock, netBlockIndex, uMemBlock, memBlockIndex, offset, length)
 	}
@@ -34,7 +34,7 @@ func (p *NetBlockDriver) PReadMemBlockFromNet(uNetINode solofsapitypes.NetINodeU
 	return 0, solofsapitypes.ErrServiceNotExists
 }
 
-func (p *NetBlockDriver) doPReadMemBlockWithSrpc(peerID snettypes.PeerID,
+func (p *NetBlockDriver) doPReadMemBlockWithSrpc(peerID snet.PeerID,
 	uNetINode solofsapitypes.NetINodeUintptr,
 	uNetBlock solofsapitypes.NetBlockUintptr,
 	netBlockIndex int32,
@@ -43,8 +43,8 @@ func (p *NetBlockDriver) doPReadMemBlockWithSrpc(peerID snettypes.PeerID,
 	offset uint64, length int,
 ) (int, error) {
 	var (
-		snetReq  snettypes.SNetReq
-		snetResp snettypes.SNetResp
+		snetReq  snet.SNetReq
+		snetResp snet.SNetResp
 		err      error
 	)
 
@@ -54,7 +54,8 @@ func (p *NetBlockDriver) doPReadMemBlockWithSrpc(peerID snettypes.PeerID,
 	req.Length = int32(length)
 
 	// TODO choose solodn
-	err = p.SNetClientDriver.Call(peerID, "/NetINode/PRead", &snetReq, &snetResp, req)
+	snetReq.Param = snet.MustSpecMarshalRequest(req)
+	err = p.SNetClientDriver.Call(peerID, "/NetINode/PRead", &snetReq, &snetResp)
 	if err != nil {
 		return 0, err
 	}

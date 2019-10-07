@@ -2,7 +2,7 @@ package solofssdk
 
 import (
 	"soloos/common/log"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solodbapi"
 	"soloos/common/solofsapi"
 	"soloos/common/solofsapitypes"
@@ -20,7 +20,7 @@ type ClientDriver struct {
 var _ = solofsapi.ClientDriver(&ClientDriver{})
 
 func (p *ClientDriver) Init(soloosEnv *soloosbase.SoloosEnv,
-	solonnSrpcPeerID snettypes.PeerID,
+	solonnSrpcPeerID snet.PeerID,
 	dbDriver string, dsn string,
 ) error {
 	var err error
@@ -41,12 +41,12 @@ func (p *ClientDriver) Init(soloosEnv *soloosbase.SoloosEnv,
 	return nil
 }
 
-func (p *ClientDriver) initMemStg(solonnSrpcPeerID snettypes.PeerID) error {
+func (p *ClientDriver) initMemStg(solonnSrpcPeerID snet.PeerID) error {
 	var (
 		err error
 	)
 
-	var solonnPeer snettypes.Peer
+	var solonnPeer snet.Peer
 	solonnPeer, err = p.SoloosEnv.SNetDriver.GetPeer(solonnSrpcPeerID)
 	if err != nil {
 		log.Warn("solofs SNetDriver get solonnPeer error", err, solonnSrpcPeerID.Str())

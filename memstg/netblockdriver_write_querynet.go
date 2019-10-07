@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
 	"soloos/common/util"
@@ -12,14 +12,14 @@ func (p *NetBlockDriver) doUploadMemBlockWithSolofs(uJob solofsapitypes.UploadMe
 	uploadPeerIndex int,
 ) error {
 	var (
-		snetReq            snettypes.SNetReq
-		snetResp           snettypes.SNetResp
+		snetReq            snet.SNetReq
+		snetResp           snet.SNetResp
 		req                solofsprotocol.NetINodePWriteReq
 		transferPeersCount int
 		memBlockCap        int
 		uploadChunkMask    offheap.ChunkMask
 		respParamBs        []byte
-		backendPeer        snettypes.Peer
+		backendPeer        snet.Peer
 		i                  int
 		err                error
 	)
@@ -50,8 +50,9 @@ func (p *NetBlockDriver) doUploadMemBlockWithSolofs(uJob solofsapitypes.UploadMe
 			goto PWRITE_DONE
 		}
 
+		snetReq.Param = snet.MustSpecMarshalRequest(req)
 		err = p.SNetClientDriver.Call(backendPeer.ID,
-			"/NetINode/PWrite", &snetReq, &snetResp, req)
+			"/NetINode/PWrite", &snetReq, &snetResp)
 		if err != nil {
 			goto PWRITE_DONE
 		}
@@ -73,11 +74,11 @@ func (p *NetBlockDriver) UploadMemBlockToNet(uJob solofsapitypes.UploadMemBlockJ
 	var solodn, _ = p.SoloosEnv.SNetDriver.GetPeer(
 		uJob.Ptr().UNetBlock.Ptr().SyncDataBackends.Arr[uploadPeerIndex].PeerID)
 	switch solodn.ServiceProtocol {
-	case snettypes.ProtocolLocalFs:
+	case snet.ProtocolLocalFs:
 		return p.helper.UploadMemBlockWithDisk(uJob, uploadPeerIndex)
-	case snettypes.ProtocolSolomq:
+	case snet.ProtocolSolomq:
 		return p.helper.UploadMemBlockWithSolomq(uJob, uploadPeerIndex)
-	case snettypes.ProtocolSolofs:
+	case snet.ProtocolSolofs:
 		return p.doUploadMemBlockWithSolofs(uJob, uploadPeerIndex)
 	}
 

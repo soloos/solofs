@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapi"
 	"soloos/common/solomqapi"
 	"soloos/common/soloosbase"
@@ -20,7 +20,7 @@ type MemStg struct {
 }
 
 func (p *MemStg) Init(soloosEnv *soloosbase.SoloosEnv,
-	solonnPeer snettypes.Peer,
+	solonnPeer snet.Peer,
 	memBlockDriverOptions MemBlockDriverOptions,
 ) error {
 	var (

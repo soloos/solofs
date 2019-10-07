@@ -2,7 +2,7 @@ package solonn
 
 import (
 	"soloos/common/iron"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/solofs/memstg"
@@ -11,15 +11,15 @@ import (
 
 type Solonn struct {
 	*soloosbase.SoloosEnv
-	srpcPeer snettypes.Peer
-	webPeer  snettypes.Peer
+	srpcPeer snet.Peer
+	webPeer  snet.Peer
 	metaStg  *metastg.MetaStg
 
 	memBlockDriver *memstg.MemBlockDriver
 	netBlockDriver *memstg.NetBlockDriver
 	netINodeDriver *memstg.NetINodeDriver
 
-	heartBeatServerOptionsArr []snettypes.HeartBeatServerOptions
+	heartBeatServerOptionsArr []snet.HeartBeatServerOptions
 	serverCount               int
 	srpcServer                SrpcServer
 	webServer                 WebServer
@@ -27,8 +27,8 @@ type Solonn struct {
 }
 
 func (p *Solonn) initSNetPeer(
-	srpcPeerID snettypes.PeerID, srpcServerServeAddr string,
-	webPeerID snettypes.PeerID, webServerServeAddr string,
+	srpcPeerID snet.PeerID, srpcServerServeAddr string,
+	webPeerID snet.PeerID, webServerServeAddr string,
 ) error {
 	var err error
 
@@ -42,7 +42,7 @@ func (p *Solonn) initSNetPeer(
 
 	p.webPeer.ID = webPeerID
 	p.webPeer.SetAddress(webServerServeAddr)
-	p.webPeer.ServiceProtocol = snettypes.ProtocolWeb
+	p.webPeer.ServiceProtocol = snet.ProtocolWeb
 	err = p.SNetDriver.RegisterPeer(p.webPeer)
 	if err != nil {
 		return err
@@ -52,10 +52,10 @@ func (p *Solonn) initSNetPeer(
 }
 
 func (p *Solonn) Init(soloosEnv *soloosbase.SoloosEnv,
-	srpcPeerID snettypes.PeerID,
+	srpcPeerID snet.PeerID,
 	srpcServerListenAddr string,
 	srpcServerServeAddr string,
-	webPeerID snettypes.PeerID,
+	webPeerID snet.PeerID,
 	webServerOptions iron.Options,
 	metaStg *metastg.MetaStg,
 	memBlockDriver *memstg.MemBlockDriver,

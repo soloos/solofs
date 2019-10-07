@@ -2,15 +2,15 @@ package solodn
 
 import (
 	"soloos/common/iron"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 )
 
 type SolodnOptions struct {
-	SrpcPeerID           snettypes.PeerID
+	SrpcPeerID           snet.PeerID
 	SrpcServerListenAddr string
 	SrpcServerServeAddr  string
-	WebPeerID            snettypes.PeerID
+	WebPeerID            snet.PeerID
 	WebServer            iron.Options
 	LocalFsRoot          string
-	SolonnSrpcPeerID     snettypes.PeerID
+	SolonnSrpcPeerID     snet.PeerID
 }

@@ -1,8 +1,9 @@
 module soloos/solofs
 
-go 1.12
+go 1.13
 
 require (
+	github.com/gocraft/dbr v0.0.0-20190503023340-d3d1e2876df1
 	github.com/google/flatbuffers v1.11.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.3.0

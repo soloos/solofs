@@ -1,13 +1,13 @@
 package solonn
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
 )
 
 func (p *SrpcServer) doNetINodeGet(isMustGet bool,
-	reqCtx *snettypes.SNetReqContext,
+	reqCtx *snet.SNetReqContext,
 	req *solofsprotocol.NetINodeInfoReq,
 ) (solofsprotocol.NetINodeInfoResp, error) {
 	var (
@@ -41,19 +41,19 @@ func (p *SrpcServer) doNetINodeGet(isMustGet bool,
 	return resp, nil
 }
 
-func (p *SrpcServer) NetINodeGet(reqCtx *snettypes.SNetReqContext,
+func (p *SrpcServer) NetINodeGet(reqCtx *snet.SNetReqContext,
 	req solofsprotocol.NetINodeInfoReq,
 ) (solofsprotocol.NetINodeInfoResp, error) {
 	return p.doNetINodeGet(false, reqCtx, &req)
 }
 
-func (p *SrpcServer) NetINodeMustGet(reqCtx *snettypes.SNetReqContext,
+func (p *SrpcServer) NetINodeMustGet(reqCtx *snet.SNetReqContext,
 	req solofsprotocol.NetINodeInfoReq,
 ) (solofsprotocol.NetINodeInfoResp, error) {
 	return p.doNetINodeGet(true, reqCtx, &req)
 }
 
-func (p *SrpcServer) NetINodeCommitSizeInDB(reqCtx *snettypes.SNetReqContext,
+func (p *SrpcServer) NetINodeCommitSizeInDB(reqCtx *snet.SNetReqContext,
 	req solofsprotocol.NetINodeCommitSizeInDBReq,
 ) error {
 	var (

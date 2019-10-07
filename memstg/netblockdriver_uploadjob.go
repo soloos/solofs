@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solodbapitypes"
 	"soloos/common/solofsapitypes"
 )
@@ -10,7 +10,7 @@ func (p *netBlockDriverUploader) PrepareUploadMemBlockJob(pJob *solofsapitypes.U
 	uNetINode solofsapitypes.NetINodeUintptr,
 	uNetBlock solofsapitypes.NetBlockUintptr, netBlockIndex int32,
 	uMemBlock solofsapitypes.MemBlockUintptr, memBlockIndex int32,
-	backends snettypes.PeerGroup) {
+	backends snet.PeerGroup) {
 	pJob.MetaDataState.LockContext()
 	if pJob.MetaDataState.Load() == solodbapitypes.MetaDataStateInited {
 		pJob.MetaDataState.UnlockContext()

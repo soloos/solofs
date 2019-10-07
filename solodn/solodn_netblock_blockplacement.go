@@ -1,13 +1,13 @@
 package solodn
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solodbapitypes"
 	"soloos/common/solofsapitypes"
 )
 
 func (p *Solodn) doPrepareNetBlockSyncDataBackendsWithFanout(uNetBlock solofsapitypes.NetBlockUintptr,
-	backends snettypes.PeerGroup,
+	backends snet.PeerGroup,
 ) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()
@@ -32,7 +32,7 @@ PREPARE_DONE:
 }
 
 func (p *Solodn) PrepareNetBlockSyncDataBackends(uNetBlock solofsapitypes.NetBlockUintptr,
-	backends snettypes.PeerGroup,
+	backends snet.PeerGroup,
 ) error {
 	return p.doPrepareNetBlockSyncDataBackendsWithFanout(uNetBlock, backends)
 }

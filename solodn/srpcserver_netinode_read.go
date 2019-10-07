@@ -2,13 +2,13 @@ package solodn
 
 import (
 	"soloos/common/log"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solodbapitypes"
 	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
 )
 
-func (p *SrpcServer) NetINodePRead(reqCtx *snettypes.SNetReqContext,
+func (p *SrpcServer) NetINodePRead(reqCtx *snet.SNetReqContext,
 	req solofsprotocol.NetINodePWriteReq,
 ) error {
 	var (

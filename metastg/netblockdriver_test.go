@@ -1,7 +1,7 @@
 package metastg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
@@ -21,8 +21,8 @@ func TestMetaStgNetBlock(t *testing.T) {
 		netINodeID0 solofsapitypes.NetINodeID
 		netINodeID1 solofsapitypes.NetINodeID
 		netINodeID2 solofsapitypes.NetINodeID
-		peerID0     snettypes.PeerID
-		peerID1     snettypes.PeerID
+		peerID0     snet.PeerID
+		peerID1     snet.PeerID
 		err         error
 	)
 	util.AssertErrIsNil(soloosEnv.InitWithSNet(""))
@@ -33,14 +33,14 @@ func TestMetaStgNetBlock(t *testing.T) {
 	solofsapitypes.InitTmpNetINodeID(&netINodeID2)
 
 	err = soloosEnv.OffheapDriver.InitLKVTableWithBytes64(&peerPool, "TestMetaStgNet",
-		int(snettypes.PeerStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
+		int(snet.PeerStructSize), -1, offheap.DefaultKVTableSharedCount, nil)
 	util.AssertErrIsNil(err)
 
 	netINode.ID = netINodeID0
 	netBlock.NetINodeID = netINode.ID
 
-	snettypes.InitTmpPeerID(&peerID0)
-	snettypes.InitTmpPeerID(&peerID1)
+	snet.InitTmpPeerID(&peerID0)
+	snet.InitTmpPeerID(&peerID1)
 
 	netBlock.StorDataBackends.Append(peerID0)
 	netBlock.StorDataBackends.Append(peerID1)

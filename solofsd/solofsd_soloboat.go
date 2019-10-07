@@ -1,7 +1,7 @@
 package solofsd
 
-import "soloos/common/snettypes"
+import "soloos/common/snet"
 
 func (p *SolofsDaemon) initSoloboat() error {
-	return p.soloboatClient.Init(&p.SoloosEnv, snettypes.StrToPeerID(p.options.SoloboatWebPeerID))
+	return p.soloboatClient.Init(&p.SoloosEnv, snet.StrToPeerID(p.options.SoloboatWebPeerID))
 }

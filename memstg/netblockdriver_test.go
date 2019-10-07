@@ -2,7 +2,6 @@ package memstg
 
 import (
 	"soloos/common/snet"
-	"soloos/common/snettypes"
 	"soloos/common/solofsapi"
 	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
@@ -31,13 +30,13 @@ func TestNetBlockDriver(t *testing.T) {
 		&solonnClient, &solodnClient,
 		&netBlockDriver)
 
-	var peer0 snettypes.Peer
+	var peer0 snet.Peer
 	peer0.ID = snet.MakeSysPeerID("Peer0ForTest")
 	peer0.SetAddress(mockServerAddr)
 	peer0.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
 	soloosEnv.SNetDriver.RegisterPeer(peer0)
 
-	var peer1 snettypes.Peer
+	var peer1 snet.Peer
 	peer1.ID = snet.MakeSysPeerID("Peer0ForTest")
 	peer1.SetAddress(mockServerAddr)
 	peer1.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol

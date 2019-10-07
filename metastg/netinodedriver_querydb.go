@@ -17,10 +17,14 @@ func (p *NetINodeDriver) NetINodeCommitSizeInDB(uNetINode solofsapitypes.NetINod
 		return err
 	}
 
-	_, err = sess.Update("b_netinode").
+	var query = sess.Update("b_netinode").
 		Set("netinode_size", size).
-		Where("netinode_id=?", uNetINode.Ptr().IDStr()).
-		Exec()
+		Where("netinode_id=?", uNetINode.Ptr().IDStr())
+	if sess.Dialect != "sqlite3" {
+		query = query.Limit(1)
+	}
+
+	_, err = query.Exec()
 	if err != nil {
 		return err
 	}
@@ -44,7 +48,7 @@ func (p *NetINodeDriver) FetchNetINodeFromDB(pNetINode *solofsapitypes.NetINode)
 
 	sqlRows, err = sess.Select("netinode_size", "netblock_cap", "memblock_cap").
 		From("b_netinode").
-		Where("netinode_id=?", pNetINode.IDStr()).Rows()
+		Where("netinode_id=?", pNetINode.IDStr()).Limit(1).Rows()
 	if err != nil {
 		goto QUERY_DONE
 	}

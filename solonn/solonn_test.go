@@ -2,7 +2,6 @@ package solonn
 
 import (
 	"soloos/common/snet"
-	"soloos/common/snettypes"
 	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/solofs/memstg"
@@ -69,8 +68,8 @@ func TestBase(t *testing.T) {
 	memstg.MakeMockServerForTest(&soloosEnvForCommon, mockServerAddr, &mockServer)
 
 	for i = 0; i < 6; i++ {
-		var peer snettypes.Peer
-		snettypes.InitTmpPeerID((*snettypes.PeerID)(&peer.ID))
+		var peer snet.Peer
+		snet.InitTmpPeerID((*snet.PeerID)(&peer.ID))
 		peer.SetAddress(mockServerAddr)
 		peer.ServiceProtocol = solofsapitypes.DefaultSolofsRPCProtocol
 		solonn.SolodnRegister(peer)

@@ -3,21 +3,21 @@ package solonn
 import (
 	"soloos/common/iron"
 	"soloos/common/log"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 	"time"
 )
 
-func (p *Solonn) SetHeartBeatServers(heartBeatServerOptionsArr []snettypes.HeartBeatServerOptions) error {
+func (p *Solonn) SetHeartBeatServers(heartBeatServerOptionsArr []snet.HeartBeatServerOptions) error {
 	p.heartBeatServerOptionsArr = heartBeatServerOptionsArr
 	return nil
 }
 
-func (p *Solonn) doHeartBeat(options snettypes.HeartBeatServerOptions) {
+func (p *Solonn) doHeartBeat(options snet.HeartBeatServerOptions) {
 	var (
 		heartBeat solofsapitypes.SolonnHeartBeat
 		webret    iron.ResponseJSON
-		peer      snettypes.Peer
+		peer      snet.Peer
 		urlPath   string
 		err       error
 	)

@@ -1,13 +1,13 @@
 package memstg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 )
 
 func (p *FsINodeDriver) AllocFsINodeID(
 	nsID solofsapitypes.NameSpaceID) (solofsapitypes.FsINodeID, error) {
-	var ret = snettypes.Response{RespData: solofsapitypes.FsINodeID(0)}
+	var ret = snet.Response{RespData: solofsapitypes.FsINodeID(0)}
 	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/AllocFsINodeID", &ret, nsID)
 	if err != nil {
 		return 0, err
@@ -51,7 +51,7 @@ func (p *FsINodeDriver) InsertFsINodeInDB(
 func (p *FsINodeDriver) FetchFsINodeByIDFromDB(
 	nsID solofsapitypes.NameSpaceID,
 	fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeMeta, error) {
-	var ret = snettypes.Response{RespData: solofsapitypes.FsINodeMeta{}}
+	var ret = snet.Response{RespData: solofsapitypes.FsINodeMeta{}}
 	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/FetchFsINodeByIDFromDB", &ret,
 		nsID, fsINodeID)
 	if err != nil {
@@ -64,7 +64,7 @@ func (p *FsINodeDriver) FetchFsINodeByNameFromDB(
 	nsID solofsapitypes.NameSpaceID,
 	parentID solofsapitypes.FsINodeID,
 	fsINodeName string) (solofsapitypes.FsINodeMeta, error) {
-	var ret = snettypes.Response{RespData: solofsapitypes.FsINodeMeta{}}
+	var ret = snet.Response{RespData: solofsapitypes.FsINodeMeta{}}
 	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/FetchFsINodeByNameFromDB", &ret,
 		nsID, parentID, fsINodeName)
 	if err != nil {
@@ -85,7 +85,7 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(nsID solofsapitypes.NameSpac
 		err             error
 	)
 
-	var retRowsCount = snettypes.Response{RespData: int64(0)}
+	var retRowsCount = snet.Response{RespData: int64(0)}
 	err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/ListFsINodeByParentIDSelectCountFromDB",
 		&retRowsCount, nsID, parentID)
 	if err != nil {
@@ -97,7 +97,7 @@ func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(nsID solofsapitypes.NameSpac
 		return nil
 	}
 
-	var iretRows = snettypes.Response{RespData: []solofsapitypes.FsINodeMeta{}}
+	var iretRows = snet.Response{RespData: []solofsapitypes.FsINodeMeta{}}
 	err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/ListFsINodeByParentIDSelectDataFromDB",
 		&iretRows, nsID, parentID, fetchRowsLimit, fetchRowsOffset, isFetchAllCols)
 	if err != nil {

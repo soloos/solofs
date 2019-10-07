@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"soloos/common/iron"
 	"soloos/common/snet"
-	"soloos/common/snettypes"
 	"soloos/common/solofsapitypes"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
@@ -31,7 +30,7 @@ func TestBase(t *testing.T) {
 		metaStgForSolonn          metastg.MetaStg
 
 		solodns               [6]Solodn
-		solodnSrpcPeerIDs     [6]snettypes.PeerID
+		solodnSrpcPeerIDs     [6]snet.PeerID
 		solodnSrpcListenAddrs = []string{
 			"127.0.0.1:10410",
 			"127.0.0.1:10411",

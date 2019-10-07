@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 )
 
@@ -31,7 +31,7 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(
 func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(
 	nsID solofsapitypes.NameSpaceID,
 	fsINodeID solofsapitypes.FsINodeID) (solofsapitypes.FsINodeXAttr, error) {
-	var ret = snettypes.Response{RespData: solofsapitypes.FsINodeXAttr{}}
+	var ret = snet.Response{RespData: solofsapitypes.FsINodeXAttr{}}
 	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FIXAttr/GetFIXAttrByInoFromDB", &ret,
 		nsID, fsINodeID)
 	if err != nil {

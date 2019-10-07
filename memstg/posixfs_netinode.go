@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 )
 
@@ -14,7 +14,7 @@ func (p *PosixFs) ReleaseNetINode(uNetINode solofsapitypes.NetINodeUintptr) {
 }
 
 func (p *PosixFs) NetINodePWriteWithNetQuery(uNetINode solofsapitypes.NetINodeUintptr,
-	netQuery *snettypes.NetQuery, dataLength int, offset uint64) error {
+	netQuery *snet.NetQuery, dataLength int, offset uint64) error {
 	return p.MemStg.NetINodeDriver.PWriteWithNetQuery(uNetINode, netQuery, dataLength, offset)
 }
 

@@ -1,7 +1,7 @@
 package metastg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 )
@@ -11,19 +11,19 @@ type SolodnDriver struct {
 	metaStg *MetaStg
 
 	chooseSolodnIndex         uint32
-	solodnsForBlockRegistered map[snettypes.PeerID]int64
-	solodnsForBlock           []snettypes.PeerID
+	solodnsForBlockRegistered map[snet.PeerID]int64
+	solodnsForBlock           []snet.PeerID
 	solodnsForBlockRWMutex    util.RWMutex
 }
 
 func (p *SolodnDriver) Init(metaStg *MetaStg) error {
 	p.SoloosEnv = metaStg.SoloosEnv
 	p.metaStg = metaStg
-	p.solodnsForBlockRegistered = make(map[snettypes.PeerID]int64)
+	p.solodnsForBlockRegistered = make(map[snet.PeerID]int64)
 	return nil
 }
 
-func (p *SolodnDriver) SolodnRegister(peer snettypes.Peer) error {
+func (p *SolodnDriver) SolodnRegister(peer snet.Peer) error {
 	var (
 		registered bool
 	)
@@ -40,6 +40,6 @@ func (p *SolodnDriver) SolodnRegister(peer snettypes.Peer) error {
 	return nil
 }
 
-func (p *SolodnDriver) GetSolodn(peerID snettypes.PeerID) (snettypes.Peer, error) {
+func (p *SolodnDriver) GetSolodn(peerID snet.PeerID) (snet.Peer, error) {
 	return p.SNetDriver.GetPeer(peerID)
 }

@@ -2,15 +2,15 @@ package solonn
 
 import (
 	"soloos/common/log"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsprotocol"
 )
 
-func (p *SrpcServer) SolodnRegister(reqCtx *snettypes.SNetReqContext,
+func (p *SrpcServer) SolodnRegister(reqCtx *snet.SNetReqContext,
 	req solofsprotocol.SNetPeer,
 ) error {
 	var (
-		peer snettypes.Peer
+		peer snet.Peer
 		err  error
 	)
 	copy(peer.ID[:], []byte(req.PeerID))

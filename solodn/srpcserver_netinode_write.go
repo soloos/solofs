@@ -1,18 +1,18 @@
 package solodn
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solodbapitypes"
 	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
 )
 
-func (p *SrpcServer) NetINodePWrite(reqCtx *snettypes.SNetReqContext,
+func (p *SrpcServer) NetINodePWrite(reqCtx *snet.SNetReqContext,
 	req solofsprotocol.NetINodePWriteReq,
 ) error {
 	var (
-		syncDataBackends snettypes.PeerGroup
-		peerID           snettypes.PeerID
+		syncDataBackends snet.PeerGroup
+		peerID           snet.PeerID
 		uNetBlock        solofsapitypes.NetBlockUintptr
 		err              error
 	)

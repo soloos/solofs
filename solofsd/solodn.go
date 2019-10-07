@@ -1,14 +1,14 @@
 package solofsd
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/util"
 	"soloos/solofs/solodn"
 )
 
 func (p *SolofsDaemon) startSolodn() {
 	var (
-		solonnSrpcPeerID snettypes.PeerID
+		solonnSrpcPeerID snet.PeerID
 		solodnOptions    solodn.SolodnOptions
 	)
 

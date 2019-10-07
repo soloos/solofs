@@ -2,7 +2,7 @@ package solofsd
 
 import (
 	"soloos/common/iron"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 )
 
 type Options struct {
@@ -29,5 +29,5 @@ type Options struct {
 	DBDriver        string
 	Dsn             string
 
-	HeartBeatServers []snettypes.HeartBeatServerOptions
+	HeartBeatServers []snet.HeartBeatServerOptions
 }

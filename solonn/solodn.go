@@ -1,8 +1,8 @@
 package solonn
 
-import "soloos/common/snettypes"
+import "soloos/common/snet"
 
-func (p *Solonn) SolodnRegister(peer snettypes.Peer) error {
+func (p *Solonn) SolodnRegister(peer snet.Peer) error {
 	var err = p.SoloosEnv.SNetDriver.RegisterPeer(peer)
 	if err != nil {
 		return err

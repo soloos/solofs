@@ -2,7 +2,6 @@ package solofsd
 
 import (
 	"soloos/common/snet"
-	"soloos/common/snettypes"
 	"soloos/common/solofsapi"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
@@ -27,8 +26,8 @@ type SolofsDaemon struct {
 
 	solonn     solonn.Solonn
 	solodn     solodn.Solodn
-	srpcPeerID snettypes.PeerID
-	webPeerID  snettypes.PeerID
+	srpcPeerID snet.PeerID
+	webPeerID  snet.PeerID
 
 	soloboatClient soloboatsdk.Client
 }

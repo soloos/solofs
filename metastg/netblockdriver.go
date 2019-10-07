@@ -1,7 +1,7 @@
 package metastg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solodbapi"
 	"soloos/common/solodbapitypes"
 	"soloos/common/solofsapitypes"
@@ -42,7 +42,7 @@ func (p *NetBlockDriver) PrepareNetBlockMetaData(uNetBlock solofsapitypes.NetBlo
 	var (
 		pNetBlock           = uNetBlock.Ptr()
 		backendPeerIDArrStr string
-		peerID              snettypes.PeerID
+		peerID              snet.PeerID
 		err                 error
 	)
 

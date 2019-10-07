@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 	"soloos/common/solofsprotocol"
 )
@@ -12,7 +12,7 @@ func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock solofsapitypes.NetB
 ) error {
 	var (
 		pNetBlock = uNetBlock.Ptr()
-		peerID    snettypes.PeerID
+		peerID    snet.PeerID
 		req       solofsprotocol.NetINodeNetBlockInfoReq
 		i         int
 		err       error

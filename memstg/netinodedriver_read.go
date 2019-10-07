@@ -2,12 +2,12 @@ package memstg
 
 import (
 	"io"
-	"soloos/common/snettypes"
+	"soloos/common/snet"
 	"soloos/common/solofsapitypes"
 )
 
 type preadArg struct {
-	netQuery   *snettypes.NetQuery
+	netQuery   *snet.NetQuery
 	dataLength int
 	data       []byte
 	offset     uint64
@@ -91,7 +91,7 @@ READ_DATA_DONE:
 }
 
 func (p *NetINodeDriver) PReadWithNetQuery(uNetINode solofsapitypes.NetINodeUintptr,
-	netQuery *snettypes.NetQuery, dataLength int, offset uint64) (int, error) {
+	netQuery *snet.NetQuery, dataLength int, offset uint64) (int, error) {
 	return p.doPRead(uNetINode, preadArg{
 		netQuery:   netQuery,
 		data:       nil,
