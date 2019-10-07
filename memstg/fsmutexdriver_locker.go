@@ -11,7 +11,7 @@ import (
 // support distributed system
 
 // GetLk returns existing lock information for file
-func (p *FsINodeDriver) GetLk(fsINodeID solofsapitypes.FsINodeID, iNodeRWMutexMeta *solofsapitypes.INodeRWMutexMeta) error {
+func (p *FsMutexDriver) GetLk(fsINodeID solofsapitypes.FsINodeID, iNodeRWMutexMeta *solofsapitypes.INodeRWMutexMeta) error {
 	var (
 		uObject       offheap.LKVTableObjectUPtrWithUint64
 		uINodeRWMutex solofsapitypes.INodeRWMutexUintptr
@@ -24,7 +24,7 @@ func (p *FsINodeDriver) GetLk(fsINodeID solofsapitypes.FsINodeID, iNodeRWMutexMe
 	return nil
 }
 
-func (p *FsINodeDriver) doSetLk(fsINodeID solofsapitypes.FsINodeID, setFlag *solofsapitypes.INodeRWMutexMeta, isShouldBlock bool) error {
+func (p *FsMutexDriver) doSetLk(fsINodeID solofsapitypes.FsINodeID, setFlag *solofsapitypes.INodeRWMutexMeta, isShouldBlock bool) error {
 	var (
 		uObject       offheap.LKVTableObjectUPtrWithUint64
 		uINodeRWMutex solofsapitypes.INodeRWMutexUintptr
@@ -79,11 +79,11 @@ func (p *FsINodeDriver) doSetLk(fsINodeID solofsapitypes.FsINodeID, setFlag *sol
 }
 
 // SetLk Sets or clears the lock described by lk on file.
-func (p *FsINodeDriver) SetLk(fsINodeID solofsapitypes.FsINodeID, setFlag *solofsapitypes.INodeRWMutexMeta) error {
+func (p *FsMutexDriver) SetLk(fsINodeID solofsapitypes.FsINodeID, setFlag *solofsapitypes.INodeRWMutexMeta) error {
 	return p.doSetLk(fsINodeID, setFlag, false)
 }
 
 // SetLkw Sets or clears the lock described by lk. This call blocks until the operation can be completed.
-func (p *FsINodeDriver) SetLkw(fsINodeID solofsapitypes.FsINodeID, setFlag *solofsapitypes.INodeRWMutexMeta) error {
+func (p *FsMutexDriver) SetLkw(fsINodeID solofsapitypes.FsINodeID, setFlag *solofsapitypes.INodeRWMutexMeta) error {
 	return p.doSetLk(fsINodeID, setFlag, true)
 }

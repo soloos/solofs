@@ -11,9 +11,10 @@ type PosixFs struct {
 	NameSpaceID solofsapitypes.NameSpaceID
 	MemStg      *MemStg
 
-	FsINodeDriver
-	FIXAttrDriver
-	FdTable
+	FsINodeDriver FsINodeDriver
+	FIXAttrDriver FIXAttrDriver
+	FdTable       FdTable
+	FsMutexDriver FsMutexDriver
 }
 
 var _ = fsapi.PosixFs(&PosixFs{})
@@ -25,10 +26,10 @@ func (p *PosixFs) Init(
 	// FsINodeDriver
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
-	allocFsINodeID solofsapitypes.AllocFsINodeID,
 	getNetINode solofsapitypes.GetNetINode,
 	mustGetNetINode solofsapitypes.MustGetNetINode,
 	releaseNetINode solofsapitypes.ReleaseNetINode,
+	allocFsINodeID solofsapitypes.AllocFsINodeID,
 	deleteFsINodeByIDInDB solofsapitypes.DeleteFsINodeByIDInDB,
 	listFsINodeByParentIDFromDB solofsapitypes.ListFsINodeByParentIDFromDB,
 	updateFsINodeInDB solofsapitypes.UpdateFsINodeInDB,
@@ -76,6 +77,11 @@ func (p *PosixFs) Init(
 	}
 
 	err = p.FdTable.Init()
+	if err != nil {
+		return err
+	}
+
+	err = p.FsMutexDriver.Init(p.SoloosEnv, p)
 	if err != nil {
 		return err
 	}

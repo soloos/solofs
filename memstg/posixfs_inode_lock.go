@@ -26,7 +26,7 @@ func (p *PosixFs) GetLk(input *fsapitypes.LkIn, out *fsapitypes.LkOut) fsapitype
 		meta solofsapitypes.INodeRWMutexMeta
 		err  error
 	)
-	err = p.FsINodeDriver.GetLk(input.NodeId, &meta)
+	err = p.FsMutexDriver.GetLk(input.NodeId, &meta)
 	if err != nil {
 		return solofstypes.ErrorToFsStatus(err)
 	}
@@ -41,7 +41,7 @@ func (p *PosixFs) SetLk(input *fsapitypes.LkIn) fsapitypes.Status {
 		err  error
 	)
 	p.setMetaByLKIn(input, &meta)
-	err = p.FsINodeDriver.SetLk(input.NodeId, &meta)
+	err = p.FsMutexDriver.SetLk(input.NodeId, &meta)
 	if err != nil {
 		return solofstypes.ErrorToFsStatus(err)
 	}
@@ -55,7 +55,7 @@ func (p *PosixFs) SetLkw(input *fsapitypes.LkIn) fsapitypes.Status {
 		err  error
 	)
 	p.setMetaByLKIn(input, &meta)
-	err = p.FsINodeDriver.SetLkw(input.NodeId, &meta)
+	err = p.FsMutexDriver.SetLkw(input.NodeId, &meta)
 	if err != nil {
 		return solofstypes.ErrorToFsStatus(err)
 	}

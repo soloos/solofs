@@ -14,10 +14,13 @@ test-sfuse:
 test-solodn:
 	go test .//solodn
 
+test-solofsd:
+	go test .//solofsd
+
 test-solofssdk:
 	go test .//solofssdk
 
 test-solonn:
 	go test .//solonn
 
-test: test-app-libsolofs test-memstg test-metastg test-sfuse test-solodn test-solofssdk test-solonn
+test: test-app-libsolofs test-memstg test-metastg test-sfuse test-solodn test-solofsd test-solofssdk test-solonn

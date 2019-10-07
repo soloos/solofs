@@ -27,7 +27,7 @@ func (p *SolofsDaemon) startSolodn() {
 	}
 
 	util.AssertErrIsNil(p.NetBlockDriver.Init(&p.SoloosEnv,
-		nil, &p.SolodnClient, nil))
+		nil, &p.SolodnClient, nil, nil, nil, nil))
 
 	util.AssertErrIsNil(p.NetINodeDriver.Init(&p.SoloosEnv,
 		&p.NetBlockDriver,

@@ -14,10 +14,13 @@ bench-sfuse:
 bench-solodn:
 	cd src/.//solodn/ && go test -bench=. -benchmem 
 
+bench-solofsd:
+	cd src/.//solofsd/ && go test -bench=. -benchmem 
+
 bench-solofssdk:
 	cd src/.//solofssdk/ && go test -bench=. -benchmem 
 
 bench-solonn:
 	cd src/.//solonn/ && go test -bench=. -benchmem 
 
-bench: bench-app-libsolofs bench-memstg bench-metastg bench-sfuse bench-solodn bench-solofssdk bench-solonn
+bench: bench-app-libsolofs bench-memstg bench-metastg bench-sfuse bench-solodn bench-solofsd bench-solofssdk bench-solonn
