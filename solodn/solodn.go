@@ -18,6 +18,7 @@ type Solodn struct {
 	webPeer  snet.Peer
 
 	solonnClient   solofsapi.SolonnClient
+	solodnClient   solofsapi.SolodnClient
 	memBlockDriver *memstg.MemBlockDriver
 	netBlockDriver *memstg.NetBlockDriver
 	netINodeDriver *memstg.NetINodeDriver
@@ -73,6 +74,7 @@ func (p *Solodn) initSNetPeer(options SolodnOptions) error {
 
 func (p *Solodn) initNetBlockDriver() error {
 	p.netBlockDriver.SetSolonnClient(&p.solonnClient)
+	p.netBlockDriver.SetSolodnClient(&p.solodnClient)
 	p.netBlockDriver.SetHelper(
 		p.netBlockDriver.PrepareNetBlockMetaData,
 		p.localFs.PReadMemBlockWithDisk,
@@ -84,6 +86,7 @@ func (p *Solodn) initNetBlockDriver() error {
 
 func (p *Solodn) initNetINodeDriver() error {
 	p.netINodeDriver.SetSolonnClient(&p.solonnClient)
+	p.netBlockDriver.SetSolodnClient(&p.solodnClient)
 	p.netINodeDriver.SetHelper(
 		p.netINodeDriver.PrepareNetINodeMetaDataOnlyLoadDB,
 		p.netINodeDriver.PrepareNetINodeMetaDataWithStorDB,
@@ -105,6 +108,12 @@ func (p *Solodn) Init(soloosEnv *soloosbase.SoloosEnv,
 	err = p.solonnClient.Init(p.SoloosEnv, options.SolonnSrpcPeerID)
 	if err != nil {
 		log.Warn("Solodn Init solonnClient.Init failed, err:", err)
+		return err
+	}
+
+	err = p.solodnClient.Init(p.SoloosEnv)
+	if err != nil {
+		log.Warn("Solodn Init solodnClient.Init failed, err:", err)
 		return err
 	}
 

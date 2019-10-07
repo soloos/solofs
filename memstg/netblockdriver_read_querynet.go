@@ -55,7 +55,7 @@ func (p *NetBlockDriver) doPReadMemBlockWithSrpc(peerID snet.PeerID,
 
 	// TODO choose solodn
 	snetReq.Param = snet.MustSpecMarshalRequest(req)
-	err = p.SNetClientDriver.Call(peerID, "/NetINode/PRead", &snetReq, &snetResp)
+	err = p.solodnClient.Call(peerID, "/NetINode/PRead", &snetReq, &snetResp)
 	if err != nil {
 		return 0, err
 	}
@@ -65,14 +65,14 @@ func (p *NetBlockDriver) doPReadMemBlockWithSrpc(peerID snet.PeerID,
 		resp                        solofsprotocol.NetINodePReadResp
 		offsetInMemBlock, readedLen int
 	)
-	err = p.SNetClientDriver.ReadResponse(peerID, &snetReq, &snetResp, respParamBs, &resp)
+	err = p.solodnClient.ReadResponse(peerID, &snetReq, &snetResp, respParamBs, &resp)
 	if err != nil {
 		return 0, err
 	}
 
 	offsetInMemBlock = int(offset - uint64(uMemBlock.Ptr().Bytes.Cap)*uint64(memBlockIndex))
 	readedLen = int(snetResp.ConnBytesLeft)
-	err = p.SNetClientDriver.ReadRawResponse(peerID, &snetReq, &snetResp,
+	err = p.solodnClient.ReadRawResponse(peerID, &snetReq, &snetResp,
 		(*uMemBlock.Ptr().BytesSlice())[offsetInMemBlock:readedLen])
 	if err != nil {
 		return 0, err

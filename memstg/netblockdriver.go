@@ -101,6 +101,10 @@ func (p *NetBlockDriver) SetSolonnClient(solonnClient *solofsapi.SolonnClient) {
 	p.solonnClient = solonnClient
 }
 
+func (p *NetBlockDriver) SetSolodnClient(solodnClient *solofsapi.SolodnClient) {
+	p.solodnClient = solodnClient
+}
+
 func (p *NetBlockDriver) SetPReadMemBlockWithDisk(preadMemBlockWithDisk solofsapitypes.PReadMemBlockWithDisk) {
 	p.helper.PreadMemBlockWithDisk = preadMemBlockWithDisk
 }
@@ -115,7 +119,7 @@ func (p *NetBlockDriver) SetUploadMemBlockWithSolomq(uploadMemBlockWithSolomq so
 
 // MustGetNetBlock get or init a netBlock
 func (p *NetBlockDriver) MustGetNetBlock(uNetINode solofsapitypes.NetINodeUintptr,
-	netBlockIndex int32) (solofsapitypes.NetBlockUintptr, error) {
+	netBlockIndex solofsapitypes.NetBlockIndex) (solofsapitypes.NetBlockUintptr, error) {
 	var (
 		uNetBlock       solofsapitypes.NetBlockUintptr
 		pNetBlock       *solofsapitypes.NetBlock

@@ -51,14 +51,14 @@ func (p *NetBlockDriver) doUploadMemBlockWithSolofs(uJob solofsapitypes.UploadMe
 		}
 
 		snetReq.Param = snet.MustSpecMarshalRequest(req)
-		err = p.SNetClientDriver.Call(backendPeer.ID,
+		err = p.solodnClient.Call(backendPeer.ID,
 			"/NetINode/PWrite", &snetReq, &snetResp)
 		if err != nil {
 			goto PWRITE_DONE
 		}
 
 		util.ChangeBytesArraySize(&respParamBs, int(snetResp.ParamSize))
-		err = p.SNetClientDriver.ReadResponse(backendPeer.ID, &snetReq, &snetResp, respParamBs, nil)
+		err = p.solodnClient.ReadResponse(backendPeer.ID, &snetReq, &snetResp, respParamBs, nil)
 		if err != nil {
 			goto PWRITE_DONE
 		}

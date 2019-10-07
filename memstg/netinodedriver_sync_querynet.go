@@ -11,6 +11,6 @@ func (p *NetINodeDriver) NetINodeSyncToNet(peerID snet.PeerID,
 	var req = solofsprotocol.NetINodeSyncReq{
 		NetINodeID: uNetINode.Ptr().ID,
 	}
-	return p.SNetClientDriver.SimpleCall(peerID,
+	return p.SrpcClientDriver.SimpleCall(peerID,
 		"/NetINode/Sync", nil, req)
 }

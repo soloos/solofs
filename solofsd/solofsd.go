@@ -2,7 +2,6 @@ package solofsd
 
 import (
 	"soloos/common/snet"
-	"soloos/common/solofsapi"
 	"soloos/common/soloosbase"
 	"soloos/common/util"
 	"soloos/soloboat/soloboatsdk"
@@ -19,7 +18,6 @@ type SolofsDaemon struct {
 	offheapDriver  *offheap.OffheapDriver
 	SNetDriver     snet.NetDriver
 	MetaStg        metastg.MetaStg
-	SolodnClient   solofsapi.SolodnClient
 	MemBlockDriver memstg.MemBlockDriver
 	NetBlockDriver memstg.NetBlockDriver
 	NetINodeDriver memstg.NetINodeDriver
@@ -52,8 +50,6 @@ func (p *SolofsDaemon) initMemBlockDriver() error {
 func (p *SolofsDaemon) Init(options Options) error {
 	p.options = options
 	util.AssertErrIsNil(p.SoloosEnv.InitWithSNet(p.options.SNetDriverServeAddr))
-
-	p.SolodnClient.Init(&p.SoloosEnv)
 
 	util.AssertErrIsNil(p.initMetaStg())
 
