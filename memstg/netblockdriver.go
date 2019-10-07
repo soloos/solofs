@@ -28,7 +28,7 @@ type NetBlockDriver struct {
 	solomqClient solomqapi.Client
 
 	netBlockTable          offheap.LKVTableWithBytes68
-	netBlockDriverUploader netBlockDriverUploader
+	NetBlockUploader NetBlockUploader
 }
 
 func (p *NetBlockDriver) Init(
@@ -60,7 +60,7 @@ func (p *NetBlockDriver) Init(
 		return err
 	}
 
-	err = p.netBlockDriverUploader.Init(p)
+	err = p.NetBlockUploader.Init(p)
 	if err != nil {
 		return err
 	}

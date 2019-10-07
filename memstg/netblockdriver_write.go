@@ -12,7 +12,7 @@ func (p *NetBlockDriver) PWrite(uNetINode solofstypes.NetINodeUintptr,
 		err error
 	)
 
-	err = p.netBlockDriverUploader.PWrite(uNetINode,
+	err = p.NetBlockUploader.PWrite(uNetINode,
 		uNetBlock, netBlockIndex,
 		uMemBlock, memBlockIndex,
 		offset, end)

@@ -5,7 +5,7 @@ import (
 	"soloos/common/util"
 )
 
-func (p *netBlockDriverUploader) cronUpload() error {
+func (p *NetBlockUploader) cronUpload() error {
 	var (
 		uJob         solofstypes.UploadMemBlockJobUintptr
 		pJob         *solofstypes.UploadMemBlockJob

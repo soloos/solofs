@@ -5,7 +5,7 @@ import (
 	"soloos/common/solofstypes"
 )
 
-func (p *netBlockDriverUploader) PWrite(uNetINode solofstypes.NetINodeUintptr,
+func (p *NetBlockUploader) PWrite(uNetINode solofstypes.NetINodeUintptr,
 	uNetBlock solofstypes.NetBlockUintptr, netBlockIndex int32,
 	uMemBlock solofstypes.MemBlockUintptr, memBlockIndex int32,
 	offset, end int) error {
