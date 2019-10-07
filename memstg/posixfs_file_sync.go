@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/solofstypes"
 )
 
@@ -29,7 +29,7 @@ func (p *PosixFs) SimpleFlush(fsINodeID solofstypes.FsINodeID) error {
 	return nil
 }
 
-func (p *PosixFs) Flush(input *fsapitypes.FlushIn) fsapitypes.Status {
+func (p *PosixFs) Flush(input *fsapi.FlushIn) fsapi.Status {
 	var err = p.SimpleFlush(input.NodeId)
 	return ErrorToFsStatus(err)
 }

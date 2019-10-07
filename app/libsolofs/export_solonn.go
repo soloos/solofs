@@ -2,7 +2,7 @@ package main
 
 import "C"
 import (
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/solofsapi"
 	"soloos/common/solofstypes"
 	"unsafe"
@@ -77,10 +77,10 @@ func GoSolofsListDirectory(cInodePath *C.char, ret *unsafe.Pointer, num *C.int) 
 func GoSolofsCreateDirectory(cInodePath *C.char) C.int {
 	var (
 		fsINodePath = C.GoString(cInodePath)
-		code        fsapitypes.Status
+		code        fsapi.Status
 	)
 	code = env.solofsClient.SimpleMkdirAll(0777, fsINodePath, 0, 0)
-	if code != fsapitypes.OK {
+	if code != fsapi.OK {
 		return solofsapi.CODE_ERR
 	}
 
@@ -116,7 +116,7 @@ func GoSolofsGetPathInfo(cInodePath *C.char) (inodeID uint64, size uint64, mTime
 	var (
 		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
-		status      fsapitypes.Status
+		status      fsapi.Status
 	)
 
 	err = env.solofsClient.FetchFsINodeByPath(&fsINodeMeta, C.GoString(cInodePath))
@@ -125,13 +125,13 @@ func GoSolofsGetPathInfo(cInodePath *C.char) (inodeID uint64, size uint64, mTime
 	}
 
 	var (
-		getAttrInput fsapitypes.GetAttrIn
-		getAttrOut   fsapitypes.AttrOut
+		getAttrInput fsapi.GetAttrIn
+		getAttrOut   fsapi.AttrOut
 	)
 	getAttrInput.NodeId = inodeID
 
 	status = env.solofsClient.GetAttr(&getAttrInput, &getAttrOut)
-	if status != fsapitypes.OK {
+	if status != fsapi.OK {
 		return 0, 0, 0, solofsapi.CODE_ERR
 	}
 

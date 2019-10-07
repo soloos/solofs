@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/solofstypes"
 )
 
@@ -79,13 +79,13 @@ func (p *PosixFs) createFsINode(pFsINodeMeta *solofstypes.FsINodeMeta,
 }
 
 func (p *PosixFs) SimpleOpen(fsINodeMeta *solofstypes.FsINodeMeta,
-	flags uint32, out *fsapitypes.OpenOut) error {
+	flags uint32, out *fsapi.OpenOut) error {
 	out.Fh = p.FdTable.AllocFd(fsINodeMeta.Ino)
 	out.OpenFlags = flags
 	return nil
 }
 
-func (p *PosixFs) Mknod(input *fsapitypes.MknodIn, name string, out *fsapitypes.EntryOut) fsapitypes.Status {
+func (p *PosixFs) Mknod(input *fsapi.MknodIn, name string, out *fsapi.EntryOut) fsapi.Status {
 	if len([]byte(name)) > solofstypes.FS_MAX_NAME_LENGTH {
 		return solofstypes.FS_ENAMETOOLONG
 	}
@@ -99,7 +99,7 @@ func (p *PosixFs) Mknod(input *fsapitypes.MknodIn, name string, out *fsapitypes.
 
 	fsINodeType = FsModeToFsINodeType(input.Mode)
 	if fsINodeType == solofstypes.FSINODE_TYPE_UNKOWN {
-		return fsapitypes.EIO
+		return fsapi.EIO
 	}
 
 	err = p.FetchFsINodeByIDThroughHardLink(&parentFsINodeMeta, input.NodeId)
@@ -122,10 +122,10 @@ func (p *PosixFs) Mknod(input *fsapitypes.MknodIn, name string, out *fsapitypes.
 
 	p.SetFsEntryOutByFsINode(out, &fsINodeMeta)
 
-	return fsapitypes.OK
+	return fsapi.OK
 }
 
-func (p *PosixFs) Unlink(header *fsapitypes.InHeader, name string) fsapitypes.Status {
+func (p *PosixFs) Unlink(header *fsapi.InHeader, name string) fsapi.Status {
 	var (
 		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
@@ -146,10 +146,10 @@ func (p *PosixFs) Unlink(header *fsapitypes.InHeader, name string) fsapitypes.St
 		return ErrorToFsStatus(err)
 	}
 
-	return fsapitypes.OK
+	return fsapi.OK
 }
 
-func (p *PosixFs) Fsync(input *fsapitypes.FsyncIn) fsapitypes.Status {
+func (p *PosixFs) Fsync(input *fsapi.FsyncIn) fsapi.Status {
 	var (
 		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
@@ -162,10 +162,10 @@ func (p *PosixFs) Fsync(input *fsapitypes.FsyncIn) fsapitypes.Status {
 
 	// TODO flush metadata
 
-	return fsapitypes.OK
+	return fsapi.OK
 }
 
-func (p *PosixFs) Lookup(header *fsapitypes.InHeader, name string, out *fsapitypes.EntryOut) fsapitypes.Status {
+func (p *PosixFs) Lookup(header *fsapi.InHeader, name string, out *fsapi.EntryOut) fsapi.Status {
 	if len([]byte(name)) > solofstypes.FS_MAX_NAME_LENGTH {
 		return solofstypes.FS_ENAMETOOLONG
 	}
@@ -186,17 +186,17 @@ func (p *PosixFs) Lookup(header *fsapitypes.InHeader, name string, out *fsapityp
 	}
 
 	p.SetFsEntryOutByFsINode(out, &fsINodeMeta)
-	return fsapitypes.OK
+	return fsapi.OK
 }
 
-func (p *PosixFs) Access(input *fsapitypes.AccessIn) fsapitypes.Status {
-	return fsapitypes.OK
+func (p *PosixFs) Access(input *fsapi.AccessIn) fsapi.Status {
+	return fsapi.OK
 }
 
 func (p *PosixFs) Forget(nodeid, nlookup uint64) {
 }
 
-func (p *PosixFs) Release(input *fsapitypes.ReleaseIn) {
+func (p *PosixFs) Release(input *fsapi.ReleaseIn) {
 }
 
 func (p *PosixFs) CheckPermissionChmod(uid uint32, gid uint32,

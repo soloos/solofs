@@ -27,7 +27,7 @@ type NetBlockDriver struct {
 	solodnClient *solofsapi.SolodnClient
 	solomqClient solomqapi.Client
 
-	netBlockTable          offheap.LKVTableWithBytes68
+	netBlockTable    offheap.LKVTableWithBytes68
 	NetBlockUploader NetBlockUploader
 }
 

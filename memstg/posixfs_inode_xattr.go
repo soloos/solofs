@@ -1,12 +1,12 @@
 package memstg
 
 import (
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/solofstypes"
 )
 
 // Extended attributes.
-func (p *PosixFs) GetXAttrSize(header *fsapitypes.InHeader, attr string) (int, fsapitypes.Status) {
+func (p *PosixFs) GetXAttrSize(header *fsapi.InHeader, attr string) (int, fsapi.Status) {
 	var (
 		fsINodeID   = header.NodeId
 		fsINodeMeta solofstypes.FsINodeMeta
@@ -22,10 +22,10 @@ func (p *PosixFs) GetXAttrSize(header *fsapitypes.InHeader, attr string) (int, f
 	if err != nil {
 		return 0, ErrorToFsStatus(err)
 	}
-	return sz, fsapitypes.OK
+	return sz, fsapi.OK
 }
 
-func (p *PosixFs) GetXAttrData(header *fsapitypes.InHeader, attr string) ([]byte, fsapitypes.Status) {
+func (p *PosixFs) GetXAttrData(header *fsapi.InHeader, attr string) ([]byte, fsapi.Status) {
 	var (
 		fsINodeID   = header.NodeId
 		fsINodeMeta solofstypes.FsINodeMeta
@@ -41,10 +41,10 @@ func (p *PosixFs) GetXAttrData(header *fsapitypes.InHeader, attr string) ([]byte
 	if err != nil {
 		return nil, ErrorToFsStatus(err)
 	}
-	return data, fsapitypes.OK
+	return data, fsapi.OK
 }
 
-func (p *PosixFs) ListXAttr(header *fsapitypes.InHeader) ([]byte, fsapitypes.Status) {
+func (p *PosixFs) ListXAttr(header *fsapi.InHeader) ([]byte, fsapi.Status) {
 	var (
 		fsINodeID   = header.NodeId
 		fsINodeMeta solofstypes.FsINodeMeta
@@ -60,17 +60,17 @@ func (p *PosixFs) ListXAttr(header *fsapitypes.InHeader) ([]byte, fsapitypes.Sta
 	if err != nil {
 		return nil, ErrorToFsStatus(err)
 	}
-	return data, fsapitypes.OK
+	return data, fsapi.OK
 }
 
-func (p *PosixFs) SetXAttr(input *fsapitypes.SetXAttrIn, attr string, data []byte) fsapitypes.Status {
+func (p *PosixFs) SetXAttr(input *fsapi.SetXAttrIn, attr string, data []byte) fsapi.Status {
 	var fsINodeID = input.NodeId
 	var err error
 	err = p.FIXAttrDriver.SetXAttr(fsINodeID, attr, data)
 	return ErrorToFsStatus(err)
 }
 
-func (p *PosixFs) RemoveXAttr(header *fsapitypes.InHeader, attr string) fsapitypes.Status {
+func (p *PosixFs) RemoveXAttr(header *fsapi.InHeader, attr string) fsapi.Status {
 	var fsINodeID = header.NodeId
 	var err error
 	err = p.FIXAttrDriver.RemoveXAttr(fsINodeID, attr)

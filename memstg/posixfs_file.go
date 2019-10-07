@@ -2,7 +2,7 @@ package memstg
 
 import (
 	"os"
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/solofstypes"
 	"strings"
 )
@@ -42,7 +42,7 @@ func (p *PosixFs) SimpleOpenFile(fsINodePath string,
 	if err.Error() == solofstypes.ErrObjectNotExists.Error() {
 		err = p.createFsINode(&fsINodeMeta,
 			nil, nil, parentID,
-			paths[i], solofstypes.FSINODE_TYPE_FILE, fsapitypes.S_IFREG|0777,
+			paths[i], solofstypes.FSINODE_TYPE_FILE, fsapi.S_IFREG|0777,
 			0, 0, solofstypes.FS_RDEV)
 		if err != nil {
 			goto OPEN_FILE_DONE
@@ -53,7 +53,7 @@ OPEN_FILE_DONE:
 	return fsINodeMeta, err
 }
 
-func (p *PosixFs) Create(input *fsapitypes.CreateIn, name string, out *fsapitypes.CreateOut) fsapitypes.Status {
+func (p *PosixFs) Create(input *fsapi.CreateIn, name string, out *fsapi.CreateOut) fsapi.Status {
 	var (
 		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
@@ -66,7 +66,7 @@ func (p *PosixFs) Create(input *fsapitypes.CreateIn, name string, out *fsapitype
 	err = p.createFsINode(&fsINodeMeta,
 		nil, nil, input.NodeId,
 		name, solofstypes.FSINODE_TYPE_FILE,
-		uint32(0777)&input.Mode|uint32(fsapitypes.S_IFREG),
+		uint32(0777)&input.Mode|uint32(fsapi.S_IFREG),
 		input.Uid, input.Gid, solofstypes.FS_RDEV)
 	if err != nil {
 		return ErrorToFsStatus(err)
@@ -84,10 +84,10 @@ func (p *PosixFs) Create(input *fsapitypes.CreateIn, name string, out *fsapitype
 
 	p.SetFsEntryOutByFsINode(&out.EntryOut, &fsINodeMeta)
 
-	return fsapitypes.OK
+	return fsapi.OK
 }
 
-func (p *PosixFs) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapitypes.Status {
+func (p *PosixFs) Open(input *fsapi.OpenIn, out *fsapi.OpenOut) fsapi.Status {
 	var (
 		uFsINode solofstypes.FsINodeUintptr
 		err      error
@@ -114,11 +114,11 @@ func (p *PosixFs) Open(input *fsapitypes.OpenIn, out *fsapitypes.OpenOut) fsapit
 		}
 	}
 
-	return fsapitypes.OK
+	return fsapi.OK
 }
 
-func (p *PosixFs) Fallocate(input *fsapitypes.FallocateIn) fsapitypes.Status {
+func (p *PosixFs) Fallocate(input *fsapi.FallocateIn) fsapi.Status {
 	// TODO maybe should support
 	// not support
-	return fsapitypes.ENODATA
+	return fsapi.ENODATA
 }

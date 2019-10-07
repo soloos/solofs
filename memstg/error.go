@@ -1,29 +1,29 @@
 package memstg
 
 import (
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/solofstypes"
 )
 
-func ErrorToFsStatus(err error) fsapitypes.Status {
+func ErrorToFsStatus(err error) fsapi.Status {
 	if err == nil {
-		return fsapitypes.OK
+		return fsapi.OK
 	}
 
 	switch err.Error() {
 	case solofstypes.ErrObjectNotExists.Error():
-		return fsapitypes.ENOENT
+		return fsapi.ENOENT
 	case solofstypes.ErrObjectExists.Error():
 		return solofstypes.FS_EEXIST
 	case solofstypes.ErrRLockFailed.Error():
-		return fsapitypes.EAGAIN
+		return fsapi.EAGAIN
 	case solofstypes.ErrLockFailed.Error():
-		return fsapitypes.EAGAIN
+		return fsapi.EAGAIN
 	case solofstypes.ErrObjectHasChildren.Error():
 		return solofstypes.FS_ENOTEMPTY
 	case solofstypes.ErrHasNotPermission.Error():
-		return fsapitypes.EPERM
+		return fsapi.EPERM
 	}
 
-	return fsapitypes.EIO
+	return fsapi.EIO
 }

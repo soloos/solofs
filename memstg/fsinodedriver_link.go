@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/solofstypes"
 	"sync/atomic"
 )
@@ -52,7 +52,7 @@ func (p *FsINodeDriver) Symlink(parentID solofstypes.FsINodeID, pointedTo string
 
 	err = p.PrepareFsINodeForCreate(retFsINodeMeta,
 		nil, nil, parentID,
-		linkName, solofstypes.FSINODE_TYPE_SOFT_LINK, fsapitypes.S_IFLNK|0777,
+		linkName, solofstypes.FSINODE_TYPE_SOFT_LINK, fsapi.S_IFLNK|0777,
 		0, 0, solofstypes.FS_RDEV)
 	if err != nil {
 		return err

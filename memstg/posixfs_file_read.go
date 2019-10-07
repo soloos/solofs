@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/solofstypes"
 )
 
@@ -9,10 +9,10 @@ type ReadResult struct {
 	dataLen int
 }
 
-var _ = fsapitypes.ReadResult(&ReadResult{})
+var _ = fsapi.ReadResult(&ReadResult{})
 
-func (p ReadResult) Bytes(buf []byte) ([]byte, fsapitypes.Status) {
-	return buf[:p.dataLen], fsapitypes.OK
+func (p ReadResult) Bytes(buf []byte) ([]byte, fsapi.Status) {
+	return buf[:p.dataLen], fsapi.OK
 }
 
 func (p ReadResult) Size() int {
@@ -41,7 +41,7 @@ func (p *PosixFs) SimpleReadWithMem(fsINodeID solofstypes.FsINodeID,
 	return p.MemStg.NetINodeDriver.PReadWithMem(uFsINode.Ptr().UNetINode, data, offset)
 }
 
-func (p *PosixFs) Read(input *fsapitypes.ReadIn, buf []byte) (fsapitypes.ReadResult, fsapitypes.Status) {
+func (p *PosixFs) Read(input *fsapi.ReadIn, buf []byte) (fsapi.ReadResult, fsapi.Status) {
 	var (
 		ret ReadResult
 		err error
@@ -52,5 +52,5 @@ func (p *PosixFs) Read(input *fsapitypes.ReadIn, buf []byte) (fsapitypes.ReadRes
 		return ret, ErrorToFsStatus(err)
 	}
 
-	return ret, fsapitypes.OK
+	return ret, fsapi.OK
 }

@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/solofstypes"
 )
 
@@ -21,7 +21,7 @@ func (p *PosixFs) BlkSize() uint32 {
 	return blksize
 }
 
-func (p *PosixFs) StatFs(input *fsapitypes.InHeader, out *fsapitypes.StatfsOut) (code fsapitypes.Status) {
+func (p *PosixFs) StatFs(input *fsapi.InHeader, out *fsapi.StatfsOut) (code fsapi.Status) {
 	// TODO return real result
 	var (
 		usedSize   uint64 = 1024 * 1024 * 100
@@ -40,5 +40,5 @@ func (p *PosixFs) StatFs(input *fsapitypes.InHeader, out *fsapitypes.StatfsOut) 
 	out.NameLen = solofstypes.FS_MAX_NAME_LENGTH
 	out.Frsize = blksize
 
-	return fsapitypes.OK
+	return fsapi.OK
 }

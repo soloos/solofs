@@ -1,11 +1,11 @@
 package memstg
 
 import (
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/solofstypes"
 )
 
-func (p *PosixFs) SetFsAttrByFsINode(fsAttr *fsapitypes.Attr, pFsINodeMeta *solofstypes.FsINodeMeta) {
+func (p *PosixFs) SetFsAttrByFsINode(fsAttr *fsapi.Attr, pFsINodeMeta *solofstypes.FsINodeMeta) {
 	fsAttr.Ino = pFsINodeMeta.Ino
 
 	if pFsINodeMeta.NetINodeID != solofstypes.ZeroNetINodeID ||

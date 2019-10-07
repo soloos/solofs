@@ -1,7 +1,7 @@
 package memstg
 
 import (
-	"soloos/common/fsapitypes"
+	"soloos/common/fsapi"
 	"soloos/common/log"
 	"soloos/common/solodbtypes"
 	"soloos/common/solofstypes"
@@ -160,13 +160,13 @@ func (p *FsINodeDriver) prepareBaseDir() error {
 		uFsINode    solofstypes.FsINodeUintptr
 		fsINodeMeta solofstypes.FsINodeMeta
 		ino         solofstypes.FsINodeID
-		code        fsapitypes.Status
+		code        fsapi.Status
 		err         error
 	)
 
 	ino = solofstypes.RootFsINodeID
 	code = p.posixFs.SimpleMkdir(&fsINodeMeta, &ino, solofstypes.RootFsINodeParentID, 0777, "", 0, 0, solofstypes.FS_RDEV)
-	if code != fsapitypes.OK {
+	if code != fsapi.OK {
 		log.Warn("mkdir root error ", code)
 	}
 
@@ -175,7 +175,7 @@ func (p *FsINodeDriver) prepareBaseDir() error {
 		return err
 	}
 	code = p.posixFs.SimpleMkdir(&fsINodeMeta, &ino, solofstypes.RootFsINodeID, 0777, "tmp", 0, 0, solofstypes.FS_RDEV)
-	if code != fsapitypes.OK {
+	if code != fsapi.OK {
 		log.Warn("mkdir tmp error", code)
 	}
 	uFsINode, err = p.GetFsINodeByName(solofstypes.RootFsINodeParentID, "")
