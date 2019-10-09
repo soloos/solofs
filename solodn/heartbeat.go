@@ -16,7 +16,7 @@ func (p *Solodn) SetHeartBeatServers(heartBeatServerOptionsArr []snet.HeartBeatS
 func (p *Solodn) doHeartBeat(options snet.HeartBeatServerOptions) {
 	var (
 		heartBeat solofstypes.SolodnHeartBeat
-		webret    iron.ResponseJSON
+		webret    snet.Response
 		peer      snet.Peer
 		urlPath   string
 		err       error

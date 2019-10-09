@@ -4,7 +4,6 @@ import (
 	"soloos/common/snet"
 	"soloos/common/solofsprotocol"
 	"soloos/common/solofstypes"
-	"soloos/common/util"
 	"soloos/solodb/offheap"
 )
 
@@ -18,7 +17,6 @@ func (p *NetBlockDriver) doUploadMemBlockWithSolofs(uJob solofstypes.UploadMemBl
 		transferPeersCount int
 		memBlockCap        int
 		uploadChunkMask    offheap.ChunkMask
-		respParamBs        []byte
 		backendPeer        snet.Peer
 		i                  int
 		err                error
@@ -50,15 +48,13 @@ func (p *NetBlockDriver) doUploadMemBlockWithSolofs(uJob solofstypes.UploadMemBl
 			goto PWRITE_DONE
 		}
 
-		snetReq.Param = snet.MustSpecMarshalRequest(req)
 		err = p.solodnClient.Call(backendPeer.ID,
-			"/NetINode/PWrite", &snetReq, &snetResp)
+			"/NetINode/PWrite", &snetReq, &snetResp, req)
 		if err != nil {
 			goto PWRITE_DONE
 		}
 
-		util.ChangeBytesArraySize(&respParamBs, int(snetResp.ParamSize))
-		err = p.solodnClient.ReadResponse(backendPeer.ID, &snetReq, &snetResp, respParamBs, nil)
+		err = p.solodnClient.SimpleReadResponse(backendPeer.ID, &snetReq, &snetResp, nil)
 		if err != nil {
 			goto PWRITE_DONE
 		}

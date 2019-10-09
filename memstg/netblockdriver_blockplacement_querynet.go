@@ -23,7 +23,7 @@ func (p *NetBlockDriver) doPrepareNetBlockMetaData(uNetBlock solofstypes.NetBloc
 	req.Cap = int32(uNetINode.Ptr().NetBlockCap)
 
 	// TODO choose solonn
-	var netBlockInfo solofsprotocol.NetINodeNetBlockInfoResp
+	var netBlockInfo = solofsprotocol.NetINodeNetBlockInfoResp{}
 	err = p.solonnClient.Dispatch("/NetBlock/PrepareMetaData", &netBlockInfo, req)
 	if err != nil {
 		return err
