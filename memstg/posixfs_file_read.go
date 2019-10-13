@@ -22,13 +22,13 @@ func (p ReadResult) Size() int {
 func (p ReadResult) Done() {
 }
 
-func (p *PosixFs) SimpleReadWithMem(fsINodeID solofstypes.FsINodeID,
+func (p *PosixFs) SimpleReadWithMem(fsINodeIno solofstypes.FsINodeIno,
 	data []byte, offset uint64) (int, error) {
 	var (
 		uFsINode solofstypes.FsINodeUintptr
 		err      error
 	)
-	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeID)
+	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeIno)
 	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
 	if err != nil {
 		return -1, err

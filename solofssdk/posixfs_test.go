@@ -21,7 +21,7 @@ func TestMetaStgPosixFsBase(t *testing.T) {
 	MakeClientForTest(&client)
 	var posixFs = &client.PosixFs
 
-	code = posixFs.SimpleMkdir(&fsINodeMeta, nil, solofstypes.RootFsINodeID, 0777, "test", 0, 0, solofstypes.FS_RDEV)
+	code = posixFs.SimpleMkdir(&fsINodeMeta, nil, solofstypes.RootFsINodeIno, 0777, "test", 0, 0, solofstypes.FS_RDEV)
 	if code != fsapi.OK {
 		util.AssertTrue(code == solofstypes.FS_EEXIST)
 	}

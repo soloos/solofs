@@ -18,7 +18,7 @@ type FIXAttrDriver struct {
 	helper  FIXAttrDriverHelper
 
 	xattrsRWMutex util.RWMutex
-	xattrs        map[solofstypes.FsINodeID]solofstypes.FsINodeXAttr
+	xattrs        map[solofstypes.FsINodeIno]solofstypes.FsINodeXAttr
 }
 
 func (p *FIXAttrDriver) Init(
@@ -34,7 +34,7 @@ func (p *FIXAttrDriver) Init(
 		getFIXAttrByInoFromDB,
 	)
 
-	p.xattrs = make(map[solofstypes.FsINodeID]solofstypes.FsINodeXAttr)
+	p.xattrs = make(map[solofstypes.FsINodeIno]solofstypes.FsINodeXAttr)
 
 	return nil
 }
@@ -51,20 +51,20 @@ func (p *FIXAttrDriver) SetHelper(
 	}
 }
 
-func (p *FIXAttrDriver) getXAttrFromCache(fsINodeID solofstypes.FsINodeID) (solofstypes.FsINodeXAttr, bool) {
+func (p *FIXAttrDriver) getXAttrFromCache(fsINodeIno solofstypes.FsINodeIno) (solofstypes.FsINodeXAttr, bool) {
 	var (
 		xattr  solofstypes.FsINodeXAttr
 		exists bool
 	)
 	p.xattrsRWMutex.RLock()
-	xattr, exists = p.xattrs[fsINodeID]
+	xattr, exists = p.xattrs[fsINodeIno]
 	p.xattrsRWMutex.RUnlock()
 	return xattr, exists
 }
 
-func (p *FIXAttrDriver) setXAttrInCache(fsINodeID solofstypes.FsINodeID, xattr solofstypes.FsINodeXAttr) {
+func (p *FIXAttrDriver) setXAttrInCache(fsINodeIno solofstypes.FsINodeIno, xattr solofstypes.FsINodeXAttr) {
 	p.xattrsRWMutex.Lock()
-	p.xattrs[fsINodeID] = xattr
+	p.xattrs[fsINodeIno] = xattr
 	p.xattrsRWMutex.Unlock()
 }
 
@@ -89,43 +89,43 @@ func (p *FIXAttrDriver) xAttrRemoveAttr(xattr solofstypes.FsINodeXAttr, attr str
 	p.xattrsRWMutex.Unlock()
 }
 
-func (p *FIXAttrDriver) getXAttr(fsINodeID solofstypes.FsINodeID) (solofstypes.FsINodeXAttr, error) {
+func (p *FIXAttrDriver) getXAttr(fsINodeIno solofstypes.FsINodeIno) (solofstypes.FsINodeXAttr, error) {
 	var (
 		xattr       solofstypes.FsINodeXAttr
 		xattrExists bool
 		err         error
 	)
 
-	xattr, xattrExists = p.getXAttrFromCache(fsINodeID)
+	xattr, xattrExists = p.getXAttrFromCache(fsINodeIno)
 	if xattrExists {
 		return xattr, nil
 	}
 
-	xattr, err = p.helper.GetFIXAttrByInoFromDB(p.posixFs.NameSpaceID, fsINodeID)
+	xattr, err = p.helper.GetFIXAttrByInoFromDB(p.posixFs.NameSpaceID, fsINodeIno)
 	if err != nil && err.Error() != solofstypes.ErrObjectNotExists.Error() {
 		return xattr, err
 	}
 
-	p.setXAttrInCache(fsINodeID, xattr)
+	p.setXAttrInCache(fsINodeIno, xattr)
 	return xattr, nil
 }
 
-func (p *FIXAttrDriver) GetXAttrSize(fsINodeID solofstypes.FsINodeID, attr string) (int, error) {
+func (p *FIXAttrDriver) GetXAttrSize(fsINodeIno solofstypes.FsINodeIno, attr string) (int, error) {
 	var (
 		value []byte
 		err   error
 	)
-	value, err = p.GetXAttrData(fsINodeID, attr)
+	value, err = p.GetXAttrData(fsINodeIno, attr)
 	return len(value), err
 }
 
-func (p *FIXAttrDriver) GetXAttrData(fsINodeID solofstypes.FsINodeID, attr string) ([]byte, error) {
+func (p *FIXAttrDriver) GetXAttrData(fsINodeIno solofstypes.FsINodeIno, attr string) ([]byte, error) {
 	var (
 		xattr solofstypes.FsINodeXAttr
 		value []byte
 		err   error
 	)
-	xattr, err = p.getXAttr(fsINodeID)
+	xattr, err = p.getXAttr(fsINodeIno)
 	if err != nil {
 		return nil, err
 	}
@@ -133,12 +133,12 @@ func (p *FIXAttrDriver) GetXAttrData(fsINodeID solofstypes.FsINodeID, attr strin
 	return value, nil
 }
 
-func (p *FIXAttrDriver) ListXAttr(fsINodeID solofstypes.FsINodeID) ([]byte, error) {
+func (p *FIXAttrDriver) ListXAttr(fsINodeIno solofstypes.FsINodeIno) ([]byte, error) {
 	var (
 		xattr solofstypes.FsINodeXAttr
 		err   error
 	)
-	xattr, err = p.getXAttr(fsINodeID)
+	xattr, err = p.getXAttr(fsINodeIno)
 	if err != nil {
 		return nil, err
 	}
@@ -152,13 +152,13 @@ func (p *FIXAttrDriver) ListXAttr(fsINodeID solofstypes.FsINodeID) ([]byte, erro
 	return b.Bytes(), nil
 }
 
-func (p *FIXAttrDriver) SetXAttr(fsINodeID solofstypes.FsINodeID, attr string, data []byte) error {
+func (p *FIXAttrDriver) SetXAttr(fsINodeIno solofstypes.FsINodeIno, attr string, data []byte) error {
 	var (
 		xattr solofstypes.FsINodeXAttr
 		err   error
 	)
 
-	xattr, err = p.getXAttr(fsINodeID)
+	xattr, err = p.getXAttr(fsINodeIno)
 	if err != nil {
 		return err
 	}
@@ -169,29 +169,29 @@ func (p *FIXAttrDriver) SetXAttr(fsINodeID solofstypes.FsINodeID, attr string, d
 
 	p.xAttrSetAttr(xattr, attr, data)
 
-	err = p.helper.ReplaceFIXAttrInDB(p.posixFs.NameSpaceID, fsINodeID, xattr)
+	err = p.helper.ReplaceFIXAttrInDB(p.posixFs.NameSpaceID, fsINodeIno, xattr)
 	if err != nil {
 		return err
 	}
 
-	p.setXAttrInCache(fsINodeID, xattr)
+	p.setXAttrInCache(fsINodeIno, xattr)
 
 	return nil
 }
 
-func (p *FIXAttrDriver) RemoveXAttr(fsINodeID solofstypes.FsINodeID, attr string) error {
+func (p *FIXAttrDriver) RemoveXAttr(fsINodeIno solofstypes.FsINodeIno, attr string) error {
 	var (
 		xattr solofstypes.FsINodeXAttr
 		err   error
 	)
 
-	xattr, err = p.getXAttr(fsINodeID)
+	xattr, err = p.getXAttr(fsINodeIno)
 	if err != nil {
 		return err
 	}
 
 	p.xAttrRemoveAttr(xattr, attr)
-	err = p.helper.ReplaceFIXAttrInDB(p.posixFs.NameSpaceID, fsINodeID, xattr)
+	err = p.helper.ReplaceFIXAttrInDB(p.posixFs.NameSpaceID, fsINodeIno, xattr)
 	if err != nil {
 		return err
 	}

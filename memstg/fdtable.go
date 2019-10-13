@@ -28,10 +28,10 @@ func (p *FdTable) Init() error {
 	return nil
 }
 
-func (p *FdTable) AllocFd(fsINodeID solofstypes.FsINodeID) solofstypes.FsINodeFileHandlerID {
+func (p *FdTable) AllocFd(fsINodeIno solofstypes.FsINodeIno) solofstypes.FsINodeFileHandlerID {
 	var fdID = solofstypes.FsINodeFileHandlerID(p.fdIDsPool.Get())
 	p.FdsRWMutex.RLock()
-	p.Fds[fdID].FsINodeID = fsINodeID
+	p.Fds[fdID].FsINodeIno = fsINodeIno
 	p.FdsRWMutex.RUnlock()
 	return fdID
 

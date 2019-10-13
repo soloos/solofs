@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 )
 
-func (p *FsINodeDriver) Link(srcFsINodeID solofstypes.FsINodeID,
-	parentID solofstypes.FsINodeID, filename string,
+func (p *FsINodeDriver) Link(srcFsINodeIno solofstypes.FsINodeIno,
+	parentID solofstypes.FsINodeIno, filename string,
 	retFsINode *solofstypes.FsINodeMeta) error {
 	var (
 		uSrcFsINode solofstypes.FsINodeUintptr
@@ -15,7 +15,7 @@ func (p *FsINodeDriver) Link(srcFsINodeID solofstypes.FsINodeID,
 		err         error
 	)
 
-	uSrcFsINode, err = p.GetFsINodeByID(srcFsINodeID)
+	uSrcFsINode, err = p.GetFsINodeByID(srcFsINodeIno)
 	defer p.ReleaseFsINode(uSrcFsINode)
 	pSrcFsINode = uSrcFsINode.Ptr()
 	if err != nil {
@@ -44,7 +44,7 @@ func (p *FsINodeDriver) Link(srcFsINodeID solofstypes.FsINodeID,
 	return nil
 }
 
-func (p *FsINodeDriver) Symlink(parentID solofstypes.FsINodeID, pointedTo string, linkName string,
+func (p *FsINodeDriver) Symlink(parentID solofstypes.FsINodeIno, pointedTo string, linkName string,
 	retFsINodeMeta *solofstypes.FsINodeMeta) error {
 	var (
 		err error
@@ -70,18 +70,18 @@ func (p *FsINodeDriver) Symlink(parentID solofstypes.FsINodeID, pointedTo string
 	return nil
 }
 
-func (p *FsINodeDriver) Readlink(fsINodeID solofstypes.FsINodeID) ([]byte, error) {
-	return p.posixFs.FIXAttrDriver.GetXAttrData(fsINodeID, solofstypes.FS_XATTR_SOFT_LNKMETA_KEY)
+func (p *FsINodeDriver) Readlink(fsINodeIno solofstypes.FsINodeIno) ([]byte, error) {
+	return p.posixFs.FIXAttrDriver.GetXAttrData(fsINodeIno, solofstypes.FS_XATTR_SOFT_LNKMETA_KEY)
 }
 
-func (p *FsINodeDriver) deleteFsINodeHardLinked(fsINodeID solofstypes.FsINodeID) error {
+func (p *FsINodeDriver) deleteFsINodeHardLinked(fsINodeIno solofstypes.FsINodeIno) error {
 	var (
 		uFsINode                solofstypes.FsINodeUintptr
 		isFsINodeDeleted        bool
 		isShouldReleaseUFsINode bool
 		err                     error
 	)
-	uFsINode, err = p.GetFsINodeByID(fsINodeID)
+	uFsINode, err = p.GetFsINodeByID(fsINodeIno)
 	if err != nil {
 		isShouldReleaseUFsINode = true
 
@@ -138,17 +138,17 @@ func (p *FsINodeDriver) decreaseFsINodeNLink(uFsINode solofstypes.FsINodeUintptr
 	return true, nil
 }
 
-func (p *FsINodeDriver) UnlinkFsINode(fsINodeID solofstypes.FsINodeID) error {
+func (p *FsINodeDriver) UnlinkFsINode(fsINodeIno solofstypes.FsINodeIno) error {
 	var (
 		uFsINode                solofstypes.FsINodeUintptr
 		pFsINode                *solofstypes.FsINode
-		oldFsINodeParentID      solofstypes.FsINodeID
+		oldFsINodeParentID      solofstypes.FsINodeIno
 		isFsINodeDeleted        bool
 		isShouldReleaseUFsINode bool
 		err                     error
 	)
 
-	uFsINode, err = p.GetFsINodeByID(fsINodeID)
+	uFsINode, err = p.GetFsINodeByID(fsINodeIno)
 	pFsINode = uFsINode.Ptr()
 
 	if err != nil {

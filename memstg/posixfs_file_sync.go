@@ -5,14 +5,14 @@ import (
 	"soloos/common/solofstypes"
 )
 
-func (p *PosixFs) SimpleFlush(fsINodeID solofstypes.FsINodeID) error {
+func (p *PosixFs) SimpleFlush(fsINodeIno solofstypes.FsINodeIno) error {
 	var (
 		uFsINode solofstypes.FsINodeUintptr
 		pFsINode *solofstypes.FsINode
 		err      error
 	)
 
-	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeID)
+	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeIno)
 	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
 	pFsINode = uFsINode.Ptr()
 	if err != nil {

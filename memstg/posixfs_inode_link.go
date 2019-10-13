@@ -8,13 +8,13 @@ import (
 func (p *PosixFs) Link(input *fsapi.LinkIn, filename string, out *fsapi.EntryOut) fsapi.Status {
 	var (
 		srcFsINodeMeta     solofstypes.FsINodeMeta
-		srcFsINodeID       = input.Oldnodeid
+		srcFsINodeIno       = input.Oldnodeid
 		newFsINodeParentID = input.NodeId
 		newFsINodeMeta     solofstypes.FsINodeMeta
 		err                error
 	)
 
-	err = p.FsINodeDriver.Link(srcFsINodeID, newFsINodeParentID, filename, &newFsINodeMeta)
+	err = p.FsINodeDriver.Link(srcFsINodeIno, newFsINodeParentID, filename, &newFsINodeMeta)
 	if err != nil {
 		return ErrorToFsStatus(err)
 	}
@@ -24,7 +24,7 @@ func (p *PosixFs) Link(input *fsapi.LinkIn, filename string, out *fsapi.EntryOut
 		return ErrorToFsStatus(err)
 	}
 
-	err = p.FetchFsINodeByID(&srcFsINodeMeta, srcFsINodeID)
+	err = p.FetchFsINodeByID(&srcFsINodeMeta, srcFsINodeIno)
 	if err != nil {
 		return ErrorToFsStatus(err)
 	}

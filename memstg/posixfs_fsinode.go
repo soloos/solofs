@@ -4,8 +4,8 @@ import (
 	"soloos/common/solofstypes"
 )
 
-func (p *PosixFs) GetFsINodeByID(fsINodeID solofstypes.FsINodeID) (solofstypes.FsINodeUintptr, error) {
-	return p.FsINodeDriver.GetFsINodeByID(fsINodeID)
+func (p *PosixFs) GetFsINodeByID(fsINodeIno solofstypes.FsINodeIno) (solofstypes.FsINodeUintptr, error) {
+	return p.FsINodeDriver.GetFsINodeByID(fsINodeIno)
 }
 
 func (p *PosixFs) ReleaseFsINode(uFsINode solofstypes.FsINodeUintptr) {

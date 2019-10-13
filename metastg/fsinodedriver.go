@@ -12,9 +12,9 @@ type FsINodeDriver struct {
 	*soloosbase.SoloosEnv
 	dbConn *solodbapi.Connection
 
-	allocINodeIDDalta solofstypes.FsINodeID
-	lastFsINodeIDInDB solofstypes.FsINodeID
-	maxFsINodeID      solofstypes.FsINodeID
+	allocINodeIDDalta solofstypes.FsINodeIno
+	lastFsINodeInoInDB solofstypes.FsINodeIno
+	maxFsINodeIno      solofstypes.FsINodeIno
 }
 
 func (p *FsINodeDriver) Init(soloosEnv *soloosbase.SoloosEnv,
@@ -37,22 +37,22 @@ func (p *FsINodeDriver) prepareINodes() error {
 	var err error
 
 	p.allocINodeIDDalta = 10000 * 10
-	for p.lastFsINodeIDInDB <= solofstypes.RootFsINodeID {
-		p.lastFsINodeIDInDB, err = FetchAndUpdateMaxID(p.dbConn, "b_fsinode", p.allocINodeIDDalta)
+	for p.lastFsINodeInoInDB <= solofstypes.RootFsINodeIno {
+		p.lastFsINodeInoInDB, err = FetchAndUpdateMaxID(p.dbConn, "b_fsinode", p.allocINodeIDDalta)
 		if err != nil {
 			return err
 		}
-		p.maxFsINodeID = p.lastFsINodeIDInDB
+		p.maxFsINodeIno = p.lastFsINodeInoInDB
 	}
 
 	return nil
 }
 
-func (p *FsINodeDriver) AllocFsINodeID() solofstypes.FsINodeID {
-	var ret = atomic.AddUint64(&p.maxFsINodeID, 1)
-	if p.lastFsINodeIDInDB-ret < p.allocINodeIDDalta/100 {
+func (p *FsINodeDriver) AllocFsINodeIno() solofstypes.FsINodeIno {
+	var ret = atomic.AddUint64(&p.maxFsINodeIno, 1)
+	if p.lastFsINodeInoInDB-ret < p.allocINodeIDDalta/100 {
 		util.AssertErrIsNil1(FetchAndUpdateMaxID(p.dbConn, "b_fsinode", p.allocINodeIDDalta))
-		p.lastFsINodeIDInDB += p.allocINodeIDDalta
+		p.lastFsINodeInoInDB += p.allocINodeIDDalta
 	}
 	return ret
 }

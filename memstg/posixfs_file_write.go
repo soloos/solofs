@@ -5,7 +5,7 @@ import (
 	"soloos/common/solofstypes"
 )
 
-func (p *PosixFs) SimpleWriteWithMem(fsINodeID solofstypes.FsINodeID,
+func (p *PosixFs) SimpleWriteWithMem(fsINodeIno solofstypes.FsINodeIno,
 	data []byte, offset uint64) error {
 
 	var (
@@ -14,7 +14,7 @@ func (p *PosixFs) SimpleWriteWithMem(fsINodeID solofstypes.FsINodeID,
 		err      error
 	)
 
-	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeID)
+	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeIno)
 	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
 	pFsINode = uFsINode.Ptr()
 	if err != nil {

@@ -14,7 +14,7 @@ import (
 )
 
 type FsINodeDriverHelper struct {
-	solofstypes.AllocFsINodeID
+	solofstypes.AllocFsINodeIno
 	solofstypes.GetNetINode
 	solofstypes.MustGetNetINode
 	solofstypes.ReleaseNetINode
@@ -52,7 +52,7 @@ func (p *FsINodeDriver) Init(
 	posixFs *PosixFs,
 	defaultNetBlockCap int,
 	defaultMemBlockCap int,
-	allocFsINodeID solofstypes.AllocFsINodeID,
+	allocFsINodeIno solofstypes.AllocFsINodeIno,
 	getNetINode solofstypes.GetNetINode,
 	mustGetNetINode solofstypes.MustGetNetINode,
 	releaseNetINode solofstypes.ReleaseNetINode,
@@ -74,7 +74,7 @@ func (p *FsINodeDriver) Init(
 	}
 
 	p.SetHelper(
-		allocFsINodeID,
+		allocFsINodeIno,
 		getNetINode,
 		mustGetNetINode,
 		releaseNetINode,
@@ -130,7 +130,7 @@ func (p *FsINodeDriver) fsINodesByIDTablePrepareNewObjectFunc(uFsINode solofstyp
 }
 
 func (p *FsINodeDriver) SetHelper(
-	allocFsINodeID solofstypes.AllocFsINodeID,
+	allocFsINodeIno solofstypes.AllocFsINodeIno,
 	getNetINode solofstypes.GetNetINode,
 	mustGetNetINode solofstypes.MustGetNetINode,
 	releaseNetINode solofstypes.ReleaseNetINode,
@@ -142,7 +142,7 @@ func (p *FsINodeDriver) SetHelper(
 	fetchFsINodeByNameFromDB solofstypes.FetchFsINodeByNameFromDB,
 ) {
 	p.helper = FsINodeDriverHelper{
-		AllocFsINodeID:              allocFsINodeID,
+		AllocFsINodeIno:              allocFsINodeIno,
 		GetNetINode:                 getNetINode,
 		MustGetNetINode:             mustGetNetINode,
 		ReleaseNetINode:             releaseNetINode,
@@ -159,22 +159,22 @@ func (p *FsINodeDriver) prepareBaseDir() error {
 	var (
 		uFsINode    solofstypes.FsINodeUintptr
 		fsINodeMeta solofstypes.FsINodeMeta
-		ino         solofstypes.FsINodeID
+		ino         solofstypes.FsINodeIno
 		code        fsapi.Status
 		err         error
 	)
 
-	ino = solofstypes.RootFsINodeID
+	ino = solofstypes.RootFsINodeIno
 	code = p.posixFs.SimpleMkdir(&fsINodeMeta, &ino, solofstypes.RootFsINodeParentID, 0777, "", 0, 0, solofstypes.FS_RDEV)
 	if code != fsapi.OK {
 		log.Warn("mkdir root error ", code)
 	}
 
-	ino, err = p.helper.AllocFsINodeID(p.posixFs.NameSpaceID)
+	ino, err = p.helper.AllocFsINodeIno(p.posixFs.NameSpaceID)
 	if err != nil {
 		return err
 	}
-	code = p.posixFs.SimpleMkdir(&fsINodeMeta, &ino, solofstypes.RootFsINodeID, 0777, "tmp", 0, 0, solofstypes.FS_RDEV)
+	code = p.posixFs.SimpleMkdir(&fsINodeMeta, &ino, solofstypes.RootFsINodeIno, 0777, "tmp", 0, 0, solofstypes.FS_RDEV)
 	if code != fsapi.OK {
 		log.Warn("mkdir tmp error", code)
 	}
@@ -192,7 +192,7 @@ func (p *FsINodeDriver) prepareBaseDir() error {
 	for i := 0; i < len(p.SysFsINode); i++ {
 		var (
 			uNewObject     offheap.LKVTableObjectUPtrWithUint64
-			newInoKey      = solofstypes.FsINodeID(i)
+			newInoKey      = solofstypes.FsINodeIno(i)
 			afterSetNewObj offheap.KVTableAfterSetNewObj
 		)
 		if newInoKey == p.RootFsINode.Ptr().Meta.Ino {
@@ -262,21 +262,21 @@ func (p *FsINodeDriver) commitFsINodeInCache(uFsINode solofstypes.FsINodeUintptr
 }
 
 func (p *FsINodeDriver) DeleteFsINodeCache(uFsINode solofstypes.FsINodeUintptr,
-	parentID solofstypes.FsINodeID, name string) {
+	parentID solofstypes.FsINodeIno, name string) {
 	p.fsINodesByIDTable.ForceDeleteAfterReleaseDone(offheap.LKVTableObjectUPtrWithUint64(uFsINode))
 }
 
-func (p *FsINodeDriver) CleanFsINodeAssitCache(parentID solofstypes.FsINodeID, fsINodeName string) {
+func (p *FsINodeDriver) CleanFsINodeAssitCache(parentID solofstypes.FsINodeIno, fsINodeName string) {
 	p.fsINodesByPath.Delete(p.MakeFsINodeKey(parentID, fsINodeName))
 }
 
-func (p *FsINodeDriver) GetFsINodeByIDThroughHardLink(fsINodeID solofstypes.FsINodeID) (solofstypes.FsINodeUintptr, error) {
+func (p *FsINodeDriver) GetFsINodeByIDThroughHardLink(fsINodeIno solofstypes.FsINodeIno) (solofstypes.FsINodeUintptr, error) {
 	var (
 		uFsINode solofstypes.FsINodeUintptr
 		err      error
 	)
 	for {
-		uFsINode, err = p.GetFsINodeByID(fsINodeID)
+		uFsINode, err = p.GetFsINodeByID(fsINodeIno)
 		if err == nil {
 			if uFsINode.Ptr().Meta.Type != solofstypes.FSINODE_TYPE_HARD_LINK {
 				return uFsINode, nil
@@ -287,13 +287,13 @@ func (p *FsINodeDriver) GetFsINodeByIDThroughHardLink(fsINodeID solofstypes.FsIN
 		if err != nil {
 			return 0, err
 		}
-		fsINodeID = uFsINode.Ptr().Meta.HardLinkIno
+		fsINodeIno = uFsINode.Ptr().Meta.HardLinkIno
 	}
 }
 
-func (p *FsINodeDriver) GetFsINodeByID(fsINodeID solofstypes.FsINodeID) (solofstypes.FsINodeUintptr, error) {
-	if fsINodeID < solofstypes.RootFsINodeID {
-		return p.SysFsINode[fsINodeID], nil
+func (p *FsINodeDriver) GetFsINodeByID(fsINodeIno solofstypes.FsINodeIno) (solofstypes.FsINodeUintptr, error) {
+	if fsINodeIno < solofstypes.RootFsINodeIno {
+		return p.SysFsINode[fsINodeIno], nil
 	}
 
 	var (
@@ -304,7 +304,7 @@ func (p *FsINodeDriver) GetFsINodeByID(fsINodeID solofstypes.FsINodeID) (solofst
 		err            error
 	)
 
-	uObject, afterSetNewObj = p.fsINodesByIDTable.MustGetObject(fsINodeID)
+	uObject, afterSetNewObj = p.fsINodesByIDTable.MustGetObject(fsINodeIno)
 	uFsINode = solofstypes.FsINodeUintptr(uObject)
 	pFsINode = uFsINode.Ptr()
 	p.fsINodesByIDTablePrepareNewObjectFunc(uFsINode, afterSetNewObj)
@@ -316,7 +316,7 @@ func (p *FsINodeDriver) GetFsINodeByID(fsINodeID solofstypes.FsINodeID) (solofst
 	pFsINode.IsDBMetaDataInited.LockContext()
 	if pFsINode.IsDBMetaDataInited.Load() == solodbtypes.MetaDataStateUninited ||
 		p.ensureFsINodeValidInCache(uFsINode) == false {
-		pFsINode.Meta, err = p.helper.FetchFsINodeByIDFromDB(p.posixFs.NameSpaceID, fsINodeID)
+		pFsINode.Meta, err = p.helper.FetchFsINodeByIDFromDB(p.posixFs.NameSpaceID, fsINodeIno)
 		if err != nil {
 			p.ReleaseFsINode(uFsINode)
 		} else {
@@ -332,7 +332,7 @@ func (p *FsINodeDriver) GetFsINodeByID(fsINodeID solofstypes.FsINodeID) (solofst
 	return uFsINode, nil
 }
 
-func (p *FsINodeDriver) GetFsINodeByName(parentID solofstypes.FsINodeID,
+func (p *FsINodeDriver) GetFsINodeByName(parentID solofstypes.FsINodeIno,
 	fsINodeName string) (solofstypes.FsINodeUintptr, error) {
 	var (
 		iObject  interface{}
@@ -442,13 +442,13 @@ func (p *FsINodeDriver) RefreshFsINodeACMtime(uFsINode solofstypes.FsINodeUintpt
 	return err
 }
 
-func (p *FsINodeDriver) RefreshFsINodeACMtimeByIno(fsINodeID solofstypes.FsINodeID) error {
+func (p *FsINodeDriver) RefreshFsINodeACMtimeByIno(fsINodeIno solofstypes.FsINodeIno) error {
 	var (
 		uFsINode solofstypes.FsINodeUintptr
 		err      error
 	)
 
-	uFsINode, err = p.GetFsINodeByID(fsINodeID)
+	uFsINode, err = p.GetFsINodeByID(fsINodeIno)
 	defer p.ReleaseFsINode(uFsINode)
 	if err != nil {
 		return err
@@ -469,7 +469,7 @@ func (p *FsINodeDriver) AllocNetINode(fsINodeMeta *solofstypes.FsINodeMeta) erro
 }
 
 func (p *FsINodeDriver) PrepareFsINodeForCreate(fsINodeMeta *solofstypes.FsINodeMeta,
-	fsINodeID *solofstypes.FsINodeID, netINodeID *solofstypes.NetINodeID, parentID solofstypes.FsINodeID,
+	fsINodeIno *solofstypes.FsINodeIno, netINodeID *solofstypes.NetINodeID, parentID solofstypes.FsINodeIno,
 	name string, fsINodeType int, mode uint32,
 	uid uint32, gid uint32, rdev uint32,
 ) error {
@@ -477,10 +477,10 @@ func (p *FsINodeDriver) PrepareFsINodeForCreate(fsINodeMeta *solofstypes.FsINode
 	now := p.Timer.Now()
 	nowt := solofstypes.DirTreeTime(now.Unix())
 	nowtnsec := solofstypes.DirTreeTimeNsec(now.UnixNano())
-	if fsINodeID != nil {
-		fsINodeMeta.Ino = *fsINodeID
+	if fsINodeIno != nil {
+		fsINodeMeta.Ino = *fsINodeIno
 	} else {
-		fsINodeMeta.Ino, err = p.helper.AllocFsINodeID(p.posixFs.NameSpaceID)
+		fsINodeMeta.Ino, err = p.helper.AllocFsINodeIno(p.posixFs.NameSpaceID)
 		if err != nil {
 			return err
 		}
@@ -527,6 +527,6 @@ func (p *FsINodeDriver) CreateFsINode(fsINodeMeta *solofstypes.FsINodeMeta) erro
 	return nil
 }
 
-func (p *FsINodeDriver) MakeFsINodeKey(parentID solofstypes.FsINodeID, fsINodeName string) string {
+func (p *FsINodeDriver) MakeFsINodeKey(parentID solofstypes.FsINodeIno, fsINodeName string) string {
 	return strconv.FormatUint(parentID, 10) + "_" + fsINodeName
 }

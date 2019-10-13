@@ -7,7 +7,7 @@ import (
 )
 
 func (p *FIXAttrDriver) DeleteFIXAttrInDB(nsID solofstypes.NameSpaceID,
-	fsINodeID solofstypes.FsINodeID) error {
+	fsINodeIno solofstypes.FsINodeIno) error {
 	var (
 		sess solodbapi.Session
 		err  error
@@ -19,7 +19,7 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(nsID solofstypes.NameSpaceID,
 	}
 
 	_, err = sess.DeleteFrom("b_fsinode_xattr").
-		Where("namespace_id=? and fsinode_ino=?", nsID, fsINodeID).
+		Where("namespace_id=? and fsinode_ino=?", nsID, fsINodeIno).
 		Exec()
 	if err != nil {
 		return err
@@ -29,7 +29,7 @@ func (p *FIXAttrDriver) DeleteFIXAttrInDB(nsID solofstypes.NameSpaceID,
 }
 
 func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nsID solofstypes.NameSpaceID,
-	fsINodeID solofstypes.FsINodeID,
+	fsINodeIno solofstypes.FsINodeIno,
 	xattr solofstypes.FsINodeXAttr) error {
 	var (
 		sess       solodbapi.Session
@@ -48,7 +48,7 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nsID solofstypes.NameSpaceID,
 	}
 
 	err = sess.ReplaceInto("b_fsinode_xattr").
-		PrimaryColumns("namespace_id", "fsinode_ino").PrimaryValues(nsID, fsINodeID).
+		PrimaryColumns("namespace_id", "fsinode_ino").PrimaryValues(nsID, fsINodeIno).
 		Columns("xattr").Values(xattrBytes).
 		Exec()
 	if err != nil {
@@ -59,7 +59,7 @@ func (p *FIXAttrDriver) ReplaceFIXAttrInDB(nsID solofstypes.NameSpaceID,
 }
 
 func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nsID solofstypes.NameSpaceID,
-	fsINodeID solofstypes.FsINodeID) (solofstypes.FsINodeXAttr, error) {
+	fsINodeIno solofstypes.FsINodeIno) (solofstypes.FsINodeXAttr, error) {
 	var (
 		sess    solodbapi.Session
 		sqlRows *sql.Rows
@@ -75,7 +75,7 @@ func (p *FIXAttrDriver) GetFIXAttrByInoFromDB(nsID solofstypes.NameSpaceID,
 
 	sqlRows, err = sess.Select("xattr").
 		From("b_fsinode_xattr").
-		Where("namespace_id=? and fsinode_ino=?", nsID, fsINodeID).
+		Where("namespace_id=? and fsinode_ino=?", nsID, fsINodeIno).
 		Limit(1).Rows()
 	if err != nil {
 		goto QUERY_DONE

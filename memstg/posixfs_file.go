@@ -12,7 +12,7 @@ func (p *PosixFs) SimpleOpenFile(fsINodePath string,
 	var (
 		paths       []string
 		i           int
-		parentID    solofstypes.FsINodeID = solofstypes.RootFsINodeID
+		parentID    solofstypes.FsINodeIno = solofstypes.RootFsINodeIno
 		fsINodeMeta solofstypes.FsINodeMeta
 		err         error
 	)

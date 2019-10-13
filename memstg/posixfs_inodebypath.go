@@ -118,7 +118,7 @@ func (p *PosixFs) FetchFsINodeByPath(fsINodeMeta *solofstypes.FsINodeMeta, fsINo
 	var (
 		paths    []string
 		i        int
-		parentID solofstypes.FsINodeID = solofstypes.RootFsINodeID
+		parentID solofstypes.FsINodeIno = solofstypes.RootFsINodeIno
 		err      error
 	)
 

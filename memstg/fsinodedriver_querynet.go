@@ -5,21 +5,21 @@ import (
 	"soloos/common/solofstypes"
 )
 
-func (p *FsINodeDriver) AllocFsINodeID(
-	nsID solofstypes.NameSpaceID) (solofstypes.FsINodeID, error) {
-	var ret = snet.Response{RespData: solofstypes.FsINodeID(0)}
-	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/AllocFsINodeID", &ret, nsID)
+func (p *FsINodeDriver) AllocFsINodeIno(
+	nsID solofstypes.NameSpaceID) (solofstypes.FsINodeIno, error) {
+	var ret = snet.Response{RespData: solofstypes.FsINodeIno(0)}
+	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/AllocFsINodeIno", &ret, nsID)
 	if err != nil {
 		return 0, err
 	}
-	return ret.RespData.(solofstypes.FsINodeID), err
+	return ret.RespData.(solofstypes.FsINodeIno), err
 }
 
 func (p *FsINodeDriver) DeleteFsINodeByIDInDB(
 	nsID solofstypes.NameSpaceID,
-	fsINodeID solofstypes.FsINodeID) error {
+	fsINodeIno solofstypes.FsINodeIno) error {
 	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/DeleteFsINodeByIDInDB", nil,
-		nsID, fsINodeID)
+		nsID, fsINodeIno)
 	if err != nil {
 		return err
 	}
@@ -50,10 +50,10 @@ func (p *FsINodeDriver) InsertFsINodeInDB(
 
 func (p *FsINodeDriver) FetchFsINodeByIDFromDB(
 	nsID solofstypes.NameSpaceID,
-	fsINodeID solofstypes.FsINodeID) (solofstypes.FsINodeMeta, error) {
+	fsINodeIno solofstypes.FsINodeIno) (solofstypes.FsINodeMeta, error) {
 	var ret = snet.Response{RespData: solofstypes.FsINodeMeta{}}
 	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/FetchFsINodeByIDFromDB", &ret,
-		nsID, fsINodeID)
+		nsID, fsINodeIno)
 	if err != nil {
 		return solofstypes.FsINodeMeta{}, err
 	}
@@ -62,7 +62,7 @@ func (p *FsINodeDriver) FetchFsINodeByIDFromDB(
 
 func (p *FsINodeDriver) FetchFsINodeByNameFromDB(
 	nsID solofstypes.NameSpaceID,
-	parentID solofstypes.FsINodeID,
+	parentID solofstypes.FsINodeIno,
 	fsINodeName string) (solofstypes.FsINodeMeta, error) {
 	var ret = snet.Response{RespData: solofstypes.FsINodeMeta{}}
 	var err = p.posixFs.MemStg.SolonnClient.Dispatch("/FsINode/FetchFsINodeByNameFromDB", &ret,
@@ -74,7 +74,7 @@ func (p *FsINodeDriver) FetchFsINodeByNameFromDB(
 }
 
 func (p *FsINodeDriver) ListFsINodeByParentIDFromDB(nsID solofstypes.NameSpaceID,
-	parentID solofstypes.FsINodeID,
+	parentID solofstypes.FsINodeIno,
 	isFetchAllCols bool,
 	beforeLiteralFunc func(resultCount int64) (fetchRowsLimit uint64, fetchRowsOffset uint64),
 	literalFunc func(solofstypes.FsINodeMeta) bool,

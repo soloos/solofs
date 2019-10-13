@@ -2,8 +2,8 @@ package memstg
 
 import "soloos/common/solofstypes"
 
-func (p *PosixFs) FdTableAllocFd(fsINodeID solofstypes.FsINodeID) solofstypes.FsINodeFileHandlerID {
-	return p.FdTable.AllocFd(fsINodeID)
+func (p *PosixFs) FdTableAllocFd(fsINodeIno solofstypes.FsINodeIno) solofstypes.FsINodeFileHandlerID {
+	return p.FdTable.AllocFd(fsINodeIno)
 }
 
 func (p *PosixFs) FdTableGetFd(fdID solofstypes.FsINodeFileHandlerID) solofstypes.FsINodeFileHandler {

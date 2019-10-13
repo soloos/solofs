@@ -8,12 +8,12 @@ import (
 // Extended attributes.
 func (p *PosixFs) GetXAttrSize(header *fsapi.InHeader, attr string) (int, fsapi.Status) {
 	var (
-		fsINodeID   = header.NodeId
+		fsINodeIno   = header.NodeId
 		fsINodeMeta solofstypes.FsINodeMeta
 		sz          int
 		err         error
 	)
-	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
+	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeIno)
 	if err != nil {
 		return 0, ErrorToFsStatus(err)
 	}
@@ -27,12 +27,12 @@ func (p *PosixFs) GetXAttrSize(header *fsapi.InHeader, attr string) (int, fsapi.
 
 func (p *PosixFs) GetXAttrData(header *fsapi.InHeader, attr string) ([]byte, fsapi.Status) {
 	var (
-		fsINodeID   = header.NodeId
+		fsINodeIno   = header.NodeId
 		fsINodeMeta solofstypes.FsINodeMeta
 		data        []byte
 		err         error
 	)
-	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
+	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeIno)
 	if err != nil {
 		return nil, ErrorToFsStatus(err)
 	}
@@ -46,12 +46,12 @@ func (p *PosixFs) GetXAttrData(header *fsapi.InHeader, attr string) ([]byte, fsa
 
 func (p *PosixFs) ListXAttr(header *fsapi.InHeader) ([]byte, fsapi.Status) {
 	var (
-		fsINodeID   = header.NodeId
+		fsINodeIno   = header.NodeId
 		fsINodeMeta solofstypes.FsINodeMeta
 		data        []byte
 		err         error
 	)
-	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeID)
+	err = p.FetchFsINodeByIDThroughHardLink(&fsINodeMeta, fsINodeIno)
 	if err != nil {
 		return nil, ErrorToFsStatus(err)
 	}
@@ -64,15 +64,15 @@ func (p *PosixFs) ListXAttr(header *fsapi.InHeader) ([]byte, fsapi.Status) {
 }
 
 func (p *PosixFs) SetXAttr(input *fsapi.SetXAttrIn, attr string, data []byte) fsapi.Status {
-	var fsINodeID = input.NodeId
+	var fsINodeIno = input.NodeId
 	var err error
-	err = p.FIXAttrDriver.SetXAttr(fsINodeID, attr, data)
+	err = p.FIXAttrDriver.SetXAttr(fsINodeIno, attr, data)
 	return ErrorToFsStatus(err)
 }
 
 func (p *PosixFs) RemoveXAttr(header *fsapi.InHeader, attr string) fsapi.Status {
-	var fsINodeID = header.NodeId
+	var fsINodeIno = header.NodeId
 	var err error
-	err = p.FIXAttrDriver.RemoveXAttr(fsINodeID, attr)
+	err = p.FIXAttrDriver.RemoveXAttr(fsINodeIno, attr)
 	return ErrorToFsStatus(err)
 }

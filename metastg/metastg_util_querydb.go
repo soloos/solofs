@@ -6,12 +6,12 @@ import (
 	"soloos/common/solofstypes"
 )
 
-func FetchAndUpdateMaxID(dbConn *solodbapi.Connection, key string, delta solofstypes.FsINodeID) (solofstypes.FsINodeID, error) {
+func FetchAndUpdateMaxID(dbConn *solodbapi.Connection, key string, delta solofstypes.FsINodeIno) (solofstypes.FsINodeIno, error) {
 	var (
 		sess         solodbapi.Session
 		sqlRows      *sql.Rows
 		isNeedInsert bool
-		maxid        solofstypes.FsINodeID
+		maxid        solofstypes.FsINodeIno
 		err          error
 	)
 

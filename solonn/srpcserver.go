@@ -38,7 +38,7 @@ func (p *SrpcServer) Init(solonn *Solonn,
 
 	p.srpcServer.RegisterService("/NetBlock/PrepareMetaData", p.NetBlockPrepareMetaData)
 
-	p.srpcServer.RegisterService("/FsINode/AllocFsINodeID", p.solonn.metaStg.AllocFsINodeID)
+	p.srpcServer.RegisterService("/FsINode/AllocFsINodeIno", p.solonn.metaStg.AllocFsINodeIno)
 	p.srpcServer.RegisterService("/FsINode/DeleteFsINodeByIDInDB", p.solonn.metaStg.DeleteFsINodeByIDInDB)
 	p.srpcServer.RegisterService("/FsINode/UpdateFsINodeInDB", p.solonn.metaStg.UpdateFsINodeInDB)
 	p.srpcServer.RegisterService("/FsINode/InsertFsINodeInDB", p.solonn.metaStg.InsertFsINodeInDB)

@@ -6,12 +6,12 @@ import (
 )
 
 func (p *PosixFs) FetchFsINodeByID(pFsINodeMeta *solofstypes.FsINodeMeta,
-	fsINodeID solofstypes.FsINodeID) error {
+	fsINodeIno solofstypes.FsINodeIno) error {
 	var (
 		uFsINode solofstypes.FsINodeUintptr
 		err      error
 	)
-	uFsINode, err = p.FsINodeDriver.GetFsINodeByID(fsINodeID)
+	uFsINode, err = p.FsINodeDriver.GetFsINodeByID(fsINodeIno)
 	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
 	if err != nil {
 		return err
@@ -22,7 +22,7 @@ func (p *PosixFs) FetchFsINodeByID(pFsINodeMeta *solofstypes.FsINodeMeta,
 }
 
 func (p *PosixFs) FetchFsINodeByName(pFsINodeMeta *solofstypes.FsINodeMeta,
-	parentID solofstypes.FsINodeID, fsINodeName string) error {
+	parentID solofstypes.FsINodeIno, fsINodeName string) error {
 	var (
 		uFsINode solofstypes.FsINodeUintptr
 		err      error
@@ -38,12 +38,12 @@ func (p *PosixFs) FetchFsINodeByName(pFsINodeMeta *solofstypes.FsINodeMeta,
 }
 
 func (p *PosixFs) FetchFsINodeByIDThroughHardLink(pFsINodeMeta *solofstypes.FsINodeMeta,
-	fsINodeID solofstypes.FsINodeID) error {
+	fsINodeIno solofstypes.FsINodeIno) error {
 	var (
 		uFsINode solofstypes.FsINodeUintptr
 		err      error
 	)
-	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeID)
+	uFsINode, err = p.FsINodeDriver.GetFsINodeByIDThroughHardLink(fsINodeIno)
 	defer p.FsINodeDriver.ReleaseFsINode(uFsINode)
 	if err != nil {
 		return err
@@ -54,8 +54,8 @@ func (p *PosixFs) FetchFsINodeByIDThroughHardLink(pFsINodeMeta *solofstypes.FsIN
 }
 
 func (p *PosixFs) createFsINode(pFsINodeMeta *solofstypes.FsINodeMeta,
-	fsINodeID *solofstypes.FsINodeID,
-	netINodeID *solofstypes.NetINodeID, parentID solofstypes.FsINodeID,
+	fsINodeIno *solofstypes.FsINodeIno,
+	netINodeID *solofstypes.NetINodeID, parentID solofstypes.FsINodeIno,
 	name string, fsINodeType int, mode uint32,
 	uid uint32, gid uint32, rdev uint32,
 ) error {
@@ -63,7 +63,7 @@ func (p *PosixFs) createFsINode(pFsINodeMeta *solofstypes.FsINodeMeta,
 		err error
 	)
 	err = p.FsINodeDriver.PrepareFsINodeForCreate(pFsINodeMeta,
-		fsINodeID, netINodeID, parentID,
+		fsINodeIno, netINodeID, parentID,
 		name, fsINodeType, mode,
 		uid, gid, rdev)
 	if err != nil {
@@ -278,8 +278,8 @@ func (p *PosixFs) CheckPermissionExecute(uid uint32, gid uint32,
 	return false
 }
 
-func (p *PosixFs) RefreshFsINodeACMtimeByIno(fsINodeID solofstypes.FsINodeID) error {
-	return p.FsINodeDriver.RefreshFsINodeACMtimeByIno(fsINodeID)
+func (p *PosixFs) RefreshFsINodeACMtimeByIno(fsINodeIno solofstypes.FsINodeIno) error {
+	return p.FsINodeDriver.RefreshFsINodeACMtimeByIno(fsINodeIno)
 }
 
 func (p *PosixFs) TruncateINode(pFsINode *solofstypes.FsINodeMeta, size uint64) error {

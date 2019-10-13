@@ -22,7 +22,7 @@ func GoSolofsPappend(fdID uint64, buffer unsafe.Pointer, bufferLen, offset int32
 		Cap:  int(bufferLen),
 	}))
 
-	err = env.solofsClient.SimpleWriteWithMem(fd.FsINodeID, data, uint64(offset))
+	err = env.solofsClient.SimpleWriteWithMem(fd.FsINodeIno, data, uint64(offset))
 	if err != nil {
 		return 0, solofsapi.CODE_ERR
 	}
@@ -42,7 +42,7 @@ func GoSolofsAppend(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32,
 		Len:  int(bufferLen),
 		Cap:  int(bufferLen),
 	}))
-	err = env.solofsClient.SimpleWriteWithMem(fd.FsINodeID, data, fd.AppendPosition)
+	err = env.solofsClient.SimpleWriteWithMem(fd.FsINodeIno, data, fd.AppendPosition)
 	if err != nil {
 		log.Warn(err)
 		return 0, solofsapi.CODE_ERR
@@ -66,7 +66,7 @@ func GoSolofsRead(fdID uint64, buffer unsafe.Pointer, bufferLen int32) (int32, C
 		Len:  int(bufferLen),
 		Cap:  int(bufferLen),
 	}))
-	readDataLength, err = env.solofsClient.SimpleReadWithMem(fd.FsINodeID, data, fd.ReadPosition)
+	readDataLength, err = env.solofsClient.SimpleReadWithMem(fd.FsINodeIno, data, fd.ReadPosition)
 	if err != nil && err != io.EOF {
 		log.Warn(err, readDataLength)
 		return int32(readDataLength), solofsapi.CODE_ERR
@@ -91,7 +91,7 @@ func GoSolofsPread(fdID uint64, buffer unsafe.Pointer, bufferLen int32, position
 		Cap:  int(bufferLen),
 	}))
 
-	readDataLength, err = env.solofsClient.SimpleReadWithMem(fd.FsINodeID, data, position)
+	readDataLength, err = env.solofsClient.SimpleReadWithMem(fd.FsINodeIno, data, position)
 	if err != nil {
 		return int32(readDataLength), solofsapi.CODE_ERR
 	}
@@ -126,7 +126,7 @@ func doFlushINode(fdID uint64) C.int {
 		fd = env.solofsClient.FdTableGetFd(fdID)
 	)
 
-	env.solofsClient.SimpleFlush(fd.FsINodeID)
+	env.solofsClient.SimpleFlush(fd.FsINodeIno)
 
 	return solofsapi.CODE_OK
 }
